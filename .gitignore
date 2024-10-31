@@ -1,0 +1,10 @@
+/datasets_labeled
+/inference_predictions
+/validation_predictions
+/images
+/models/canicas/**/train*
+*.avi
+*.onnx
+*.engine
+*.pt
+*.zip

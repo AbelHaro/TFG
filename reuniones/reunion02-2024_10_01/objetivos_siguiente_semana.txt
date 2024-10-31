@@ -1,0 +1,5 @@
+01/10/2024 
+  - Hacer un dataset más grande con una mayor cantidad de imágenes, añadir impostores y variedad de fondos.
+  - Etiquetar todas las clases de colores posibles de los colores de las canicas.
+  - Ver cuántas inferencias por segundo puede realizar el modelo.
+  

@@ -1,0 +1,9 @@
+Título: Aplicación industrial para la detección de defectos en el procesado de la fruta.
+
+Pasos:
+-Generación y toma de imágenes
+-Clasificación de imágenes
+-Selección de varios modelos de red neuronal
+-Entrenamiento / Reentrenamiento
+-Optimización para una Jetson Xavier
+-Comparación de rendimiento y consumo

@@ -1,0 +1,25 @@
+Recall (Recuperación)
+
+    Definición: El recall mide la capacidad del modelo para identificar correctamente todas las instancias relevantes de una clase particular. Se define como el número de verdaderos positivos (TP) dividido por la suma de verdaderos positivos y falsos negativos (FN):
+    Recall=TP/(TP+FN) TruePositive FalseNegative
+
+    Interpretación: Un alto recall indica que el modelo está detectando la mayoría de las instancias de la clase, aunque esto puede implicar también que se están generando más falsos positivos.
+
+2. Precision (Precisión)
+
+    Definición: La precisión mide la proporción de instancias detectadas que realmente son relevantes. Se define como el número de verdaderos positivos dividido por la suma de verdaderos positivos y falsos positivos (FP):
+    Precision=TP/(TP+FP) TruePositive FalsePositive
+
+    Interpretación: Un alto valor de precisión significa que el modelo hace pocas detecciones incorrectas. Es ideal en situaciones donde es importante minimizar los falsos positivos.
+
+3. mAP@50 (Mean Average Precision at IoU=0.5)
+
+    Definición: mAP (mean Average Precision) es una métrica que resume la precisión del modelo en diferentes niveles de recall. mAP@50 se refiere a la media de las precisiones calculadas en diferentes clases, con un umbral de intersección sobre la unión (IoU) de 0.5. Esto significa que una detección se considera correcta solo si el IoU entre la predicción y la verdad fundamental es al menos 0.5.
+
+    Interpretación: mAP@50 ofrece una medida de la precisión general del modelo en detección de objetos, con una configuración de umbral que se considera fácil, ya que un IoU de 0.5 es relativamente bajo.
+
+4. mAP@50-95 (Mean Average Precision at IoU=0.5 to 0.95)
+
+    Definición: mAP@50-95 amplía el concepto de mAP al evaluar la precisión en varios umbrales de IoU, desde 0.5 hasta 0.95 (incrementos de 0.05). Esto significa que el modelo se evalúa en una variedad más amplia de condiciones de superposición.
+
+    Interpretación: Esta métrica es más rigurosa que mAP@50, ya que tiene en cuenta las detecciones correctas en condiciones más exigentes. Proporciona una evaluación más completa del rendimiento del modelo en tareas de detección de objetos, mostrando cómo se comporta a medida que se aumenta el umbral de IoU.

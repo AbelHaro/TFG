@@ -1,0 +1,4 @@
+-Configuración del docker donde se ejecuta la inferencia usando la gpu
+-WebCam usable desde el contenedor
+-Tracking de videos
+-Intento de uso de cmts
