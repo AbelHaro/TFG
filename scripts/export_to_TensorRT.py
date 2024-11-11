@@ -22,6 +22,7 @@ for model_name in models_name:
         #half=True,
         int8=True,
         device=0,
+        
     )
 
     # Cargar el modelo TensorRT exportado
