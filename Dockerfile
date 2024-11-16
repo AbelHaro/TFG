@@ -19,11 +19,7 @@ RUN pip install ultralytics
 # Instala onnxruntime
 RUN pip install onnxslim==0.1.34
 
-
-#COPY . /TFG
-
-# Establece el directorio de trabajo en /TFG
 WORKDIR /TFG
 
-# Comando por defecto
 CMD ["/bin/bash"]
+  

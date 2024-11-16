@@ -4,9 +4,9 @@ import shutil
 from math import floor
 
 # Rutas de las carpetas de origen y destino
-source_images_dir = '../datasets_labeled/2024_10_24_canicas_dataset/images'
-source_labels_dir = '../datasets_labeled/2024_10_24_canicas_dataset/labels'
-dest_base_dir = '../datasets_labeled/2024_10_24_canicas_dataset'
+source_images_dir = '../datasets_labeled/2024_11_15_canicas_dataset/images'
+source_labels_dir = '../datasets_labeled/2024_11_15_canicas_dataset/labels'
+dest_base_dir = '../datasets_labeled/2024_11_15_canicas_dataset'
 
 # Proporciones
 train_ratio = 0.8
