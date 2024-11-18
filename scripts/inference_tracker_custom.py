@@ -2,6 +2,7 @@ import cv2
 from ultralytics import YOLO
 import os
 
+
 # Definir funciones
 
 def actualizar_memoria(track_id, clase_detectada, memory):
@@ -30,7 +31,7 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
 
     # Configurar el escritor de video para guardar el video procesado
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Usar el códec mp4v
-    out = cv2.VideoWriter(output_video_path, fourcc, 30, (frame_width, frame_height))
+    out = cv2.VideoWriter(output_video_path, fourcc, 20, (frame_width, frame_height))
 
     total_time = 0
     frame_count = 0  # Contador de frames procesados
@@ -51,8 +52,8 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
     }
 
     while cap.isOpened():
-        t1 = cv2.getTickCount()
         ret, frame = cap.read()
+
         if not ret:
             break
 
@@ -66,8 +67,6 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
         )
 
         if results[0].boxes.id is None:
-            t2 = cv2.getTickCount()
-            total_time += (t2 - t1) / cv2.getTickFrequency()
             frame_count += 1  # Contabilizar este frame
             # Escribir el frame aunque no haya detección
             out.write(frame)
@@ -77,13 +76,14 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
         boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
         ids = results[0].boxes.id.cpu().numpy().astype(int)
         classes = results[0].boxes.cls.cpu().numpy().astype(int)
+        confs = results[0].boxes.conf.cpu().numpy().astype(float)
                 
         total_preprocess_time += results[0].speed['preprocess']
         total_inference_time += results[0].speed['inference']
         total_postprocess_time += results[0].speed['postprocess']
 
-        # Actualizar la memoria con las detecciones y dibujar los resultados
-        for box, obj_id, cls in zip(boxes, ids, classes):
+        # Dentro del bucle for que itera sobre las detecciones:
+        for box, obj_id, cls, conf in zip(boxes, ids, classes, confs):
             xmin, ymin, xmax, ymax = box
             clase_detectada = clases[cls]
 
@@ -99,37 +99,50 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
             # Dibujar rectángulo alrededor del objeto detectado
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
 
-            # Agregar texto con el ID y estado
-            cv2.putText(frame, f'{obj_id}:{clase_detectada}', (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
-            
-            memory[obj_id]['frames_visibles'] -= 1  # Decrementar el contador de frames visibles
-            if memory[obj_id]['frames_visibles'] == 0:
-                memory.pop(obj_id)
+            # Crear el texto a dibujar
+            texto = f'ID:{obj_id} {clase_detectada} {conf:.2f}'
+
+            # Calcular el tamaño del texto
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = 0.5
+            thickness = 2
+            (text_width, text_height), baseline = cv2.getTextSize(texto, font, font_scale, thickness)
+
+            # Coordenadas del rectángulo de fondo para el texto
+            rect_x1 = xmin
+            rect_y1 = ymin - 10 - text_height - baseline  # Parte superior del rectángulo
+            rect_x2 = xmin + text_width
+            rect_y2 = ymin - 10  # Parte inferior del rectángulo
+
+            # Dibujar el rectángulo del color correspondiente
+            cv2.rectangle(frame, (rect_x1, rect_y1), (rect_x2, rect_y2), color, -1)
+
+            # Dibujar el texto en blanco sobre el rectángulo
+            cv2.putText(frame, texto, (xmin, ymin - 10), font, font_scale, (255, 255, 255), thickness)
+
 
         # Escribir el frame procesado al video de salida
         out.write(frame)
+        
+        for track_id in memory.copy():
+            memory[track_id]['frames_visibles'] -= 1
+            if memory[track_id]['frames_visibles'] <= 0:
+                del memory[track_id]
 
         # Calcular el tiempo de procesamiento
-        t2 = cv2.getTickCount()
-        total_time += (t2 - t1) / cv2.getTickFrequency()
         frame_count += 1  # Contabilizar este frame
 
     cap.release()
     out.release()  # Liberar el escritor de video
+    
 
-    # Calcular el tiempo medio por frame
-    if frame_count > 0:
-        average_time_per_frame = total_time / frame_count
-    else:
-        average_time_per_frame = 0
-
-    return frame_count, total_time, average_time_per_frame, total_preprocess_time, total_inference_time, total_postprocess_time
+    return frame_count, total_preprocess_time, total_inference_time, total_postprocess_time
 
 
 def main():
     # Parámetros del modelo y archivo de salida
     model_path = '../models/canicas/2024_11_15/2024_11_15_canicas_yolo11n.engine'
-    video_path = '../datasets_labeled/videos/video_con_defectos.mp4'
+    video_path = '../datasets_labeled/videos/video_general_defectos.mp4'
     output_dir = '../inference_predictions/custom_tracker'
 
     # Asegurarse de que el directorio de salida exista
@@ -157,23 +170,30 @@ def main():
     memory = {}
 
     # Procesar el video y obtener el tiempo medio por frame
-    frame_count, total_time, average_time_per_frame, total_preprocess_time, total_inference_time, total_postprocess_time = procesar_video(video_path, model, output_video_path, clases, memory)
+    total_time = cv2.getTickCount()
+    frame_count, total_preprocess_time, total_inference_time, total_postprocess_time = procesar_video(video_path, model, output_video_path, clases, memory)
 
+    total_time = (cv2.getTickCount() - total_time) / cv2.getTickFrequency()  # Tiempo total en segundos
+    average_time_per_frame = total_time / frame_count  # Tiempo medio por frame en segundos
     # Mostrar el tiempo medio por frame
     print(f'Número de frames procesados: {frame_count}')
     print(f'Tiempo total de procesamiento: {total_time:.3f} segundos')
     print(f'Tiempo medio por frame: {average_time_per_frame * 1000 :.3f} ms')
     
-    print(f'Tiempo total de preprocess, inference y postprocess: {total_preprocess_time + total_inference_time + total_postprocess_time:.3f} segundos')
-    print(f'Tiempo medio de preprocess: {total_preprocess_time / frame_count:.3f} ms')
-    print(f'Tiempo medio de inference: {total_inference_time / frame_count:.3f} ms')
+    print(f'Tiempo total de preprocess, inference y postprocess: {(total_preprocess_time + total_inference_time + total_postprocess_time) / 1000:.3f} segundos')
+    print(f'Tiempo total de preprocess: {total_preprocess_time / 1000:.3f} segundos')
+    print(f'Tiempo total de inference: {total_inference_time / 1000:.3f} segundos')
+    print(f'Tiempo total de postprocess: {total_postprocess_time / 1000:.3f} segundos')
+    print(f'Tiempo medio de preprocess: {total_preprocess_time / 1000:.3f} segundos')
+    print(f'Tiempo medio de inference: {total_inference_time / 1000:.3f} segundos')
     print(f'Tiempo medio de postprocess: {total_postprocess_time / frame_count:.3f} ms')
     
     print(f'Porcentaje de tiempo en inferencia respecto al total: {(total_preprocess_time + total_inference_time + total_postprocess_time) / (total_time * 1000) * 100:.2f}%')
+    print(f'Tiempo en CPU: {total_time - (total_preprocess_time + total_inference_time + total_postprocess_time) / 1000:.3f} segundos')
     
     tiempo_30fps = frame_count / 30
     
-    print(f'Tiempo máximo de procesamiento maximizar la tasa de frames de la cámara (30FPS): {tiempo_30fps:.3f} segundos')
+    print(f'Tiempo máximo de procesamiento maximizar la tasa de frames de la cámara (20FPS): {tiempo_30fps:.3f} segundos')
     print(f'Velocidad de procesamiento: {1 / average_time_per_frame:.2f} FPS')
 
 

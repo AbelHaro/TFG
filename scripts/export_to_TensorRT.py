@@ -8,7 +8,7 @@ output_dir = "../inference_predictions"
 models_name = [
     f"{version}_canicas_yolo11n.pt",
     #f"{version}_canicas_yolo11s.pt",
-    f"{version}_canicas_yolo11m.pt",
+    #f"{version}_canicas_yolo11m.pt",
     #f"{version}_canicas_yolo11l.pt",
     #f"{version}_canicas_yolo11x.pt",
 ]
@@ -21,10 +21,10 @@ for model_name in models_name:
     model.export(
         data=data_dir,
         format="engine",
-        half=True,
-        #int8=True,
+        #half=True,
+        int8=True,
         device=0,
-        
+        workspace=32,
     )
 
     # Cargar el modelo TensorRT exportado
