@@ -16,4 +16,3 @@ results = model.track(source=video_path, save=True,project=output_dir, half=Fals
 t2 = cv2.getTickCount()
 time = (t2 - t1) / cv2.getTickFrequency()
 print(f"Tiempo total de procesamiento: {time:.3f} segundos")
-print(results[0])

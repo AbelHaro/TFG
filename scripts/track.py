@@ -3,8 +3,8 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
-model_path = "../models/canicas/2024_11_15/2024_11_15_canicas_yolo11m.pt"
-video_path = "../datasets_labeled/videos/video_con_defectos.mp4"
+model_path = "../models/canicas/2024_11_15/2024_11_15_canicas_yolo11n.engine"
+video_path = '../datasets_labeled/videos/video_general_defectos_3.mp4'
 output_dir = "../inference_predictions"
 
 model = YOLO(model_path)

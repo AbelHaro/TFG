@@ -6,7 +6,7 @@ if not exists_gpu():
     exit()
 
 model_path = '../models/canicas/2024_11_15/2024_11_15_canicas_yolo11n.engine'
-video_path = '../datasets_labeled/videos/video_general_defectos.mp4'
+video_path = '../datasets_labeled/videos/video_general_defectos_3.mp4'
 output_dir = "../inference_predictions"
 
 model = YOLO(model_path)
