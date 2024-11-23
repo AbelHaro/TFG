@@ -54,7 +54,7 @@ def process_frames(frame_queue, result_queue, model):
             result_queue.put(None)
             break
         t1 = cv2.getTickCount()
-        results = model.track(source=frame, device=0, task='detect', tracker='bytetrack.yaml')
+        results = model.track(source=frame, device=0, persist=True, task='detect', tracker='bytetrack.yaml')
         t2 = cv2.getTickCount()
         total_time_processing += (t2 - t1) / cv2.getTickFrequency()
 
