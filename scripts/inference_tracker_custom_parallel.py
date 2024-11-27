@@ -27,7 +27,7 @@ def update_memory(track_id, detected_class, memory):
         memory[track_id] = {'defective': detected_class.endswith('-d'), 'visible_frames': 30}
     else:
         memory[track_id]['defective'] |= detected_class.endswith('-d')
-        memory[track_id]['visible_frames'] = 30  # Reset counter
+        memory[track_id]['visible_frames'] = 60  # Reset counter
 
         if memory[track_id]['defective'] and not detected_class.endswith('-d'):
             detected_class = detected_class + '-d'
@@ -58,7 +58,7 @@ def process_frames(frame_queue, detection_queue, model):
             detection_queue.put(None)
             break
         t1 = cv2.getTickCount()
-        results = model.predict(source=frame, device=0, task='detect')
+        results = model.predict(source=frame, device=0, conf=0.2, imgsz = (640, 640), half=True, augment=True,  task='detect')
         t2 = cv2.getTickCount()
         total_time_processing += (t2 - t1) / cv2.getTickFrequency()
         detection_queue.put((frame, results[0]))
@@ -73,7 +73,7 @@ def tracking_frames(detection_queue, tracking_queue):
         track_high_thresh=0.25,
         track_low_thresh=0.1,
         new_track_thresh=0.25,
-        track_buffer=30,
+        track_buffer=60,
         match_thresh=0.8,
         fuse_score=True
     )
@@ -128,6 +128,8 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
             detected_class = classes[cls]
 
             update_memory(obj_id, detected_class, memory)
+            if conf < 0.7:
+                continue
             detected_class = memory[obj_id]['class']
             color = colors.get(detected_class, (255, 255, 255))
 
@@ -149,7 +151,7 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
 
 def main():
     model_path = '../models/canicas/2024_11_15/2024_11_15_canicas_yolo11n.engine'
-    video_path = '../datasets_labeled/videos/video_general_defectos_3.mp4'
+    video_path = '../datasets_labeled/videos/video_muchas_canicas.mp4'
     output_dir = '../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'video_con_tracking.mp4')
@@ -161,7 +163,7 @@ def main():
     }
     memory = {}
     
-    model = YOLO(model_path)
+    model = YOLO(model_path, task='detect')
 
     frame_queue = Queue(maxsize=10)
     detection_queue = Queue(maxsize=10)
