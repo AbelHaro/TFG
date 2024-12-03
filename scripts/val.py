@@ -6,15 +6,23 @@ from check_gpu_exists import exists_gpu
 if not exists_gpu():
     exit()
 
-model_path = "../models/canicas/2024_10_24/2024_10_24_canicas_yolo11n_FP16.engine"
-data_path = "/TFG/datasets_labeled/2024_10_24_canicas_dataset/data.yaml"
+data_path = "/TFG/datasets_labeled/fotos_muy_juntas/data.yaml"
 output_dir = "../validation_predictions"
+
+models_paths = [
+    "../models/canicas/2024_11_15/2024_11_15_canicas_yolo11n_FP16.engine",
+    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine",
+    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_INT8.engine",
+                ]
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
+    
+for model_path in models_paths:
+    print(f"VALIDATING MODEL: {model_path}")
+    
+    model = YOLO(model_path)
 
-model = YOLO(model_path)
+    metrics = results = model.val(data=data_path, batch=-1, half=True, plots=True, project=output_dir, conf=0.4, device=0, split='test') 
 
-metrics = results = model.val(data=data_path, batch=-1, save_hybrid=True, save_json=True, half=True, plots=True, project=output_dir, conf=0.2, device=0) 
-
-print(metrics.box.map)      
+    print(metrics.box.map)      

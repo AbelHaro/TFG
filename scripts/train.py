@@ -9,9 +9,9 @@ if not exists_gpu():
     exit()
 
 # Definir el directorio de salida y el conjunto de datos
-version = "2024_11_15"
+version = "2024_11_28"
 output_dir = f"/TFG/models/canicas/{version}/"
-dataset_dir = "/TFG/datasets_labeled/2024_11_15_canicas_dataset/data.yaml"
+dataset_dir = "/TFG/datasets_labeled/2024_11_28_canicas_dataset/data.yaml"
 
 # Crear el directorio de salida si no existe
 if not os.path.exists(output_dir):
@@ -21,7 +21,7 @@ if not os.path.exists(output_dir):
 base_models = [
     "yolo11n.pt",
     #"yolo11s.pt",
-    "yolo11m.pt",
+    #"yolo11m.pt",
     # "yolo11l.pt",
     #"yolo11x.pt",
 ]
@@ -35,7 +35,7 @@ for base_model in base_models:
     model = YOLO(base_model)
 
     # Entrenamiento del modelo
-    results = model.train(data=dataset_dir, epochs=50, device=0, imgsz=640)
+    results = model.train(data=dataset_dir, epochs=30, device=0, imgsz=640)
     
     # Definir la ruta completa para guardar el modelo
     save_path = os.path.join(output_dir, f"{version}_canicas_{base_model}")

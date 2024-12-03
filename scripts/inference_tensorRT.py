@@ -1,79 +1,84 @@
+import tensorrt as trt
+import pycuda.driver as cuda
+import pycuda.autoinit
 import numpy as np
 import cv2
-import pycuda.driver as cuda
-import pycuda.autoinit  # Initializes CUDA driver
-import tensorrt as trt
 
-# Configuración de TensorRT
-TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
-
+# Load the TensorRT engine
 def load_engine(engine_file_path):
-    """Carga el modelo TensorRT desde un archivo .engine."""
-    with open(engine_file_path, "rb") as f:
-        return trt.Runtime(TRT_LOGGER).deserialize_cuda_engine(f.read())
+    TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
+    with open(engine_file_path, "rb") as f, trt.Runtime(TRT_LOGGER) as runtime:
+        engine = runtime.deserialize_cuda_engine(f.read())
+    return engine
 
+# Allocate buffers for input and output
 def allocate_buffers(engine):
-    """Asigna memoria para los buffers de entrada y salida."""
     inputs = []
     outputs = []
     bindings = []
     stream = cuda.Stream()
 
     for binding in engine:
-        size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
+        size = trt.volume(engine.get_binding_shape(binding))
         dtype = trt.nptype(engine.get_binding_dtype(binding))
-        buffer = cuda.mem_alloc(size * np.dtype(dtype).itemsize)
-        bindings.append(int(buffer))
-
+        host_mem = cuda.pagelocked_empty(size, dtype)
+        device_mem = cuda.mem_alloc(host_mem.nbytes)
+        bindings.append(int(device_mem))
         if engine.binding_is_input(binding):
-            inputs.append(buffer)
+            inputs.append({'host': host_mem, 'device': device_mem})
         else:
-            outputs.append(buffer)
-
+            outputs.append({'host': host_mem, 'device': device_mem})
     return inputs, outputs, bindings, stream
 
-def infer(engine, inputs, outputs, bindings, stream, image):
-    """Realiza la inferencia utilizando el modelo TensorRT."""
-    # Copiar la imagen a la memoria de entrada
-    cuda.memcpy_htod(inputs[0], image)
+# Run inference
+def do_inference(context, bindings, inputs, outputs, stream):
+    [cuda.memcpy_htod_async(inp['device'], inp['host'], stream) for inp in inputs]
+    context.execute_async_v2(bindings=bindings, stream_handle=stream.handle)
+    [cuda.memcpy_dtoh_async(out['host'], out['device'], stream) for out in outputs]
+    stream.synchronize()
+    return [out['host'] for out in outputs]
 
-    # Ejecutar la inferencia
-    engine.execute_v2(bindings=bindings)
-
-    # Copiar el resultado de la memoria de salida
-    cuda.memcpy_dtoh(outputs[0], outputs[0])
-
-    return outputs[0]
-
-def preprocess_image(image_path, input_shape):
-    """Carga y preprocesa la imagen para la inferencia."""
+# Preprocess the input image
+def preprocess_image(image_path, input_shape=(1, 3, 640, 640)):
     image = cv2.imread(image_path)
-    image = cv2.resize(image, (input_shape[2], input_shape[1]))  # Resize to (width, height)
-    image = image.transpose((2, 0, 1))  # Cambia el orden a (C, H, W)
-    image = np.ascontiguousarray(image, dtype=np.float32)  # Asegura que sea contiguo
-    image = image[np.newaxis, :]  # Añade la dimensión del batch
-    return image
+    image_resized = cv2.resize(image, (input_shape[2], input_shape[1]))
+    image_rgb = cv2.cvtColor(image_resized, cv2.COLOR_BGR2RGB)
+    image_normalized = image_rgb.astype(np.float32) / 255.0
+    image_transposed = np.transpose(image_normalized, (2, 0, 1))
+    return np.expand_dims(image_transposed, axis=0)
 
-def main():
-    # Configuración del modelo y archivo de imagen
-    engine_file_path = '../models/canicas/2024_10_24/2024_10_24_canicas_yolo11n_INT8.engine'  # Cambia por tu archivo .engine
-    image_path = '../datasets_labeled/2024_10_24_canicas_dataset/val/images/94.png'  # Cambia por la ruta de tu imagen
+# Postprocess the output (adjust for your model's specific output format)
+def postprocess_output(output, conf_threshold=0.5):
+    boxes, scores, classes = output[0].reshape(-1, 4), output[1], output[2]
+    indices = np.where(scores > conf_threshold)
+    return boxes[indices], scores[indices], classes[indices]
 
-    # Cargar el motor TensorRT
-    engine = load_engine(engine_file_path)
+# Visualize detections
+def visualize_detections(image_path, boxes, scores, classes):
+    image = cv2.imread(image_path)
+    for box, score, cls in zip(boxes, scores, classes):
+        x1, y1, x2, y2 = map(int, box)
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(image, f"Class: {int(cls)}, Score: {score:.2f}", 
+                    (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+    cv2.imshow('Detections', image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-    # Asignar buffers
+# Main function
+if __name__ == "__main__":
+    engine_path = "../models/canicas/2024_11_15/2024_11_15_canicas_yolo11n.engine"  # Path to your TensorRT engine file
+    image_path = "../datasets_labeled/2024_11_15_canicas_dataset/test/images/383.png"      # Path to the input image
+
+    engine = load_engine(engine_path)
+    print("Engine loaded", engine)
     inputs, outputs, bindings, stream = allocate_buffers(engine)
 
-    # Preprocesar la imagen
-    input_shape = (1, 3, 640, 640)  # Cambia según las dimensiones de entrada de tu modelo
-    image = preprocess_image(image_path, input_shape)
+    with engine.create_execution_context() as context:
+        input_image = preprocess_image(image_path)
+        np.copyto(inputs[0]['host'], input_image.ravel())
 
-    # Realizar la inferencia
-    output = infer(engine, inputs, outputs, bindings, stream, image)
+        output = do_inference(context, bindings, inputs, outputs, stream)
+        boxes, scores, classes = postprocess_output(output)
 
-    # Procesar la salida (por ejemplo, imprimir el resultado)
-    print("Resultado de la inferencia:", output)
-
-if __name__ == '__main__':
-    main()
+        visualize_detections(image_path, boxes, scores, classes)

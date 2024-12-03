@@ -5,6 +5,7 @@ import threading
 from queue import Queue
 from ultralytics.trackers.byte_tracker import BYTETracker
 from argparse import Namespace
+import numpy as np
 
 # Variables globales para el tiempo
 total_time_capturing = 0
@@ -12,6 +13,57 @@ total_time_processing = 0
 total_time_tracking = 0
 total_time_writing = 0
 times_detect_function = {"preprocess": 0, "inference": 0, "postprocess": 0}
+
+# Variable global para la relación píxel a cm
+pixel_to_cm_ratio = 0  # Inicialmente desconocida
+ratio_lock = threading.Lock()
+
+def aruco_detector(frame_queue, ratio_queue, marker_size_cm=3.527):
+    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+    parameters = cv2.aruco.DetectorParameters_create()
+    
+    while True:
+        frame = frame_queue.get()
+        if frame is None:
+            break
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        corners, ids, _ = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
+        
+        if ids is not None and len(corners) > 0:
+            for corner in corners:
+                top_left, top_right = corner[0][0], corner[0][1]
+                side_length_px = np.linalg.norm(top_left - top_right)
+                px_to_cm = marker_size_cm / side_length_px
+                with ratio_lock:
+                    ratio_queue.put(px_to_cm)  # Actualiza el valor en la cola
+
+def update_pixel_to_cm_ratio(ratio_queue):
+    global pixel_to_cm_ratio
+    while True:
+        new_ratio = ratio_queue.get()
+        if new_ratio is None:
+            break
+        with ratio_lock:
+            pixel_to_cm_ratio = new_ratio  # Actualiza la relación global
+
+def capture_frames(video_path, frame_queue, aruco_frame_queue):
+    global total_time_capturing
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        raise IOError(f"Error al abrir el archivo de video: {video_path}")
+    while cap.isOpened():
+        t1 = cv2.getTickCount()
+        ret, frame = cap.read()
+        t2 = cv2.getTickCount()
+        total_time_capturing += (t2 - t1) / cv2.getTickFrequency()
+        if not ret:
+            break
+        frame_queue.put(frame)
+        aruco_frame_queue.put(frame.copy())
+    cap.release()
+    frame_queue.put(None)  # Señal de finalización
+    aruco_frame_queue.put(None)
 
 
 def get_total_frames(video_path):
@@ -150,7 +202,7 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         out.release()
 
 def main():
-    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
+    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n.pt'
     video_path = '../datasets_labeled/videos/video_muchas_canicas.mp4'
     output_dir = '../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)

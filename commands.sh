@@ -1,5 +1,5 @@
 # cambiar permisos de directorios
-sudo chown -R abelharo:abelharo <dir>
+sudo chown -R abelharo:abelharo .
 
 # ver info de cpu y mem jetson
 jtop

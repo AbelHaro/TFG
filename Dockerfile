@@ -1,5 +1,5 @@
 # Usa la imagen base de Ultralytics para Jetson con JetPack 5
-FROM ultralytics/ultralytics:latest-jetson-jetpack5
+FROM ultralytics/ultralytics:8.3.38-jetson-jetpack5
 
 # Actualiza los repositorios e instala Python 3.10 y sus dependencias
 #RUN apt-get update && apt-get install -y \
