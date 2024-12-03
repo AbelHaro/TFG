@@ -16,14 +16,20 @@ times_detect_function = {"preprocess": 0, "inference": 0, "postprocess": 0}
 
 # Variable global para la relación píxel a cm
 pixel_to_cm_ratio = 0  # Inicialmente desconocida
-ratio_lock = threading.Lock()
 
-def aruco_detector(frame_queue, ratio_queue, marker_size_cm=3.527):
+def aruco_detector(aruco_frame_queue, marker_size_cm=3.527):
+    global pixel_to_cm_ratio
     aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
     parameters = cv2.aruco.DetectorParameters_create()
     
+    # Ajuste de parámetros para mejorar la detección según los requerimientos
+    parameters.adaptiveThreshConstant = 7
+    parameters.minMarkerPerimeterRate = 0.03
+    parameters.maxMarkerPerimeterRate = 4.0
+    parameters.minCornerDistanceRate = 0.05
+
     while True:
-        frame = frame_queue.get()
+        frame = aruco_frame_queue.get()
         if frame is None:
             break
 
@@ -31,24 +37,18 @@ def aruco_detector(frame_queue, ratio_queue, marker_size_cm=3.527):
         corners, ids, _ = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
         
         if ids is not None and len(corners) > 0:
+            print(f"Se detectaron {len(corners)} marcadores ArUco en el frame")
             for corner in corners:
                 top_left, top_right = corner[0][0], corner[0][1]
                 side_length_px = np.linalg.norm(top_left - top_right)
-                px_to_cm = marker_size_cm / side_length_px
-                with ratio_lock:
-                    ratio_queue.put(px_to_cm)  # Actualiza el valor en la cola
-
-def update_pixel_to_cm_ratio(ratio_queue):
-    global pixel_to_cm_ratio
-    while True:
-        new_ratio = ratio_queue.get()
-        if new_ratio is None:
-            break
-        with ratio_lock:
-            pixel_to_cm_ratio = new_ratio  # Actualiza la relación global
+                pixel_to_cm_ratio = marker_size_cm / side_length_px
+                break  # Solo necesitamos un marcador para calcular la relación
+        else: 
+            print("No se detectaron marcadores ArUco en el frame")
+                
 
 def capture_frames(video_path, frame_queue, aruco_frame_queue):
-    global total_time_capturing
+    global total_time_capturing, pixel_to_cm_ratio
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         raise IOError(f"Error al abrir el archivo de video: {video_path}")
@@ -60,7 +60,8 @@ def capture_frames(video_path, frame_queue, aruco_frame_queue):
         if not ret:
             break
         frame_queue.put(frame)
-        aruco_frame_queue.put(frame.copy())
+        if pixel_to_cm_ratio == 0:
+            aruco_frame_queue.put(frame)
     cap.release()
     frame_queue.put(None)  # Señal de finalización
     aruco_frame_queue.put(None)
@@ -85,22 +86,6 @@ def update_memory(track_id, detected_class, memory):
             detected_class = detected_class + '-d'
 
     memory[track_id]['class'] = detected_class
-
-def capture_frames(video_path, frame_queue):
-    global total_time_capturing
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        raise IOError(f"Error al abrir el archivo de video: {video_path}")
-    while cap.isOpened():
-        t1 = cv2.getTickCount()
-        ret, frame = cap.read()
-        t2 = cv2.getTickCount()
-        total_time_capturing += (t2 - t1) / cv2.getTickFrequency()
-        if not ret:
-            break
-        frame_queue.put(frame)
-    cap.release()
-    frame_queue.put(None)  # Señal de finalización
 
 def process_frames(frame_queue, detection_queue, model):
     global total_time_processing, times_detect_function
@@ -158,7 +143,7 @@ def tracking_frames(detection_queue, tracking_queue):
         tracking_queue.put((frame, outputs))
 
 def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, colors):
-    global total_time_writing
+    global total_time_writing, pixel_to_cm_ratio
     out = None
     while True:
         item = tracking_queue.get()
@@ -187,6 +172,8 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
 
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
             text = f'ID:{obj_id} {detected_class} {conf:.2f}'
+            if pixel_to_cm_ratio > 0:
+                text += f' {((xmax -xmin) * pixel_to_cm_ratio):.3f} cm'
             cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
         for track_id in list(memory):
@@ -202,11 +189,11 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         out.release()
 
 def main():
-    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n.pt'
-    video_path = '../datasets_labeled/videos/video_muchas_canicas.mp4'
+    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
+    video_path = '../datasets_labeled/videos/aruco_canicas.mp4'
     output_dir = '../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, 'video_con_tracking.mp4')
+    output_video_path = os.path.join(output_dir, 'aruco_video_con_tracking.mp4')
 
     classes = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
     colors = {
@@ -217,15 +204,17 @@ def main():
     
     model = YOLO(model_path, task='detect')
 
+    aruco_frame_queue = Queue()
     frame_queue = Queue(maxsize=10)
     detection_queue = Queue(maxsize=10)
     tracking_queue = Queue(maxsize=10)
 
     threads = [
-        threading.Thread(target=capture_frames, args=(video_path, frame_queue)),
+        threading.Thread(target=capture_frames, args=(video_path, frame_queue, aruco_frame_queue)),
         threading.Thread(target=process_frames, args=(frame_queue, detection_queue, model)),
         threading.Thread(target=tracking_frames, args=(detection_queue, tracking_queue)),
-        threading.Thread(target=draw_and_write_frames, args=(tracking_queue, output_video_path, classes, memory, colors))
+        threading.Thread(target=draw_and_write_frames, args=(tracking_queue, output_video_path, classes, memory, colors)),
+        threading.Thread(target=aruco_detector, args=(aruco_frame_queue,))
     ]
 
     t1 = cv2.getTickCount()
@@ -248,6 +237,7 @@ def main():
     print(f"Tiempo de preprocesamiento: {times_detect_function['preprocess']/1000:.3f}s")
     print(f"Tiempo de inferencia: {times_detect_function['inference']/1000:.3f}s")
     print(f"Tiempo de postprocesamiento: {times_detect_function['postprocess']/1000:.3f}s")
+    print(f"Relación píxel a cm: {pixel_to_cm_ratio:.3f}")
 
 if __name__ == '__main__':
     main()
