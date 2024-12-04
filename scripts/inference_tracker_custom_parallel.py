@@ -134,8 +134,8 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
             color = colors.get(detected_class, (255, 255, 255))
 
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
-            text = f'ID:{obj_id} {detected_class} {conf:.2f}'
-            cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            #text = f'ID:{obj_id} {detected_class} {conf:.2f}'
+            #cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
         for track_id in list(memory):
             memory[track_id]['visible_frames'] -= 1
@@ -151,7 +151,7 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
 
 def main():
     model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
-    video_path = '../datasets_labeled/videos/video_muchas_canicas.mp4'
+    video_path = '../datasets_labeled/videos/contar_canicas.mp4'
     output_dir = '../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'video_con_tracking.mp4')
@@ -188,6 +188,8 @@ def main():
     
     total_time_detect_function = (times_detect_function["preprocess"] + times_detect_function["inference"] + times_detect_function["postprocess"]) / 1000
 
+    print("Se ha usado el modelo ", model_path)
+    
     print(f"Total de frames procesados: {total_frames}")
     print(f"Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
     print(f"Captura: {total_time_capturing:.3f}s, Procesamiento: {total_time_processing:.3f}s")
