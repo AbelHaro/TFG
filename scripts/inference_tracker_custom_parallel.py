@@ -134,8 +134,8 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
             color = colors.get(detected_class, (255, 255, 255))
 
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
-            #text = f'ID:{obj_id} {detected_class} {conf:.2f}'
-            #cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            text = f'ID:{obj_id} {detected_class} {conf:.2f}'
+            cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
         for track_id in list(memory):
             memory[track_id]['visible_frames'] -= 1
@@ -161,6 +161,8 @@ def main():
         'negra': (0, 0, 255), 'blanca': (0, 255, 0), 'verde': (255, 0, 0), 'azul': (255, 255, 0),
         'negra-d': (0, 165, 255), 'blanca-d': (255, 165, 0), 'verde-d': (255, 105, 180), 'azul-d': (255, 0, 255)
     }
+
+
     memory = {}
     
     model = YOLO(model_path, task='detect')
@@ -198,6 +200,16 @@ def main():
     print(f"Tiempo de preprocesamiento: {times_detect_function['preprocess']/1000:.3f}s")
     print(f"Tiempo de inferencia: {times_detect_function['inference']/1000:.3f}s")
     print(f"Tiempo de postprocesamiento: {times_detect_function['postprocess']/1000:.3f}s")
+    
+    times = {
+        "Captura": total_time_capturing,
+        "Procesamiento": total_time_processing,
+        "Tracking": total_time_tracking,
+        "Escritura": total_time_writing
+    }
+
+    max_task = max(times, key=times.get)
+    print(f"El mayor tiempo fue {times[max_task]:.3f}s en la tarea de {max_task}.")
 
 if __name__ == '__main__':
     main()

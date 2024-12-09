@@ -1,36 +1,35 @@
-import tensorrt as trt
-import onnx
+import torch
+import torch_tensorrt
+from ultralytics import YOLO
 
-onnx_model_path = '../models/canicas/2024_10_24/2024_10_24_yolov11n_INT8_onnx.onnx'
-trt_model_path = '../models/canicas/2024_10_24/2024_10_24_yolov11n_INT8.trt'
+# Cargar el modelo YOLO entrenado
+model_path = "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n.pt"
+yolo = YOLO(model_path)
+model = yolo.model.eval().cuda()  # Mover el modelo a GPU y modo evaluación
 
-# Cargar el modelo ONNX
-onnx_model = onnx.load(onnx_model_path)
+# Preparar entrada simulada (adaptar tamaño si es necesario)
+inputs = [torch.randn((1, 3, 640, 640)).cuda()]  # Dimensión estándar de YOLO
 
-# Verificar si el modelo tiene dimensiones de lote explícitas
-# (esto es opcional pero puede ayudarte a diagnosticar problemas)
-# Puedes usar el módulo onnx para chequear propiedades del modelo aquí
+# Compilar el modelo a TensorRT usando Torch-TensorRT
+print("Compilando el modelo a TensorRT...")
+trt_gm = torch_tensorrt.compile(
+    model,
+    ir="dynamo",         # Usar PyTorch FX para optimización
+    inputs=inputs,       # Definir las dimensiones de entrada
+    enabled_precisions={torch.float32},  # Precisión (puedes usar FP16 si es compatible)
+    workspace_size=1 << 30  # Tamaño de la memoria intermedia de trabajo (ajusta si es necesario)
+)
 
-TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
-builder = trt.Builder(TRT_LOGGER)
-network = builder.create_network(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
-config = builder.create_builder_config()
-config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 16 << 30)
-config.set_flag(trt.BuilderFlag.INT8)
+# Guardar el modelo compilado
+output_path = "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_trt.ep"
+torch_tensorrt.save(trt_gm, output_path, inputs=inputs)
+print(f"Modelo convertido a TensorRT y guardado en {output_path}")
 
-parser = trt.OnnxParser(network, TRT_LOGGER)
+# Cargar el modelo TensorRT para inferencia
+print("Cargando el modelo convertido...")
+loaded_model = torch.load(output_path).module()  # Cargar y extraer el módulo del modelo
 
-# Parsear el modelo ONNX
-if not parser.parse(onnx_model.SerializeToString()):
-    for error in range(parser.num_errors):
-        print(parser.get_error(error))
-    raise Exception("Failed to parse ONNX model")
-
-# Crear el motor
-engine = builder.build_engine(network, config)
-
-# Serializar el motor a un archivo
-with open(trt_model_path, 'wb') as f:
-    f.write(engine.serialize())
-
-print(f'Modelo TensorRT guardado en: {trt_model_path}')
+# Ejecutar inferencia
+print("Ejecutando inferencia...")
+output = loaded_model(*inputs)
+print("Salida del modelo TensorRT:", output)
