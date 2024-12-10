@@ -5,6 +5,8 @@ import threading
 from queue import Queue
 from ultralytics.trackers.byte_tracker import BYTETracker
 from argparse import Namespace
+import csv
+import locale
 
 # Variables globales para el tiempo
 total_time_capturing = 0
@@ -13,6 +15,11 @@ total_time_tracking = 0
 total_time_writing = 0
 times_detect_function = {"preprocess": 0, "inference": 0, "postprocess": 0}
 
+capture_times = []
+processing_times = []
+tracking_times = []
+writing_times = []
+objects_counts = []
 
 def get_total_frames(video_path):
     cap = cv2.VideoCapture(video_path)
@@ -24,7 +31,7 @@ def get_total_frames(video_path):
 
 def update_memory(track_id, detected_class, memory):
     if track_id not in memory:
-        memory[track_id] = {'defective': detected_class.endswith('-d'), 'visible_frames': 30}
+        memory[track_id] = {'defective': detected_class.endswith('-d'), 'visible_frames': 15}
     else:
         memory[track_id]['defective'] |= detected_class.endswith('-d')
         memory[track_id]['visible_frames'] = 60  # Reset counter
@@ -35,10 +42,12 @@ def update_memory(track_id, detected_class, memory):
     memory[track_id]['class'] = detected_class
 
 def capture_frames(video_path, frame_queue):
-    global total_time_capturing
+    global total_time_capturing, capture_times
     cap = cv2.VideoCapture(video_path)
+    
     if not cap.isOpened():
         raise IOError(f"Error al abrir el archivo de video: {video_path}")
+    
     while cap.isOpened():
         t1 = cv2.getTickCount()
         ret, frame = cap.read()
@@ -47,11 +56,13 @@ def capture_frames(video_path, frame_queue):
         if not ret:
             break
         frame_queue.put(frame)
+        capture_times.append((t2 - t1) / cv2.getTickFrequency())
+    
     cap.release()
     frame_queue.put(None)  # Señal de finalización
 
 def process_frames(frame_queue, detection_queue, model):
-    global total_time_processing, times_detect_function
+    global total_time_processing, times_detect_function, processing_times
     while True:
         frame = frame_queue.get()
         if frame is None:  # Señal de finalización
@@ -65,48 +76,66 @@ def process_frames(frame_queue, detection_queue, model):
         times_detect_function["preprocess"] += results[0].speed["preprocess"]
         times_detect_function["inference"] += results[0].speed["inference"]
         times_detect_function["postprocess"] += results[0].speed["postprocess"]
+        processing_times.append((t2 - t1) / cv2.getTickFrequency())
 
-def tracking_frames(detection_queue, tracking_queue):
-    global total_time_tracking
-    args = Namespace(
-        tracker_type='bytetrack',
-        track_high_thresh=0.25,
-        track_low_thresh=0.1,
-        new_track_thresh=0.25,
-        track_buffer=60,
-        match_thresh=0.8,
-        fuse_score=True
-    )
-    tracker = BYTETracker(args, frame_rate=30)
-
+class TrackerWrapper:
+    def __init__(self, frame_rate=20):
+        # Definir los argumentos para BYTETracker
+        self.args = Namespace(
+            tracker_type='bytetrack',
+            track_high_thresh=0.25,
+            track_low_thresh=0.1,
+            new_track_thresh=0.25,
+            track_buffer=15,
+            match_thresh=0.8,
+            fuse_score=True
+        )
+        # Crear instancia del tracker
+        self.tracker = BYTETracker(self.args, frame_rate=frame_rate)
+    
     class Detections:
         def __init__(self, boxes, confidences, class_ids):
             self.conf = confidences
             self.xywh = boxes
             self.cls = class_ids
-            
+    
+    def track(self, detection_data, frame):
+        # Convertir detecciones para el tracker
+        detections = self.Detections(
+            detection_data.boxes.xywh.cpu().numpy(),
+            detection_data.boxes.conf.cpu().numpy(),
+            detection_data.boxes.cls.cpu().numpy().astype(int)
+        )
+        # Actualizar el tracker con las detecciones actuales
+        return self.tracker.update(detections, frame)
+
+def tracking_frames(detection_queue, tracking_queue):
+    global total_time_tracking, tracking_times, objects_counts
+    
+    # Instanciar el tracker
+    tracker_wrapper = TrackerWrapper(frame_rate=20)
+    
     while True:
         item = detection_queue.get()
-        if item is None:
-            tracking_queue.put(None) # Señal de finalización
+        if item is None:  # Señal de finalización
+            tracking_queue.put(None)
             break
 
         t1 = cv2.getTickCount()
         frame, result = item
 
-        detections = Detections(
-            result.boxes.xywh.cpu().numpy(),
-            result.boxes.conf.cpu().numpy(),
-            result.boxes.cls.cpu().numpy().astype(int)
-        )
+        # Usar el método de la clase para realizar el tracking
+        outputs = tracker_wrapper.track(result, frame)
         
-        outputs = tracker.update(detections, frame)
         t2 = cv2.getTickCount()
         total_time_tracking += (t2 - t1) / cv2.getTickFrequency()
         tracking_queue.put((frame, outputs))
+        tracking_times.append((t2 - t1) / cv2.getTickFrequency())
+        objects_counts.append(len(outputs))
+        
 
 def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, colors):
-    global total_time_writing
+    global total_time_writing, writing_times
     out = None
     while True:
         item = tracking_queue.get()
@@ -145,16 +174,17 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         out.write(frame)
         t2 = cv2.getTickCount()
         total_time_writing += (t2 - t1) / cv2.getTickFrequency()
+        writing_times.append((t2 - t1) / cv2.getTickFrequency())
 
     if out:
         out.release()
 
 def main():
-    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
-    video_path = '../datasets_labeled/videos/contar_canicas.mp4'
+    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_INT8.engine'
+    video_path = '../datasets_labeled/videos/video_muchas_canicas.mp4'
     output_dir = '../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, 'video_con_tracking.mp4')
+    output_video_path = os.path.join(output_dir, 'enteros_video_con_tracking.mp4')
 
     classes = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
     colors = {
@@ -210,6 +240,35 @@ def main():
 
     max_task = max(times, key=times.get)
     print(f"El mayor tiempo fue {times[max_task]:.3f}s en la tarea de {max_task}.")
+    
+    
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
+    def format_number(number):
+        return f"{number:.6f}".replace('.', ',')
+
+    print("Escribiendo los tiempos en el archivo times.csv")
+
+    with open('times.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Frame", "Captura", "Procesamiento", "Tracking(ms)", "Escritura", "Cantidad Objetos", "Tiempo Total(ms)", "Tiempo por Objeto tracking(ms)"])
+        for i in range(total_frames):
+            total_frame_time = capture_times[i] + processing_times[i] + tracking_times[i] + writing_times[i]
+            row = [
+                i,
+                format_number(capture_times[i]),
+                format_number(processing_times[i]),
+                format_number(tracking_times[i] * 1000),
+                format_number(writing_times[i]),
+                objects_counts[i],
+                format_number(total_frame_time * 1000),
+                format_number((tracking_times[i] / objects_counts[i]) * 1000 if objects_counts[i] > 0 else 0)
+            ]
+            writer.writerow(row)
+
+    print("Terminado")
+
+    
+    
 if __name__ == '__main__':
     main()
