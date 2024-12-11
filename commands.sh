@@ -17,3 +17,7 @@ scp -P 3322 -r ahararm@cmts1.gap.upv.es:/mnt/beegfs/colab/ahararm/ <dir>
 docker cp use-gpu:/ultralytics/runs/detect/train2 ./models/canicas/2024_10_24/train_2024_10_24_yolo11n
 
 sudo jetson_clocks
+
+# junta videos
+ffmpeg -f concat -safe 0 -i file_list.txt -c copy output.mp4
+
