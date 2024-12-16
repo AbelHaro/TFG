@@ -15,7 +15,7 @@ FRAME_AGE = 15
 total_time_capturing = 0
 total_time_processing = 0
 total_time_tracking = 0
-total_time_writing = 0
+total_time_writting = 0
 times_detect_function = {"preprocess": 0, "inference": 0, "postprocess": 0}
 
 frames_per_second_counter = 0
@@ -25,7 +25,7 @@ frame_count_finish = False
 capture_times = []
 processing_times = []
 tracking_times = []
-writing_times = []
+writting_times = []
 objects_counts = []
 frames_per_second_record = []
 
@@ -156,7 +156,7 @@ def tracking_frames(detection_queue, tracking_queue):
         
 
 def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, colors):
-    global total_time_writing, writing_times, frames_per_second_counter, lock, frame_count_finish
+    global total_time_writting, writting_times, frames_per_second_counter, lock, frame_count_finish
     frame_number = 0
     out = None
     while True:
@@ -205,8 +205,8 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         
         
         t2 = cv2.getTickCount()
-        total_time_writing += (t2 - t1) / cv2.getTickFrequency()
-        writing_times.append((t2 - t1) / cv2.getTickFrequency())
+        total_time_writting += (t2 - t1) / cv2.getTickFrequency()
+        writting_times.append((t2 - t1) / cv2.getTickFrequency())
 
     if out:
         out.release()
@@ -280,7 +280,7 @@ def main():
     print(f"Total de frames procesados: {total_frames}")
     print(f"Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
     print(f"Captura: {total_time_capturing:.3f}s, Procesamiento: {total_time_processing:.3f}s")
-    print(f"Tracking: {total_time_tracking:.3f}s, Escritura: {total_time_writing:.3f}s")
+    print(f"Tracking: {total_time_tracking:.3f}s, Escritura: {total_time_writting:.3f}s")
     print("-" * 50)
     print(f"Tiempo total función detect: {total_time_detect_function:.3f}s")
     print(f"Tiempo de preprocesamiento: {times_detect_function['preprocess']/1000:.3f}s")
@@ -291,7 +291,7 @@ def main():
         "Captura": total_time_capturing,
         "Procesamiento": total_time_processing,
         "Tracking": total_time_tracking,
-        "Escritura": total_time_writing
+        "Escritura": total_time_writting
     }
 
     max_task = max(total_times, key=total_times.get)
@@ -302,7 +302,7 @@ def main():
         "capture": capture_times,
         "processing": processing_times,
         "tracking": tracking_times,
-        "writing": writing_times,
+        "writting": writting_times,
         "objects_count": objects_counts,
         "frames_per_second": frames_per_second_record
     }

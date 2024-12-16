@@ -132,8 +132,8 @@ def main():
     global time_capturing_frame, time_inference_outside_function, time_write_frame
 
     # Parámetros del modelo y archivo de salida
-    model_path = '../models/canicas/2024_11_15/2024_11_15_canicas_yolo11n.engine'
-    video_path = '../datasets_labeled/videos/video_general_defectos.mp4'
+    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
+    video_path = '../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     output_dir = '../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, f'video_con_tracking.mp4')
