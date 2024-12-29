@@ -5,8 +5,6 @@ import torch.multiprocessing as mp
 from ultralytics.trackers.byte_tracker import BYTETracker
 from argparse import Namespace
 import numpy as np
-from create_excel_multiprocesses import initialize_excel, add_row_to_excel
-import time
 
 FRAME_AGE = 15
 
@@ -181,23 +179,19 @@ def tracking_frames(detection_queue, tracking_queue, stop_event):
 
 
 
-def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, colors, stop_event):
+def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event):
     import threading
     import time
     import cv2
     import os
-    from create_excel_multiprocesses import initialize_excel, add_row_to_excel, add_fps_to_excel
-
-    output_excel_file = initialize_excel(file="times_multiprocesses.xlsx")
     
     FPS_COUNT = 0
-    frame_count = 0
     frames_per_second_record = []
     out = None
     first_time = True
     
     # Función para resetear FPS cada segundo
-    def reset_fps(output_excel_file):
+    def reset_fps():
         """
         Calcula y escribe los FPS en el archivo CSV cada segundo.
         """
@@ -205,7 +199,7 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         while not stop_event.is_set():
             frames_per_second_record.append(FPS_COUNT)
             # Escribe el valor del FPS en el archivo directamente
-            add_fps_to_excel(output_excel_file, FPS_COUNT)
+            times_queue.put(("fps", FPS_COUNT))
             FPS_COUNT = 0
             time.sleep(1)
 
@@ -219,7 +213,7 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         
         if first_time:
             first_time = False
-            fps_reset_thread = threading.Thread(target=reset_fps, args=(output_excel_file,), daemon=True)
+            fps_reset_thread = threading.Thread(target=reset_fps, daemon=True)
             fps_reset_thread.start()
 
         if out is None:
@@ -253,21 +247,52 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         times["writing"] = writing_time  # Corrige el error tipográfico
                 
         # Añade una fila al archivo Excel
-        add_row_to_excel(output_excel_file, frame_count, times)
-        frame_count += 1
+        times_queue.put(("times", times))
         
     if out:
         out.release()
+
+    #print("[PROGRAM - DRAW AND WRITE] Poniendno None en la cola de tiempos")
+    times_queue.put(None)
+    print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")    
 
     stop_event.set()
     os._exit(0)
 
 
+def write_to_csv(times_queue):
+    from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv
+    import os
+    
+    times_excel_file = create_csv_file(file_name="times_multiprocesses.csv")
+    fps_excel_file = create_csv_file(file_name="fps_multiprocesses.csv")
+    
+    frame_count = 0
+    
+    while True:
+        item = times_queue.get()
+        
+        if item is None:
+            #print("[PROGRAM - WRITE TO CSV] None recibido")
+            break
+        
+        #print("[PROGRAM - WRITE TO CSV] Item recibido")
+        
+        label, data = item
+        
+        if label == "times":
+            add_row_to_csv(times_excel_file, frame_count, data)
+            frame_count += 1
+        elif label == "fps":
+            add_fps_to_csv(fps_excel_file, frame_count, data)
+               
+    os._exit(0)
     
 
 def main():
     model_path = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
-    video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
+    #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
+    video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'multiprocesos.mp4')
@@ -281,14 +306,15 @@ def main():
 
     memory = {}
     
-    print("Se ha usado el modelo ", model_path)
-    print("Total de frames: ", get_total_frames(video_path))
+    print("[PROGRAM] Se ha usado el modelo ", model_path)
+    print("[PROGRAM] Total de frames: ", get_total_frames(video_path))
     
     stop_event = mp.Event()
     
     frame_queue = mp.Queue(maxsize=10)
     detection_queue = mp.Queue(maxsize=10)
     tracking_queue = mp.Queue(maxsize=10)
+    times_queue = mp.Queue(maxsize=10)
 
 
     t1 = cv2.getTickCount()
@@ -296,14 +322,15 @@ def main():
             mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event)),
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
-            mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, output_video_path, classes, memory, colors, stop_event))
+            mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event)),
+            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,))
         ]
 
     for process in processes:
         process.start()
     for process in processes:
         process.join()
-        print("Proceso ", process, " joined")
+        print("[PROGRAM] Proceso ", process, " joined")
 
     t2 = cv2.getTickCount()
     
@@ -311,11 +338,11 @@ def main():
     total_frames = get_total_frames(video_path)
     
     
-    print(f"Total de frames procesados: {total_frames}")
-    print(f"Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
+    print(f"[PROGRAM] Total de frames procesados: {total_frames}")
+    print(f"[PROGRAM] Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
         
     
 if __name__ == '__main__':
     mp.multiprocessing.set_start_method('spawn')   
-    print("Number of cpu : ", mp.multiprocessing.cpu_count())
+    print("[PROGRAM] Number of cpu : ", mp.multiprocessing.cpu_count())
     main()
