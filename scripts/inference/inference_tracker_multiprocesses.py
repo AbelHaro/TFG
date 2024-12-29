@@ -5,7 +5,8 @@ import torch.multiprocessing as mp
 from ultralytics.trackers.byte_tracker import BYTETracker
 from argparse import Namespace
 import numpy as np
-from create_excel import create_excel
+from create_excel_multiprocesses import initialize_excel, add_row_to_excel
+import time
 
 FRAME_AGE = 15
 
@@ -42,8 +43,7 @@ def update_memory(tracked_objects, memory, classes):
         if memory[track_id]['visible_frames'] <= 0:
             del memory[track_id]
 
-def capture_frames(video_path, frame_queue, stop_event, times_queue):
-    capture_times = []
+def capture_frames(video_path, frame_queue, stop_event):
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
     cap = cv2.VideoCapture(video_path)
@@ -57,48 +57,42 @@ def capture_frames(video_path, frame_queue, stop_event, times_queue):
         t2 = cv2.getTickCount()
         
         capture_time = (t2 - t1) / cv2.getTickFrequency()
-        capture_times.append(capture_time)
-        
-        if len(capture_times) > 700:
-            break
 
         if not ret:
             break
-        frame_queue.put(frame)
+        
+        times = {
+            "capture": capture_time
+        }
+        
+        frame_queue.put((frame, times))
     
     cap.release()
     frame_queue.put(None)
     
-    
-    #times_queue.put(("capture", capture_times))
-    times = {
-        "capture": capture_times
-    }
-        
-    create_excel(times, len(capture_times), file="capture_frame.csv")
+    #time.sleep(1)
     
     while not stop_event.is_set():
         pass
 
     
 
-def process_frames(frame_queue, detection_queue, model_path, stop_event, times_queue):
-    times_detect_function = {"preprocess": 0, "inference": 0, "postprocess": 0}
-    processing_times = []
-    preprocessed_times = []
-    inference_times = []
-    postprocessed_times = []
+def process_frames(frame_queue, detection_queue, model_path, stop_event):
+
+    times_detect_function = {}
     
     model = YOLO(model_path, task='detect')
     dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
     model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
     
     while True:
-        frame = frame_queue.get()
-        if frame is None:
+        item = frame_queue.get()
+        if item is None:
             detection_queue.put(None)
             break
-
+        
+        frame, times = item
+        
         t1 = cv2.getTickCount()
         results = model.predict(source=frame, device=0, conf=0.6, imgsz=(640, 640), half=True, augment=True, task='detect', show_labels=False, show_conf=False, )
         result_formatted = Namespace(
@@ -107,40 +101,22 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, times_q
             cls=results[0].boxes.cls.cpu()
         )
         t2 = cv2.getTickCount()
-
-        detection_queue.put((frame, result_formatted))
+        
         
         processing_time = (t2 - t1) / cv2.getTickFrequency()
-        processing_times.append(processing_time)
-        times_detect_function["preprocess"] += results[0].speed["preprocess"]
-        preprocessed_times.append(results[0].speed["preprocess"])
-        times_detect_function["inference"] += results[0].speed["inference"]
-        inference_times.append(results[0].speed["inference"])
-        times_detect_function["postprocess"] += results[0].speed["postprocess"]
-        postprocessed_times.append(results[0].speed["postprocess"])
+        times_detect_function["preprocess"] = results[0].speed["preprocess"]
+        times_detect_function["inference"] = results[0].speed["inference"]
+        times_detect_function["postprocess"] = results[0].speed["postprocess"]
         
-    #times_queue.put(("processing", processing_times))
-    #times_queue.put(("times_detect_function", times_detect_function))
-    #times_queue.put(("preprocess", preprocessed_times))
-    #times_queue.put(("inference", inference_times))
-    #times_queue.put(("postprocess", postprocessed_times))
-    
-    times = {
-        "processing": processing_times,
-        "times_detect_function": times_detect_function,
-        "preprocess": preprocessed_times,
-        "inference": inference_times,
-        "postprocess": postprocessed_times
-    }
-    
-    create_excel(times, len(processing_times), file="predict_frame.csv")
-    
-    
-    
+        times["processing"] = processing_time
+        times["detect_function"] = times_detect_function
+
+        detection_queue.put((frame, result_formatted, times))
+        
     while not stop_event.is_set():
         pass
     
-    print("Proceso de procesamiento terminado, he marcado el evento de parada")
+    #time.sleep(1)
     
     #os._exit(0)
 
@@ -173,9 +149,8 @@ class TrackerWrapper:
         return self.tracker.update(detections, frame)
 
 
-def tracking_frames(detection_queue, tracking_queue, stop_event, times_queue):
-    tracking_times = []
-    objects_counts = []
+def tracking_frames(detection_queue, tracking_queue, stop_event):
+
     tracker_wrapper = TrackerWrapper(frame_rate=20)
     
     while True:
@@ -185,65 +160,66 @@ def tracking_frames(detection_queue, tracking_queue, stop_event, times_queue):
             break
 
         t1 = cv2.getTickCount()
-        frame, result = item
+        frame, result, times = item
 
         outputs = tracker_wrapper.track(result, frame)
 
         t2 = cv2.getTickCount()
-        tracking_queue.put((frame, outputs))
         
         tracking_time = (t2 - t1) / cv2.getTickFrequency()
-        tracking_times.append(tracking_time)
-
-        objects_counts.append(len(outputs))
         
+        times["tracking"] = tracking_time
+        times["objects_count"] = len(outputs)
+    
+        tracking_queue.put((frame, outputs, times))
         
-    #times_queue.put(("tracking", tracking_times))
-    #times_queue.put(("objects_counts", objects_counts))
-    
-    times = {
-        "tracking": tracking_times,
-        "objects_count": objects_counts
-    }
-    
-    create_excel(times, len(tracking_times), file="tracking_frame.csv")
-    
     while not stop_event.is_set():
         pass
     
     os._exit(0)
     
 
-def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, colors, stop_event, times_queue):
+
+
+def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, colors, stop_event):
     import threading
     import time
     import cv2
     import os
+    from create_excel_multiprocesses import initialize_excel, add_row_to_excel, add_fps_to_excel
+
+    output_excel_file = initialize_excel(file="times_multiprocesses.xlsx")
     
     FPS_COUNT = 0
-    writting_times = []
+    frame_count = 0
     frames_per_second_record = []
     out = None
     first_time = True
-
+    
     # Función para resetear FPS cada segundo
-    def reset_fps():
+    def reset_fps(output_excel_file):
+        """
+        Calcula y escribe los FPS en el archivo CSV cada segundo.
+        """
         nonlocal FPS_COUNT
         while not stop_event.is_set():
             frames_per_second_record.append(FPS_COUNT)
+            # Escribe el valor del FPS en el archivo directamente
+            add_fps_to_excel(output_excel_file, FPS_COUNT)
             FPS_COUNT = 0
             time.sleep(1)
-    
+
     while True:
         item = tracking_queue.get()
         if item is None:
             break
         
         t1 = cv2.getTickCount()
-        frame, tracked_objects = item
+        frame, tracked_objects, times = item
+        
         if first_time:
             first_time = False
-            fps_reset_thread = threading.Thread(target=reset_fps, daemon=True)
+            fps_reset_thread = threading.Thread(target=reset_fps, args=(output_excel_file,), daemon=True)
             fps_reset_thread.start()
 
         if out is None:
@@ -251,8 +227,10 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
             out = cv2.VideoWriter(output_video_path, fourcc, 20, (frame_width, frame_height))
 
+        # Actualiza la memoria con objetos rastreados
         update_memory(tracked_objects, memory, classes)
         
+        # Dibuja objetos rastreados en el frame
         for obj in tracked_objects:
             xmin, ymin, xmax, ymax, obj_id = map(int, obj[:5])
             conf = float(obj[5])
@@ -269,33 +247,27 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         out.write(frame)
         FPS_COUNT += 1
         
+        # Calcula el tiempo de escritura
         t2 = cv2.getTickCount()
-        writting_time = (t2 - t1) / cv2.getTickFrequency()
-        writting_times.append(writting_time)
+        writing_time = (t2 - t1) / cv2.getTickFrequency()
+        times["writing"] = writing_time  # Corrige el error tipográfico
+                
+        # Añade una fila al archivo Excel
+        add_row_to_excel(output_excel_file, frame_count, times)
+        frame_count += 1
         
     if out:
         out.release()
-    
-    print("Proceso de escritura terminado, voy a escribir en la cola mis tiempos")
-    #times_queue.put(("writting", writting_times))
-    #times_queue.put(("fps_records", frames_per_second_record))
-    print("Proceso de escritura terminado, he escrito en la cola mis tiempos y FPS")
-    
-    times = {
-        "writting": writting_times,
-    }
-    
-    create_excel(times, len(writting_times), file="writting_frame.csv")
+
     stop_event.set()
-    print("Proceso de escritura terminado, he marcado el evento de parada")
-    
     os._exit(0)
+
 
     
 
 def main():
     model_path = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
-    video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
+    video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'multiprocesos.mp4')
@@ -309,33 +281,22 @@ def main():
 
     memory = {}
     
+    print("Se ha usado el modelo ", model_path)
     print("Total de frames: ", get_total_frames(video_path))
-    
-    capture_times = []
-    processing_times = []
-    tracking_times = []
-    writting_times = []
-    objects_counts = []
-    frames_per_second_record = []
-    preprocess_times = []
-    inference_times = []
-    postprocess_times = []
-    times_detect_function = []
     
     stop_event = mp.Event()
     
     frame_queue = mp.Queue(maxsize=10)
     detection_queue = mp.Queue(maxsize=10)
     tracking_queue = mp.Queue(maxsize=10)
-    
-    times_queue = mp.Queue(maxsize=50)
+
 
     t1 = cv2.getTickCount()
     processes = [
-            mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event, times_queue)),
-            mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, times_queue)),
-            mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event, times_queue)),
-            mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, output_video_path, classes, memory, colors, stop_event, times_queue))
+            mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event)),
+            mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event)),
+            mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
+            mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, output_video_path, classes, memory, colors, stop_event))
         ]
 
     for process in processes:
@@ -349,67 +310,9 @@ def main():
     total_time = (t2 - t1) / cv2.getTickFrequency()
     total_frames = get_total_frames(video_path)
     
-    print("Se ha usado el modelo ", model_path)
     
     print(f"Total de frames procesados: {total_frames}")
     print(f"Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
-    
-    while not times_queue.qsize() == 0:
-        print("El tamaño de la cola de tiempos es:", times_queue.qsize())
-        label, data = times_queue.get()
-        print("Se ha sacado de la cola el siguiente dato:", label)
-        if label == "capture":
-            capture_times = data
-        if label == "processing":
-            processing_times = data
-        if label == "tracking":
-            tracking_times = data
-        if label == "writting":
-            writting_times = data
-        if label == "fps_records":
-            frames_per_second_record = data
-        if label == "objects_counts":
-            objects_counts = data
-        if label == "times_detect_function":
-            times_detect_function = data
-        if label == "preprocess":
-            preprocess_times = data
-        if label == "inference":
-            inference_times = data
-        if label == "postprocess":
-            postprocess_times = data
-        else:
-            print("No se ha encontrado el tiempo de detección")
-        
-    print("Se ha pasado a la lista de tiempos el siguiente dato: ")
-    
-    total_times = {
-        "Captura": sum(capture_times),
-        "Procesamiento": sum(processing_times),
-        "Tracking": sum(tracking_times),
-        "Escritura": sum(writting_times)
-    }
-
-    print("Tiempos totales: ")
-    
-    max_task = max(total_times, key=total_times.get)
-    print(f"Mayor tiempo de ejecución: {max_task}, con un tiempo de {total_times[max_task]:.3f}s")
-    
-    print("Creando archivo excel...")
-    
-    times = {
-        "capture": capture_times,
-        "processing": processing_times,
-        "tracking": tracking_times,
-        "writting": writting_times,
-        "objects_count": objects_counts,
-        "frames_per_second": frames_per_second_record,
-        "preprocess": preprocess_times,
-        "inference": inference_times,
-        "postprocess": postprocess_times
-    }
-
-    #create_excel(times, total_frames, file="times_multiprocesses.csv")
         
     
 if __name__ == '__main__':
