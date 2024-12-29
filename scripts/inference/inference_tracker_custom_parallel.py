@@ -28,6 +28,9 @@ tracking_times = []
 writting_times = []
 objects_counts = []
 frames_per_second_record = []
+preprocess_times = []
+inference_times = []
+postprocess_times = []
 
 def get_total_frames(video_path):
     cap = cv2.VideoCapture(video_path)
@@ -77,6 +80,9 @@ def capture_frames(video_path, frame_queue):
             break
         frame_queue.put(frame)
         capture_times.append((t2 - t1) / cv2.getTickFrequency())
+        
+        if len(capture_times) > 700:
+            break
     
     cap.release()
     frame_queue.put(None)
@@ -94,8 +100,11 @@ def process_frames(frame_queue, detection_queue, model):
         total_time_processing += (t2 - t1) / cv2.getTickFrequency()
         detection_queue.put((frame, results[0]))
         times_detect_function["preprocess"] += results[0].speed["preprocess"]
+        preprocess_times.append(results[0].speed["preprocess"])
         times_detect_function["inference"] += results[0].speed["inference"]
+        inference_times.append(results[0].speed["inference"])
         times_detect_function["postprocess"] += results[0].speed["postprocess"]
+        postprocess_times.append(results[0].speed["postprocess"])
         processing_times.append((t2 - t1) / cv2.getTickFrequency())
 
 class TrackerWrapper:
@@ -157,6 +166,10 @@ def tracking_frames(detection_queue, tracking_queue):
 
 def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, colors):
     global total_time_writting, writting_times, frames_per_second_counter, lock, frame_count_finish
+    
+    time_updating_memory = 0
+    time_drawing = 0
+    
     frame_number = 0
     out = None
     while True:
@@ -165,6 +178,7 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
             frame_count_finish = True
             break
         t1 = cv2.getTickCount()
+    
         frame, tracked_objects = item
 
         if out is None:
@@ -173,6 +187,10 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
             out = cv2.VideoWriter(output_video_path, fourcc, 20, (frame_width, frame_height))
 
         update_memory(tracked_objects, memory, classes)
+        
+        t_aux = cv2.getTickCount()
+        
+        time_updating_memory += (t_aux - t1) / cv2.getTickFrequency()
         
         for obj in tracked_objects:
             xmin, ymin, xmax, ymax, obj_id = map(int, obj[:5])  # Asignamos las primeras 5 posiciones a enteros
@@ -207,9 +225,14 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         t2 = cv2.getTickCount()
         total_time_writting += (t2 - t1) / cv2.getTickFrequency()
         writting_times.append((t2 - t1) / cv2.getTickFrequency())
+        
+        time_drawing += (t2 - t_aux) / cv2.getTickFrequency()
 
     if out:
         out.release()
+        
+    print("El tiempo de actualización de memoria fue de ", time_updating_memory)
+    print("El tiempo de dibujado fue de ", time_drawing)
         
         
     cv2.destroyAllWindows()
@@ -227,9 +250,9 @@ def frames_per_second():
          
 
 def main():
-    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
-    video_path = '../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
-    output_dir = '../inference_predictions/custom_tracker'
+    model_path = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
+    video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
+    output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'enteros_video_con_tracking.mp4')
 
@@ -304,10 +327,13 @@ def main():
         "tracking": tracking_times,
         "writting": writting_times,
         "objects_count": objects_counts,
-        "frames_per_second": frames_per_second_record
+        "frames_per_second": frames_per_second_record,
+        "preprocess": preprocess_times,
+        "inference": inference_times,
+        "postprocess": postprocess_times
     }
     
-    create_excel(times, len(capture_times))
+    create_excel(times, len(capture_times), file="paralelo_hilos_sin_DLA.csv")
 
     
     

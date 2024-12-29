@@ -15,3 +15,6 @@ def exists_gpu():
         return False
     
     return True
+
+
+exists_gpu()
