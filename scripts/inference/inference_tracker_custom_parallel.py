@@ -81,8 +81,6 @@ def capture_frames(video_path, frame_queue):
         frame_queue.put(frame)
         capture_times.append((t2 - t1) / cv2.getTickFrequency())
         
-        if len(capture_times) > 700:
-            break
     
     cap.release()
     frame_queue.put(None)
@@ -216,7 +214,7 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
         out.write(frame)
         
         # Mostrar el video en pantalla
-        cv2.imshow('Tracking', frame)
+        #cv2.imshow('Tracking', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         
@@ -254,7 +252,7 @@ def main():
     video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, 'enteros_video_con_tracking.mp4')
+    output_video_path = os.path.join(output_dir, 'hilos_video_con_tracking.mp4')
 
     classes = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
     colors = {
@@ -333,7 +331,7 @@ def main():
         "postprocess": postprocess_times
     }
     
-    create_excel(times, len(capture_times), file="paralelo_hilos_sin_DLA.csv")
+    create_excel(times, len(capture_times), file="paralelo_hilos.csv")
 
     
     
