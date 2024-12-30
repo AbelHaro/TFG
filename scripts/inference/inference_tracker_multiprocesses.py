@@ -75,13 +75,15 @@ def capture_frames(video_path, frame_queue, stop_event):
 
     
 
-def process_frames(frame_queue, detection_queue, model_path, stop_event):
+def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_start):
 
     times_detect_function = {}
     
     model = YOLO(model_path, task='detect')
     dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
     model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
+    
+    t1_start.set()
     
     while True:
         item = frame_queue.get()
@@ -179,13 +181,14 @@ def tracking_frames(detection_queue, tracking_queue, stop_event):
 
 
 
-def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event):
+def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start):
     import threading
     import time
     import cv2
     import os
     
     FPS_COUNT = 0
+    FPS_LABEL = 0
     frames_per_second_record = []
     out = None
     first_time = True
@@ -195,11 +198,12 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         """
         Calcula y escribe los FPS en el archivo CSV cada segundo.
         """
-        nonlocal FPS_COUNT
+        nonlocal FPS_COUNT, FPS_LABEL
         while not stop_event.is_set():
             frames_per_second_record.append(FPS_COUNT)
             # Escribe el valor del FPS en el archivo directamente
             times_queue.put(("fps", FPS_COUNT))
+            FPS_LABEL = FPS_COUNT
             FPS_COUNT = 0
             time.sleep(1)
 
@@ -237,7 +241,8 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
             text = f'ID:{obj_id} {detected_class} {conf:.2f}'
             cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        
+            
+        cv2.putText(frame, f'FPS: {FPS_LABEL}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         out.write(frame)
         FPS_COUNT += 1
         
@@ -256,6 +261,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     times_queue.put(None)
     print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")    
 
+    t2_start.set()
     stop_event.set()
     os._exit(0)
 
@@ -285,9 +291,10 @@ def write_to_csv(times_queue):
             frame_count += 1
         elif label == "fps":
             add_fps_to_csv(fps_excel_file, frame_count, data)
-               
-    os._exit(0)
     
+    print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
+        
+    os._exit(0)
 
 def main():
     model_path = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
@@ -310,6 +317,8 @@ def main():
     print("[PROGRAM] Total de frames: ", get_total_frames(video_path))
     
     stop_event = mp.Event()
+    t1_start = mp.Event()
+    t2_start = mp.Event()
     
     frame_queue = mp.Queue(maxsize=10)
     detection_queue = mp.Queue(maxsize=10)
@@ -317,22 +326,27 @@ def main():
     times_queue = mp.Queue(maxsize=10)
 
 
-    t1 = cv2.getTickCount()
+    #t1 = cv2.getTickCount()
     processes = [
             mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event)),
-            mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event)),
+            mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
-            mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event)),
+            mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start)),
             mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,))
         ]
 
     for process in processes:
         process.start()
-    for process in processes:
-        process.join()
-        print("[PROGRAM] Proceso ", process, " joined")
-
+        
+    t1_start.wait()
+    t1 = cv2.getTickCount()
+    
+    t2_start.wait()
     t2 = cv2.getTickCount()
+    
+    #for process in processes:
+    #    process.join()
+    #    print("[PROGRAM] Proceso ", process, " joined")
     
     total_time = (t2 - t1) / cv2.getTickFrequency()
     total_frames = get_total_frames(video_path)

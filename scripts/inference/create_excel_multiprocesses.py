@@ -14,7 +14,7 @@ def create_csv_file(file_name="default.csv"):
         "Preprocess", "Inference", "Postprocess"
     ]
     
-    file_path = "/TFG/excels/" + file_name
+    file_path = "/TFG/excels/multiprocesses/" + file_name
 
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     
