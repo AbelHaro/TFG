@@ -42,6 +42,9 @@ def update_memory(tracked_objects, memory, classes):
             del memory[track_id]
 
 def capture_frames(video_path, frame_queue, stop_event):
+    
+    frame_number = 0
+    
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
     cap = cv2.VideoCapture(video_path)
@@ -63,9 +66,12 @@ def capture_frames(video_path, frame_queue, stop_event):
             "capture": capture_time
         }
         
-        frame_queue.put((frame, times))
+        frame_queue.put((frame, times, frame_number))
+        
+        frame_number += 1
     
     cap.release()
+    frame_queue.put(None)
     frame_queue.put(None)
     
     #time.sleep(1)
@@ -89,9 +95,10 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         item = frame_queue.get()
         if item is None:
             detection_queue.put(None)
+            print("[PROGRAM - PROCESS FRAMES] None añadido a la cola de detección")
             break
         
-        frame, times = item
+        frame, times, frame_number = item
         
         t1 = cv2.getTickCount()
         results = model.predict(source=frame, device=0, conf=0.6, imgsz=(640, 640), half=True, augment=True, task='detect', show_labels=False, show_conf=False, )
@@ -111,7 +118,7 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         times["processing"] = processing_time
         times["detect_function"] = times_detect_function
 
-        detection_queue.put((frame, result_formatted, times))
+        detection_queue.put((frame, result_formatted, times, frame_number))
         
     while not stop_event.is_set():
         pass
@@ -149,19 +156,57 @@ class TrackerWrapper:
         return self.tracker.update(detections, frame)
 
 
-def tracking_frames(detection_queue, tracking_queue, stop_event):
+def tracking_frames(detection_queue_GPU, detection_queue_DLA, tracking_queue, stop_event):
 
     tracker_wrapper = TrackerWrapper(frame_rate=20)
+    stop_gpu = False
+    stop_dla = False
+    item_gpu = None
+    item_dla = None
     
     while True:
-        item = detection_queue.get()
-        if item is None:
+        
+        item_gpu = None
+        item_dla = None
+        
+        #print(f"[PROGRAM - TRACKING FRAMES] Esperando items.., stop_gpu: {stop_gpu}, stop_dla: {stop_dla}, item_gpu es None: {item_gpu is None}, item_dla es None: {item_dla is None}")
+        if not stop_gpu and item_gpu is None:
+            item_gpu = detection_queue_GPU.get()
+            if item_gpu is None:
+                #print("[PROGRAM - TRACKING FRAMES] Item GPU es None")
+                stop_gpu = True
+            
+        if not stop_dla and item_dla is None:
+            item_dla = detection_queue_DLA.get()
+            if item_dla is None:
+                #print("[PROGRAM - TRACKING FRAMES] Item DLA es None")
+                stop_dla = True
+        
+        if stop_gpu and stop_dla:
+            #print("[PROGRAM - TRACKING FRAMES] Ambas colas están vacías")
             tracking_queue.put(None)
+            #print("[PROGRAM - TRACKING FRAMES] None añadido a la cola de tracking")
             break
 
         t1 = cv2.getTickCount()
-        frame, result, times = item
-
+        _, _, _, frame_number_gpu = item_gpu if item_gpu is not None else (None, None, None, None)
+        _, _, _, frame_number_dla = item_dla if item_dla is not None else (None, None, None, None)
+        
+        if frame_number_gpu is not None and frame_number_dla is not None:
+            if frame_number_gpu < frame_number_dla:
+                frame, result, times, _ = item_gpu
+                item_gpu = None
+            else:
+                frame, result, times, _ = item_dla
+                item_dla = None
+        elif frame_number_gpu is not None:
+            frame, result, times, _ = item_gpu
+            item_gpu = None
+        elif frame_number_dla is not None:
+            frame, result, times, _ = item_dla
+            item_dla = None
+            
+            
         outputs = tracker_wrapper.track(result, frame)
 
         t2 = cv2.getTickCount()
@@ -310,12 +355,13 @@ def write_to_csv(times_queue):
 
 def main():
     model_path = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
+    model_path_dla = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16_DLA.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     #video_path = '../../datasets_labeled/videos/video4.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, 'multiprocesos.mp4')
+    output_video_path = os.path.join(output_dir, 'multihardware.mp4')
     
 
     classes = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
@@ -334,7 +380,8 @@ def main():
     t2_start = mp.Event()
     
     frame_queue = mp.Queue(maxsize=10)
-    detection_queue = mp.Queue(maxsize=10)
+    detection_queue_GPU = mp.Queue(maxsize=10)
+    detection_queue_DLA = mp.Queue(maxsize=10)
     tracking_queue = mp.Queue(maxsize=10)
     times_queue = mp.Queue(maxsize=10)
 
@@ -342,8 +389,9 @@ def main():
     #t1 = cv2.getTickCount()
     processes = [
             mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event)),
-            mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, t1_start)),
-            mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
+            mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue_GPU, model_path, stop_event, t1_start)),
+            mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue_DLA, model_path_dla, stop_event, t1_start)),
+            mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue_GPU, detection_queue_DLA, tracking_queue, stop_event)),
             mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start)),
             mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,))
         ]
@@ -373,3 +421,6 @@ if __name__ == '__main__':
     mp.multiprocessing.set_start_method('spawn')   
     print("[PROGRAM] Number of cpu : ", mp.multiprocessing.cpu_count())
     main()
+    
+    #[PROGRAM] Tiempo total: 19.295s, FPS: 36.902
+    #[PROGRAM] Tiempo total: 57.597s, FPS: 38.874
