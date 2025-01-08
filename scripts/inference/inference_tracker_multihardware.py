@@ -166,17 +166,17 @@ def tracking_frames(detection_queue_GPU, detection_queue_DLA, tracking_queue, st
     
     while True:
         
-        item_gpu = None
-        item_dla = None
         
         #print(f"[PROGRAM - TRACKING FRAMES] Esperando items.., stop_gpu: {stop_gpu}, stop_dla: {stop_dla}, item_gpu es None: {item_gpu is None}, item_dla es None: {item_dla is None}")
         if not stop_gpu and item_gpu is None:
+            #print("[PROGRAM - TRACKING FRAMES] Esperando item GPU")
             item_gpu = detection_queue_GPU.get()
             if item_gpu is None:
                 #print("[PROGRAM - TRACKING FRAMES] Item GPU es None")
                 stop_gpu = True
             
         if not stop_dla and item_dla is None:
+            #print("[PROGRAM - TRACKING FRAMES] Esperando item DLA")
             item_dla = detection_queue_DLA.get()
             if item_dla is None:
                 #print("[PROGRAM - TRACKING FRAMES] Item DLA es None")
@@ -192,17 +192,23 @@ def tracking_frames(detection_queue_GPU, detection_queue_DLA, tracking_queue, st
         _, _, _, frame_number_gpu = item_gpu if item_gpu is not None else (None, None, None, None)
         _, _, _, frame_number_dla = item_dla if item_dla is not None else (None, None, None, None)
         
+        #print(f"[PROGRAM - TRACKING FRAMES] frame_number_gpu: {frame_number_gpu}, frame_number_dla: {frame_number_dla}")
+        
         if frame_number_gpu is not None and frame_number_dla is not None:
             if frame_number_gpu < frame_number_dla:
+                #print("[PROGRAM - TRACKING FRAMES] Usando item GPU")
                 frame, result, times, _ = item_gpu
                 item_gpu = None
             else:
+                #print("[PROGRAM - TRACKING FRAMES] Usando item DLA")
                 frame, result, times, _ = item_dla
                 item_dla = None
         elif frame_number_gpu is not None:
+            #print("[PROGRAM - TRACKING FRAMES] Usando item GPU")
             frame, result, times, _ = item_gpu
             item_gpu = None
         elif frame_number_dla is not None:
+            #print("[PROGRAM - TRACKING FRAMES] Usando item DLA")
             frame, result, times, _ = item_dla
             item_dla = None
             
@@ -327,8 +333,8 @@ def write_to_csv(times_queue):
     from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv
     import os
     
-    times_excel_file = create_csv_file(file_name="times_multiprocesses.csv")
-    fps_excel_file = create_csv_file(file_name="fps_multiprocesses.csv")
+    times_excel_file = create_csv_file(file_name="times_multihardware.csv")
+    fps_excel_file = create_csv_file(file_name="fps_multihardware.csv")
     
     frame_count = 0
     
