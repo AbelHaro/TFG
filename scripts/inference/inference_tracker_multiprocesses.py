@@ -278,7 +278,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     os._exit(0)
 
 
-def write_to_csv(times_queue):
+def write_to_csv(times_queue, model_size):
     from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
     import os
     
@@ -314,7 +314,9 @@ def write_to_csv(times_queue):
     os._exit(0)
 
 def main():
-    model_path = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
+    
+    model_name = "yolo11n"
+    model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_FP16.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     video_path = '../../datasets_labeled/videos/assert.mp4'
@@ -350,7 +352,7 @@ def main():
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
             mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start)),
-            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,))
+            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_name))
         ]
 
     for process in processes:

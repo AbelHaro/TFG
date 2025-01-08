@@ -337,7 +337,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     os._exit(0)
 
 
-def write_to_csv(times_queue):
+def write_to_csv(times_queue, model_size):
     from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
     import os
     
@@ -366,7 +366,7 @@ def write_to_csv(times_queue):
         elif label == "fps":
             add_fps_to_csv(fps_excel_file, frame_count, data)
             
-    create_excel_from_csv(times_name, fps_name, output_name="multihardware.xlsx")
+    create_excel_from_csv(times_name, fps_name, output_name=f"multihardware-{model_size}.xlsx")
     
     print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
         
@@ -374,7 +374,11 @@ def write_to_csv(times_queue):
 
 def main():
     
-    model = "2024_11_28_canicas_yolo11n_FP16"
+    
+    
+    model_size = "yolo11n"
+    model = f"2024_11_28_canicas_{model_size}_FP16"
+    
     
     model_path_gpu  = f'../../models/canicas/2024_11_28/{model}_GPU.engine'
     model_path_dla0 = f'../../models/canicas/2024_11_28/{model}_DLA0.engine'
@@ -419,7 +423,7 @@ def main():
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue_DLA1, model_path_dla1, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue_GPU, detection_queue_DLA0, detection_queue_DLA1, tracking_queue, stop_event)),
             mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start)),
-            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,))
+            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_size))
         ]
 
     for process in processes:
