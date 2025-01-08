@@ -1,5 +1,6 @@
 import os
 import csv
+from openpyxl import Workbook
 
 def create_csv_file(file_name="default.csv"):
     """
@@ -104,4 +105,64 @@ def format_number(number):
     Formatea un número al estilo 'es_ES' (con coma como separador decimal).
     """
     return f"{number:.6f}".replace('.', ',')
+
+def create_excel_from_csv(times_name, fps_name, output_name="default.xlsx"):
+    """
+    Función que crea un archivo Excel a partir de dos CSVs utilizando openpyxl.
+    
+    :param times_name: Nombre del archivo CSV con los tiempos.
+    :param fps_name: Nombre del archivo CSV con los FPS.
+    :param output_name: Nombre del archivo Excel de salida (incluyendo ruta si es necesario).
+    """
+    print(f"[CREATE EXCEL] Creando Excel a partir de {times_name} y {fps_name}...") 
+    
+    # Ruta de los archivos CSV
+    file_path = "/TFG/excels/multiprocesses/"
+    
+    # Leer los CSVs
+    times_data = []
+    with open(file_path + times_name, mode='r') as f:
+        reader = csv.reader(f)
+        times_data = list(reader)
+
+    fps_data = []
+    with open(file_path + fps_name, mode='r') as f:
+        reader = csv.reader(f)
+        fps_data = list(reader)
+
+    # Crear un libro de trabajo y las hojas
+    wb = Workbook()
+
+    # Crear la hoja de 'Times'
+    times_sheet = wb.active
+    times_sheet.title = "Times"
+    
+    # Escribir los datos de times.csv en la hoja 'Times'
+    for row in times_data:
+        processed_row = [float(cell.replace(",", ".").replace("'", "")) if cell.replace(",", "").isdigit() else cell for cell in row]
+        times_sheet.append(processed_row)
+
+
+    # Crear la hoja de 'FPS'
+    fps_sheet = wb.create_sheet(title="FPS")
+    
+    # Escribir los datos de fps.csv en la hoja 'FPS'
+    for row in fps_data:
+        processed_row = [float(cell.replace(",", ".").replace("'", "")) if cell.replace(",", "").isdigit() else cell for cell in row]
+        fps_sheet.append(processed_row)
+    # Verificar si la ruta de salida existe, si no, crearla
+    output_dir = os.path.dirname(output_name)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Guardar el libro de trabajo como archivo Excel
+    wb.save(file_path + output_name)
+
+    # Opcional: borrar los archivos CSV después de crear el Excel
+    os.remove(file_path + times_name)
+    os.remove(file_path + fps_name)
+
+    print(f"Excel generado exitosamente en {file_path + output_name}.")
+
+
 

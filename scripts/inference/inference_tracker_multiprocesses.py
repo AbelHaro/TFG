@@ -279,11 +279,14 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
 
 
 def write_to_csv(times_queue):
-    from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv
+    from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
     import os
     
-    times_excel_file = create_csv_file(file_name="times_multiprocesses.csv")
-    fps_excel_file = create_csv_file(file_name="fps_multiprocesses.csv")
+    times_name = "times_multiprocesses.csv"
+    fps_name = "fps_multiprocesses.csv"
+    
+    times_excel_file = create_csv_file(file_name=times_name)
+    fps_excel_file = create_csv_file(file_name=fps_name)
     
     frame_count = 0
     
@@ -303,6 +306,8 @@ def write_to_csv(times_queue):
             frame_count += 1
         elif label == "fps":
             add_fps_to_csv(fps_excel_file, frame_count, data)
+            
+    create_excel_from_csv(times_name, fps_name, output_name="multiprocesses.xlsx")
     
     print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
         
@@ -311,8 +316,8 @@ def write_to_csv(times_queue):
 def main():
     model_path = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
-    video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
-    #video_path = '../../datasets_labeled/videos/video4.mp4'
+    #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
+    video_path = '../../datasets_labeled/videos/assert.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'multiprocesos.mp4')
