@@ -1,6 +1,7 @@
 import cv2
 from ultralytics import YOLO
 import os
+import sys
 import torch.multiprocessing as mp
 from ultralytics.trackers.byte_tracker import BYTETracker
 from argparse import Namespace
@@ -278,7 +279,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     os._exit(0)
 
 
-def write_to_csv(times_queue, model_size):
+def write_to_csv(times_queue, model_size, objects_count):
     from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
     import os
     
@@ -307,7 +308,7 @@ def write_to_csv(times_queue, model_size):
         elif label == "fps":
             add_fps_to_csv(fps_excel_file, frame_count, data)
             
-    create_excel_from_csv(times_name, fps_name, output_name="multiprocesses.xlsx")
+    create_excel_from_csv(times_name, fps_name, output_name=f"multihardware-{model_size}-contar_objetos_{objects_count}_2min.xlsx")
     
     print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
         
@@ -315,11 +316,13 @@ def write_to_csv(times_queue, model_size):
 
 def main():
     
+    objects_count = int(sys.argv[1])
+    
     model_name = "yolo11n"
     model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_FP16.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
-    video_path = '../../datasets_labeled/videos/assert.mp4'
+    video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'multiprocesos.mp4')
@@ -341,7 +344,7 @@ def main():
     t2_start = mp.Event()
     
     frame_queue = mp.Queue(maxsize=10)
-    detection_queue = mp.Queue(maxsize=10)
+    detection_queue = mp.Queue(maxsize=100)
     tracking_queue = mp.Queue(maxsize=10)
     times_queue = mp.Queue(maxsize=10)
 
@@ -352,7 +355,7 @@ def main():
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
             mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start)),
-            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_name))
+            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_name, objects_count))
         ]
 
     for process in processes:
@@ -371,7 +374,7 @@ def main():
     total_time = (t2 - t1) / cv2.getTickFrequency()
     total_frames = get_total_frames(video_path)
     
-    
+    print("[PROGRAM] Cantidad de objetos: ", objects_count)
     print(f"[PROGRAM] Total de frames procesados: {total_frames}")
     print(f"[PROGRAM] Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
         

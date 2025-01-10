@@ -1,6 +1,7 @@
 import cv2
 from ultralytics import YOLO
 import os
+import sys
 import torch.multiprocessing as mp
 from ultralytics.trackers.byte_tracker import BYTETracker
 from argparse import Namespace
@@ -171,7 +172,7 @@ def tracking_frames(detection_queue_GPU, detection_queue_DLA0, detection_queue_D
     item_dla1 = None
     
     while True:
-        # Obtener elementos de las colas si aún no han sido detenidas
+                # Obtener elementos de las colas si aún no han sido detenidas
         if not stop_gpu and item_gpu is None:
             item_gpu = detection_queue_GPU.get()
             if item_gpu is None:
@@ -216,10 +217,10 @@ def tracking_frames(detection_queue_GPU, detection_queue_DLA0, detection_queue_D
             item_dla1 = None
         else:
             continue  # No hay elementos disponibles, continuar el bucle
-
+        
         # Realizar el tracking
         outputs = tracker_wrapper.track(result, frame)
-
+        
         t2 = cv2.getTickCount()
         tracking_time = (t2 - t1) / cv2.getTickFrequency()
         
@@ -287,6 +288,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
             frame_height, frame_width = frame.shape[:2]
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
             out = cv2.VideoWriter(output_video_path, fourcc, 20, (frame_width, frame_height))
+            
 
         # Actualiza la memoria con objetos rastreados
         update_memory(tracked_objects, memory, classes)
@@ -337,9 +339,9 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     os._exit(0)
 
 
-def write_to_csv(times_queue, model_size):
+def write_to_csv(times_queue, model_size, objects_count):
     from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
-    import os
+
     
     times_name = "times_multihardware.csv"
     fps_name = "fps_multihardware.csv"
@@ -366,7 +368,7 @@ def write_to_csv(times_queue, model_size):
         elif label == "fps":
             add_fps_to_csv(fps_excel_file, frame_count, data)
             
-    create_excel_from_csv(times_name, fps_name, output_name=f"multihardware-{model_size}.xlsx")
+    create_excel_from_csv(times_name, fps_name, output_name=f"multihardware-{model_size}-contar_objetos_{objects_count}_2min.xlsx")
     
     print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
         
@@ -374,7 +376,7 @@ def write_to_csv(times_queue, model_size):
 
 def main():
     
-    
+    objects_count = int(sys.argv[1])
     
     model_size = "yolo11n"
     model = f"2024_11_28_canicas_{model_size}_FP16"
@@ -386,7 +388,7 @@ def main():
     
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
-    video_path = '../../datasets_labeled/videos/assert.mp4'
+    video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'multihardware.mp4')
@@ -423,7 +425,7 @@ def main():
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue_DLA1, model_path_dla1, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue_GPU, detection_queue_DLA0, detection_queue_DLA1, tracking_queue, stop_event)),
             mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start)),
-            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_size))
+            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_size, objects_count))
         ]
 
     for process in processes:
@@ -442,19 +444,12 @@ def main():
     total_time = (t2 - t1) / cv2.getTickFrequency()
     total_frames = get_total_frames(video_path)
     
-    
-    print(f"[PROGRAM] Total de frames procesados: {total_frames}")
-    print(f"[PROGRAM] Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
+    print(f"[PROGRAM - TIME] Cantidad Objetos: {objects_count}")
+    print(f"[PROGRAM - TIME] Total de frames procesados: {total_frames}")
+    print(f"[PROGRAM - TIME] Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
         
     
 if __name__ == '__main__':
     mp.multiprocessing.set_start_method('spawn')   
     print("[PROGRAM] Number of cpu : ", mp.multiprocessing.cpu_count())
     main()
-    
-    #[PROGRAM] Tiempo total: 19.295s, FPS: 36.902
-    #[PROGRAM] Tiempo total: 57.597s, FPS: 38.874
-    
-    #[PROGRAM] Total de frames procesados: 2880
-    #[PROGRAM] Tiempo total: 120.749s, FPS: 23.851
-
