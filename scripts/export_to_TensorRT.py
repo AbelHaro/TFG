@@ -6,18 +6,27 @@ data_dir = f"/TFG/datasets_labeled/2024_11_28_canicas_dataset/data.yaml"
 model_path = f"/TFG/models/canicas/{version}/"
 
 models_name = [
+    #f"{version}_canicas_yolov8n.pt",
+    #f"{version}_canicas_yolov5nu.pt",
     f"{version}_canicas_yolo11n.pt",
-    #f"{version}_canicas_yolo11s.pt",
-    #f"{version}_canicas_yolo11m.pt",
     #f"{version}_canicas_yolo11l.pt",
     #f"{version}_canicas_yolo11x.pt",
 ]
 
 hardware = [
-    0,
+    #0,
     "dla:0",          
-    "dla:1",
+    #"dla:1",
 ]
+
+precision = {
+    "half": True,
+    "int8": False,
+}
+
+if precision["half"] and precision["int8"]:
+    print("ERROR: Solo se puede elegir un tamaño de precisión")
+    exit()
 
 for model_name in models_name:
     for hw in hardware:
@@ -30,22 +39,31 @@ for model_name in models_name:
         model.export(
             data=data_dir,
             format="engine",
-            half=True,
+            half=precision["half"],
+            int8=precision["int8"],
             device=hw,
             imgsz=640,
         )
         
+        # Ajustar el sufijo del nombre del archivo según la precisión
+        if precision["half"]:
+            precision_suffix = "FP16"
+        elif precision["int8"]:
+            precision_suffix = "INT8"
+        else:
+            precision_suffix = "FP32"
+        
         # Ajustar el sufijo del nombre del archivo según el hardware
         if hw == 0:
-            suffix = "FP16_GPU"
+            hardware_suffix = "GPU"
         elif hw == "dla:0":
-            suffix = "FP16_DLA0"
+            hardware_suffix = "DLA0"
         elif hw == "dla:1":
-            suffix = "FP16_DLA1"
+            hardware_suffix = "DLA1"
         else:
-            suffix = "UNKNOWN"
+            hardware_suffix = "UNKNOWN"
         
         # Renombrar el archivo exportado
         src = f"{model_path}{model_name.replace('.pt', '.engine')}"
-        dst = f"{model_path}{model_name.replace('.pt', '')}_{suffix}.engine"
+        dst = f"{model_path}{model_name.replace('.pt', '')}_{precision_suffix}_{hardware_suffix}.engine"
         os.system(f"mv {src} {dst}")

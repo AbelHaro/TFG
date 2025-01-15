@@ -1,0 +1,4 @@
+
+
+Preprocesado, inferencia y postprocesado manual -> https://github.com/ultralytics/ultralytics/issues/14855
+control del pipeline de la inferencia -> https://github.com/ultralytics/ultralytics/issues/17542

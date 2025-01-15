@@ -3,6 +3,7 @@
 /validation_predictions
 /images
 /models/canicas/**/train*
+/files
 *.avi
 *.onnx
 *.engine

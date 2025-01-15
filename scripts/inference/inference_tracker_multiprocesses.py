@@ -319,7 +319,7 @@ def main():
     objects_count = int(sys.argv[1])
     
     model_name = "yolo11n"
-    model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_FP16.engine'
+    model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_FP16_DLA0.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'

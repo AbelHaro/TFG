@@ -20,10 +20,11 @@ if not os.path.exists(output_dir):
 # Modelos base a usar para entrenamiento
 base_models = [
     #"yolo11n.pt",
-    "yolo11s.pt",
-    "yolo11m.pt",
-    "yolo11l.pt",
-    "yolo11x.pt",
+    #"yolo11s.pt",
+    #"yolo11m.pt",
+    #"yolo11l.pt",
+    #"yolo11x.pt",
+    "yolov5nu.pt",
 ]
 
 # Iterar sobre cada modelo base y entrenar
