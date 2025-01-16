@@ -313,19 +313,70 @@ def write_to_csv(times_queue, model_size, objects_count):
     print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
         
     os._exit(0)
+    
+
+
+import os
+import subprocess
+from datetime import datetime
+from hardware_stats_usage import create_tegrastats_file
+
+def hardware_usage(output_file, stop_event, t1_start):
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    
+    tegra_stats_output = f"/TFG/excels/tegrastats_outputs/{timestamp}.txt"
+    output_filename = f"/TFG/excels/hardware_stats_usage/{output_file}"
+    
+    os.makedirs(os.path.dirname(tegra_stats_output), exist_ok=True)
+    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
+    
+    t1_start.wait()
+
+    process = subprocess.Popen(
+        ["tegrastats"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    try:
+        while not stop_event.is_set():
+            output = process.stdout.readline()
+            if output:
+                with open(tegra_stats_output, "a") as f:
+                    f.write(output.decode("utf-8"))
+                
+    finally:
+        print("[PROGRAM - HARDWARE USAGE] Deteniendo el proceso tegrastats...")
+        process.terminate()
+        process.wait()
+        create_tegrastats_file(tegra_stats_output, output_filename)
+        print("[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
+    
+    print("[PROGRAM - HARDWARE USAGE] Terminando proceso")
+    os._exit(0)
+
+
 
 def main():
-    
+
+    if len(sys.argv) < 2:
+        print("Usage: python3 inference_tracker_multiprocesses.py <objects_count>")
+        exit()
+        
     objects_count = int(sys.argv[1])
     
     model_name = "yolo11n"
-    model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_FP16_DLA0.engine'
+    precision = "FP16"
+    hardware = "GPU"
+    mode = "30W_2CORE"
+    
+    model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware}.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'multiprocesos.mp4')
+    
+    output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}.csv"
     
 
     classes = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
@@ -338,6 +389,7 @@ def main():
     
     print("[PROGRAM] Se ha usado el modelo ", model_path)
     print("[PROGRAM] Total de frames: ", get_total_frames(video_path))
+    print(f"[PROGRAM] Usando {objects_count} objetos, modo energia {mode}")
     
     stop_event = mp.Event()
     t1_start = mp.Event()
@@ -355,7 +407,8 @@ def main():
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
             mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start)),
-            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_name, objects_count))
+            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_name, objects_count)),
+            mp.multiprocessing.Process(target=hardware_usage, args=(output_hardware_stats, stop_event, t1_start)),
         ]
 
     for process in processes:
