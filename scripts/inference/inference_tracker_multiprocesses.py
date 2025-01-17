@@ -321,37 +321,50 @@ import subprocess
 from datetime import datetime
 from hardware_stats_usage import create_tegrastats_file
 
+import os
+import subprocess
+from datetime import datetime
+from threading import Event
+
 def hardware_usage(output_file, stop_event, t1_start):
     timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     
-    tegra_stats_output = f"/TFG/excels/tegrastats_outputs/{timestamp}.txt"
+    tegra_stats_output = f"/TFG/excels/tegrastats_outputs/{output_file}_{timestamp}.txt"
     output_filename = f"/TFG/excels/hardware_stats_usage/{output_file}"
     
     os.makedirs(os.path.dirname(tegra_stats_output), exist_ok=True)
     os.makedirs(os.path.dirname(output_filename), exist_ok=True)
     
+    # Espera inicial para sincronizar con el evento
     t1_start.wait()
 
+    # Iniciar el proceso de tegrastats
     process = subprocess.Popen(
-        ["tegrastats"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ["tegrastats"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
-
+    
+    print("[PROGRAM - HARDWARE USAGE] Iniciando tegrastats...")
     try:
-        while not stop_event.is_set():
-            output = process.stdout.readline()
-            if output:
-                with open(tegra_stats_output, "a") as f:
-                    f.write(output.decode("utf-8"))
-                
-    finally:
-        print("[PROGRAM - HARDWARE USAGE] Deteniendo el proceso tegrastats...")
+        # Leer la salida en tiempo real y escribir en el archivo
+        with open(tegra_stats_output, "a") as f:
+            while not stop_event.is_set():
+                output = process.stdout.readline()
+                if output:
+                    f.write(output)
+                else:
+                    break
+        # Detener el proceso cuando el evento de parada se activa
         process.terminate()
         process.wait()
+    finally:
+        print("[PROGRAM - HARDWARE USAGE] Deteniendo el proceso tegrastats...")
+        # Procesar el archivo de salida generado por tegrastats
         create_tegrastats_file(tegra_stats_output, output_filename)
         print("[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
     
     print("[PROGRAM - HARDWARE USAGE] Terminando proceso")
     os._exit(0)
+
 
 
 
@@ -366,7 +379,7 @@ def main():
     model_name = "yolo11n"
     precision = "FP16"
     hardware = "GPU"
-    mode = "30W_2CORE"
+    mode = f"10W_{mp.multiprocessing.cpu_count()}CORE"
     
     model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware}.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
