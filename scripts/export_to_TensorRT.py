@@ -14,9 +14,9 @@ models_name = [
 ]
 
 hardware = [
-    #0,
+    0,
     "dla:0",          
-    #"dla:1",
+    "dla:1",
 ]
 
 precision = {

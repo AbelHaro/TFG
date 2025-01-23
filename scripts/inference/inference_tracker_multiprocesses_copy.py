@@ -43,6 +43,8 @@ def update_memory(tracked_objects, memory, classes):
             del memory[track_id]
 
 def capture_frames(video_path, frame_queue, stop_event):
+    
+    frame_count = 0
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
     cap = cv2.VideoCapture(video_path)
@@ -53,6 +55,7 @@ def capture_frames(video_path, frame_queue, stop_event):
     while cap.isOpened():
         t1 = cv2.getTickCount()
         ret, frame = cap.read()
+        frame_count += 1
         t2 = cv2.getTickCount()
         
         capture_time = (t2 - t1) / cv2.getTickFrequency()
@@ -63,6 +66,9 @@ def capture_frames(video_path, frame_queue, stop_event):
         times = {
             "capture": capture_time
         }
+        
+        if frame_count > 100:
+            break
         
         frame_queue.put((frame, times))
     
@@ -259,11 +265,17 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         # Añade una fila al archivo Excel
         times_queue.put(("times", times))
         
-
-    
+        with open(count_file, 'a') as f:
+            counts = {}
+            for obj in tracked_objects:
+                obj_id = int(obj[4])
+                detected_class = memory[obj_id]['class']
+                counts[detected_class] = counts.get(detected_class, 0) + 1
+            f.write(str(counts) + '\n')
+            
     if out:
         out.release()
-        
+
     #print("[PROGRAM - DRAW AND WRITE] Poniendno None en la cola de tiempos")
     times_queue.put(None)
     print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")    
@@ -273,10 +285,21 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     os._exit(0)
 
 
-def write_to_csv(times_queue, model_size, objects_count):
-    from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
+
+def write_to_csv(times_queue, model_size, objects_count, t1_start, stop_event, output_tegrastats):
     import os
+    from datetime import datetime  # Importar correctamente datetime
+    from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
+    from hardware_stats_usage import create_tegrastats_file
+
+    # Generar timestamp para los nombres de los archivos
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+    # Archivos de salida para tegrastats
+    tegra_stats_output = f"/TFG/excels/tegrastats_outputs/{output_tegrastats}_{timestamp}.txt"
+    output_filename = f"/TFG/excels/hardware_stats_usage/{output_tegrastats}"
     
+    # Crear ficheros CSV
     times_name = "times_multiprocesses.csv"
     fps_name = "fps_multiprocesses.csv"
     
@@ -284,15 +307,38 @@ def write_to_csv(times_queue, model_size, objects_count):
     fps_excel_file = create_csv_file(file_name=fps_name)
     
     frame_count = 0
+
+    # Asegurarse de que las carpetas existen para los ficheros de tegrastats
+    print("[PROGRAM - WRITE TO CSV] Creando directorios para los ficheros de tegrastats...")
+    print(f"[PROGRAM - WRITE TO CSV] Directorio de tegra_stats_output: {tegra_stats_output}")
+    os.makedirs(os.path.dirname(tegra_stats_output), exist_ok=True)
+    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
     
+    # Crear archivo vacío para tegrastats
+    open(tegra_stats_output, 'w').close()
+
+    # Esperar a que se active el evento t1_start
+    t1_start.wait()
+    print("[PROGRAM - WRITE TO CSV] Iniciando tegrastats...")
+    try:
+        # Detener tegrastats si ya estaba corriendo
+        os.system("tegrastats --stop")
+        
+        # Iniciar el registro de tegrastats
+        command = f"tegrastats --interval 10 --logfile {tegra_stats_output} --readall --start"
+        os.system(command)
+        
+        print("[PROGRAM - WRITE TO CSV] tegrastats iniciado con éxito.")
+    except Exception as e:
+        print(f"[PROGRAM - WRITE TO CSV] Error al iniciar tegrastats: {e}")
+        return
+
     while True:
         item = times_queue.get()
         
         if item is None:
-            #print("[PROGRAM - WRITE TO CSV] None recibido")
+            print("[PROGRAM - WRITE TO CSV] None recibido, terminando...")
             break
-        
-        #print("[PROGRAM - WRITE TO CSV] Item recibido")
         
         label, data = item
         
@@ -301,63 +347,23 @@ def write_to_csv(times_queue, model_size, objects_count):
             frame_count += 1
         elif label == "fps":
             add_fps_to_csv(fps_excel_file, frame_count, data)
-            
-    create_excel_from_csv(times_name, fps_name, output_name=f"multiprocesses-{model_size}-contar_objetos_{objects_count}_2min.xlsx")
-    
-    print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
         
+        if stop_event.is_set():
+            # Detener tegrastats al finalizar el procesamiento
+            print("[PROGRAM - WRITE TO CSV] Deteniendo tegrastats...")
+            try:
+                os.system("tegrastats --stop")
+                print("[PROGRAM - WRITE TO CSV] tegrastats detenido con éxito.")
+            except Exception as e:
+                print(f"[PROGRAM - WRITE TO CSV] Error al detener tegrastats: {e}")
+
+    # Crear archivo Excel final
+    create_excel_from_csv(times_name, fps_name, output_name=f"multihardware-{model_size}-contar_objetos_{objects_count}_2min.xlsx")
+    create_tegrastats_file(tegra_stats_output, output_filename)
+    print("[PROGRAM - WRITE TO CSV] Archivo Excel creado con éxito.")
+
     os._exit(0)
-    
 
-
-import os
-import subprocess
-from datetime import datetime
-from hardware_stats_usage import create_tegrastats_file
-
-import os
-import subprocess
-from datetime import datetime
-from threading import Event
-
-def hardware_usage(output_file, stop_event, t1_start):
-    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    
-    tegra_stats_output = f"/TFG/excels/tegrastats_outputs/{output_file}_{timestamp}.txt"
-    output_filename = f"/TFG/excels/hardware_stats_usage/{output_file}"
-    
-    os.makedirs(os.path.dirname(tegra_stats_output), exist_ok=True)
-    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
-    
-    # Espera inicial para sincronizar con el evento
-    t1_start.wait()
-
-    # Iniciar el proceso de tegrastats
-    process = subprocess.Popen(
-        ["tegrastats"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
-    
-    print("[PROGRAM - HARDWARE USAGE] Iniciando tegrastats...")
-    try:
-        # Leer la salida en tiempo real y escribir en el archivo
-        with open(tegra_stats_output, "a") as f:
-            while not stop_event.is_set():
-                output = process.stdout.readline()
-                if output:
-                    f.write(output)
-                else:
-                    break
-        # Detener el proceso cuando el evento de parada se activa
-        process.terminate()
-        process.wait()
-    finally:
-        print("[PROGRAM - HARDWARE USAGE] Deteniendo el proceso tegrastats...")
-        # Procesar el archivo de salida generado por tegrastats
-        create_tegrastats_file(tegra_stats_output, output_filename)
-        print("[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
-    
-    print("[PROGRAM - HARDWARE USAGE] Terminando proceso")
-    os._exit(0)
 
 
 
@@ -368,7 +374,7 @@ def main():
         print("Usage: python3 inference_tracker_multiprocesses.py <objects_count>")
         exit()
         
-    objects_count = str(sys.argv[1])
+    objects_count = int(sys.argv[1])
     
     model_name = "yolo11n"
     precision = "FP16"
@@ -376,15 +382,14 @@ def main():
     mode = f"MAXN_{mp.multiprocessing.cpu_count()}CORE"
     
     model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware}.engine'
-    #model_path = f'../../models/canicas/2024_11_28/trt/model_gn.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, 'multiprocesos_tensorRT_manual_export_DLA0.mp4')
+    output_video_path = os.path.join(output_dir, 'multiprocesos.mp4')
     
-    output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}.csv"
+    output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}"
     
 
     classes = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
@@ -415,8 +420,7 @@ def main():
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
             mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start)),
-            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_name, objects_count)),
-            mp.multiprocessing.Process(target=hardware_usage, args=(output_hardware_stats, stop_event, t1_start)),
+            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue, model_name, objects_count, t1_start, stop_event, output_hardware_stats))
         ]
 
     for process in processes:

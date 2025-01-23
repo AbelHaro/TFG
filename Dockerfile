@@ -13,6 +13,9 @@ FROM ultralytics/ultralytics:8.3.38-jetson-jetpack5
 #RUN pip install --upgrade pip && \
 #  pip install -U torch torchvision
 
+RUN sudo apt-get update
+RUN sudo apt-get install nano
+
 # Instala Ultralytics
 RUN pip install ultralytics
 

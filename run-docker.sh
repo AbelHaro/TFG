@@ -25,7 +25,8 @@ DOCKER_CMD="sudo docker run -dit \
     --runtime=nvidia \
     -v \"$HOST_VOLUME:$CONTAINER_VOLUME\" \
     -e DISPLAY=$DISPLAY \
-    -v /tmp/.X11-unix:/tmp/.X11-unix"
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v /tmp/:/tmp"
 
 # Revisar si el flag -cam está presente
 if [ "$1" == "-cam" ]; then
