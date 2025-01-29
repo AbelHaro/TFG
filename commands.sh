@@ -21,3 +21,9 @@ sudo jetson_clocks
 # junta videos
 ffmpeg -f concat -safe 0 -i file_list.txt -c copy output.mp4
 
+
+cat /sys/devices/platform/host1x/15880000.nvdla0/power/runtime_status   #DLA0
+cat /sys/devices/platform/host1x/158c0000.nvdla1/power/runtime_status   #DLA1
+
+# Configurar pines GPIO
+sudo /opt/nvidia/jetson-io/jetson-io.py

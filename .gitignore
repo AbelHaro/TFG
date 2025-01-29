@@ -9,3 +9,5 @@
 *.engine
 *.pt
 *.zip
+/jetson_dla_tutorial
+/cuDLA-samples

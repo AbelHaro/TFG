@@ -248,8 +248,8 @@ def frames_per_second():
          
 
 def main():
-    model_path = '../../models/canicas/2024_11_28/trt/model_gn.engine'
-    video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
+    model_path = '../../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16_GPU.engine'
+    video_path = '../../datasets_labeled/videos/contar_objetos_variable_2min.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'hilos_video_con_tracking.mp4')
