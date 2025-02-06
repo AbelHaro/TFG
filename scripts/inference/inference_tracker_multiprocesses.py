@@ -43,6 +43,8 @@ import os
 import cv2
 
 def capture_frames(video_path, frame_queue, stop_event):
+    frame_number = 0
+    
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
     
@@ -54,26 +56,23 @@ def capture_frames(video_path, frame_queue, stop_event):
     desired_frame_time = 1 / 20.0  # 20 FPS, equivalente a 50 ms por frame
     
     while cap.isOpened() and not stop_event.is_set():
-        start_time = time.time()  # Tiempo inicial
+        t1 = cv2.getTickCount()
         ret, frame = cap.read()
         
         if not ret:
             break
-        
-        processing_time = time.time() - start_time  # Tiempo en procesar el frame
-        remaining_time = desired_frame_time - processing_time  # Tiempo restante para mantener 20 FPS
-        
-        # Si queda tiempo para alcanzar 20 FPS, duerme
-        if remaining_time > 0:
-            time.sleep(remaining_time)
-        
-        # Calcula el tiempo total por frame y añade al diccionario
-        total_frame_time = time.time() - start_time
+
+        t2 = cv2.getTickCount()
+        total_frame_time = (t2 - t1) / cv2.getTickFrequency()
         times = {
             "capture": total_frame_time
         }
         
         frame_queue.put((frame, times))
+        frame_number += 1
+        
+        if frame_number > 200:
+            break
     
     cap.release()
     frame_queue.put(None)
@@ -91,10 +90,18 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
     times_detect_function = {}
     
     model = YOLO(model_path, task='detect')
+    
+    model(device="cuda:0", conf=0.5, half=True, imgsz=(640, 640), augment=True)
+    
     dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
-    model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
+    #model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
+    preprocessed = model.predictor.preprocess([dummy_frame])
+    output = model.predictor.inference(preprocessed)
+    results = model.predictor.postprocess(output, preprocessed, [dummy_frame])
     
     t1_start.set()
+    
+    print("[PROGRAM - PROCESS FRAMES] Modelo cargado, comenzando inferencia...")
     
     while True:
         item = frame_queue.get()
@@ -105,7 +112,13 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         frame, times = item
         
         t1 = cv2.getTickCount()
-        results = model.predict(source=frame, device=0, conf=0.6, imgsz=(640, 640), half=True, augment=True, task='detect', show_labels=False, show_conf=False, )
+        
+        preprocessed = model.predictor.preprocess([frame])
+        output = model.predictor.inference(preprocessed)
+        results = model.predictor.postprocess(output, preprocessed, [frame])
+        
+        #print(f"[INFO] {results[0].boxes}")
+        
         result_formatted = Namespace(
             xywh=results[0].boxes.xywh.cpu(),
             conf=results[0].boxes.conf.cpu(),
@@ -124,6 +137,8 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
 
         detection_queue.put((frame, result_formatted, times))
         
+    print("[PROGRAM - PROCESS FRAMES] Terminado inferencia")
+    
     while not stop_event.is_set():
         pass
 
