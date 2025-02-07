@@ -4,6 +4,16 @@ import sys
 import torch.multiprocessing as mp # type: ignore
 from argparse import Namespace
 import numpy as np
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--num_objects', default=40, type=int, choices=[0, 18, 40, 48, 60, 70, 88, 176], help='Número de objetos a contar, posibles valores: {0, 18, 40, 48, 60, 70, 88, 176}, default=40')
+parser.add_argument('--model_size', default='n', type=str, choices=["n", "s", "m", "l", "x"], help='Talla del modelo {n, s, m, l, x}, default=n')
+parser.add_argument('--precision', default='FP16', type=str, choices=["FP32", "FP16", "INT8"], help='Precisión del modelo {FP32, FP16, INT8}, default=FP16')
+parser.add_argument('--hardware', default='GPU', type=str, choices=["GPU", "DLA0", "DLA1"], help='Hardware a usar {GPU, DLA0, DLA1}, default=GPU')
+parser.add_argument('--mode', required=True, default='MAXN', type=str, choices=["MAXN", "30W", "15W", "10W"], help='Modo de energía a usar {MAXN, 30W, 15W, 10W}, default=MAXN')
+
+args = parser.parse_args()
 
 FRAME_AGE = 15
 
@@ -38,22 +48,17 @@ def update_memory(tracked_objects, memory, classes):
         if memory[track_id]['visible_frames'] <= 0:
             del memory[track_id]
 
-import time
-import os
-import cv2
-
 def capture_frames(video_path, frame_queue, stop_event):
-    frame_number = 0
-    
+        
     if not os.path.exists(video_path):
+        frame_queue.put(None)
         raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
     
     cap = cv2.VideoCapture(video_path)
     
     if not cap.isOpened():
+        frame_queue.put(None)
         raise IOError(f"Error al abrir el archivo de video: {video_path}")
-    
-    desired_frame_time = 1 / 20.0  # 20 FPS, equivalente a 50 ms por frame
     
     while cap.isOpened() and not stop_event.is_set():
         t1 = cv2.getTickCount()
@@ -69,21 +74,12 @@ def capture_frames(video_path, frame_queue, stop_event):
         }
         
         frame_queue.put((frame, times))
-        frame_number += 1
-        
-        if frame_number > 200:
-            break
     
     cap.release()
     frame_queue.put(None)
-
-    
-    #time.sleep(1)
     
     while not stop_event.is_set():
         pass
-
-    
 
 def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_start):
     from ultralytics import YOLO # type: ignore
@@ -91,17 +87,13 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
     
     model = YOLO(model_path, task='detect')
     
-    model(device="cuda:0", conf=0.5, half=True, imgsz=(640, 640), augment=True)
+    #model(device="cuda:0", conf=0.5, half=True, imgsz=(640, 640), augment=True)
     
     dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
-    #model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
-    preprocessed = model.predictor.preprocess([dummy_frame])
-    output = model.predictor.inference(preprocessed)
-    results = model.predictor.postprocess(output, preprocessed, [dummy_frame])
+    model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
     
     t1_start.set()
     
-    print("[PROGRAM - PROCESS FRAMES] Modelo cargado, comenzando inferencia...")
     
     while True:
         item = frame_queue.get()
@@ -113,11 +105,10 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         
         t1 = cv2.getTickCount()
         
-        preprocessed = model.predictor.preprocess([frame])
-        output = model.predictor.inference(preprocessed)
-        results = model.predictor.postprocess(output, preprocessed, [frame])
-        
-        #print(f"[INFO] {results[0].boxes}")
+        #preprocessed = model.predictor.preprocess([frame])
+        #output = model.predictor.inference(preprocessed)
+        #results = model.predictor.postprocess(output, preprocessed, [frame])
+        results = model.predict(source=frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
         
         result_formatted = Namespace(
             xywh=results[0].boxes.xywh.cpu(),
@@ -136,8 +127,6 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         times["detect_function"] = times_detect_function
 
         detection_queue.put((frame, result_formatted, times))
-        
-    print("[PROGRAM - PROCESS FRAMES] Terminado inferencia")
     
     while not stop_event.is_set():
         pass
@@ -207,19 +196,13 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     
     FPS_COUNT = 0
     FPS_LABEL = 0
-    frames_per_second_record = []
     out = None
     first_time = True
     
     # Función para resetear FPS cada segundo
     def reset_fps():
-        """
-        Calcula y escribe los FPS en el archivo CSV cada segundo.
-        """
         nonlocal FPS_COUNT, FPS_LABEL
         while not stop_event.is_set():
-            frames_per_second_record.append(FPS_COUNT)
-            # Escribe el valor del FPS en el archivo directamente
             times_queue.put(("fps", FPS_COUNT))
             FPS_LABEL = FPS_COUNT
             FPS_COUNT = 0
@@ -281,7 +264,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     os._exit(0)
 
 
-def write_to_csv(times_queue, model_size, objects_count):
+def write_to_csv(times_queue, output_file):
     from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
     import os
     
@@ -307,16 +290,12 @@ def write_to_csv(times_queue, model_size, objects_count):
         elif label == "fps":
             add_fps_to_csv(fps_excel_file, frame_count, data)
             
-    create_excel_from_csv(times_name, fps_name, output_name=f"multiprocesses-{model_size}-contar_objetos_{objects_count}_2min.xlsx")
+    create_excel_from_csv(times_name, fps_name, output_name=f"multiprocesses_{output_file}_2min.xlsx")
     
     print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
         
     os._exit(0)
     
-
-
-
-
 def hardware_usage(output_file, stop_event, t1_start):
     import subprocess
     from datetime import datetime
@@ -325,7 +304,7 @@ def hardware_usage(output_file, stop_event, t1_start):
     timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     
     tegra_stats_output = f"/TFG/excels/tegrastats_outputs/{output_file}_{timestamp}.txt"
-    output_excel_filename = f"/TFG/excels/hardware_stats_usage/{output_file}"
+    output_excel_filename = f"/TFG/excels/hardware_stats_usage/{output_file}.csv"
     
     os.makedirs(os.path.dirname(tegra_stats_output), exist_ok=True)
     os.makedirs(os.path.dirname(output_excel_filename), exist_ok=True)
@@ -370,13 +349,12 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python3 inference_tracker_multiprocesses.py <objects_count>")
         exit()
-        
-    objects_count = str(sys.argv[1])
     
-    model_name = "yolo11n"
-    precision = "FP16"
-    hardware = "GPU"
-    mode = f"15W_{mp.multiprocessing.cpu_count()}CORE"
+    objects_count = args.num_objects
+    model_name = "yolo11" + args.model_size
+    precision = args.precision
+    hardware = args.hardware
+    mode = f"{args.mode}_{mp.multiprocessing.cpu_count()}CORE"
     
     model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware}.engine'
     #model_path = f'../../models/canicas/2024_11_28/trt/model_gn.engine'
@@ -387,7 +365,7 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, 'multiprocesos_GPU.mp4')
     
-    output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}.csv"
+    output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}"
     
 
     CLASSES = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
@@ -416,7 +394,7 @@ def main():
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
             mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, CLASSES, memory, COLORS, stop_event, t2_start)),
-            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,model_name, objects_count)),
+            mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,output_hardware_stats)),
             mp.multiprocessing.Process(target=hardware_usage, args=(output_hardware_stats, stop_event, t1_start)),
         ]
 

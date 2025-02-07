@@ -4,7 +4,7 @@ import json
 import time
 
 async def send_messages():
-    uri = "ws://localhost:8765"  # Conectar al servidor WebSocket
+    uri = "ws://10.236.45.32:8765"  # Conectar al servidor WebSocket
     async with websockets.connect(uri) as websocket:
         while True:
             # Crear un mensaje en formato JSON
