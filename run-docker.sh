@@ -18,6 +18,7 @@ sudo docker rm --force use-gpu
 DOCKER_CMD="sudo docker run -dit \
     --name use-gpu \
     -p 6006:6006 \
+    -p 8765:8765 \
     --ipc=host \
     --privileged \
     --memory=32g \

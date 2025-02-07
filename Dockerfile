@@ -25,6 +25,8 @@ RUN pip install onnxslim==0.1.34
 # Instala openpyxl
 RUN pip install openpyxl
 
+RUN pip install websockets
+
 WORKDIR /TFG
 
 CMD ["/bin/bash"]

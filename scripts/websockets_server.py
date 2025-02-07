@@ -1,10 +1,15 @@
 import asyncio
 import websockets
+import json
 
 async def handle_client(websocket, path):
     async for message in websocket:
-        print(f"Cliente dice: {message}")
-        await websocket.send(f"Mensaje recibido: {message}")
+        data = json.loads(message)  # Convertir de JSON a diccionario
+        print(f"Cliente {data['client_id']} dice: {data['message']}")
+
+        # Responder con JSON
+        response = {"status": "OK", "received": data}
+        await websocket.send(json.dumps(response))
 
 start_server = websockets.serve(handle_client, "0.0.0.0", 8765)  # Permite conexiones externas
     
