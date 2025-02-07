@@ -87,10 +87,10 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
     
     model = YOLO(model_path, task='detect')
     
-    #model(device="cuda:0", conf=0.5, half=True, imgsz=(640, 640), augment=True)
+    model(device="cuda:0", conf=0.5, half=True, imgsz=(640, 640), augment=True)
     
-    dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
-    model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
+    #dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
+    #model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
     
     t1_start.set()
     
@@ -105,10 +105,25 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         
         t1 = cv2.getTickCount()
         
-        #preprocessed = model.predictor.preprocess([frame])
-        #output = model.predictor.inference(preprocessed)
-        #results = model.predictor.postprocess(output, preprocessed, [frame])
-        results = model.predict(source=frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
+        #Preprocesa el frame
+        t1_aux = cv2.getTickCount()
+        preprocessed = model.predictor.preprocess([frame])
+        t2_aux = cv2.getTickCount()
+        times_detect_function["preprocess"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+        
+        #Realiza la inferencia
+        t1_aux = cv2.getTickCount()
+        output = model.predictor.inference(preprocessed)
+        t2_aux = cv2.getTickCount()
+        times_detect_function["inference"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+        
+        #Postprocesa los resultados
+        t1_aux = cv2.getTickCount()
+        results = model.predictor.postprocess(output, preprocessed, [frame])
+        t2_aux = cv2.getTickCount()
+        times_detect_function["postprocess"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+        
+        #results = model.predict(source=frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
         
         result_formatted = Namespace(
             xywh=results[0].boxes.xywh.cpu(),
@@ -117,11 +132,7 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         )
         t2 = cv2.getTickCount()
         
-        
         processing_time = (t2 - t1) / cv2.getTickFrequency()
-        times_detect_function["preprocess"] = results[0].speed["preprocess"]
-        times_detect_function["inference"] = results[0].speed["inference"]
-        times_detect_function["postprocess"] = results[0].speed["postprocess"]
         
         times["processing"] = processing_time
         times["detect_function"] = times_detect_function
@@ -199,6 +210,8 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     out = None
     first_time = True
     
+    frame_number = 0
+    
     # Función para resetear FPS cada segundo
     def reset_fps():
         nonlocal FPS_COUNT, FPS_LABEL
@@ -250,6 +263,11 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         t2 = cv2.getTickCount()
         writing_time = (t2 - t1) / cv2.getTickFrequency()
         times["writing"] = writing_time
+        
+        frame_number += 1
+        
+        if frame_number % 100 == 0:
+            print(f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado")
                 
         times_queue.put(("times", times))
 
@@ -268,13 +286,13 @@ def write_to_csv(times_queue, output_file):
     from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
     import os
     
+    frame_count = 0
+    
     times_name = "times_multiprocesses.csv"
     fps_name = "fps_multiprocesses.csv"
     
     times_excel_file = create_csv_file(file_name=times_name)
     fps_excel_file = create_csv_file(file_name=fps_name)
-    
-    frame_count = 0
     
     while True:
         item = times_queue.get()
@@ -286,7 +304,6 @@ def write_to_csv(times_queue, output_file):
         
         if label == "times":
             add_row_to_csv(times_excel_file, frame_count, data)
-            frame_count += 1
         elif label == "fps":
             add_fps_to_csv(fps_excel_file, frame_count, data)
             
@@ -318,31 +335,17 @@ def hardware_usage(output_file, stop_event, t1_start):
     )
     
     print("[PROGRAM - HARDWARE USAGE] Iniciando tegrastats...")
-    #try:
-        # Leer la salida en tiempo real y escribir en el archivo
-    #    with open(tegra_stats_output, "a") as f:
-    #        while not stop_event.is_set():
-    #            output = process.stdout.readline()
-    #            if output:
-    #                f.write(output)
-    #            else:
-    #                break
-        # Detener el proceso cuando el evento de parada se activa
-    
+
     stop_event.wait()
     process.terminate()
     process.wait()
     #finally:
     print("[PROGRAM - HARDWARE USAGE] Deteniendo el proceso tegrastats...")
-    # Procesar el archivo de salida generado por tegrastats
     create_tegrastats_file(tegra_stats_output, output_excel_filename)
     print("[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
     
     print("[PROGRAM - HARDWARE USAGE] Terminando proceso")
     os._exit(0)
-
-
-
 
 def main():
 
@@ -363,7 +366,7 @@ def main():
     video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, 'multiprocesos_GPU.mp4')
+    output_video_path = os.path.join(output_dir, f'multiprocesos_{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}.mp4')
     
     output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}"
     
