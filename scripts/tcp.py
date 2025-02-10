@@ -1,79 +1,71 @@
-#XAVIER
 import socket
-import json
+import argparse
+import threading
 
-HOST = '0.0.0.0'  # Escucha en todas las interfaces
-PORT = 5000       # Puerto arbitrario
+def tcp_client(host: str, port: int, message: str):
+    try:
+        # Crear un socket TCP
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        # Conectar al servidor
+        client_socket.connect((host, port))
+        print(f"Conectado a {host}:{port}")
+        
+        # Enviar mensaje
+        client_socket.sendall(message.encode())
+        
+        # Recibir respuesta
+        response = client_socket.recv(1024)
+        print(f"Respuesta del servidor: {response.decode()}")
+        
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        # Cerrar conexión
+        client_socket.close()
+        print("Conexión cerrada.")
 
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((HOST, PORT))
-server_socket.listen(1)  # Solo un cliente
+def tcp_server(host: str, port: int):
+    try:
+        # Crear un socket TCP
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind((host, port))
+        server_socket.listen(1)
+        print(f"Escuchando en {host}:{port}...")
 
-print(f"Esperando conexión en {HOST}:{PORT}...")
-conn, addr = server_socket.accept()
-print(f"Conectado a {addr}")
-
-while True:
-    # Simulación de datos a enviar
-    mensaje = {
-        "timestamp": 123456789,
-        "sensor": "camara",
-        "dato": "defecto_detectado"
-    }
+        while True:
+            # Aceptar conexiones
+            client_socket, client_address = server_socket.accept()
+            print(f"Conexión recibida de {client_address}")
+            
+            # Recibir mensaje
+            message = client_socket.recv(1024).decode()
+            print(f"Mensaje recibido: {message}")
+            
+            # Enviar respuesta
+            response = "Hola, cliente!"
+            client_socket.sendall(response.encode())
+            
+            # Cerrar la conexión
+            client_socket.close()
+            print(f"Conexión con {client_address} cerrada.")
     
-    # Convertir a JSON y enviar
-    json_data = json.dumps(mensaje) + "\n"  # Agregar newline para delimitar mensajes
-    conn.sendall(json_data.encode())
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        server_socket.close()
+        print("Servidor cerrado.")
 
-    # Recibir respuesta del Pico W
-    data = conn.recv(1024)
-    if not data:
-        break
-    respuesta = json.loads(data.decode())
-    print("Respuesta del Pico:", respuesta)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="TCP Client/Server")
+    parser.add_argument('--mode', choices=['client', 'server'], required=True, help="Modo de operación: client o server")
+    parser.add_argument('--host', default='0.0.0.0', help="Dirección IP del servidor (solo para cliente)")
+    parser.add_argument('--port', type=int, default=8765, help="Puerto de conexión")
+    parser.add_argument('--message', default="Hola, servidor!", help="Mensaje a enviar (solo para cliente)")
 
-conn.close()
+    args = parser.parse_args()
 
-################################################################################################
-#RASPBERRY
-import network
-import socket
-import json
-import time
-
-SSID = "tu_red_wifi"
-PASSWORD = "tu_contraseña"
-
-# Conectar a WiFi
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(SSID, PASSWORD)
-while not wlan.isconnected():
-    time.sleep(1)
-
-print("Conectado a WiFi")
-
-# Conectar al servidor TCP
-HOST = "IP_DE_LA_JETSON"
-PORT = 5000
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((HOST, PORT))
-
-while True:
-    # Recibir datos en formato JSON
-    data = s.recv(1024).decode()
-    if not data:
-        break
-
-    json_data = json.loads(data)  # Convertir a diccionario
-    print("Recibido:", json_data)
-
-    # Responder con JSON
-    respuesta = {
-        "estado": "OK",
-        "mensaje": "Datos recibidos"
-    }
-    s.sendall(json.dumps(respuesta).encode())
-
-s.close()
+    if args.mode == 'client':
+        tcp_client(args.host, args.port, args.message)
+    elif args.mode == 'server':
+        tcp_server(args.host, args.port)

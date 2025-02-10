@@ -267,7 +267,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         frame_number += 1
         
         if frame_number % 100 == 0:
-            print(f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado")
+            print(f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado", end="\r", flush=True)
                 
         times_queue.put(("times", times))
 
