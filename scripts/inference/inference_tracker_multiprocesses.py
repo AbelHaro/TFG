@@ -5,6 +5,7 @@ import torch.multiprocessing as mp # type: ignore
 from argparse import Namespace
 import numpy as np
 import argparse
+from tcp import tcp_server, handle_send
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--num_objects', default=40, type=int, choices=[0, 18, 40, 48, 60, 70, 88, 176], help='Número de objetos a contar, posibles valores: {0, 18, 40, 48, 60, 70, 88, 176}, default=40')
@@ -48,7 +49,8 @@ def update_memory(tracked_objects, memory, classes):
         if memory[track_id]['visible_frames'] <= 0:
             del memory[track_id]
 
-def capture_frames(video_path, frame_queue, stop_event):
+def capture_frames(video_path, frame_queue, stop_event, tcp_conn):
+    
         
     if not os.path.exists(video_path):
         frame_queue.put(None)
@@ -59,6 +61,8 @@ def capture_frames(video_path, frame_queue, stop_event):
     if not cap.isOpened():
         frame_queue.put(None)
         raise IOError(f"Error al abrir el archivo de video: {video_path}")
+    
+    tcp_conn.wait()
     
     while cap.isOpened() and not stop_event.is_set():
         t1 = cv2.getTickCount()
@@ -201,7 +205,7 @@ def tracking_frames(detection_queue, tracking_queue, stop_event):
     
     os._exit(0)
     
-def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start):
+def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start, tcp_conn):
     import threading
     import time
     
@@ -220,6 +224,13 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
             FPS_LABEL = FPS_COUNT
             FPS_COUNT = 0
             time.sleep(1)
+            
+            
+    client_socket, server_socker = tcp_server("0.0.0.0", 8765)
+    threading.Thread(target=handle_send, args=(client_socket, "READY"), daemon=True).start()
+    
+    tcp_conn.set()
+    
 
     while True:
         item = tracking_queue.get()
@@ -242,6 +253,8 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         # Actualiza la memoria con objetos rastreados
         update_memory(tracked_objects, memory, classes)
         
+        msg_sended = False
+        
         # Dibuja objetos rastreados en el frame
         for obj in tracked_objects:
             xmin, ymin, xmax, ymax, obj_id = map(int, obj[:5])
@@ -251,7 +264,10 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
                 continue
             
             detected_class = memory[obj_id]['class']
-            color = colors.get(detected_class, (255, 255, 255))
+            if detected_class.endswith('-d') and not msg_sended:
+                threading.Thread(target=handle_send, args=(client_socket, "DETECTED_DEFECT"), daemon=True).start()
+                msg_sended = True
+                color = colors.get(detected_class, (255, 255, 255))
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
             text = f'ID:{obj_id} {detected_class} {conf:.2f}'
             cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
@@ -275,8 +291,11 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         out.release()
         
     times_queue.put(None)
-    print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")    
-
+    print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")
+    
+    client_socket.close()
+    server_socker.close()
+    
     t2_start.set()
     stop_event.set()
     os._exit(0)
@@ -313,7 +332,7 @@ def write_to_csv(times_queue, output_file):
         
     os._exit(0)
     
-def hardware_usage(output_file, stop_event, t1_start):
+def hardware_usage(output_file, stop_event, t1_start, tcp_conn):
     import subprocess
     from datetime import datetime
     from hardware_stats_usage import create_tegrastats_file
@@ -328,6 +347,7 @@ def hardware_usage(output_file, stop_event, t1_start):
     
     # Espera inicial para sincronizar con el evento
     t1_start.wait()
+    tcp_conn.wait()
 
     # Iniciar el proceso de tegrastats
     process = subprocess.Popen(
@@ -384,6 +404,8 @@ def main():
     print(f"[PROGRAM] Usando {objects_count} objetos, modo energia {mode}")
     
     stop_event = mp.Event()
+    
+    tcp_conn = mp.Event()
     t1_start = mp.Event()
     t2_start = mp.Event()
     
@@ -393,17 +415,18 @@ def main():
     times_queue = mp.Queue(maxsize=10)
 
     processes = [
-            mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event)),
+            mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event, tcp_conn)),
             mp.multiprocessing.Process(target=process_frames, args=(frame_queue, detection_queue, model_path, stop_event, t1_start)),
             mp.multiprocessing.Process(target=tracking_frames, args=(detection_queue, tracking_queue, stop_event)),
-            mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, CLASSES, memory, COLORS, stop_event, t2_start)),
+            mp.multiprocessing.Process(target=draw_and_write_frames, args=(tracking_queue, times_queue, output_video_path, CLASSES, memory, COLORS, stop_event, t2_start, tcp_conn)),
             mp.multiprocessing.Process(target=write_to_csv, args=(times_queue,output_hardware_stats)),
-            mp.multiprocessing.Process(target=hardware_usage, args=(output_hardware_stats, stop_event, t1_start)),
+            mp.multiprocessing.Process(target=hardware_usage, args=(output_hardware_stats, stop_event, t1_start, tcp_conn)),
         ]
 
     for process in processes:
         process.start()
-        
+    
+    tcp_conn.wait()
     t1_start.wait()
     t1 = cv2.getTickCount()
     
