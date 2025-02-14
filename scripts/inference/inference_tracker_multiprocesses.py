@@ -379,6 +379,8 @@ def main():
     hardware = args.hardware
     mode = f"{args.mode}_{mp.multiprocessing.cpu_count()}CORE"
     
+    print("[PROGRAM] Opciones seleccionadas: ", args)
+    
     model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware}.engine'
     #model_path = f'../../models/canicas/2024_11_28/trt/model_gn.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
