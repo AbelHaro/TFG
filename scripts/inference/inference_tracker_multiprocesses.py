@@ -6,6 +6,8 @@ from argparse import Namespace
 import numpy as np
 import argparse
 from tcp import tcp_server, handle_send
+from multiprocessing import shared_memory, Lock, Value
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--num_objects', default=40, type=int, choices=[0, 18, 40, 48, 60, 70, 88, 176], help='Número de objetos a contar, posibles valores: {0, 18, 40, 48, 60, 70, 88, 176}, default=40')
