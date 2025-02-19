@@ -22,10 +22,6 @@ args = parser.parse_args()
 FRAME_AGE = 15
 
 import pickle
-import multiprocessing
-from multiprocessing import shared_memory, Lock, Value
-
-import pickle
 import numpy as np
 from multiprocessing import shared_memory, Value, Lock, Condition
 
@@ -58,61 +54,51 @@ class SharedCircularBuffer:
         self.condition = Condition(self.lock)  # Para sincronización
 
     def put(self, item):
-        """Agrega un item a la cola en memoria compartida."""
-        # Verificar si el item es un array y aplanarlo si es necesario
+        """Agrega un item a la cola en memoria compartida sin sobrescribir elementos no leídos."""
         if isinstance(item, np.ndarray):
             reshaped_item = item.reshape(-1)
             item_data = {"data": reshaped_item, "shape": item.shape}
         else:
-            item_data = {"data": item, "shape": None}  # No es un array
+            item_data = {"data": item, "shape": None}  
 
         data_bytes = pickle.dumps(item_data)
-        #print(f"[DEBUG] Empaquetando item: {item_data}")
-        #print(f"[DEBUG] Tamaño del item: {len(data_bytes)} bytes.")
 
         if len(data_bytes) > self.max_item_size:
             raise ValueError("El item es demasiado grande para la cola.")
 
-        #print(f"[DEBUG] Tamaño del item: {len(data_bytes)} bytes.", end="\r", flush=True)
-
         with self.condition:
-            if self.count.value == self.queue_size:
-                #print("[WARNING] Cola llena, sobrescribiendo el elemento más antiguo.")
-                self.head.value = (self.head.value + 1) % self.queue_size  # Avanza el head
+            while self.count.value == self.queue_size:
+                # La cola está llena, esperar hasta que haya espacio
+                self.condition.wait()
 
             pos = (self.tail.value % self.queue_size) * self.max_item_size
-            #print(f"[DEBUG] Escribiendo en posición {pos} de la memoria compartida.")
-
-            # Escritura corregida
             self.shm.buf[pos : pos + len(data_bytes)] = memoryview(data_bytes)
 
             self.tail.value = (self.tail.value + 1) % self.queue_size
-            self.count.value = min(self.count.value + 1, self.queue_size)
+            self.count.value += 1
 
-            self.condition.notify()  # Notifica a `dequeue` que hay un nuevo elemento
+            self.condition.notify()  # Notifica a `get` que hay un nuevo elemento disponible
 
     def get(self):
         """Extrae un item de la cola en memoria compartida, esperando si está vacía."""
         with self.condition:
             while self.count.value == 0:  # Esperar si la cola está vacía
-                #print("[DEBUG] Cola vacía, esperando un nuevo elemento...")
-                self.condition.wait()  # Se bloquea hasta que `enqueue` notifique
+                self.condition.wait()  
 
             pos = (self.head.value % self.queue_size) * self.max_item_size
-            data_bytes = bytes(self.shm.buf[pos:pos+self.max_item_size])  # Leer memoria
-            
+            data_bytes = bytes(self.shm.buf[pos:pos+self.max_item_size])  
+
             self.head.value = (self.head.value + 1) % self.queue_size
             self.count.value -= 1
 
-        # Deserializar
-        item_data = pickle.loads(data_bytes)
-        #print(f"[DEBUG] Desempaquetando item: {item_data}")
+            self.condition.notify()  # Notifica a `put` que hay espacio disponible
 
-        # Si tiene una forma almacenada, significa que era un array y se debe reconstruir
+        item_data = pickle.loads(data_bytes)
+
         if item_data["shape"] is not None:
             return np.array(item_data["data"]).reshape(item_data["shape"])
         
-        return item_data["data"]  # Si no era un array, devolver el dato normal
+        return item_data["data"]  
 
     def is_empty(self):
         """Retorna True si la cola está vacía."""
@@ -131,6 +117,7 @@ class SharedCircularBuffer:
     def unlink(self):
         """Libera la memoria compartida (solo debe llamarse una vez)."""
         self.shm.unlink()
+
         
 
 def get_total_frames(video_path):
@@ -212,6 +199,8 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
     
     tcp_conn.wait() if is_tcp else None
     
+    frame_count = 0
+    
     while cap.isOpened() and not stop_event.is_set():
         t1 = cv2.getTickCount()
         ret, frame = cap.read()
@@ -219,7 +208,7 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
         
         if not ret:
             print("[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
-            print("[PROGRAM - CAPTURE FRAMES - DEBUG] Se han procesado", frame, "frames")
+            print("[PROGRAM - CAPTURE FRAMES - DEBUG] Se han procesado", frame_count, "frames")
             break
 
         t2 = cv2.getTickCount()
@@ -229,6 +218,7 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
         }
         #print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
         frame_queue.put((frame, times))
+        frame_count += 1
     
     cap.release()
     print("[PROGRAM - CAPTURE FRAMES] Video terminado, añadiendo None a la cola")
@@ -565,14 +555,14 @@ def main():
     t1_start = mp.Event()
     t2_start = mp.Event()
     
-    #frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=1)
-    frame_queue = mp.Queue(maxsize=100)
+    #frame_queue = mp.Queue(maxsize=100)
+    frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=1)
     #detection_queue = mp.Queue(maxsize=100)
-    detection_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
+    detection_queue = SharedCircularBuffer(queue_size=100, max_item_size=4)
     #tracking_queue = mp.Queue(maxsize=100)
-    tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
+    tracking_queue = SharedCircularBuffer(queue_size=100, max_item_size=4)
     #times_queue = mp.Queue(maxsize=100)
-    times_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
+    times_queue = SharedCircularBuffer(queue_size=100, max_item_size=4)
 
     processes = [
             mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event, tcp_conn, is_tcp)),
@@ -593,8 +583,8 @@ def main():
     t2_start.wait()
     t2 = cv2.getTickCount()
     
-    #frame_queue.close()
-    #frame_queue.unlink()
+    frame_queue.close()
+    frame_queue.unlink()
     detection_queue.close()
     detection_queue.unlink()
     tracking_queue.close()
