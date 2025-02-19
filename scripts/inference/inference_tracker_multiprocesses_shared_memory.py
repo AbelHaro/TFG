@@ -25,6 +25,10 @@ import pickle
 import multiprocessing
 from multiprocessing import shared_memory, Lock, Value
 
+import pickle
+import numpy as np
+from multiprocessing import shared_memory, Value, Lock, Condition
+
 class SharedCircularBuffer:
     def __init__(self, queue_size=10, max_item_size=1, name=None):
         """
@@ -51,8 +55,9 @@ class SharedCircularBuffer:
         self.tail = Value("i", 0)  # Índice de escritura
         self.count = Value("i", 0)  # Número de elementos en la cola
         self.lock = Lock()
+        self.condition = Condition(self.lock)  # Para sincronización
 
-    def enqueue(self, item):
+    def put(self, item):
         """Agrega un item a la cola en memoria compartida."""
         # Verificar si el item es un array y aplanarlo si es necesario
         if isinstance(item, np.ndarray):
@@ -68,7 +73,9 @@ class SharedCircularBuffer:
         if len(data_bytes) > self.max_item_size:
             raise ValueError("El item es demasiado grande para la cola.")
 
-        with self.lock:
+        #print(f"[DEBUG] Tamaño del item: {len(data_bytes)} bytes.", end="\r", flush=True)
+
+        with self.condition:
             if self.count.value == self.queue_size:
                 #print("[WARNING] Cola llena, sobrescribiendo el elemento más antiguo.")
                 self.head.value = (self.head.value + 1) % self.queue_size  # Avanza el head
@@ -82,11 +89,14 @@ class SharedCircularBuffer:
             self.tail.value = (self.tail.value + 1) % self.queue_size
             self.count.value = min(self.count.value + 1, self.queue_size)
 
-    def dequeue(self):
-        """Extrae un item de la cola en memoria compartida."""
-        with self.lock:
-            if self.count.value == 0:
-                return None  # Cola vacía
+            self.condition.notify()  # Notifica a `dequeue` que hay un nuevo elemento
+
+    def get(self):
+        """Extrae un item de la cola en memoria compartida, esperando si está vacía."""
+        with self.condition:
+            while self.count.value == 0:  # Esperar si la cola está vacía
+                #print("[DEBUG] Cola vacía, esperando un nuevo elemento...")
+                self.condition.wait()  # Se bloquea hasta que `enqueue` notifique
 
             pos = (self.head.value % self.queue_size) * self.max_item_size
             data_bytes = bytes(self.shm.buf[pos:pos+self.max_item_size])  # Leer memoria
@@ -103,7 +113,6 @@ class SharedCircularBuffer:
             return np.array(item_data["data"]).reshape(item_data["shape"])
         
         return item_data["data"]  # Si no era un array, devolver el dato normal
-
 
     def is_empty(self):
         """Retorna True si la cola está vacía."""
@@ -154,6 +163,37 @@ def update_memory(tracked_objects, memory, classes):
         memory[track_id]['visible_frames'] -= 1
         if memory[track_id]['visible_frames'] <= 0:
             del memory[track_id]
+            
+            
+from threading import Thread
+import queue
+
+class ThreadedVideoCapture:
+    def __init__(self, path):
+        self.cap = cv2.VideoCapture(path)
+        self.q = queue.Queue(maxsize=100)
+        self.ret = True
+        self.thread = Thread(target=self._reader, daemon=True)
+        self.thread.start()
+
+    def _reader(self):
+        while self.ret:
+            self.ret, frame = self.cap.read()
+            if not self.ret:
+                print("[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
+                self.q.put((self.ret, None))
+                break
+            else:
+                self.q.put((self.ret, frame))
+
+    def read(self):
+        return self.q.get()
+
+    def release(self):
+        self.cap.release()
+        
+    def isOpened(self):
+        return self.cap.isOpened()
 
 def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
     
@@ -161,13 +201,13 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
     print(f"[DEBUG] Iniciando captura de frames")
         
     if not os.path.exists(video_path):
-        frame_queue.enqueue(None)
+        frame_queue.put(None)
         raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
     
     cap = cv2.VideoCapture(video_path)
     
     if not cap.isOpened():
-        frame_queue.enqueue(None)
+        frame_queue.put(None)
         raise IOError(f"Error al abrir el archivo de video: {video_path}")
     
     tcp_conn.wait() if is_tcp else None
@@ -175,9 +215,11 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
     while cap.isOpened() and not stop_event.is_set():
         t1 = cv2.getTickCount()
         ret, frame = cap.read()
+
         
         if not ret:
             print("[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
+            print("[PROGRAM - CAPTURE FRAMES - DEBUG] Se han procesado", frame, "frames")
             break
 
         t2 = cv2.getTickCount()
@@ -185,12 +227,12 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
         times = {
             "capture": total_frame_time
         }
-        print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
-        frame_queue.enqueue((frame, times))
+        #print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
+        frame_queue.put((frame, times))
     
     cap.release()
     print("[PROGRAM - CAPTURE FRAMES] Video terminado, añadiendo None a la cola")
-    frame_queue.enqueue(None)
+    frame_queue.put(None)
     
     while not stop_event.is_set():
         pass
@@ -210,10 +252,10 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
     
     
     while True:
-        item = frame_queue.dequeue()
-        print(f"[DEBUG] Item recibido: {item}")
+        item = frame_queue.get()
+        #print(f"[DEBUG] Item recibido: {item}")
         if item is None:
-            detection_queue.enqueue(None)
+            detection_queue.put(None)
             break
         
         frame, times = item
@@ -252,7 +294,7 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         times["processing"] = processing_time
         times["detect_function"] = times_detect_function
 
-        detection_queue.enqueue((frame, result_formatted, times))
+        detection_queue.put((frame, result_formatted, times))
     
     while not stop_event.is_set():
         pass
@@ -292,9 +334,9 @@ def tracking_frames(detection_queue, tracking_queue, stop_event):
     tracker_wrapper = TrackerWrapper(frame_rate=20)
     
     while True:
-        item = detection_queue.dequeue()
+        item = detection_queue.get()
         if item is None:
-            tracking_queue.enqueue(None)
+            tracking_queue.put(None)
             break
 
         t1 = cv2.getTickCount()
@@ -309,7 +351,7 @@ def tracking_frames(detection_queue, tracking_queue, stop_event):
         times["tracking"] = tracking_time
         times["objects_count"] = len(outputs)
     
-        tracking_queue.enqueue((frame, outputs, times))
+        tracking_queue.put((frame, outputs, times))
         
     while not stop_event.is_set():
         pass
@@ -331,7 +373,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     def reset_fps():
         nonlocal FPS_COUNT, FPS_LABEL
         while not stop_event.is_set():
-            times_queue.enqueue(("fps", FPS_COUNT))
+            times_queue.put(("fps", FPS_COUNT))
             FPS_LABEL = FPS_COUNT
             FPS_COUNT = 0
             time.sleep(1)
@@ -344,7 +386,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     
 
     while True:
-        item = tracking_queue.dequeue()
+        item = tracking_queue.get()
         if item is None:
             break
         
@@ -383,7 +425,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
             text = f'ID:{obj_id} {detected_class} {conf:.2f}'
             cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             
-        #cv2.putText(frame, f'FPS: {FPS_LABEL}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, f'Frame: {frame_number}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         out.write(frame)
         FPS_COUNT += 1
         
@@ -393,15 +435,17 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         
         frame_number += 1
         
+        #print(f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado")
+        
         if frame_number % 20 == 0:
             print(f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado", end="\r", flush=True)
                 
-        times_queue.enqueue(("times", times))
+        times_queue.put(("times", times))
 
     if out:
         out.release()
         
-    times_queue.enqueue(None)
+    times_queue.put(None)
     print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")
     
     
@@ -427,7 +471,7 @@ def write_to_csv(times_queue, output_file):
     fps_excel_file = create_csv_file(file_name=fps_name)
     
     while True:
-        item = times_queue.dequeue()
+        item = times_queue.get()
         
         if item is None:
             break
@@ -498,7 +542,7 @@ def main():
     video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, f'multiprocesos_{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}.mp4')
+    output_video_path = os.path.join(output_dir, f'multiprocesos_memoria_compartida_{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}.mp4')
     
     output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}"
     
@@ -521,10 +565,14 @@ def main():
     t1_start = mp.Event()
     t2_start = mp.Event()
     
-    frame_queue = SharedCircularBuffer(queue_size=100, max_item_size=128)
-    detection_queue = SharedCircularBuffer(queue_size=100, max_item_size=128)
-    tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=128)
-    times_queue = SharedCircularBuffer(queue_size=10, max_item_size=32)
+    #frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=1)
+    frame_queue = mp.Queue(maxsize=100)
+    #detection_queue = mp.Queue(maxsize=100)
+    detection_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
+    #tracking_queue = mp.Queue(maxsize=100)
+    tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
+    #times_queue = mp.Queue(maxsize=100)
+    times_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
 
     processes = [
             mp.multiprocessing.Process(target=capture_frames, args=(video_path, frame_queue, stop_event, tcp_conn, is_tcp)),
@@ -545,15 +593,14 @@ def main():
     t2_start.wait()
     t2 = cv2.getTickCount()
     
-    frame_queue.close()
-    frame_queue.unlink()
+    #frame_queue.close()
+    #frame_queue.unlink()
     detection_queue.close()
     detection_queue.unlink()
     tracking_queue.close()
     tracking_queue.unlink()
     times_queue.close()
     times_queue.unlink()
-
     
     total_time = (t2 - t1) / cv2.getTickFrequency()
     total_frames = get_total_frames(video_path)
