@@ -359,6 +359,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     last_positions = {}
     frame_number = 0
     MAX_TRAJECTORY = 30  # Limitar la cantidad de puntos en la trayectoria
+    max_speed = 0
 
     def reset_fps():
         nonlocal FPS_COUNT, FPS_LABEL
@@ -435,8 +436,11 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
                     last_positions[obj_id]["pos"].pop(0)
                     last_positions[obj_id]["time"].pop(0)
             
-            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
+            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 1)
             speed = last_positions[obj_id]["speed"]
+            if speed > max_speed:
+                max_speed = speed
+            
             text = f'ID:{obj_id} {detected_class} {conf:.2f} Speed:{speed:.1f}px/s'
             cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             
@@ -451,7 +455,10 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         cv2.putText(frame, f'Frame: {frame_number}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         out.write(frame)
         FPS_COUNT += 1
+        
         cv2.imshow("Frame", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
         
         t2 = cv2.getTickCount()
         writing_time = (t2 - t1) / cv2.getTickFrequency()
@@ -469,6 +476,8 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     
     times_queue.put(None)
     print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")
+    
+    print("[PROGRAM - DRAW AND WRITE] La velocidad máxima registrada fue de", max_speed, "px/s")
     
     if is_tcp:
         client_socket.close()
@@ -561,10 +570,10 @@ def main():
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     #video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
-    video_path = f'../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
+    video_path = f'../../datasets_labeled/videos/prueba_velocidad_03.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, f'prueba_tiempo_tracking.mp4')
+    output_video_path = os.path.join(output_dir, f'prueba_velocidad_03.mp4')
     
     output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}"
     

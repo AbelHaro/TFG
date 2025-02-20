@@ -5,6 +5,8 @@ CONTAINER_VOLUME=/TFG
 
 # Configurar el acceso a la pantalla de la computadora host si vas a usar GUI
 xhost +local:root
+#xhost +si:localuser:root
+
 
 # Construir la imagen
 echo "Construyendo la imagen de Docker..."
@@ -28,6 +30,11 @@ DOCKER_CMD="sudo docker run -dit \
     -e DISPLAY=$DISPLAY \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v /tmp/:/tmp"
+    #-v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
+
+
+# Agregar soporte para la red host
+#DOCKER_CMD="$DOCKER_CMD --network=host"
 
 # Revisar si el flag -cam está presente
 if [ "$1" == "-cam" ]; then
@@ -54,8 +61,8 @@ DOCKER_CMD="$DOCKER_CMD custom-ultralytics"
 
 # Ejecutar el comando Docker
 echo "Ejecutando el contenedor..."
+#DISPLAY=:0 dbus-launch --exit-with-session bash -c "$DOCKER_CMD" || { echo "Error al ejecutar el contenedor"; exit 1; }
 eval $DOCKER_CMD || { echo "Error al ejecutar el contenedor"; exit 1; }
-
 
 # Verificar si tegrastats está disponible
 echo "Verificando si 'tegrastats' está disponible en el contenedor..."
