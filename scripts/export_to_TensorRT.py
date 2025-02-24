@@ -1,21 +1,21 @@
 from ultralytics import YOLO
 import os
 
-version = "2024_11_28"
-data_dir = f"/TFG/datasets_labeled/2024_11_28_canicas_dataset/data.yaml"
+version = "2025_02_24"
+data_dir = f"/TFG/datasets_labeled/{version}_canicas_dataset/data.yaml"
 model_path = f"/TFG/models/canicas/{version}/"
 
 models_name = [
-    #f"{version}_canicas_yolov8n.pt",
-    #f"{version}_canicas_yolov5nu.pt",
-    #f"{version}_canicas_yolo11n.pt",
-    f"{version}_canicas_yolo11l.pt",
+    f"{version}_canicas_yolo11n.pt",
+    #f"{version}_canicas_yolo11s.pt",
+    #f"{version}_canicas_yolo11m.pt",
+    #f"{version}_canicas_yolo11l.pt",
     #f"{version}_canicas_yolo11x.pt",
 ]
 
 hardware = [
     0,
-    #"dla:0",          
+    #"dla:0",
     #"dla:1",
 ]
 

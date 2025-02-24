@@ -248,6 +248,81 @@ def tracking_frames(detection_queue, tracking_queue, stop_event):
     
     os._exit(0)
     
+def setup_aruco():
+    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+    parameters = cv2.aruco.DetectorParameters_create()
+    parameters.adaptiveThreshConstant = 7
+    parameters.minMarkerPerimeterRate = 0.03
+    parameters.maxMarkerPerimeterRate = 4.0
+    parameters.minCornerDistanceRate = 0.05
+    return aruco_dict, parameters
+
+def process_aruco_markers(frame, aruco_dict, parameters, marker_size_cm=3.527):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    corners, ids, _ = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
+    
+    if ids is not None:
+        frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
+        
+        for i, corner in enumerate(corners):
+            corners_array = corner[0]
+            top_left = corners_array[0]
+            top_right = corners_array[1]
+            side_length_px = np.linalg.norm(top_left - top_right)
+            px_to_cm_ratio = marker_size_cm / side_length_px
+            marker_id = ids[i][0]
+            
+            text = f"ID: {marker_id} Size: {marker_size_cm:.2f} cm"
+            position = (int(top_left[0]), int(top_left[1]) - 10)
+            
+            cv2.putText(frame, text, position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 4)
+            cv2.putText(frame, text, position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            
+    return frame, px_to_cm_ratio if ids is not None else None
+
+def update_object_positions(obj, last_positions, current_time, MAX_TRAJECTORY=30):
+    obj_id = int(obj[4])
+    xmin, ymin, xmax, ymax = map(int, obj[:4])
+    center_x = int((xmin + xmax) // 2)
+    center_y = int((ymin + ymax) // 2)
+    
+    if obj_id not in last_positions:
+        last_positions[obj_id] = {
+            "id": obj_id,
+            "pos": [(center_x, center_y)],
+            "time": [current_time],
+            "speed": 0
+        }
+    else:
+        last_positions[obj_id]["pos"].append((center_x, center_y))
+        last_positions[obj_id]["time"].append(current_time)
+        
+        if len(last_positions[obj_id]["pos"]) > 5:
+            recent_positions = last_positions[obj_id]["pos"][-5:]
+            recent_times = last_positions[obj_id]["time"][-5:]
+            total_distance = sum(
+                ((recent_positions[i + 1][0] - recent_positions[i][0])**2 +
+                 (recent_positions[i + 1][1] - recent_positions[i][1])**2)**0.5
+                for i in range(4)
+            )
+            total_time = recent_times[-1] - recent_times[0]
+            if total_time > 0:
+                last_positions[obj_id]["speed"] = total_distance / total_time
+        
+        if len(last_positions[obj_id]["pos"]) > MAX_TRAJECTORY:
+            last_positions[obj_id]["pos"].pop(0)
+            last_positions[obj_id]["time"].pop(0)
+    
+    return last_positions
+
+def reset_fps_counter(FPS_COUNT, FPS_LABEL, times_queue, stop_event):
+    import time
+    while not stop_event.is_set():
+        times_queue.put(("fps", FPS_COUNT))
+        FPS_LABEL = FPS_COUNT
+        FPS_COUNT = 0
+        time.sleep(1)
+
 def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start, tcp_conn, is_tcp):
     import threading
     import time
@@ -258,16 +333,9 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     first_time = True
     last_positions = {}
     frame_number = 0
-    MAX_TRAJECTORY = 30  # Limitar la cantidad de puntos en la trayectoria
     max_speed = 0
-
-    def reset_fps():
-        nonlocal FPS_COUNT, FPS_LABEL
-        while not stop_event.is_set():
-            times_queue.put(("fps", FPS_COUNT))
-            FPS_LABEL = FPS_COUNT
-            FPS_COUNT = 0
-            time.sleep(1)
+    
+    aruco_dict, parameters = setup_aruco()
 
     if is_tcp:
         client_socket, server_socket = tcp_server("0.0.0.0", 8765)
@@ -283,9 +351,11 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         t1 = cv2.getTickCount()
         frame, tracked_objects, times = item
         
+        frame, px_to_cm_ratio = process_aruco_markers(frame, aruco_dict, parameters)
+
         if first_time:
             first_time = False
-            fps_reset_thread = threading.Thread(target=reset_fps, daemon=True)
+            fps_reset_thread = threading.Thread(target=lambda: reset_fps_counter(FPS_COUNT, FPS_LABEL, times_queue, stop_event), daemon=True)
             fps_reset_thread.start()
 
         if out is None:
@@ -296,58 +366,31 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
         update_memory(tracked_objects, memory, classes)
         msg_sended = False
 
+        current_time = time.time()
         for obj in tracked_objects:
-            xmin, ymin, xmax, ymax, obj_id = map(int, obj[:5])
-            conf = float(obj[5])
-            
-            if conf < 0.4:
+            if float(obj[5]) < 0.4:  # conf threshold
                 continue
+                
+            last_positions = update_object_positions(obj, last_positions, current_time)
             
+            # Draw object information
+            xmin, ymin, xmax, ymax, obj_id = map(int, obj[:5])
             detected_class = memory[obj_id]['class']
             color = colors.get(detected_class, (255, 255, 255))
-            center_x = int((xmin + xmax) // 2)
-            center_y = int((ymin + ymax) // 2)
-            
-            current_time = time.time()
-            if obj_id not in last_positions:
-                last_positions[obj_id] = {
-                    "id": obj_id,
-                    "pos": [(center_x, center_y)],
-                    "time": [current_time],
-                    "speed": 0
-                }
-            else:
-                last_positions[obj_id]["pos"].append((center_x, center_y))
-                last_positions[obj_id]["time"].append(current_time)
-                
-                if len(last_positions[obj_id]["pos"]) > 5:
-                    recent_positions = last_positions[obj_id]["pos"][-5:]
-                    recent_times = last_positions[obj_id]["time"][-5:]
-                    total_distance = sum(
-                        ((recent_positions[i + 1][0] - recent_positions[i][0])**2 +
-                         (recent_positions[i + 1][1] - recent_positions[i][1])**2)**0.5
-                        for i in range(4)
-                    )
-                    total_time = recent_times[-1] - recent_times[0]
-                    if total_time > 0:
-                        last_positions[obj_id]["speed"] = total_distance / total_time
-                
-                if len(last_positions[obj_id]["pos"]) > MAX_TRAJECTORY:
-                    last_positions[obj_id]["pos"].pop(0)
-                    last_positions[obj_id]["time"].pop(0)
             
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 1)
             speed = last_positions[obj_id]["speed"]
-            if speed > max_speed:
-                max_speed = speed
             
-            text = f'ID:{obj_id} {detected_class} {conf:.2f} Speed:{speed:.1f}px/s'
+            speed_cms = speed * (px_to_cm_ratio if px_to_cm_ratio else 0)
+            max_speed = max(speed_cms, max_speed)
+            text = f'ID:{obj_id} {detected_class} {float(obj[5]):.2f} Speed:{speed_cms:.1f}cm/s'
             cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             
             if detected_class.endswith('-d') and not msg_sended and is_tcp:
                 threading.Thread(target=handle_send, args=(client_socket, "DETECTED_DEFECT"), daemon=True).start()
                 msg_sended = True
             
+            # Draw trajectory
             points = last_positions[obj_id]["pos"]
             for i in range(len(points) - 1):
                 cv2.line(frame, points[i], points[i+1], color, 2)
@@ -361,8 +404,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
             break
         
         t2 = cv2.getTickCount()
-        writing_time = (t2 - t1) / cv2.getTickFrequency()
-        times["writing"] = writing_time
+        times["writing"] = (t2 - t1) / cv2.getTickFrequency()
         
         frame_number += 1
         
@@ -376,8 +418,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     
     times_queue.put(None)
     print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")
-    
-    print("[PROGRAM - DRAW AND WRITE] La velocidad máxima registrada fue de", max_speed, "px/s")
+    print("[PROGRAM - DRAW AND WRITE] La velocidad máxima registrada fue de", max_speed, "cm/s")
     
     if is_tcp:
         client_socket.close()
@@ -463,17 +504,19 @@ def main():
     mode = f"{args.mode}_{mp.multiprocessing.cpu_count()}CORE"
     is_tcp = args.tcp
     
+    version = "2024_11_28"
+    
     print("\n\n[PROGRAM] Opciones seleccionadas: ", args, "\n\n")
         
-    model_path = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware}.engine'
+    model_path = f'../../models/canicas/{version}/{version}_canicas_{model_name}_{precision}_{hardware}.engine'
     #model_path = f'../../models/canicas/2024_11_28/trt/model_gn.engine'
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     #video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
-    video_path = f'../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
+    video_path = f'../../datasets_labeled/videos/prueba_velocidad_03.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, f'prueba_tiempo_tracking.mp4')
+    output_video_path = os.path.join(output_dir, f'prueba_velocidad_03_{version}.mp4')
     
     output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}"
     

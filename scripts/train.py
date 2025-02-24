@@ -9,9 +9,9 @@ if not exists_gpu():
     exit()
 
 # Definir el directorio de salida y el conjunto de datos
-version = "2024_11_28"
+version = "2025_02_24"
 output_dir = f"/TFG/models/canicas/{version}/"
-dataset_dir = "/TFG/datasets_labeled/2024_11_28_canicas_dataset/data.yaml"
+dataset_dir = "/TFG/datasets_labeled/2025_02_24_canicas_dataset/data.yaml"
 
 # Crear el directorio de salida si no existe
 if not os.path.exists(output_dir):
@@ -19,10 +19,10 @@ if not os.path.exists(output_dir):
 
 # Modelos base a usar para entrenamiento
 base_models = [
-    #"yolo11n.pt",
+    "yolo11n.pt",
     #"yolo11s.pt",
     #"yolo11m.pt",
-    "yolo11l.pt",
+    #"yolo11l.pt",
     #"yolo11x.pt",
     #"yolov5nu.pt",
 ]
