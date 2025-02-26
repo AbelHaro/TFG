@@ -22,6 +22,7 @@ FRAME_AGE = 15
 
 def get_total_frames(video_path):
     cap = cv2.VideoCapture(video_path)
+    
     if not cap.isOpened():
         raise IOError(f"Error al abrir el archivo de video: {video_path}")
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -50,37 +51,6 @@ def update_memory(tracked_objects, memory, classes):
         memory[track_id]['visible_frames'] -= 1
         if memory[track_id]['visible_frames'] <= 0:
             del memory[track_id]
-            
-            
-from threading import Thread
-import queue
-
-class ThreadedVideoCapture:
-    def __init__(self, path):
-        self.cap = cv2.VideoCapture(path)
-        self.q = queue.Queue(maxsize=100)
-        self.ret = True
-        self.thread = Thread(target=self._reader, daemon=True)
-        self.thread.start()
-
-    def _reader(self):
-        while self.ret:
-            self.ret, frame = self.cap.read()
-            if not self.ret:
-                print("[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
-                self.q.put((self.ret, None))
-                break
-            else:
-                self.q.put((self.ret, frame))
-
-    def read(self):
-        return self.q.get()
-
-    def release(self):
-        self.cap.release()
-        
-    def isOpened(self):
-        return self.cap.isOpened()
 
 def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
     
@@ -91,8 +61,12 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
         frame_queue.put(None)
         raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
     
-    cap = cv2.VideoCapture(video_path)
-    
+    #cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L2)
+    # Establece la resolución de la cámara a 640x640
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+
     if not cap.isOpened():
         frame_queue.put(None)
         raise IOError(f"Error al abrir el archivo de video: {video_path}")
@@ -106,7 +80,7 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
         ret, frame = cap.read()
 
         
-        if not ret:
+        if not ret or cv2.waitKey(1) & 0xFF == ord('q'):
             print("[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
             print("[PROGRAM - CAPTURE FRAMES - DEBUG] Se han procesado", frame_count, "frames")
             break
@@ -315,15 +289,10 @@ def update_object_positions(obj, last_positions, current_time, MAX_TRAJECTORY=30
     
     return last_positions
 
-def reset_fps_counter(FPS_COUNT, FPS_LABEL, times_queue, stop_event):
-    import time
-    while not stop_event.is_set():
-        times_queue.put(("fps", FPS_COUNT))
-        FPS_LABEL = FPS_COUNT
-        FPS_COUNT = 0
-        time.sleep(1)
+
 
 def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, t2_start, tcp_conn, is_tcp):
+    
     import threading
     import time
     
@@ -335,6 +304,16 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
     frame_number = 0
     max_speed = 0
     
+    def reset_fps_counter(times_queue, stop_event):
+        import time
+        nonlocal FPS_COUNT, FPS_LABEL
+        while not stop_event.is_set():
+            times_queue.put(("fps", FPS_COUNT))
+            FPS_LABEL = FPS_COUNT
+            FPS_COUNT = 0
+            time.sleep(1)
+        
+        
     aruco_dict, parameters = setup_aruco()
 
     if is_tcp:
@@ -355,7 +334,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
 
         if first_time:
             first_time = False
-            fps_reset_thread = threading.Thread(target=lambda: reset_fps_counter(FPS_COUNT, FPS_LABEL, times_queue, stop_event), daemon=True)
+            fps_reset_thread = threading.Thread(target=lambda: reset_fps_counter(times_queue, stop_event), daemon=True)
             fps_reset_thread.start()
 
         if out is None:
@@ -396,6 +375,7 @@ def draw_and_write_frames(tracking_queue, times_queue, output_video_path, classe
                 cv2.line(frame, points[i], points[i+1], color, 2)
             
         cv2.putText(frame, f'Frame: {frame_number}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, f'FPS: {FPS_LABEL}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         out.write(frame)
         FPS_COUNT += 1
         
@@ -504,7 +484,9 @@ def main():
     mode = f"{args.mode}_{mp.multiprocessing.cpu_count()}CORE"
     is_tcp = args.tcp
     
+    #version = "2025_02_24"
     version = "2024_11_28"
+    
     
     print("\n\n[PROGRAM] Opciones seleccionadas: ", args, "\n\n")
         
@@ -513,10 +495,10 @@ def main():
     #video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     #video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     #video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
-    video_path = f'../../datasets_labeled/videos/prueba_velocidad_03.mp4'
+    video_path = f'../../datasets_labeled/videos/prueba_velocidad_07_20FPS.mp4'
     output_dir = '../../inference_predictions/custom_tracker'
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, f'prueba_velocidad_03_{version}.mp4')
+    output_video_path = os.path.join(output_dir, f'prueba_velocidad_07_20FPS.mp4')
     
     output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}"
     
@@ -530,7 +512,7 @@ def main():
     memory = {}
     
     print("[PROGRAM] Se ha usado el modelo ", model_path)
-    print("[PROGRAM] Total de frames: ", get_total_frames(video_path))
+    #print("[PROGRAM] Total de frames: ", get_total_frames(video_path))
     print(f"[PROGRAM] Usando {objects_count} objetos, modo energia {mode}")
     
     stop_event = mp.Event()
