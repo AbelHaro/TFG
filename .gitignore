@@ -11,3 +11,7 @@
 *.zip
 /jetson_dla_tutorial
 /cuDLA-samples
+/create_dataset/**/*.jpg
+/create_dataset/**/*.txt
+/create_dataset/**/*.png
+/create_dataset/**/*.mp4
