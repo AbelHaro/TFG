@@ -3,12 +3,13 @@ import os
 import datetime
 import signal
 import sys
+import uuid
 
 # Crear el directorio ./images si no existe
 os.makedirs("./images", exist_ok=True)
 
 # Inicializar la cámara
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 
 if not cap.isOpened():
     print("Error: No se pudo abrir la cámara.")
@@ -38,10 +39,14 @@ while True:
     if key == ord('f'):
         # Obtener la fecha y hora actual
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        filename = f"./images/{timestamp}.jpg"
+        unique_id = uuid.uuid4()
+        filename = f"./images/{timestamp}-{unique_id}.jpg"
+        
+        # Redimensionar la imagen a 640 x 640
+        resized_frame = cv2.resize(frame, (640, 640))
         
         # Guardar la imagen
-        cv2.imwrite(filename, frame)
+        cv2.imwrite(filename, resized_frame)
         print(f"Foto guardada: {filename}")
     
     elif key == ord('q'):
