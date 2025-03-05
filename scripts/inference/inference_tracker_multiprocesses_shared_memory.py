@@ -52,36 +52,6 @@ def update_memory(tracked_objects, memory, classes):
         if memory[track_id]['visible_frames'] <= 0:
             del memory[track_id]
             
-            
-from threading import Thread
-import queue
-
-class ThreadedVideoCapture:
-    def __init__(self, path):
-        self.cap = cv2.VideoCapture(path)
-        self.q = queue.Queue(maxsize=100)
-        self.ret = True
-        self.thread = Thread(target=self._reader, daemon=True)
-        self.thread.start()
-
-    def _reader(self):
-        while self.ret:
-            self.ret, frame = self.cap.read()
-            if not self.ret:
-                print("[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
-                self.q.put((self.ret, None))
-                break
-            else:
-                self.q.put((self.ret, frame))
-
-    def read(self):
-        return self.q.get()
-
-    def release(self):
-        self.cap.release()
-        
-    def isOpened(self):
-        return self.cap.isOpened()
 
 def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
     
