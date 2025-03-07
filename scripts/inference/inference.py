@@ -1,26 +1,130 @@
-from ultralytics import YOLO
-import cv2
+import argparse
+import os
+import torch.multiprocessing as mp  # type: ignore
 
-model_path = '/TFG/models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16_GPU.engine'
-video_path = f'../../datasets_labeled/videos/contar_objetos_40_2min.mp4'
+# Importación de módulos propios
+import detection_tracking_pipeline_with_threads
+import detection_tracking_pipeline_with_multiprocesses
+import detection_tracking_pipeline_with_multiprocesses_shared_memory
 
-model = YOLO(model_path)
-model(conf=0.5, device="cuda:0")
-print("[INFO] Model loaded")
 
-cap = cv2.VideoCapture(video_path)
+def parse_arguments():
+    """Parsea los argumentos de la línea de comandos."""
+    parser = argparse.ArgumentParser()
 
-print("[INFO] Starting inference")
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        print("[INFO] Video finished")
-        break
+    parser.add_argument(
+        "--num_objects",
+        default=40,
+        type=int,
+        choices=[0, 18, 40, 48, 60, 70, 88, 176],
+        help="Número de objetos a contar, default=40",
+    )
 
-    preprocessed = model.predictor.preprocess([frame])
+    parser.add_argument(
+        "--model_size",
+        default="n",
+        type=str,
+        choices=["n", "s", "m", "l", "x"],
+        help="Talla del modelo, default=n",
+    )
 
-    output = model.predictor.inference(preprocessed)
+    parser.add_argument(
+        "--precision",
+        default="FP16",
+        type=str,
+        choices=["FP32", "FP16", "INT8"],
+        help="Precisión del modelo, default=FP16",
+    )
 
-    results = model.predictor.postprocess(output, preprocessed, [frame])
+    parser.add_argument(
+        "--hardware",
+        default="GPU",
+        type=str,
+        choices=["GPU", "DLA0", "DLA1"],
+        help="Hardware a usar, default=GPU",
+    )
 
-    print(f"[INFO] {results[0].boxes}")
+    parser.add_argument(
+        "--mode",
+        required=True,
+        type=str,
+        choices=["MAXN", "30W", "15W", "10W"],
+        help="Modo de energía a usar",
+    )
+
+    parser.add_argument("--tcp", action="store_true", help="Usar conexión TCP")
+
+    parser.add_argument(
+        "--version",
+        default="2025_02_24",
+        type=str,
+        choices=["2025_02_24", "2024_11_28"],
+        help="Versión del dataset, default=2025_02_24",
+    )
+
+    parser.add_argument(
+        "--parallel",
+        default="threads",
+        type=str,
+        choices=["threads", "mp", "mp_shared_memory"],
+        help="Modo de paralelización a usar, default=threads",
+    )
+
+    return parser.parse_args()
+
+
+def initialize_pipeline(args):
+    """Inicializa el pipeline de detección y tracking según el modo de paralelización."""
+    mode = f"{args.mode}_{mp.cpu_count()}CORE"
+    model_name = f"yolo11{args.model_size}"
+
+    model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_{args.hardware}.engine"
+    video_path = (
+        f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
+    )
+    output_dir = "../../inference_predictions/custom_tracker"
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_video_path = os.path.join(
+        output_dir,
+        f"{args.parallel}_{model_name}_{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}.mp4",
+    )
+    output_times = f"{model_name}_{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}"
+
+    print("\n\n[PROGRAM] Opciones seleccionadas:", args, "\n\n")
+
+    pipeline_classes = {
+        "threads": detection_tracking_pipeline_with_threads.DetectionTrackingPipelineWithThreads,
+        "mp": detection_tracking_pipeline_with_multiprocesses.DetectionTrackingPipelineWithMultiprocesses,
+        "mp_shared_memory": (
+            detection_tracking_pipeline_with_multiprocesses_shared_memory.DetectionTrackingPipelineWithMultiprocessesSharedMemory
+        ),
+    }
+
+    if args.parallel not in pipeline_classes:
+        raise ValueError(
+            "Modo de paralelización no válido. Debe ser 'threads', 'mp' o 'mp_shared_memory'."
+        )
+
+    return pipeline_classes[args.parallel](
+        video_path,
+        model_path,
+        output_video_path,
+        output_times,
+        args.parallel,
+        args.tcp,
+        args.tcp,
+    )
+
+
+def main():
+    args = parse_arguments()
+    detection_tracking_pipeline = initialize_pipeline(args)
+    detection_tracking_pipeline.run()
+
+
+if __name__ == "__main__":
+    mp.set_start_method("spawn")  # Fijar método de inicio de multiprocesamiento
+    print(f"[PROGRAM] Número de CPU: {mp.cpu_count()}")
+    main()
