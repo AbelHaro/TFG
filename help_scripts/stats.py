@@ -1,5 +1,6 @@
 import ast
 
+
 def read_statistics(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -16,6 +17,7 @@ def read_statistics(file_path):
 
     return real_counts, predicted_counts
 
+
 def calculate_statistics(real_counts, predicted_counts):
     total_real = sum(real_counts.values())
     total_predicted = sum(predicted_counts.values())
@@ -29,9 +31,12 @@ def calculate_statistics(real_counts, predicted_counts):
         precision_by_class[cls] = precision
 
     # Calcular precisión total
-    total_precision = sum(min(real_counts[cls], predicted_counts.get(cls, 0)) for cls in real_counts) / total_real
+    total_precision = (
+        sum(min(real_counts[cls], predicted_counts.get(cls, 0)) for cls in real_counts) / total_real
+    )
 
     return precision_by_class, total_precision
+
 
 def main():
     file_path = "../inference_predictions/custom_tracker/count.yaml"
@@ -44,6 +49,7 @@ def main():
         print(f"Clase '{cls}': Precisión: {precision:.2%}")
 
     print(f"\nPrecisión Total: {total_precision:.2%}")
+
 
 if __name__ == "__main__":
     main()

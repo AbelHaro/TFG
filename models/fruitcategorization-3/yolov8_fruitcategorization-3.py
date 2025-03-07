@@ -29,7 +29,7 @@ model = YOLO('yolov8n.pt')
 
 # Step 6: Train the model using the downloaded dataset path
 # Assuming the dataset.yaml is located in /content/Fruit-Ripeness-1/
-results = model.train(data= dataset.location + '/data.yaml', epochs=100, imgsz=640)
+results = model.train(data=dataset.location + '/data.yaml', epochs=100, imgsz=640)
 
 # Step 7: Evaluate the model
 metrics = model.val()

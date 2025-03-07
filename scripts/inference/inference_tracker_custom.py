@@ -11,6 +11,7 @@ time_write_frame = 0
 
 # Definir funciones
 
+
 def actualizar_memoria(track_id, clase_detectada, memory):
     """Actualizar la memoria con el estado de los objetos detectados."""
     global time_memory_update
@@ -52,14 +53,14 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
 
     # Definir colores específicos para cada clase
     colores = {
-        'negra': (0, 0, 255),    # Rojo
-        'blanca': (0, 255, 0),   # Verde
-        'verde': (255, 0, 0),    # Azul
-        'azul': (255, 255, 0),   # Amarillo
-        'negra-d': (0, 165, 255),# Naranja
-        'blanca-d': (255, 165, 0),# Azul claro
-        'verde-d': (255, 105, 180), # Rosa
-        'azul-d': (255, 0, 255), # Magenta
+        'negra': (0, 0, 255),  # Rojo
+        'blanca': (0, 255, 0),  # Verde
+        'verde': (255, 0, 0),  # Azul
+        'azul': (255, 255, 0),  # Amarillo
+        'negra-d': (0, 165, 255),  # Naranja
+        'blanca-d': (255, 165, 0),  # Azul claro
+        'verde-d': (255, 105, 180),  # Rosa
+        'azul-d': (255, 0, 255),  # Magenta
     }
 
     while cap.isOpened():
@@ -74,8 +75,8 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
         # Realizar inferencia
         t1 = cv2.getTickCount()
         results = model.track(
-            source=frame,           # (str, optional) source directory for images or videos
-            device=0,               # (int, optional) GPU id (0-9) or -1 for CPU
+            source=frame,  # (str, optional) source directory for images or videos
+            device=0,  # (int, optional) GPU id (0-9) or -1 for CPU
             persist=True,
             tracker='bytetrack.yaml',  # (str, optional) filename of tracker YAML
         )
@@ -89,7 +90,7 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
             t2 = cv2.getTickCount()
             time_write_frame += (t2 - t1) / cv2.getTickFrequency()
             continue
-        
+
         t1 = cv2.getTickCount()
 
         # Obtener coordenadas de las detecciones y IDs
@@ -116,7 +117,9 @@ def procesar_video(video_path, model, output_video_path, clases, memory):
             # Dibujar rectángulo y texto
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
             texto = f'ID:{obj_id} {clase_detectada} {conf:.2f}'
-            cv2.putText(frame, texto, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.putText(
+                frame, texto, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2
+            )
 
         out.write(frame)
         frame_count += 1
@@ -140,12 +143,21 @@ def main():
 
     # Cargar el modelo
     model = YOLO(model_path)
-    clases = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
+    clases = {
+        0: 'negra',
+        1: 'blanca',
+        2: 'verde',
+        3: 'azul',
+        4: 'negra-d',
+        5: 'blanca-d',
+        6: 'verde-d',
+        7: 'azul-d',
+    }
     memory = {}
 
     total_time = cv2.getTickCount()
-    frame_count, total_preprocess_time, total_inference_time, total_postprocess_time = procesar_video(
-        video_path, model, output_video_path, clases, memory
+    frame_count, total_preprocess_time, total_inference_time, total_postprocess_time = (
+        procesar_video(video_path, model, output_video_path, clases, memory)
     )
     total_time = (cv2.getTickCount() - total_time) / cv2.getTickFrequency()
 
@@ -153,9 +165,11 @@ def main():
     print(f'Tiempo total: {total_time:.3f} segundos')
     print(f'Tiempo captura: {time_capturing_frame:.3f} segundos')
     print(f'Tiempo inferencia: {time_inference_outside_function:.3f} segundos')
-    print(f'Tiempo de preprocesamiento: {total_preprocess_time/1000:.3f} segundos, '
-          f'inferencia: {total_inference_time/1000:.3f} segundos, '
-          f'postprocesamiento: {total_postprocess_time/1000:.3f} segundos')
+    print(
+        f'Tiempo de preprocesamiento: {total_preprocess_time/1000:.3f} segundos, '
+        f'inferencia: {total_inference_time/1000:.3f} segundos, '
+        f'postprocesamiento: {total_postprocess_time/1000:.3f} segundos'
+    )
     print(f'Tiempo escritura: {time_write_frame:.3f} segundos')
 
 

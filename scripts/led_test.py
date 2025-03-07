@@ -28,15 +28,18 @@ import RPi.GPIO as GPIO
 pin_datas = {
     'JETSON_XAVIER': {
         'unimplemented': (),
-        'input_only': (36, ),
+        'input_only': (36,),
     },
     'JETSON_TX2': {
-        'unimplemented': (26, ),
-        'input_only': (16, 36, ),
+        'unimplemented': (26,),
+        'input_only': (
+            16,
+            36,
+        ),
     },
     'JETSON_TX1': {
         'unimplemented': (),
-        'input_only': (36, ),
+        'input_only': (36,),
     },
     'JETSON_NANO': {
         'unimplemented': (),
@@ -70,8 +73,30 @@ pin_datas = {
 pin_data = pin_datas.get(GPIO.model)
 print("Detected GPIO hardware: %s" % GPIO.model)
 print("Info of Jetson module: %s" % GPIO.JETSON_INFO)
-all_pins = (7, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 29, 31, 32, 33,
-            35, 36, 37, 38, 40,)
+all_pins = (
+    7,
+    11,
+    12,
+    13,
+    15,
+    16,
+    18,
+    19,
+    21,
+    22,
+    23,
+    24,
+    26,
+    29,
+    31,
+    32,
+    33,
+    35,
+    36,
+    37,
+    38,
+    40,
+)
 
 if len(sys.argv) > 1:
     all_pins = map(int, sys.argv[1:])

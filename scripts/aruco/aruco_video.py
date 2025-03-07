@@ -47,27 +47,27 @@ while cap.isOpened():
             side_length_px = np.linalg.norm(top_left - top_right)
             px_to_cm_ratio = marker_size_cm / side_length_px
             marker_id = ids[i][0]
-            
+
             text = f"ID: {marker_id} Size: {marker_size_cm:.2f} cm"
             position = (int(top_left[0]), int(top_left[1]) - 10)
-            
+
             # Primero dibujar el borde del texto (stroke) en negro
-            cv2.putText(frame, text, position,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 4)  # Grosor del borde mayor
-            
+            cv2.putText(
+                frame, text, position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 4
+            )  # Grosor del borde mayor
+
             # Luego dibujar el texto en verde encima
-            cv2.putText(frame, text, position,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)  # Texto en verde con grosor normal
+            cv2.putText(
+                frame, text, position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2
+            )  # Texto en verde con grosor normal
     else:
         # Texto para "No markers detected"
         text = "No markers detected"
         position = (10, 30)
-        
+
         # Stroke para el texto en rojo
-        cv2.putText(frame, text, position,
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 4)
-        cv2.putText(frame, text, position,
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(frame, text, position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 4)
+        cv2.putText(frame, text, position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
     out.write(frame)
 

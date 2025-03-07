@@ -32,12 +32,14 @@ filename = f"./videos_nuevo/video_original.{format}"
 fourcc = cv2.VideoWriter_fourcc(*codec)
 out = cv2.VideoWriter(filename, fourcc, 30.0, (width, height))
 
+
 def cleanup(signal, frame):
     print("\nCerrando programa...")
     cap.release()
     out.release()
     cv2.destroyAllWindows()
     sys.exit(0)
+
 
 signal.signal(signal.SIGINT, cleanup)
 
@@ -48,7 +50,7 @@ while True:
     if not ret:
         print("Error: No se pudo capturar el fotograma.")
         break
-    
+
     # Verificar y ajustar el formato de píxel si es necesario
     if frame is not None:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convertir a RGB si es necesario

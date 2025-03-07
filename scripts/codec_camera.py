@@ -6,7 +6,7 @@ import os
 # define suitable FFmpeg parameter
 ffparams = {
     "-vcodec": "h264_nvmpi",  # use H.264 CUVID Video-decoder
-    "-enforce_cv_patch": True # enable OpenCV patch for YUV(YUV420p) frames
+    "-enforce_cv_patch": True,  # enable OpenCV patch for YUV(YUV420p) frames
 }
 
 video_path = "../datasets_labeled/videos/prueba_velocidad_07.mp4"
@@ -19,8 +19,8 @@ if not os.path.exists(video_path):
 decoder = FFdecoder(
     video_path,  # path to the video
     frame_format="yuv420p",  # use YUV420p frame pixel format
-    verbose=True, # enable verbose output
-    **ffparams # apply various params and custom filters
+    verbose=True,  # enable verbose output
+    **ffparams,  # apply various params and custom filters
 ).formulate()
 
 # grab the YUV420p frame from the decoder

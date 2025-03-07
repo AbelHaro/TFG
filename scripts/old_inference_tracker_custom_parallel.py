@@ -11,6 +11,7 @@ total_time_writing = 0
 
 gpu_time = {"preprocess": 0, "inference": 0, "postprocess": 0}
 
+
 def get_total_frames(video_path):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
@@ -19,6 +20,7 @@ def get_total_frames(video_path):
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     cap.release()
     return total_frames
+
 
 def update_memory(track_id, detected_class, memory):
     if track_id not in memory:
@@ -31,6 +33,7 @@ def update_memory(track_id, detected_class, memory):
             detected_class = detected_class + '-d'
 
     memory[track_id]['class'] = detected_class
+
 
 def capture_frames(video_path, frame_queue):
     global total_time_capturing
@@ -46,6 +49,7 @@ def capture_frames(video_path, frame_queue):
     cap.release()
     frame_queue.put(None)  # Señal de finalización
 
+
 def process_frames(frame_queue, result_queue, model):
     global total_time_processing
     while True:
@@ -54,11 +58,14 @@ def process_frames(frame_queue, result_queue, model):
             result_queue.put(None)
             break
         t1 = cv2.getTickCount()
-        results = model.track(source=frame, device=0, persist=True, task='detect', tracker='bytetrack.yaml')
+        results = model.track(
+            source=frame, device=0, persist=True, task='detect', tracker='bytetrack.yaml'
+        )
         t2 = cv2.getTickCount()
         total_time_processing += (t2 - t1) / cv2.getTickFrequency()
 
         result_queue.put((frame, results))
+
 
 def draw_and_write_frames(result_queue, output_video_path, classes, memory, colors):
     global total_time_writing
@@ -69,11 +76,11 @@ def draw_and_write_frames(result_queue, output_video_path, classes, memory, colo
             break
         t1 = cv2.getTickCount()
         frame, results = item
-        
+
         gpu_time['preprocess'] += results[0].speed['preprocess']
         gpu_time['inference'] += results[0].speed['inference']
         gpu_time['postprocess'] += results[0].speed['postprocess']
-        
+
         if out is None:
             frame_height, frame_width = frame.shape[:2]
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -96,7 +103,15 @@ def draw_and_write_frames(result_queue, output_video_path, classes, memory, colo
 
                 cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
                 text = f'ID:{obj_id} {detected_class} {conf:.2f}'
-                cv2.putText(frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                cv2.putText(
+                    frame,
+                    text,
+                    (xmin, ymin - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (255, 255, 255),
+                    2,
+                )
 
         for track_id in list(memory):
             memory[track_id]['visible_frames'] -= 1
@@ -110,6 +125,7 @@ def draw_and_write_frames(result_queue, output_video_path, classes, memory, colo
     if out:
         out.release()
 
+
 def main():
     global total_time_capturing, total_time_processing, total_time_writing
     model_path = '../models/canicas/2024_11_15/2024_11_15_canicas_yolo11n.engine'
@@ -119,10 +135,25 @@ def main():
     output_video_path = os.path.join(output_dir, 'video_con_tracking.mp4')
 
     model = YOLO(model_path)
-    classes = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
+    classes = {
+        0: 'negra',
+        1: 'blanca',
+        2: 'verde',
+        3: 'azul',
+        4: 'negra-d',
+        5: 'blanca-d',
+        6: 'verde-d',
+        7: 'azul-d',
+    }
     colors = {
-        'negra': (0, 0, 255), 'blanca': (0, 255, 0), 'verde': (255, 0, 0), 'azul': (255, 255, 0),
-        'negra-d': (0, 165, 255), 'blanca-d': (255, 165, 0), 'verde-d': (255, 105, 180), 'azul-d': (255, 0, 255)
+        'negra': (0, 0, 255),
+        'blanca': (0, 255, 0),
+        'verde': (255, 0, 0),
+        'azul': (255, 255, 0),
+        'negra-d': (0, 165, 255),
+        'blanca-d': (255, 165, 0),
+        'verde-d': (255, 105, 180),
+        'azul-d': (255, 0, 255),
     }
     memory = {}
 
@@ -132,7 +163,10 @@ def main():
     threads = [
         threading.Thread(target=capture_frames, args=(video_path, frame_queue)),
         threading.Thread(target=process_frames, args=(frame_queue, result_queue, model)),
-        threading.Thread(target=draw_and_write_frames, args=(result_queue, output_video_path, classes, memory, colors))
+        threading.Thread(
+            target=draw_and_write_frames,
+            args=(result_queue, output_video_path, classes, memory, colors),
+        ),
     ]
 
     t1 = cv2.getTickCount()
@@ -144,17 +178,24 @@ def main():
 
     t2 = cv2.getTickCount()
     total_time = (t2 - t1) / cv2.getTickFrequency()
-    
+
     total_frames = get_total_frames(video_path)
-    
+
     print(f"Total de frames procesados: {total_frames}")
     print(f"Tiempo total de procesamiento: {total_time:.3f} segundos")
-    print(f"Tiempo medio por frame: {total_time / total_frames * 1000:.3f} ms, FPS: {total_frames / total_time:.3f}")
+    print(
+        f"Tiempo medio por frame: {total_time / total_frames * 1000:.3f} ms, FPS: {total_frames / total_time:.3f}"
+    )
     print(f"Tiempo total capturando frames: {total_time_capturing:.3f} segundos")
     print(f"Tiempo total procesando frames: {total_time_processing:.3f} segundos")
     print(f"Tiempo total escribiendo frames: {total_time_writing:.3f} segundos")
-    print(f"Tiempos que mide la función track, preprocesamiento: {gpu_time['preprocess']/1000:.3f} s, inferencia: {gpu_time['inference']/1000:.3f} s, postprocesamiento: {gpu_time['postprocess']/1000:.3f} s")
-    print(f"Tiempo total que mide la función track: {(gpu_time['preprocess'] + gpu_time['inference'] + gpu_time['postprocess'])/1000:.3f} s")
-    
+    print(
+        f"Tiempos que mide la función track, preprocesamiento: {gpu_time['preprocess']/1000:.3f} s, inferencia: {gpu_time['inference']/1000:.3f} s, postprocesamiento: {gpu_time['postprocess']/1000:.3f} s"
+    )
+    print(
+        f"Tiempo total que mide la función track: {(gpu_time['preprocess'] + gpu_time['inference'] + gpu_time['postprocess'])/1000:.3f} s"
+    )
+
+
 if __name__ == "__main__":
     main()

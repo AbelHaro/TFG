@@ -20,28 +20,28 @@ if not os.path.exists(output_dir):
 # Modelos base a usar para entrenamiento
 base_models = [
     "yolo11n.pt",
-    #"yolo11s.pt",
-    #"yolo11m.pt",
-    #"yolo11l.pt",
-    #"yolo11x.pt",
-    #"yolov5nu.pt",
+    # "yolo11s.pt",
+    # "yolo11m.pt",
+    # "yolo11l.pt",
+    # "yolo11x.pt",
+    # "yolov5nu.pt",
 ]
 
 # Iterar sobre cada modelo base y entrenar
 for base_model in base_models:
-    
+
     print(f"Entrenando el modelo base: {base_model}")
-    
+
     # Cargar el modelo base
     model = YOLO(base_model)
 
     # Entrenamiento del modelo
     results = model.train(data=dataset_dir, epochs=30, device=0, imgsz=640)
-    
+
     # Definir la ruta completa para guardar el modelo
     save_path = os.path.join(output_dir, f"{version}_canicas_{base_model}")
 
     # Guardar el modelo entrenado
     model.save(save_path)
-    
+
     print(f"Modelo guardado en: {save_path}")
