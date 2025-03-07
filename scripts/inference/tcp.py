@@ -40,4 +40,11 @@ if __name__ == "__main__":
     parser.add_argument('--port', type=int, default=8765, help="Puerto de conexión")
     args = parser.parse_args()
     
-    tcp_server(args.host, args.port)
+    client_socket, server_socket = tcp_server(args.host, args.port)
+    
+    handle_send(client_socket, "Hola, soy el servidor.")
+    
+    client_socket.close()
+    server_socket.close()
+    print("Conexión cerrada.")
+    

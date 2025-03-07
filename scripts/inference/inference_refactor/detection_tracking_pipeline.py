@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import cv2
 import os
-import Namespace
+from argparse import Namespace
 from tracker_wrapper import TrackerWrapper
 from tcp import handle_send, tcp_server
 
@@ -14,7 +14,6 @@ class DetectionTrackingPipeline(ABC):
         'negra-d': (0, 165, 255), 'blanca-d': (255, 165, 0), 'verde-d': (255, 105, 180), 'azul-d': (255, 0, 255)
     }
     
-    FRAME_AGE = 20
     
     def get_total_frames(self, video_path):
         cap = cv2.VideoCapture(video_path)
@@ -25,7 +24,7 @@ class DetectionTrackingPipeline(ABC):
         return total_frames
     
     def update_memory(self, tracked_objects, memory, classes):
-        global FRAME_AGE
+        FRAME_AGE = 60
         
         for obj in tracked_objects:
             track_id = int(obj[4])
@@ -81,9 +80,9 @@ class DetectionTrackingPipeline(ABC):
             #print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
             frame_queue.put((frame, times))
             frame_count += 1
-        
+            
         cap.release()
-        print("[PROGRAM - CAPTURE FRAMES] Video terminado, añadiendo None a la cola")
+        print("[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
         frame_queue.put(None)
         
     def process_frames(self, frame_queue, detection_queue, model_path, t1_start):
@@ -145,6 +144,8 @@ class DetectionTrackingPipeline(ABC):
 
             detection_queue.put((frame, result_formatted, times))
         
+        print("[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
+        
     def tracking_frames(self, detection_queue, tracking_queue):
         tracker_wrapper = TrackerWrapper(frame_rate=20)
             
@@ -167,6 +168,8 @@ class DetectionTrackingPipeline(ABC):
             times["objects_count"] = len(outputs)
         
             tracking_queue.put((frame, outputs, times))
+
+        print("[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
         
     def draw_and_write_frames(self, tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, tcp_conn, is_tcp):
         import threading
@@ -256,7 +259,8 @@ class DetectionTrackingPipeline(ABC):
             out.release()
             
         times_queue.put(None)
-        print("[PROGRAM - DRAW AND WRITE] None añadido a la cola de tiempos")
+        stop_event.set()
+        print("[PROGRAM - DRAW AND WRITE] Escritura de frames terminada")
         
         
         if is_tcp:
@@ -289,7 +293,7 @@ class DetectionTrackingPipeline(ABC):
                 
         create_excel_from_csv(times_name, fps_name, output_name=f"multiprocesses_{output_file}_2min.xlsx")
         
-        print("[PROGRAM - WRITE TO CSV] None recibido, terminando proceso")
+        print("[PROGRAM - WRITE TO CSV] Escritura de tiempos terminada")
         
     def hardware_usage(self, output_file, stop_event, t1_start, tcp_conn, is_tcp):
         import subprocess

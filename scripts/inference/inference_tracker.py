@@ -5,6 +5,18 @@ from ultralytics.trackers.bot_sort import BOTSORT # type: ignore
 from argparse import Namespace
 import torch
 
+def xywh_to_tlwh(xywh):
+    if isinstance(xywh, torch.Tensor):
+        tlwh = xywh.clone()
+    elif isinstance(xywh, np.ndarray):
+        tlwh = xywh.copy()
+    else:
+        tlwh = list(xywh)  # Para listas
+    
+    tlwh[0] = xywh[0] - xywh[2] / 2  # t = x - w/2
+    tlwh[1] = xywh[1] - xywh[3] / 2  # l = y - h/2
+    return tlwh
+
 model_path = "../../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n.pt"
 video_path = "../../datasets_labeled/2025_02_24_canicas_dataset/train/images/133.png"
 
@@ -44,22 +56,32 @@ results = model.predictor.postprocess(output, preprocessed, [frame])
 # Mostrar los resultados del modelo
 print(f"[DEBUG] El modelo ha detectado: {len(results[0].boxes.xywh.cpu())} objetos.")
 
+print("[DEBUG] Resultados:", results[0].boxes)
+
 xywh = results[0].boxes.xywh.cpu()
 conf = results[0].boxes.conf.cpu()
 cls = results[0].boxes.cls.cpu()
 
 print("[DEBUG] xywh:", xywh)
+tlwh = xywh_to_tlwh(xywh)
+print("[DEBUG] tlwh:", tlwh)
+
 print("[DEBUG] conf:", conf)
 print("[DEBUG] cls:", cls)
+
+
 
 # Crear un índice ascendente para cada objeto detectado
 xywh_with_idx = torch.cat((xywh, torch.arange(len(xywh)).view(-1, 1).float()), dim=1)  # Agrega el índice
 
+print("[DEBUG] xywh_with_idx:", xywh_with_idx)
+
 # Realizar el tracking
-tracks = bot_sort.init_track(xywh_with_idx, conf, cls, frame)
+tracks = bot_sort.init_track(dets=xywh_with_idx, scores=conf, cls=cls, img=frame)
 
 # Mostrar los tracks obtenidos
 for track in tracks:
     print("[DEBUG] Track:", track)
 
 #bot_sort.multi_predict(tracks)
+

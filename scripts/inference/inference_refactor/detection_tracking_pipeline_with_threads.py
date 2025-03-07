@@ -2,13 +2,16 @@ from detection_tracking_pipeline import DetectionTrackingPipeline
 from queue import Queue
 import torch.multiprocessing as mp # type: ignore
 import threading
+import cv2
 
 class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
     
-    def __init__(self, video_path, model_path, output_video_path, tcp_conn=None, is_tcp=False):
+    def __init__(self, video_path, model_path, output_video_path, output_times, output_hardware_stats, tcp_conn=None, is_tcp=False):
         self.video_path = video_path
         self.model_path = model_path
         self.output_video_path = output_video_path
+        self.output_times = output_times
+        self.output_hardware_stats = output_hardware_stats
         self.tcp_conn = tcp_conn
         self.is_tcp = is_tcp
         
@@ -20,7 +23,7 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
         self.memory = {}
         self.stop_event = mp.Event()
         
-        self.t1_start = mp.Event()    
+        self.t1_start = mp.Event()
     
     def capture_frames(self, video_path, frame_queue, stop_event, tcp_conn, is_tcp):
         return super().capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp)
@@ -46,14 +49,23 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
             threading.Thread(target=self.process_frames, args=(self.frame_queue, self.detection_queue, self.model_path, self.t1_start)),
             threading.Thread(target=self.tracking_frames, args=(self.detection_queue, self.tracking_queue)),
             threading.Thread(target=self.draw_and_write_frames, args=(self.tracking_queue, self.times_queue, self.output_video_path, self.CLASSES, self.memory, self.COLORS, self.stop_event, self.tcp_conn, self.is_tcp)),
-            threading.Thread(target=self.write_to_csv, args=(self.times_queue, self.output_video_path)),
-            threading.Thread(target=self.hardware_usage, args=(self.output_video_path, self.stop_event, self.t1_start, self.tcp_conn, self.is_tcp)),
+            threading.Thread(target=self.write_to_csv, args=(self.times_queue, self.output_times)),
+            threading.Thread(target=self.hardware_usage, args=(self.output_hardware_stats, self.stop_event, self.t1_start, self.tcp_conn, self.is_tcp)),
         ]
+        
+        t1 = cv2.getTickCount()
         
         for thread in threads:
             thread.start()
         for thread in threads:
             thread.join()
+            
+        t2 = cv2.getTickCount()
+        time = (t2 - t1) / cv2.getTickFrequency()
+        
+        self.total_frames = self.get_total_frames(self.video_path)
+        
+        print(f"[DETECTION_TRACKING_PIPELINE_WITH_THREADS] Total time: {time:.2f} s, FPS: {self.total_frames / time:.2f}")
             
         print("[DETECTION_TRACKING_PIPELINE_WITH_THREADS] Finished running threads.")
 
