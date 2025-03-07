@@ -1,7 +1,7 @@
 [tool.black]
 line-length = 100  # Longitud máxima de línea
 target-version = ['py38', 'py39', 'py310']  # Versiones de Python soportadas
-skip-string-normalization = true  # No cambiar comillas a dobles
+skip-string-normalization = false  # No cambiar comillas a dobles
 include = '\.pyi?$'  # Incluir archivos .py y .pyi
 exclude = '''
 /(
