@@ -6,12 +6,12 @@ import cv2
 
 class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
     
-    def __init__(self, video_path, model_path, output_video_path, output_times, output_hardware_stats, tcp_conn=None, is_tcp=False):
+    def __init__(self, video_path, model_path, output_video_path, output_times, parallel_mode, tcp_conn=None, is_tcp=False):
         self.video_path = video_path
         self.model_path = model_path
         self.output_video_path = output_video_path
         self.output_times = output_times
-        self.output_hardware_stats = output_hardware_stats
+        self.parallel_mode = parallel_mode
         self.tcp_conn = tcp_conn
         self.is_tcp = is_tcp
         
@@ -37,11 +37,11 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
     def draw_and_write_frames(self, tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, tcp_conn, is_tcp):
         return super().draw_and_write_frames(tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, tcp_conn, is_tcp)
     
-    def write_to_csv(self, times_queue, output_file):
-        return super().write_to_csv(times_queue, output_file)
+    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event):
+        return super().write_to_csv(times_queue, output_file, parallel_mode, stop_event)
     
-    def hardware_usage(self, output_file, stop_event, t1_start, tcp_conn, is_tcp):
-        return super().hardware_usage(output_file, stop_event, t1_start, tcp_conn, is_tcp)
+    def hardware_usage(self, parallel_mode, stop_event, t1_start, tcp_conn, is_tcp):
+        return super().hardware_usage(parallel_mode, stop_event, t1_start, tcp_conn, is_tcp)
     
     def run(self):
         threads = [
@@ -49,8 +49,8 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
             threading.Thread(target=self.process_frames, args=(self.frame_queue, self.detection_queue, self.model_path, self.t1_start)),
             threading.Thread(target=self.tracking_frames, args=(self.detection_queue, self.tracking_queue)),
             threading.Thread(target=self.draw_and_write_frames, args=(self.tracking_queue, self.times_queue, self.output_video_path, self.CLASSES, self.memory, self.COLORS, self.stop_event, self.tcp_conn, self.is_tcp)),
-            threading.Thread(target=self.write_to_csv, args=(self.times_queue, self.output_times)),
-            threading.Thread(target=self.hardware_usage, args=(self.output_hardware_stats, self.stop_event, self.t1_start, self.tcp_conn, self.is_tcp)),
+            threading.Thread(target=self.write_to_csv, args=(self.times_queue, self.output_times, self.parallel_mode, self.stop_event)),
+            threading.Thread(target=self.hardware_usage, args=(self.parallel_mode, self.stop_event, self.t1_start, self.tcp_conn, self.is_tcp)),
         ]
         
         t1 = cv2.getTickCount()

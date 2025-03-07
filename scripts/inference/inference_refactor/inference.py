@@ -11,6 +11,7 @@ parser.add_argument('--hardware', default='GPU', type=str, choices=["GPU", "DLA0
 parser.add_argument('--mode', required=True, default='MAXN', type=str, choices=["MAXN", "30W", "15W", "10W"], help='Modo de energía a usar {MAXN, 30W, 15W, 10W}, default=MAXN')
 parser.add_argument('--tcp', default=False, type=bool, help='Usar conexión TCP, default=False')
 parser.add_argument('--version', default="2025_02_24", type=str, choices=["2025_02_24", "2024_11_28"], help='Versión del dataset, default=2025_02_24')
+parser.add_argument('--parallel', default="threads", type=str, choices=["threads", "processes", "processes_shared_memory"], help='Modo de paralelización a usar {threads, processes, processes_shared_memory}, default=threads')
 
 args = parser.parse_args()
 
@@ -22,6 +23,7 @@ def main():
     mode = mode = f"{args.mode}_{mp.multiprocessing.cpu_count()}CORE"
     tcp = args.tcp
     version = args.version
+    parallel_mode = args.parallel
 
     print("\n\n[PROGRAM] Opciones seleccionadas: ", args, "\n\n")
 
@@ -32,12 +34,10 @@ def main():
     output_dir = '../../../inference_predictions/custom_tracker'
 
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, f'multiprocesos_memoria_compartida_{model_name}_{precision}_{hardware}_{num_objects}_objects_{mode}.mp4')
+    output_video_path = os.path.join(output_dir, f"{parallel_mode}_{model_name}_{precision}_{hardware}_{num_objects}_objects_{mode}.mp4")
     output_times = f"{model_name}_{precision}_{hardware}_{num_objects}_objects_{mode}"
-
-    output_hardware_stats = f"{model_name}_{precision}_{hardware}_{num_objects}_objects_{mode}"
-    
-    detection_tracking_pipeline = detection_tracking_pipeline_with_threads.DetectionTrackingPipelineWithThreads(video_path, model_path, output_video_path,output_times, output_hardware_stats, tcp, args.tcp)
+        
+    detection_tracking_pipeline = detection_tracking_pipeline_with_threads.DetectionTrackingPipelineWithThreads(video_path, model_path, output_video_path,output_times, parallel_mode, tcp, args.tcp)
     
     detection_tracking_pipeline.run()
     
