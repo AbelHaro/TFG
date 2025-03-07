@@ -9,7 +9,9 @@ import logging
 
 class DetectionTrackingPipeline(ABC):
 
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(
+        level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
     CLASSES = {
         0: 'negra',
@@ -69,12 +71,20 @@ class DetectionTrackingPipeline(ABC):
                 del memory[track_id]
 
     def capture_frames(
-        self, video_path, frame_queue, stop_event, tcp_conn, is_tcp, mp_stop_event=None
+        self,
+        video_path,
+        frame_queue,
+        stop_event,
+        tcp_conn,
+        is_tcp,
+        mp_stop_event=None,
+        mh_num=1,
     ):
         logging.debug(f"[PROGRAM - CAPTURE FRAMES] Iniciando captura de frames")
 
         if not os.path.exists(video_path):
-            frame_queue.put(None)
+            for _ in range(mh_num):
+                frame_queue.put(None)
             raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
         cap = cv2.VideoCapture(video_path)
@@ -95,7 +105,9 @@ class DetectionTrackingPipeline(ABC):
                 logging.debug(
                     f"[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola"
                 )
-                logging.debug(f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames")
+                logging.debug(
+                    f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames"
+                )
                 break
 
             t2 = cv2.getTickCount()
@@ -107,11 +119,17 @@ class DetectionTrackingPipeline(ABC):
 
         cap.release()
         logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
-        frame_queue.put(None)
+        for _ in range(mh_num):
+            frame_queue.put(None)
         mp_stop_event.wait() if mp_stop_event else None
 
     def process_frames(
-        self, frame_queue, detection_queue, model_path, t1_start, mp_stop_event=None
+        self,
+        frame_queue,
+        detection_queue,
+        model_path,
+        t1_start,
+        mp_stop_event=None,
     ):
         from ultralytics import YOLO  # type: ignore
 
@@ -119,7 +137,7 @@ class DetectionTrackingPipeline(ABC):
 
         model = YOLO(model_path, task='detect')
 
-        model(device="cuda:0", conf=0.5, half=True, imgsz=(640, 640), augment=True)
+        model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
 
         # dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
         # model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
@@ -141,19 +159,25 @@ class DetectionTrackingPipeline(ABC):
             t1_aux = cv2.getTickCount()
             preprocessed = model.predictor.preprocess([frame])
             t2_aux = cv2.getTickCount()
-            times_detect_function["preprocess"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function["preprocess"] = (
+                t2_aux - t1_aux
+            ) / cv2.getTickFrequency()
 
             # Realiza la inferencia
             t1_aux = cv2.getTickCount()
             output = model.predictor.inference(preprocessed)
             t2_aux = cv2.getTickCount()
-            times_detect_function["inference"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function["inference"] = (
+                t2_aux - t1_aux
+            ) / cv2.getTickFrequency()
 
             # Postprocesa los resultados
             t1_aux = cv2.getTickCount()
             results = model.predictor.postprocess(output, preprocessed, [frame])
             t2_aux = cv2.getTickCount()
-            times_detect_function["postprocess"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function["postprocess"] = (
+                t2_aux - t1_aux
+            ) / cv2.getTickFrequency()
 
             # results = model.predict(source=frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
 
@@ -175,7 +199,7 @@ class DetectionTrackingPipeline(ABC):
         logging.debug(f"[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
 
     def tracking_frames(self, detection_queue, tracking_queue, mp_stop_event=None):
-        tracker_wrapper = TrackerWrapper(frame_rate=20)
+        tracker_wrapper = TrackerWrapper(frame_rate=30)
 
         while True:
             item = detection_queue.get()
@@ -199,6 +223,91 @@ class DetectionTrackingPipeline(ABC):
 
         mp_stop_event.wait() if mp_stop_event else None
         logging.debug(f"[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
+
+    def tracking_frames_multihardware(
+        self,
+        detection_queue_GPU,
+        detection_queue_DLA0,
+        detection_queue_DLA1,
+        tracking_queue,
+        mp_stop_event=None,
+    ):
+        tracker_wrapper = TrackerWrapper(frame_rate=30)
+        stop_gpu = False
+        stop_dla0 = False
+        stop_dla1 = False
+        item_gpu = None
+        item_dla0 = None
+        item_dla1 = None
+
+        while True:
+            # Obtener elementos de las colas si aún no han sido detenidas
+            if not stop_gpu and item_gpu is None:
+                item_gpu = detection_queue_GPU.get()
+                if item_gpu is None:
+                    stop_gpu = True
+
+            if not stop_dla0 and item_dla0 is None:
+                item_dla0 = detection_queue_DLA0.get()
+                if item_dla0 is None:
+                    stop_dla0 = True
+
+            if not stop_dla1 and item_dla1 is None:
+                item_dla1 = detection_queue_DLA1.get()
+                if item_dla1 is None:
+                    stop_dla1 = True
+
+            # Verificar si todas las colas están vacías
+            if stop_gpu and stop_dla0 and stop_dla1:
+                tracking_queue.put(None)
+                break
+
+            t1 = cv2.getTickCount()
+
+            # Obtener los números de frame de los ítems
+            _, _, _, frame_number_gpu = (
+                item_gpu if item_gpu is not None else (None, None, None, None)
+            )
+            _, _, _, frame_number_dla0 = (
+                item_dla0 if item_dla0 is not None else (None, None, None, None)
+            )
+            _, _, _, frame_number_dla1 = (
+                item_dla1 if item_dla1 is not None else (None, None, None, None)
+            )
+
+            # Determinar qué ítem procesar (prioridad por número de frame más bajo)
+            if frame_number_gpu is not None and (
+                (frame_number_dla0 is None or frame_number_gpu < frame_number_dla0)
+                and (frame_number_dla1 is None or frame_number_gpu < frame_number_dla1)
+            ):
+                frame, result, times, _ = item_gpu
+                item_gpu = None
+            elif frame_number_dla0 is not None and (
+                (frame_number_dla1 is None or frame_number_dla0 < frame_number_dla1)
+            ):
+                frame, result, times, _ = item_dla0
+                item_dla0 = None
+            elif frame_number_dla1 is not None:
+                frame, result, times, _ = item_dla1
+                item_dla1 = None
+            else:
+                continue  # No hay elementos disponibles, continuar el bucle
+
+            # Realizar el tracking
+            outputs = tracker_wrapper.track(result, frame)
+
+            t2 = cv2.getTickCount()
+            tracking_time = (t2 - t1) / cv2.getTickFrequency()
+
+            # Actualizar tiempos y contar objetos
+            times["tracking"] = tracking_time
+            times["objects_count"] = len(outputs)
+
+            # Añadir el resultado al tracking_queue
+            tracking_queue.put((frame, outputs, times))
+
+            mp_stop_event.wait() if mp_stop_event else None
+            logging.debug(f"[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
 
     def draw_and_write_frames(
         self,
@@ -234,7 +343,9 @@ class DetectionTrackingPipeline(ABC):
 
         if is_tcp:
             client_socket, server_socker = tcp_server("0.0.0.0", 8765)
-            threading.Thread(target=handle_send, args=(client_socket, "READY"), daemon=True).start()
+            threading.Thread(
+                target=handle_send, args=(client_socket, "READY"), daemon=True
+            ).start()
 
         tcp_conn.set() if is_tcp else None
 
@@ -254,7 +365,9 @@ class DetectionTrackingPipeline(ABC):
             if out is None:
                 frame_height, frame_width = frame.shape[:2]
                 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                out = cv2.VideoWriter(output_video_path, fourcc, 20, (frame_width, frame_height))
+                out = cv2.VideoWriter(
+                    output_video_path, fourcc, 20, (frame_width, frame_height)
+                )
 
             # Actualiza la memoria con objetos rastreados
             self.update_memory(tracked_objects, memory, classes)
@@ -272,7 +385,9 @@ class DetectionTrackingPipeline(ABC):
                 detected_class = memory[obj_id]['class']
                 if detected_class.endswith('-d') and not msg_sended and is_tcp:
                     threading.Thread(
-                        target=handle_send, args=(client_socket, "DETECTED_DEFECT"), daemon=True
+                        target=handle_send,
+                        args=(client_socket, "DETECTED_DEFECT"),
+                        daemon=True,
                     ).start()
                     msg_sended = True
                 color = colors.get(detected_class, (255, 255, 255))
@@ -329,7 +444,9 @@ class DetectionTrackingPipeline(ABC):
             client_socket.close()
             server_socker.close()
 
-    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event=None):
+    def write_to_csv(
+        self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event=None
+    ):
         from lib.create_excel import (
             create_csv_file,
             add_row_to_csv,
@@ -361,7 +478,9 @@ class DetectionTrackingPipeline(ABC):
                 add_fps_to_csv(fps_excel_file, frame_count, data)
 
         tegra_stats_output = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.txt"
-        hardware_usage_name = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage_aux.csv"
+        hardware_usage_name = (
+            f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage_aux.csv"
+        )
         hardware_usage_file = "hardware_usage_aux.csv"
 
         stop_event.wait()
@@ -386,7 +505,9 @@ class DetectionTrackingPipeline(ABC):
         timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
         tegra_stats_output = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.txt"
-        output_excel_filename = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.csv"
+        output_excel_filename = (
+            f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.csv"
+        )
 
         os.makedirs(os.path.dirname(tegra_stats_output), exist_ok=True)
         os.makedirs(os.path.dirname(output_excel_filename), exist_ok=True)

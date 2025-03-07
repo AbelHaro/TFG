@@ -6,6 +6,7 @@ import torch.multiprocessing as mp  # type: ignore
 import detection_tracking_pipeline_with_threads
 import detection_tracking_pipeline_with_multiprocesses
 import detection_tracking_pipeline_with_multiprocesses_shared_memory
+import detection_tracking_pipeline_with_multihardware
 
 
 def parse_arguments():
@@ -40,7 +41,7 @@ def parse_arguments():
         "--hardware",
         default="GPU",
         type=str,
-        choices=["GPU", "DLA0", "DLA1"],
+        choices=["GPU", "DLA0", "DLA1, ALL"],
         help="Hardware a usar, default=GPU",
     )
 
@@ -66,7 +67,7 @@ def parse_arguments():
         "--parallel",
         default="threads",
         type=str,
-        choices=["threads", "mp", "mp_shared_memory"],
+        choices=["threads", "mp", "mp_shared_memory", "mp_hardware"],
         help="Modo de paralelización a usar, default=threads",
     )
 
@@ -79,6 +80,11 @@ def initialize_pipeline(args):
     model_name = f"yolo11{args.model_size}"
 
     model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_{args.hardware}.engine"
+
+    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU.engine"
+    DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0.engine"
+    DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1.engine"
+
     video_path = (
         f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
     )
@@ -100,6 +106,7 @@ def initialize_pipeline(args):
         "mp_shared_memory": (
             detection_tracking_pipeline_with_multiprocesses_shared_memory.DetectionTrackingPipelineWithMultiprocessesSharedMemory
         ),
+        "mp_hardware": detection_tracking_pipeline_with_multihardware.DetectionTrackingPipelineWithMultiHardware,
     }
 
     if args.parallel not in pipeline_classes:
@@ -107,14 +114,28 @@ def initialize_pipeline(args):
             "Modo de paralelización no válido. Debe ser 'threads', 'mp' o 'mp_shared_memory'."
         )
 
-    return pipeline_classes[args.parallel](
-        video_path,
-        model_path,
-        output_video_path,
-        output_times,
-        args.parallel,
-        args.tcp,
-        args.tcp,
+    return (
+        pipeline_classes[args.parallel](
+            video_path,
+            model_path,
+            output_video_path,
+            output_times,
+            args.parallel,
+            args.tcp,
+            args.tcp,
+        )
+        if args.parallel != "mp_hardware"
+        else pipeline_classes[args.parallel](
+            video_path,
+            GPU_model_path,
+            DLA0_model_path,
+            DLA1_model_path,
+            output_video_path,
+            output_times,
+            args.parallel,
+            args.tcp,
+            args.tcp,
+        )
     )
 
 
