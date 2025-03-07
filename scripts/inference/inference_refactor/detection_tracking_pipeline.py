@@ -4,9 +4,10 @@ import os
 from argparse import Namespace
 from classes.tracker_wrapper import TrackerWrapper
 from lib.tcp import handle_send, tcp_server
-from classes.shared_circular_buffer import SharedCircularBuffer
-
+import logging
 class DetectionTrackingPipeline(ABC):
+    
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     
     CLASSES = {0: 'negra', 1: 'blanca', 2: 'verde', 3: 'azul', 4: 'negra-d', 5: 'blanca-d', 6: 'verde-d', 7: 'azul-d'}
     
@@ -47,9 +48,9 @@ class DetectionTrackingPipeline(ABC):
             if memory[track_id]['visible_frames'] <= 0:
                 del memory[track_id]
     
-    def capture_frames(self, video_path, frame_queue, stop_event, tcp_conn, is_tcp):
-        print(f"[DEBUG] Iniciando captura de frames")
-            
+    def capture_frames(self, video_path, frame_queue, stop_event, tcp_conn, is_tcp, mp_stop_event=None):
+        logging.debug(f"[PROGRAM - CAPTURE FRAMES] Iniciando captura de frames")
+
         if not os.path.exists(video_path):
             frame_queue.put(None)
             raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
@@ -69,8 +70,8 @@ class DetectionTrackingPipeline(ABC):
             ret, frame = cap.read()
             
             if not ret:
-                print("[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
-                print("[PROGRAM - CAPTURE FRAMES - DEBUG] Se han procesado", frame_count, "frames")
+                logging.debug(f"[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
+                logging.debug(f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames")
                 break
 
             t2 = cv2.getTickCount()
@@ -82,14 +83,13 @@ class DetectionTrackingPipeline(ABC):
             frame_queue.put((frame, times))
             frame_count += 1
             
-            if frame_count > 300:
-                break
-            
         cap.release()
-        print("[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
+        logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
         frame_queue.put(None)
-        
-    def process_frames(self, frame_queue, detection_queue, model_path, t1_start):
+        mp_stop_event.wait() if mp_stop_event else None
+
+                
+    def process_frames(self, frame_queue, detection_queue, model_path, t1_start, mp_stop_event=None):
         from ultralytics import YOLO # type: ignore
         times_detect_function = {}
         
@@ -147,10 +147,11 @@ class DetectionTrackingPipeline(ABC):
             times["detect_function"] = times_detect_function
 
             detection_queue.put((frame, result_formatted, times))
+            
+        mp_stop_event.wait() if mp_stop_event else None
+        logging.debug(f"[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
         
-        print("[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
-        
-    def tracking_frames(self, detection_queue, tracking_queue):
+    def tracking_frames(self, detection_queue, tracking_queue, mp_stop_event=None):
         tracker_wrapper = TrackerWrapper(frame_rate=20)
             
         while True:
@@ -172,10 +173,11 @@ class DetectionTrackingPipeline(ABC):
             times["objects_count"] = len(outputs)
         
             tracking_queue.put((frame, outputs, times))
-
-        print("[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
+            
+        mp_stop_event.wait() if mp_stop_event else None
+        logging.debug(f"[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
         
-    def draw_and_write_frames(self, tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, tcp_conn, is_tcp):
+    def draw_and_write_frames(self, tracking_queue, times_queue, output_video_path, classes, memory, colors, stop_event, tcp_conn, is_tcp, mp_stop_event=None):
         import threading
         import time
         
@@ -264,14 +266,14 @@ class DetectionTrackingPipeline(ABC):
             
         times_queue.put(None)
         stop_event.set()
-        print("[PROGRAM - DRAW AND WRITE] Escritura de frames terminada")
-        
-        
+        mp_stop_event.wait() if mp_stop_event else None
+        logging.debug(f"[PROGRAM - DRAW AND WRITE] Escritura de frames terminada")
+                
         if is_tcp:
             client_socket.close()
             server_socker.close()
 
-    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event):
+    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event=None):
         from lib.create_excel import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
         from lib.hardware_stats_usage import create_tegrastats_file
                 
@@ -304,12 +306,13 @@ class DetectionTrackingPipeline(ABC):
         hardware_usage_file = "hardware_usage_aux.csv"
         
         stop_event.wait()
+        mp_stop_event.set() if mp_stop_event else None
         
         create_tegrastats_file(tegra_stats_output, hardware_usage_name)
                 
         create_excel_from_csv(times_name, fps_name, hardware_usage_file, parallel_mode, output_name=f"{parallel_mode}_{output_file}_2min.xlsx")
         
-        print("[PROGRAM - WRITE TO CSV] Escritura de tiempos terminada")
+        logging.debug(f"[PROGRAM - WRITE TO CSV] Escritura de tiempos terminada")
         
     def hardware_usage(self, parallel_mode, stop_event, t1_start, tcp_conn, is_tcp):
         import subprocess
@@ -332,17 +335,13 @@ class DetectionTrackingPipeline(ABC):
             ["tegrastats", "--interval", "100", "--logfile", tegra_stats_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
         
-        print("[PROGRAM - HARDWARE USAGE] Iniciando tegrastats...")
+        logging.debug(f"[PROGRAM - HARDWARE USAGE] Iniciando tegrastats...")
 
         stop_event.wait()
         process.terminate()
         process.wait()
-        #finally:
-        print("[PROGRAM - HARDWARE USAGE] Deteniendo el proceso tegrastats...")
-        #create_tegrastats_file(tegra_stats_output, output_excel_filename)
-        print("[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
         
-        print("[PROGRAM - HARDWARE USAGE] Terminando proceso")
+        logging.debug(f"[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
         
     @abstractmethod
     def run(self):

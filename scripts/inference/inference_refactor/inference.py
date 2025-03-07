@@ -2,6 +2,7 @@ import argparse
 import os
 import torch.multiprocessing as mp # type: ignore
 import detection_tracking_pipeline_with_threads
+import detection_tracking_pipeline_with_multiprocesses
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--num_objects', default=40, type=int, choices=[0, 18, 40, 48, 60, 70, 88, 176], help='Número de objetos a contar, posibles valores: {0, 18, 40, 48, 60, 70, 88, 176}, default=40')
@@ -36,8 +37,11 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     output_video_path = os.path.join(output_dir, f"{parallel_mode}_{model_name}_{precision}_{hardware}_{num_objects}_objects_{mode}.mp4")
     output_times = f"{model_name}_{precision}_{hardware}_{num_objects}_objects_{mode}"
-        
-    detection_tracking_pipeline = detection_tracking_pipeline_with_threads.DetectionTrackingPipelineWithThreads(video_path, model_path, output_video_path,output_times, parallel_mode, tcp, args.tcp)
+    
+    if parallel_mode == "threads":
+        detection_tracking_pipeline = detection_tracking_pipeline_with_threads.DetectionTrackingPipelineWithThreads(video_path, model_path, output_video_path,output_times, parallel_mode, tcp, args.tcp)
+    elif parallel_mode == "processes":
+        detection_tracking_pipeline = detection_tracking_pipeline_with_multiprocesses.DetectionTrackingPipelineWithMultiprocesses(video_path, model_path, output_video_path,output_times, parallel_mode, tcp, args.tcp)
     
     detection_tracking_pipeline.run()
     
