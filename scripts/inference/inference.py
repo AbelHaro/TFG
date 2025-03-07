@@ -16,12 +16,11 @@ while True:
     if not ret:
         print("[INFO] Video finished")
         break
-    
+
     preprocessed = model.predictor.preprocess([frame])
-    
+
     output = model.predictor.inference(preprocessed)
-    
+
     results = model.predictor.postprocess(output, preprocessed, [frame])
-    
+
     print(f"[INFO] {results[0].boxes}")
-    

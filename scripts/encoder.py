@@ -18,7 +18,7 @@ try:
         codec=nvc.cudaVideoCodec.H264,  # Especificar el códec H.264
         cudacontext=0,
         cudastream=0,
-        enableasyncallocations=True  # Usar este parámetro en lugar de 'usedevicememory'
+        enableasyncallocations=True,  # Usar este parámetro en lugar de 'usedevicememory'
     )
 except Exception as e:
     print(f"Error al crear el decodificador: {e}")
@@ -31,25 +31,27 @@ for packet in demuxer:
     for decoded_frame in decoder.Decode(packet):
         frame_counter += 1
         print(f"Frame {frame_counter} decodificado")
-        
+
         # Acceder a los datos del frame decodificado
         luma_base_addr = decoded_frame.lumaBaseAddress()  # Dirección base de la luma
-        chroma_base_addr = decoded_frame.chromaBaseAddress()  # Dirección base del croma (si es aplicable)
-        
+        chroma_base_addr = (
+            decoded_frame.chromaBaseAddress()
+        )  # Dirección base del croma (si es aplicable)
+
         # Obtener el tamaño del frame
         frame_size = decoded_frame.framesize()
-        
+
         # Crear un arreglo de bytes a partir de la memoria del frame (como ejemplo)
         new_array = bytearray(luma_base_addr[:frame_size])
-        
+
         # Aquí puedes procesar el frame según sea necesario
         # Ejemplo: Mostrar el tamaño del arreglo de bytes (que representa el frame)
         print(f"Tamaño del frame: {len(new_array)} bytes")
-        
+
         # También podrías hacer algo con el frame, como almacenarlo o procesarlo
         # Por ejemplo, podrías convertirlo a una imagen con OpenCV o guardarlo
         # (Este paso depende de tu necesidad específica)
-        
+
         # Para finalizar el proceso si no hay más frames:
         if not decoded_frame:
             print("No more frames to decode.")

@@ -3,6 +3,7 @@ import shutil
 import random
 from PIL import Image  # Importar Pillow para conversión de imágenes
 
+
 def split_dataset(image_dir, label_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1):
     # Convertir rutas a absolutas para evitar confusiones
     image_dir = os.path.abspath(image_dir)
@@ -25,7 +26,7 @@ def split_dataset(image_dir, label_dir, output_dir, train_ratio=0.8, val_ratio=0
     if not images:
         print("ERROR: No se encontraron imágenes en la carpeta.")
         return
-    
+
     random.shuffle(images)
 
     # Calcular tamaños de cada conjunto
@@ -35,8 +36,8 @@ def split_dataset(image_dir, label_dir, output_dir, train_ratio=0.8, val_ratio=0
 
     # Dividir imágenes
     train_images = images[:train_size]
-    val_images = images[train_size:train_size + val_size]
-    test_images = images[train_size + val_size:]
+    val_images = images[train_size : train_size + val_size]
+    test_images = images[train_size + val_size :]
 
     # Función para convertir y mover archivos
     def process_files(file_list, split):
@@ -60,7 +61,10 @@ def split_dataset(image_dir, label_dir, output_dir, train_ratio=0.8, val_ratio=0
 
             # Mover etiqueta
             if os.path.exists(label_path):
-                shutil.move(label_path, os.path.join(output_dir, split, "labels", os.path.basename(label_path)))
+                shutil.move(
+                    label_path,
+                    os.path.join(output_dir, split, "labels", os.path.basename(label_path)),
+                )
                 print(f"✅ Movido: {os.path.basename(label_path)} a {split}/labels/")
             else:
                 print(f"⚠️ Advertencia: No se encontró etiqueta para {img}")
@@ -69,6 +73,7 @@ def split_dataset(image_dir, label_dir, output_dir, train_ratio=0.8, val_ratio=0
     process_files(train_images, "train")
     process_files(val_images, "val")
     process_files(test_images, "test")
+
 
 # Parámetros de entrada
 image_dir = "./images"

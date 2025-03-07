@@ -28,7 +28,7 @@ while True:
     frame_resized = cv2.resize(frame, (640, 640))
 
     # Realizar la inferencia directamente en el frame redimensionado
-    results = model.predict(source=frame_resized, save=False, half=False, conf=0.5, device=0)    
+    results = model.predict(source=frame_resized, save=False, half=False, conf=0.5, device=0)
 
     # Dibujar las detecciones en el frame original (redimensionado)
     annotated_frame = results[0].plot()

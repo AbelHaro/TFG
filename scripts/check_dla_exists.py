@@ -1,5 +1,6 @@
 import tensorrt as trt
 
+
 def check_dla_availability():
     # Create a logger
     logger = trt.Logger(trt.Logger.INFO)
@@ -16,6 +17,7 @@ def check_dla_availability():
         print(f"Maximum DLA batch size: {max_dla_batch_size}")
     else:
         print("DLA is not available on this device.")
+
 
 if __name__ == "__main__":
     check_dla_availability()

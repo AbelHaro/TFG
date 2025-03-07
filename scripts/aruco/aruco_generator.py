@@ -7,7 +7,7 @@ aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 marker_id = 0  # ID del marcador
 
 # Tamaño total del marcador en píxeles (incluyendo el borde)
-final_size = 100  
+final_size = 100
 
 # Tamaño del marcador sin borde (celda interna)
 # Debemos dividir en la cantidad de celdas internas y considerar el borde
@@ -21,4 +21,6 @@ cv2.aruco.drawMarker(aruco_dict, marker_id, final_size, marker_image)
 # Guardar la imagen
 cv2.imwrite('aruco_100x100.png', marker_image)
 
-print(f"Marcador guardado en 'aruco_100x100.png' con ID {marker_id} y tamaño {marker_size}x{marker_size} píxeles")
+print(
+    f"Marcador guardado en 'aruco_100x100.png' con ID {marker_id} y tamaño {marker_size}x{marker_size} píxeles"
+)

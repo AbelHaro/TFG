@@ -7,16 +7,16 @@ model_path = f"/TFG/models/canicas/{version}/"
 
 models_name = [
     f"{version}_canicas_yolo11n.pt",
-    #f"{version}_canicas_yolo11s.pt",
-    #f"{version}_canicas_yolo11m.pt",
-    #f"{version}_canicas_yolo11l.pt",
-    #f"{version}_canicas_yolo11x.pt",
+    # f"{version}_canicas_yolo11s.pt",
+    # f"{version}_canicas_yolo11m.pt",
+    # f"{version}_canicas_yolo11l.pt",
+    # f"{version}_canicas_yolo11x.pt",
 ]
 
 hardware = [
     0,
-    #"dla:0",
-    #"dla:1",
+    # "dla:0",
+    # "dla:1",
 ]
 
 precision = {
@@ -30,8 +30,8 @@ if precision["half"] and precision["int8"]:
 
 for model_name in models_name:
     for hw in hardware:
-        print(f"[EXPORT TO TensorRT] Exporting model {model_name} to TensorRT with hardware {hw}")   
-        
+        print(f"[EXPORT TO TensorRT] Exporting model {model_name} to TensorRT with hardware {hw}")
+
         # Cargar el modelo entrenado
         model = YOLO(model_path + model_name)
 
@@ -44,7 +44,7 @@ for model_name in models_name:
             device=hw,
             imgsz=640,
         )
-        
+
         # Ajustar el sufijo del nombre del archivo según la precisión
         if precision["half"]:
             precision_suffix = "FP16"
@@ -52,7 +52,7 @@ for model_name in models_name:
             precision_suffix = "INT8"
         else:
             precision_suffix = "FP32"
-        
+
         # Ajustar el sufijo del nombre del archivo según el hardware
         if hw == 0:
             hardware_suffix = "GPU"
@@ -62,7 +62,7 @@ for model_name in models_name:
             hardware_suffix = "DLA1"
         else:
             hardware_suffix = "UNKNOWN"
-        
+
         # Renombrar el archivo exportado
         src = f"{model_path}{model_name.replace('.pt', '.engine')}"
         dst = f"{model_path}{model_name.replace('.pt', '')}_{precision_suffix}_{hardware_suffix}.engine"

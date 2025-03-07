@@ -2,11 +2,12 @@ import pickle
 import numpy as np
 from multiprocessing import shared_memory, Value, Lock, Condition
 
+
 class SharedCircularBuffer:
     def __init__(self, queue_size=10, max_item_size=1, name=None):
         """
         Inicializa un buffer circular en memoria compartida.
-        
+
         :param queue_size: Número máximo de elementos en la cola.
         :param max_item_size: Tamaño máximo en MB de cada elemento.
         :param name: Nombre de la memoria compartida (None para crear una nueva).
@@ -14,8 +15,10 @@ class SharedCircularBuffer:
         self.queue_size = queue_size
 
         if max_item_size not in (1, 2, 4, 8, 16, 32, 64, 128, 256, 512):
-            raise ValueError("El tamaño máximo del item debe ser 1, 2, 4, 8, 16, 32, 64, 128, 256 o 512 MB.")
-        
+            raise ValueError(
+                "El tamaño máximo del item debe ser 1, 2, 4, 8, 16, 32, 64, 128, 256 o 512 MB."
+            )
+
         self.max_item_size = max_item_size * 1024 * 1024
         self.total_size = queue_size * self.max_item_size
 
@@ -36,7 +39,7 @@ class SharedCircularBuffer:
             reshaped_item = item.reshape(-1)
             item_data = {"data": reshaped_item, "shape": item.shape}
         else:
-            item_data = {"data": item, "shape": None}  
+            item_data = {"data": item, "shape": None}
 
         data_bytes = pickle.dumps(item_data)
 
@@ -60,10 +63,10 @@ class SharedCircularBuffer:
         """Extrae un item de la cola en memoria compartida, esperando si está vacía."""
         with self.condition:
             while self.count.value == 0:  # Esperar si la cola está vacía
-                self.condition.wait()  
+                self.condition.wait()
 
             pos = (self.head.value % self.queue_size) * self.max_item_size
-            data_bytes = bytes(self.shm.buf[pos:pos+self.max_item_size])  
+            data_bytes = bytes(self.shm.buf[pos : pos + self.max_item_size])
 
             self.head.value = (self.head.value + 1) % self.queue_size
             self.count.value -= 1
@@ -74,8 +77,8 @@ class SharedCircularBuffer:
 
         if item_data["shape"] is not None:
             return np.array(item_data["data"]).reshape(item_data["shape"])
-        
-        return item_data["data"]  
+
+        return item_data["data"]
 
     def is_empty(self):
         """Retorna True si la cola está vacía."""

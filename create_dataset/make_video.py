@@ -23,12 +23,14 @@ fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 height, width = 1080, 1080
 out = cv2.VideoWriter(filename, fourcc, 30.0, (width, height))
 
+
 def cleanup(signal, frame):
     print("\nCerrando programa...")
     cap.release()
     out.release()
     cv2.destroyAllWindows()
     sys.exit(0)
+
 
 signal.signal(signal.SIGINT, cleanup)
 
@@ -39,16 +41,16 @@ while True:
     if not ret:
         print("Error: No se pudo capturar el fotograma.")
         break
-    
+
     # Redimensionar el fotograma a 640 x 640
     resized_frame = cv2.resize(frame, (640, 640))
-    
+
     # Escribir el fotograma redimensionado en el archivo de video
     out.write(resized_frame)
-    
+
     # Mostrar la imagen en una ventana
     cv2.imshow("Grabando", resized_frame)
-    
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

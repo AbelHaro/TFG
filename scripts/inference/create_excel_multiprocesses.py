@@ -2,36 +2,45 @@ import os
 import csv
 from openpyxl import Workbook
 
+
 def create_csv_file(file_name="default.csv"):
     """
     Crea o sobrescribe un archivo CSV con las cabeceras por defecto para tiempos.
-    
+
     :param file_path: Ruta completa del archivo CSV.
     """
     # Cabeceras por defecto para tiempos
     headers = [
-        "Frame", "Captura", "Procesamiento", "Tracking", "Escritura",
-        "Cantidad Objetos", "Tiempo Total (ms)", "Tiempo por Objeto Tracking (ms)",
-        "Preprocess", "Inference", "Postprocess"
+        "Frame",
+        "Captura",
+        "Procesamiento",
+        "Tracking",
+        "Escritura",
+        "Cantidad Objetos",
+        "Tiempo Total (ms)",
+        "Tiempo por Objeto Tracking (ms)",
+        "Preprocess",
+        "Inference",
+        "Postprocess",
     ]
-    
+
     file_path = "/TFG/excels/multiprocesses/" + file_name
 
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    
+
     # Crear o sobrescribir el archivo CSV con las cabeceras
     with open(file_path, mode='w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(headers)
     print(f"[CREATE EXCEL] Archivo {file_path} creado o sobrescrito con cabeceras de tiempos.")
-    
+
     return file_path
 
 
 def add_row_to_csv(file_path, frame_index, times):
     """
     Añade una fila al archivo CSV con los datos de tiempos.
-    
+
     :param file_path: Ruta completa del archivo CSV.
     :param frame_index: Índice del frame actual.
     :param times: Diccionario con los tiempos del frame.
@@ -59,21 +68,21 @@ def add_row_to_csv(file_path, frame_index, times):
         format_number(time_per_object),
         format_number(preprocess_time),
         format_number(inference_time),
-        format_number(postprocess_time)
+        format_number(postprocess_time),
     ]
 
     # Escribe la fila en el archivo CSV
     with open(file_path, mode='a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(row)
-    #print(f"[CREATE EXCEL] Fila añadida en {file_path} para el frame {frame_index}")
+    # print(f"[CREATE EXCEL] Fila añadida en {file_path} para el frame {frame_index}")
 
 
 def add_fps_to_csv(file_path, frame_index, fps_value):
     """
     Añade una fila al archivo CSV con el frame y su FPS.
     Si se llama por primera vez, reemplaza los encabezados existentes por los de FPS.
-    
+
     :param file_path: Ruta completa del archivo CSV.
     :param frame_index: Índice del frame actual.
     :param fps_value: Valor de FPS calculado.
@@ -91,13 +100,13 @@ def add_fps_to_csv(file_path, frame_index, fps_value):
         with open(file_path, mode='w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(["Frame", "FPS"])
-        #print(f"[CREATE EXCEL] Encabezados de tiempos reemplazados por los de FPS en {file_path}.")
+        # print(f"[CREATE EXCEL] Encabezados de tiempos reemplazados por los de FPS en {file_path}.")
 
     # Añadir fila con el valor de FPS
     with open(file_path, mode='a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([frame_index, format_number(fps_value)])
-    #print(f"[CREATE EXCEL] FPS {fps_value} añadido para el frame {frame_index} en {file_path}")
+    # print(f"[CREATE EXCEL] FPS {fps_value} añadido para el frame {frame_index} en {file_path}")
 
 
 def format_number(number):
@@ -106,19 +115,20 @@ def format_number(number):
     """
     return f"{number:.6f}".replace('.', ',')
 
+
 def create_excel_from_csv(times_name, fps_name, output_name="default.xlsx"):
     """
     Función que crea un archivo Excel a partir de dos CSVs utilizando openpyxl.
-    
+
     :param times_name: Nombre del archivo CSV con los tiempos.
     :param fps_name: Nombre del archivo CSV con los FPS.
     :param output_name: Nombre del archivo Excel de salida (incluyendo ruta si es necesario).
     """
-    print(f"[CREATE EXCEL] Creando Excel a partir de {times_name} y {fps_name}...") 
-    
+    print(f"[CREATE EXCEL] Creando Excel a partir de {times_name} y {fps_name}...")
+
     # Ruta de los archivos CSV
     file_path = "/TFG/excels/multiprocesses/"
-    
+
     # Leer los CSVs
     times_data = []
     with open(file_path + times_name, mode='r') as f:
@@ -136,19 +146,32 @@ def create_excel_from_csv(times_name, fps_name, output_name="default.xlsx"):
     # Crear la hoja de 'Times'
     times_sheet = wb.active
     times_sheet.title = "Times"
-    
+
     # Escribir los datos de times.csv en la hoja 'Times'
     for row in times_data:
-        processed_row = [float(cell.replace(",", ".").replace("'", "")) if cell.replace(",", "").isdigit() else cell for cell in row]
+        processed_row = [
+            (
+                float(cell.replace(",", ".").replace("'", ""))
+                if cell.replace(",", "").isdigit()
+                else cell
+            )
+            for cell in row
+        ]
         times_sheet.append(processed_row)
-
 
     # Crear la hoja de 'FPS'
     fps_sheet = wb.create_sheet(title="FPS")
-    
+
     # Escribir los datos de fps.csv en la hoja 'FPS'
     for row in fps_data:
-        processed_row = [float(cell.replace(",", ".").replace("'", "")) if cell.replace(",", "").isdigit() else cell for cell in row]
+        processed_row = [
+            (
+                float(cell.replace(",", ".").replace("'", ""))
+                if cell.replace(",", "").isdigit()
+                else cell
+            )
+            for cell in row
+        ]
         fps_sheet.append(processed_row)
     # Verificar si la ruta de salida existe, si no, crearla
     output_dir = os.path.dirname(output_name)
@@ -163,6 +186,3 @@ def create_excel_from_csv(times_name, fps_name, output_name="default.xlsx"):
     os.remove(file_path + fps_name)
 
     print(f"Excel generado exitosamente en {file_path + output_name}.")
-
-
-
