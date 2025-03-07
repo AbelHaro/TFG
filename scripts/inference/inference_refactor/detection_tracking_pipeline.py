@@ -2,8 +2,9 @@ from abc import ABC, abstractmethod
 import cv2
 import os
 from argparse import Namespace
-from tracker_wrapper import TrackerWrapper
-from tcp import handle_send, tcp_server
+from classes.tracker_wrapper import TrackerWrapper
+from lib.tcp import handle_send, tcp_server
+from classes.shared_circular_buffer import SharedCircularBuffer
 
 class DetectionTrackingPipeline(ABC):
     
@@ -80,6 +81,9 @@ class DetectionTrackingPipeline(ABC):
             #print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
             frame_queue.put((frame, times))
             frame_count += 1
+            
+            if frame_count > 300:
+                break
             
         cap.release()
         print("[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
@@ -267,19 +271,21 @@ class DetectionTrackingPipeline(ABC):
             client_socket.close()
             server_socker.close()
 
-    def write_to_csv(self, times_queue, output_file):
-        from create_excel_multiprocesses import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
+    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event):
+        from lib.create_excel import create_csv_file, add_row_to_csv, add_fps_to_csv, create_excel_from_csv
+        from lib.hardware_stats_usage import create_tegrastats_file
+                
+        times_name = "times_aux.csv"
+        fps_name = "fps_aux.csv"
+        
+        times_excel_file = create_csv_file(parallel_mode, file_name=times_name)
+        fps_excel_file = create_csv_file(parallel_mode, file_name=fps_name)
         
         frame_count = 0
         
-        times_name = "times_multiprocesses.csv"
-        fps_name = "fps_multiprocesses.csv"
-        
-        times_excel_file = create_csv_file(file_name=times_name)
-        fps_excel_file = create_csv_file(file_name=fps_name)
-        
         while True:
             item = times_queue.get()
+            
             
             if item is None:
                 break
@@ -288,22 +294,31 @@ class DetectionTrackingPipeline(ABC):
             
             if label == "times":
                 add_row_to_csv(times_excel_file, frame_count, data)
+                frame_count += 1
             elif label == "fps":
                 add_fps_to_csv(fps_excel_file, frame_count, data)
                 
-        create_excel_from_csv(times_name, fps_name, output_name=f"multiprocesses_{output_file}_2min.xlsx")
+                
+        tegra_stats_output = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.txt"
+        hardware_usage_name = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage_aux.csv"
+        hardware_usage_file = "hardware_usage_aux.csv"
+        
+        stop_event.wait()
+        
+        create_tegrastats_file(tegra_stats_output, hardware_usage_name)
+                
+        create_excel_from_csv(times_name, fps_name, hardware_usage_file, parallel_mode, output_name=f"{parallel_mode}_{output_file}_2min.xlsx")
         
         print("[PROGRAM - WRITE TO CSV] Escritura de tiempos terminada")
         
-    def hardware_usage(self, output_file, stop_event, t1_start, tcp_conn, is_tcp):
+    def hardware_usage(self, parallel_mode, stop_event, t1_start, tcp_conn, is_tcp):
         import subprocess
         from datetime import datetime
-        from hardware_stats_usage import create_tegrastats_file
         
         timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         
-        tegra_stats_output = f"/TFG/excels/tegrastats_outputs/{output_file}_{timestamp}.txt"
-        output_excel_filename = f"/TFG/excels/hardware_stats_usage/{output_file}.csv"
+        tegra_stats_output = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.txt"
+        output_excel_filename = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.csv"
         
         os.makedirs(os.path.dirname(tegra_stats_output), exist_ok=True)
         os.makedirs(os.path.dirname(output_excel_filename), exist_ok=True)
@@ -324,7 +339,7 @@ class DetectionTrackingPipeline(ABC):
         process.wait()
         #finally:
         print("[PROGRAM - HARDWARE USAGE] Deteniendo el proceso tegrastats...")
-        create_tegrastats_file(tegra_stats_output, output_excel_filename)
+        #create_tegrastats_file(tegra_stats_output, output_excel_filename)
         print("[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
         
         print("[PROGRAM - HARDWARE USAGE] Terminando proceso")
