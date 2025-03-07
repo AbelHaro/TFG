@@ -1,10 +1,10 @@
-import Namespace # type: ignore
+from argparse import Namespace
 from ultralytics.trackers.byte_tracker import BYTETracker # type: ignore
 
-
+FRAME_AGE = 60
 class TrackerWrapper:
     global FRAME_AGE
-    def __init__(self, frame_rate=20):
+    def __init__(self, frame_rate=30):
         self.args = Namespace(
             tracker_type='bytetrack',
             track_high_thresh=0.25,
