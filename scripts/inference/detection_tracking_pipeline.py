@@ -9,30 +9,28 @@ import logging
 
 class DetectionTrackingPipeline(ABC):
 
-    logging.basicConfig(
-        level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
     CLASSES = {
-        0: 'negra',
-        1: 'blanca',
-        2: 'verde',
-        3: 'azul',
-        4: 'negra-d',
-        5: 'blanca-d',
-        6: 'verde-d',
-        7: 'azul-d',
+        0: "negra",
+        1: "blanca",
+        2: "verde",
+        3: "azul",
+        4: "negra-d",
+        5: "blanca-d",
+        6: "verde-d",
+        7: "azul-d",
     }
 
     COLORS = {
-        'negra': (0, 0, 255),
-        'blanca': (0, 255, 0),
-        'verde': (255, 0, 0),
-        'azul': (255, 255, 0),
-        'negra-d': (0, 165, 255),
-        'blanca-d': (255, 165, 0),
-        'verde-d': (255, 105, 180),
-        'azul-d': (255, 0, 255),
+        "negra": (0, 0, 255),
+        "blanca": (0, 255, 0),
+        "verde": (255, 0, 0),
+        "azul": (255, 255, 0),
+        "negra-d": (0, 165, 255),
+        "blanca-d": (255, 165, 0),
+        "verde-d": (255, 105, 180),
+        "azul-d": (255, 0, 255),
     }
 
     def get_total_frames(self, video_path):
@@ -50,24 +48,24 @@ class DetectionTrackingPipeline(ABC):
             track_id = int(obj[4])
             detected_class = classes[int(obj[6])]
 
-            is_defective = detected_class.endswith('-d')
+            is_defective = detected_class.endswith("-d")
             if track_id in memory:
                 entry = memory[track_id]
-                entry['defective'] |= is_defective
-                entry['visible_frames'] = FRAME_AGE
-                if entry['defective'] and not is_defective:
-                    detected_class += '-d'
-                entry['class'] = detected_class
+                entry["defective"] |= is_defective
+                entry["visible_frames"] = FRAME_AGE
+                if entry["defective"] and not is_defective:
+                    detected_class += "-d"
+                entry["class"] = detected_class
             else:
                 memory[track_id] = {
-                    'defective': is_defective,
-                    'visible_frames': FRAME_AGE,
-                    'class': detected_class,
+                    "defective": is_defective,
+                    "visible_frames": FRAME_AGE,
+                    "class": detected_class,
                 }
 
         for track_id in list(memory):
-            memory[track_id]['visible_frames'] -= 1
-            if memory[track_id]['visible_frames'] <= 0:
+            memory[track_id]["visible_frames"] -= 1
+            if memory[track_id]["visible_frames"] <= 0:
                 del memory[track_id]
 
     def capture_frames(
@@ -87,7 +85,7 @@ class DetectionTrackingPipeline(ABC):
                 frame_queue.put(None)
             raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
-        cap = cv2.VideoCapture(video_path)
+        cap = cv2.VideoCapture(0)
 
         if not cap.isOpened():
             frame_queue.put(None)
@@ -101,13 +99,13 @@ class DetectionTrackingPipeline(ABC):
             t1 = cv2.getTickCount()
             ret, frame = cap.read()
 
+            frame = cv2.resize(frame, (640, 640))
+
             if not ret:
                 logging.debug(
                     f"[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola"
                 )
-                logging.debug(
-                    f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames"
-                )
+                logging.debug(f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames")
                 break
 
             t2 = cv2.getTickCount()
@@ -135,7 +133,7 @@ class DetectionTrackingPipeline(ABC):
 
         times_detect_function = {}
 
-        model = YOLO(model_path, task='detect')
+        model = YOLO(model_path, task="detect")
 
         model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
 
@@ -159,25 +157,19 @@ class DetectionTrackingPipeline(ABC):
             t1_aux = cv2.getTickCount()
             preprocessed = model.predictor.preprocess([frame])
             t2_aux = cv2.getTickCount()
-            times_detect_function["preprocess"] = (
-                t2_aux - t1_aux
-            ) / cv2.getTickFrequency()
+            times_detect_function["preprocess"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
 
             # Realiza la inferencia
             t1_aux = cv2.getTickCount()
             output = model.predictor.inference(preprocessed)
             t2_aux = cv2.getTickCount()
-            times_detect_function["inference"] = (
-                t2_aux - t1_aux
-            ) / cv2.getTickFrequency()
+            times_detect_function["inference"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
 
             # Postprocesa los resultados
             t1_aux = cv2.getTickCount()
             results = model.predictor.postprocess(output, preprocessed, [frame])
             t2_aux = cv2.getTickCount()
-            times_detect_function["postprocess"] = (
-                t2_aux - t1_aux
-            ) / cv2.getTickFrequency()
+            times_detect_function["postprocess"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
 
             # results = model.predict(source=frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
 
@@ -343,9 +335,7 @@ class DetectionTrackingPipeline(ABC):
 
         if is_tcp:
             client_socket, server_socker = tcp_server("0.0.0.0", 8765)
-            threading.Thread(
-                target=handle_send, args=(client_socket, "READY"), daemon=True
-            ).start()
+            threading.Thread(target=handle_send, args=(client_socket, "READY"), daemon=True).start()
 
         tcp_conn.set() if is_tcp else None
 
@@ -364,10 +354,8 @@ class DetectionTrackingPipeline(ABC):
 
             if out is None:
                 frame_height, frame_width = frame.shape[:2]
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                out = cv2.VideoWriter(
-                    output_video_path, fourcc, 20, (frame_width, frame_height)
-                )
+                fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+                out = cv2.VideoWriter(output_video_path, fourcc, 30, (frame_width, frame_height))
 
             # Actualiza la memoria con objetos rastreados
             self.update_memory(tracked_objects, memory, classes)
@@ -382,8 +370,8 @@ class DetectionTrackingPipeline(ABC):
                 if conf < 0.4:
                     continue
 
-                detected_class = memory[obj_id]['class']
-                if detected_class.endswith('-d') and not msg_sended and is_tcp:
+                detected_class = memory[obj_id]["class"]
+                if detected_class.endswith("-d") and not msg_sended and is_tcp:
                     threading.Thread(
                         target=handle_send,
                         args=(client_socket, "DETECTED_DEFECT"),
@@ -392,7 +380,7 @@ class DetectionTrackingPipeline(ABC):
                     msg_sended = True
                 color = colors.get(detected_class, (255, 255, 255))
                 cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
-                text = f'ID:{obj_id} {detected_class} {conf:.2f}'
+                text = f"ID:{obj_id} {detected_class} {conf:.2f}"
                 cv2.putText(
                     frame,
                     text,
@@ -405,7 +393,7 @@ class DetectionTrackingPipeline(ABC):
 
             cv2.putText(
                 frame,
-                f'Frame: {frame_number}',
+                f"Frame: {frame_number}",
                 (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
@@ -414,6 +402,10 @@ class DetectionTrackingPipeline(ABC):
             )
             out.write(frame)
             FPS_COUNT += 1
+
+            cv2.imshow("Frame", frame)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
 
             t2 = cv2.getTickCount()
             writing_time = (t2 - t1) / cv2.getTickFrequency()
@@ -444,9 +436,7 @@ class DetectionTrackingPipeline(ABC):
             client_socket.close()
             server_socker.close()
 
-    def write_to_csv(
-        self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event=None
-    ):
+    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event=None):
         from lib.create_excel import (
             create_csv_file,
             add_row_to_csv,
@@ -478,9 +468,7 @@ class DetectionTrackingPipeline(ABC):
                 add_fps_to_csv(fps_excel_file, frame_count, data)
 
         tegra_stats_output = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.txt"
-        hardware_usage_name = (
-            f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage_aux.csv"
-        )
+        hardware_usage_name = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage_aux.csv"
         hardware_usage_file = "hardware_usage_aux.csv"
 
         stop_event.wait()
@@ -505,9 +493,7 @@ class DetectionTrackingPipeline(ABC):
         timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
         tegra_stats_output = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.txt"
-        output_excel_filename = (
-            f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.csv"
-        )
+        output_excel_filename = f"/TFG/excels/{parallel_mode}/aux_files/hardware_usage.csv"
 
         os.makedirs(os.path.dirname(tegra_stats_output), exist_ok=True)
         os.makedirs(os.path.dirname(output_excel_filename), exist_ok=True)

@@ -2,6 +2,8 @@ import argparse
 import os
 import torch.multiprocessing as mp  # type: ignore
 
+from lib.tcp import tcp_server
+
 # Importación de módulos propios
 import detection_tracking_pipeline_with_threads
 import detection_tracking_pipeline_with_multiprocesses
@@ -53,7 +55,7 @@ def parse_arguments():
         help="Modo de energía a usar",
     )
 
-    parser.add_argument("--tcp", action="store_true", help="Usar conexión TCP")
+    parser.add_argument("--tcp", default=False, type=bool, help="Usar conexión TCP, default=False")
 
     parser.add_argument(
         "--version",
@@ -85,9 +87,7 @@ def initialize_pipeline(args):
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1.engine"
 
-    video_path = (
-        f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
-    )
+    video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
     output_dir = "../../inference_predictions/custom_tracker"
 
     os.makedirs(output_dir, exist_ok=True)
@@ -96,7 +96,9 @@ def initialize_pipeline(args):
         output_dir,
         f"{args.parallel}_{model_name}_{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}.mp4",
     )
-    output_times = f"{model_name}_{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}"
+    output_times = (
+        f"{model_name}_{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}"
+    )
 
     print("\n\n[PROGRAM] Opciones seleccionadas:", args, "\n\n")
 
@@ -122,7 +124,6 @@ def initialize_pipeline(args):
             output_times,
             args.parallel,
             args.tcp,
-            args.tcp,
         )
         if args.parallel != "mp_hardware"
         else pipeline_classes[args.parallel](
@@ -133,7 +134,6 @@ def initialize_pipeline(args):
             output_video_path,
             output_times,
             args.parallel,
-            args.tcp,
             args.tcp,
         )
     )

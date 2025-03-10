@@ -14,17 +14,15 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
         output_video_path,
         output_times,
         parallel_mode,
-        tcp_conn=None,
         is_tcp=False,
     ):
         self.video_path = video_path
-        self.GPUmodel_path = GPU_model_path
+        self.GPU_model_path = GPU_model_path
         self.DLA0_model_path = DLA0_model_path
         self.DLA1_model_path = DLA1_model_path
         self.output_video_path = output_video_path
         self.output_times = output_times
         self.parallel_mode = parallel_mode
-        self.tcp_conn = tcp_conn
         self.is_tcp = is_tcp
 
         self.frame_queue = mp.Queue(maxsize=10)
@@ -41,9 +39,7 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
 
         self.mp_stop_event = mp.Event()
 
-    def capture_frames(
-        self, video_path, frame_queue, stop_event, tcp_conn, is_tcp, mp_stop_event
-    ):
+    def capture_frames(self, video_path, frame_queue, stop_event, tcp_conn, is_tcp, mp_stop_event):
         return super().capture_frames(
             video_path,
             frame_queue,
@@ -51,11 +47,10 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
             tcp_conn,
             is_tcp,
             mp_stop_event=mp_stop_event,
+            mh_num=3,
         )
 
-    def process_frames(
-        self, frame_queue, detection_queue, model_path, t1_start, mp_stop_event
-    ):
+    def process_frames(self, frame_queue, detection_queue, model_path, t1_start, mp_stop_event):
         return super().process_frames(
             frame_queue,
             detection_queue,
@@ -106,9 +101,7 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
             mp_stop_event=mp_stop_event,
         )
 
-    def write_to_csv(
-        self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event
-    ):
+    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event):
         return super().write_to_csv(
             times_queue,
             output_file,
@@ -118,9 +111,7 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
         )
 
     def hardware_usage(self, parallel_mode, stop_event, t1_start, tcp_conn, is_tcp):
-        return super().hardware_usage(
-            parallel_mode, stop_event, t1_start, tcp_conn, is_tcp
-        )
+        return super().hardware_usage(parallel_mode, stop_event, t1_start, tcp_conn, is_tcp)
 
     def run(self):
         processes = [
@@ -166,7 +157,7 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
                 ),
             ),
             mp.multiprocessing.Process(
-                target=self.tracking_frames,
+                target=self.tracking_frames_multihardware,
                 args=(
                     self.detection_queue_GPU,
                     self.detection_queue_DLA0,

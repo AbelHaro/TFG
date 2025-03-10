@@ -35,9 +35,7 @@ class DetectionTrackingPipelineWithMultiprocesses(DetectionTrackingPipeline):
 
         self.mp_stop_event = mp.Event()
 
-    def capture_frames(
-        self, video_path, frame_queue, stop_event, tcp_conn, is_tcp, mp_stop_event
-    ):
+    def capture_frames(self, video_path, frame_queue, stop_event, tcp_conn, is_tcp, mp_stop_event):
         return super().capture_frames(
             video_path,
             frame_queue,
@@ -47,9 +45,7 @@ class DetectionTrackingPipelineWithMultiprocesses(DetectionTrackingPipeline):
             mp_stop_event=mp_stop_event,
         )
 
-    def process_frames(
-        self, frame_queue, detection_queue, model_path, t1_start, mp_stop_event
-    ):
+    def process_frames(self, frame_queue, detection_queue, model_path, t1_start, mp_stop_event):
         return super().process_frames(
             frame_queue,
             detection_queue,
@@ -59,9 +55,7 @@ class DetectionTrackingPipelineWithMultiprocesses(DetectionTrackingPipeline):
         )
 
     def tracking_frames(self, detection_queue, tracking_queue, mp_stop_event):
-        return super().tracking_frames(
-            detection_queue, tracking_queue, mp_stop_event=mp_stop_event
-        )
+        return super().tracking_frames(detection_queue, tracking_queue, mp_stop_event=mp_stop_event)
 
     def draw_and_write_frames(
         self,
@@ -89,9 +83,7 @@ class DetectionTrackingPipelineWithMultiprocesses(DetectionTrackingPipeline):
             mp_stop_event=mp_stop_event,
         )
 
-    def write_to_csv(
-        self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event
-    ):
+    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event):
         return super().write_to_csv(
             times_queue,
             output_file,
@@ -101,9 +93,7 @@ class DetectionTrackingPipelineWithMultiprocesses(DetectionTrackingPipeline):
         )
 
     def hardware_usage(self, parallel_mode, stop_event, t1_start, tcp_conn, is_tcp):
-        return super().hardware_usage(
-            parallel_mode, stop_event, t1_start, tcp_conn, is_tcp
-        )
+        return super().hardware_usage(parallel_mode, stop_event, t1_start, tcp_conn, is_tcp)
 
     def run(self):
         processes = [
