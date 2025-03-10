@@ -7,16 +7,16 @@ model_path = f"/TFG/models/canicas/{version}/"
 
 models_name = [
     f"{version}_canicas_yolo11n.pt",
-    # f"{version}_canicas_yolo11s.pt",
-    # f"{version}_canicas_yolo11m.pt",
-    # f"{version}_canicas_yolo11l.pt",
+    f"{version}_canicas_yolo11s.pt",
+    f"{version}_canicas_yolo11m.pt",
+    f"{version}_canicas_yolo11l.pt",
     # f"{version}_canicas_yolo11x.pt",
 ]
 
 hardware = [
     0,
-    # "dla:0",
-    # "dla:1",
+    "dla:0",
+    "dla:1",
 ]
 
 precision = {
