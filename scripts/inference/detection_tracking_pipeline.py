@@ -85,7 +85,7 @@ class DetectionTrackingPipeline(ABC):
                 frame_queue.put(None)
             raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(video_path)
 
         if not cap.isOpened():
             frame_queue.put(None)
@@ -98,8 +98,6 @@ class DetectionTrackingPipeline(ABC):
         while cap.isOpened() and not stop_event.is_set():
             t1 = cv2.getTickCount()
             ret, frame = cap.read()
-
-            frame = cv2.resize(frame, (640, 640))
 
             if not ret:
                 logging.debug(
@@ -179,6 +177,8 @@ class DetectionTrackingPipeline(ABC):
                 cls=results[0].boxes.cls.cpu(),
             )
             t2 = cv2.getTickCount()
+            
+            print("Resultados:", result_formatted)
 
             processing_time = (t2 - t1) / cv2.getTickFrequency()
 
