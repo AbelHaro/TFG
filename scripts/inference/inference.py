@@ -82,8 +82,15 @@ def initialize_pipeline(args):
     model_name = f"yolo11{args.model_size}"
 
     model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_{args.hardware}.engine"
+    if not os.path.exists(model_path):
+        print(f"Model file not found: {model_path}")
+        os._exit(1)
 
     GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU.engine"
+    if not os.path.exists(GPU_model_path):
+        print(f"Model file not found: {GPU_model_path}")
+        os._exit(1)
+    
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1.engine"
 
