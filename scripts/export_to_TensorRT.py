@@ -24,6 +24,8 @@ precision = {
     "int8": False,
 }
 
+batch_size = 4
+
 if precision["half"] and precision["int8"]:
     print("ERROR: Solo se puede elegir un tamaño de precisión")
     exit()
@@ -43,6 +45,9 @@ for model_name in models_name:
             int8=precision["int8"],
             device=hw,
             imgsz=640,
+            batch=batch_size,
+            #simplify=True,
+            #nms=True
         )
 
         # Ajustar el sufijo del nombre del archivo según la precisión
@@ -62,6 +67,9 @@ for model_name in models_name:
             hardware_suffix = "DLA1"
         else:
             hardware_suffix = "UNKNOWN"
+            
+        if batch_size != 1:
+            hardware_suffix += f"_batch{batch_size}"
 
         # Renombrar el archivo exportado
         src = f"{model_path}{model_name.replace('.pt', '.engine')}"
