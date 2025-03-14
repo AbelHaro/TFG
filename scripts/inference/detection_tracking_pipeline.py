@@ -7,6 +7,7 @@ from lib.tcp import handle_send, tcp_server
 import logging
 
 
+
 class DetectionTrackingPipeline(ABC):
 
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -189,12 +190,124 @@ class DetectionTrackingPipeline(ABC):
 
         mp_stop_event.wait() if mp_stop_event else None
         logging.debug(f"[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
+        
+    def process_frames_sahi(
+    self,
+    frame_queue,
+    detection_queue,
+    model_path,
+    t1_start,
+    mp_stop_event=None,
+    ):
+        from ultralytics import YOLO  # type: ignore
+        from lib.sahi import split_image_with_overlap, apply_nms, process_detection_results, apply_overlapping
+        import torch
+        import numpy as np
+
+        times_detect_function = {}
+
+        model = YOLO(model_path, task="detect")
+        
+        new_width = 640
+        new_height = 640
+        overlap_pixels = 100
+
+        model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
+
+        t1_start.set()
+
+        while True:
+            item = frame_queue.get()
+            # print(f"[DEBUG] Item recibido: {item}")
+            if item is None:
+                detection_queue.put(None)
+                break
+
+            frame, times = item
+            t1 = cv2.getTickCount()
+            
+            sub_images, horizontal_splits, vertical_splits = split_image_with_overlap(frame, new_width, new_height, overlap_pixels)
+
+
+            images_chw = np.array([np.transpose(img, (2, 0, 1)) for img in sub_images])
+            images_tensor = torch.tensor(images_chw, dtype=torch.float32)
+            images_tensor /= 255.0
+            images_tensor = images_tensor.half()
+
+            results = model.predict(sub_images, conf=0.5, half=True, augment=True, batch=4)
+           
+            transformed_results = process_detection_results(results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels
+            )
+
+            # Se aplica NMS a los resultados
+            nms_results = apply_nms(transformed_results, iou_threshold=0.4, conf_threshold=0.5)
+
+            # Se aplica NMS con solapamiento a los resultados
+            final_results = apply_overlapping(nms_results, overlap_threshold=0.8)
+
+            # Inicializar listas vacías
+            xywh = []
+            confidences = []
+            classes = []
+
+            # Procesar cada detección en final_results
+            for i, result in enumerate(final_results):
+                
+                cls, conf, xmin, ymin, xmax, ymax = result
+
+                
+                x = (xmin + xmax) / 2
+                y = (ymin + ymax) / 2
+                width = xmax - xmin
+                height = ymax - ymin
+                xywh.append([x, y, width, height])
+
+                # Agregar la confianza y la clase a las listas
+                confidences.append(conf)
+                classes.append(cls)
+
+            # Convertir las listas a tensores de PyTorch con tamaño correcto
+            xywh_tensor = torch.tensor(xywh, dtype=torch.float32) if xywh else torch.empty((0, 4), dtype=torch.float32)
+            confidences_tensor = torch.tensor(confidences, dtype=torch.float32) if confidences else torch.empty(0, dtype=torch.float32)
+            classes_tensor = torch.tensor(classes, dtype=torch.float32) if classes else torch.empty(0, dtype=torch.float32)
+
+            # Crear el objeto Namespace con los resultados formateados
+            result_formatted = Namespace(
+                xywh=xywh_tensor,  # Tensor de 2D: [N, 4]
+                conf=confidences_tensor,  # Tensor de 2D: [N, 1]
+                cls=classes_tensor,  # Tensor de 2D: [N, 1]
+            )
+
+            # Mostrar los resultados formateados
+            print("Resultados formateados:", result_formatted)
+
+
+            # Medir el tiempo de procesamiento
+            t2 = cv2.getTickCount()
+            processing_time = (t2 - t1) / cv2.getTickFrequency()
+
+            # Actualizar el diccionario de tiempos
+            times["processing"] = processing_time
+            times["detect_function"] = times_detect_function
+
+            # Mostrar los resultados formateados
+            print("Resultados formateados:", result_formatted)
+
+            # Poner el frame y los resultados en la cola
+            print("[PROCESS FRAMES SAHI] Poniendo frame a la cola")
+            detection_queue.put((frame, result_formatted, times))
+
+        mp_stop_event.wait() if mp_stop_event else None
+        logging.debug(f"[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
 
     def tracking_frames(self, detection_queue, tracking_queue, mp_stop_event=None):
         tracker_wrapper = TrackerWrapper(frame_rate=30)
 
         while True:
             item = detection_queue.get()
+            
+            print("[TRACKING FRAMES] Item recibido:", item)
+            
             if item is None:
                 tracking_queue.put(None)
                 break
