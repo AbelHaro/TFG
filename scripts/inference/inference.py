@@ -81,20 +81,13 @@ def initialize_pipeline(args):
     mode = f"{args.mode}_{mp.cpu_count()}CORE"
     model_name = f"yolo11{args.model_size}"
 
-    model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_{args.hardware}.engine"
-    if not os.path.exists(model_path):
-        print(f"Model file not found: {model_path}")
-        os._exit(1)
-
-    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU.engine"
-    if not os.path.exists(GPU_model_path):
-        print(f"Model file not found: {GPU_model_path}")
-        os._exit(1)
-    
+    #GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU.engine"  
+    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}.pt"  
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1.engine"
 
-    video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
+    #video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
+    video_path = f"../../datasets_labeled/videos/test/test_1080x1080.mp4"
     output_dir = "../../inference_predictions/custom_tracker"
 
     os.makedirs(output_dir, exist_ok=True)
@@ -126,7 +119,7 @@ def initialize_pipeline(args):
     return (
         pipeline_classes[args.parallel](
             video_path,
-            model_path,
+            GPU_model_path,
             output_video_path,
             output_times,
             args.parallel,

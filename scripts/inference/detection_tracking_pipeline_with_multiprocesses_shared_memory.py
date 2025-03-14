@@ -43,7 +43,7 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
         )
 
     def process_frames(self, frame_queue, detection_queue, model_path, t1_start, mp_stop_event):
-        return super().process_frames(
+        return super().process_frames_sahi(
             frame_queue, detection_queue, model_path, t1_start, mp_stop_event=mp_stop_event
         )
 
