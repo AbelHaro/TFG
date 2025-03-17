@@ -5,7 +5,9 @@ from argparse import Namespace
 from classes.tracker_wrapper import TrackerWrapper
 from lib.tcp import handle_send, tcp_server
 import logging
-
+from typing import Union, Optional
+import torch.multiprocessing as mp
+from classes.shared_circular_buffer import SharedCircularBuffer
 
 
 class DetectionTrackingPipeline(ABC):
@@ -34,7 +36,7 @@ class DetectionTrackingPipeline(ABC):
         "azul-d": (255, 0, 255),
     }
 
-    def get_total_frames(self, video_path):
+    def get_total_frames(self, video_path: str) -> int:
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise IOError(f"Error al abrir el archivo de video: {video_path}")
@@ -42,7 +44,7 @@ class DetectionTrackingPipeline(ABC):
         cap.release()
         return total_frames
 
-    def update_memory(self, tracked_objects, memory, classes):
+    def update_memory(self, tracked_objects, memory, classes) -> None:
         FRAME_AGE = 60
 
         for obj in tracked_objects:
@@ -71,13 +73,14 @@ class DetectionTrackingPipeline(ABC):
 
     def capture_frames(
         self,
-        video_path,
-        frame_queue,
-        stop_event,
-        tcp_conn,
-        is_tcp,
-        mp_stop_event=None,
-        mh_num=1,
+        video_path: str,
+        frame_queue: Union[mp.Queue, SharedCircularBuffer],
+        stop_event: mp.Event,
+        tcp_event: mp.Event,
+        is_tcp: bool,
+        mp_stop_event: Optional[mp.Event] = None,
+        mh_num: int = 1,
+        is_process: bool = False,
     ):
         logging.debug(f"[PROGRAM - CAPTURE FRAMES] Iniciando captura de frames")
 
@@ -92,7 +95,7 @@ class DetectionTrackingPipeline(ABC):
             frame_queue.put(None)
             raise IOError(f"Error al abrir el archivo de video: {video_path}")
 
-        tcp_conn.wait() if is_tcp else None
+        tcp_event.wait() if is_tcp else None
 
         frame_count = 0
 
@@ -118,15 +121,18 @@ class DetectionTrackingPipeline(ABC):
         logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
         for _ in range(mh_num):
             frame_queue.put(None)
+
         mp_stop_event.wait() if mp_stop_event else None
+        os._exit(0) if is_process else None
 
     def process_frames(
         self,
-        frame_queue,
-        detection_queue,
-        model_path,
-        t1_start,
-        mp_stop_event=None,
+        frame_queue: Union[mp.Queue, SharedCircularBuffer],
+        detection_queue: Union[mp.Queue, SharedCircularBuffer],
+        model_path: str,
+        t1_start: mp.Event,
+        mp_stop_event: Optional[mp.Event] = None,
+        is_process: bool = False,
     ):
         from ultralytics import YOLO  # type: ignore
 
@@ -178,7 +184,7 @@ class DetectionTrackingPipeline(ABC):
                 cls=results[0].boxes.cls.cpu(),
             )
             t2 = cv2.getTickCount()
-            
+
             print("Resultados:", result_formatted)
 
             processing_time = (t2 - t1) / cv2.getTickFrequency()
@@ -190,29 +196,37 @@ class DetectionTrackingPipeline(ABC):
 
         mp_stop_event.wait() if mp_stop_event else None
         logging.debug(f"[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
-        
+
+        os._exit(0) if is_process else None
+
     def process_frames_sahi(
-    self,
-    frame_queue,
-    detection_queue,
-    model_path,
-    t1_start,
-    mp_stop_event=None,
+        self,
+        frame_queue: Union[mp.Queue, SharedCircularBuffer],
+        detection_queue: Union[mp.Queue, SharedCircularBuffer],
+        model_path: str,
+        t1_start: mp.Event,
+        mp_stop_event: Optional[mp.Event] = None,
+        is_process: bool = False,
     ):
         from ultralytics import YOLO  # type: ignore
-        from lib.sahi import split_image_with_overlap, apply_nms, process_detection_results, apply_overlapping
+        from lib.sahi import (
+            split_image_with_overlap,
+            apply_nms,
+            process_detection_results,
+            apply_overlapping,
+        )
         import torch
         import numpy as np
 
         times_detect_function = {}
 
         model = YOLO(model_path, task="detect")
-        
+
         new_width = 640
         new_height = 640
         overlap_pixels = 100
 
-        #model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
+        # model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
 
         t1_start.set()
 
@@ -225,12 +239,15 @@ class DetectionTrackingPipeline(ABC):
 
             frame, times = item
             t1 = cv2.getTickCount()
-            
-            sub_images, horizontal_splits, vertical_splits = split_image_with_overlap(frame, new_width, new_height, overlap_pixels)
+
+            sub_images, horizontal_splits, vertical_splits = split_image_with_overlap(
+                frame, new_width, new_height, overlap_pixels
+            )
 
             results = model.predict(sub_images, conf=0.5, half=True, augment=True, batch=4)
-           
-            transformed_results = process_detection_results(results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels
+
+            transformed_results = process_detection_results(
+                results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels
             )
 
             # Se aplica NMS a los resultados
@@ -246,10 +263,9 @@ class DetectionTrackingPipeline(ABC):
 
             # Procesar cada detección en final_results
             for i, result in enumerate(final_results):
-                
+
                 cls, conf, xmin, ymin, xmax, ymax = result
 
-                
                 x = (xmin + xmax) / 2
                 y = (ymin + ymax) / 2
                 width = xmax - xmin
@@ -261,9 +277,21 @@ class DetectionTrackingPipeline(ABC):
                 classes.append(cls)
 
             # Convertir las listas a tensores de PyTorch con tamaño correcto
-            xywh_tensor = torch.tensor(xywh, dtype=torch.float32) if xywh else torch.empty((0, 4), dtype=torch.float32)
-            confidences_tensor = torch.tensor(confidences, dtype=torch.float32) if confidences else torch.empty(0, dtype=torch.float32)
-            classes_tensor = torch.tensor(classes, dtype=torch.float32) if classes else torch.empty(0, dtype=torch.float32)
+            xywh_tensor = (
+                torch.tensor(xywh, dtype=torch.float32)
+                if xywh
+                else torch.empty((0, 4), dtype=torch.float32)
+            )
+            confidences_tensor = (
+                torch.tensor(confidences, dtype=torch.float32)
+                if confidences
+                else torch.empty(0, dtype=torch.float32)
+            )
+            classes_tensor = (
+                torch.tensor(classes, dtype=torch.float32)
+                if classes
+                else torch.empty(0, dtype=torch.float32)
+            )
 
             # Crear el objeto Namespace con los resultados formateados
             result_formatted = Namespace(
@@ -273,17 +301,20 @@ class DetectionTrackingPipeline(ABC):
             )
 
             # Mostrar los resultados formateados
-            #print("Resultados formateados:", result_formatted)
-            
+            # print("Resultados formateados:", result_formatted)
+
             times_detect_function = {}
             times_detect_function["preprocess"] = results[0].speed["preprocess"]
             times_detect_function["inference"] = results[0].speed["inference"]
             times_detect_function["postprocess"] = results[0].speed["postprocess"]
-          
+
             # Medir el tiempo de procesamiento
             t2 = cv2.getTickCount()
             processing_time = (t2 - t1) / cv2.getTickFrequency()
 
+            logging.debug(
+                f"[PROGRAM - PROCESS FRAMES] Tiempo de procesamiento: {processing_time:.6f} s"
+            )
             # Actualizar el diccionario de tiempos
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function
@@ -293,14 +324,20 @@ class DetectionTrackingPipeline(ABC):
         mp_stop_event.wait() if mp_stop_event else None
         logging.debug(f"[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
 
-    def tracking_frames(self, detection_queue, tracking_queue, mp_stop_event=None):
+        os._exit(0) if is_process else None
+
+    def tracking_frames(
+        self,
+        detection_queue: Union[mp.Queue, SharedCircularBuffer],
+        tracking_queue: Union[mp.Queue, SharedCircularBuffer],
+        mp_stop_event: Optional[mp.Event] = None,
+        is_process: bool = False,
+    ):
         tracker_wrapper = TrackerWrapper(frame_rate=30)
 
         while True:
             item = detection_queue.get()
-            
-            print("[TRACKING FRAMES] Item recibido:", item)
-            
+
             if item is None:
                 tracking_queue.put(None)
                 break
@@ -322,13 +359,16 @@ class DetectionTrackingPipeline(ABC):
         mp_stop_event.wait() if mp_stop_event else None
         logging.debug(f"[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
 
+        os._exit(0) if is_process else None
+
     def tracking_frames_multihardware(
         self,
-        detection_queue_GPU,
-        detection_queue_DLA0,
-        detection_queue_DLA1,
-        tracking_queue,
-        mp_stop_event=None,
+        detection_queue_GPU: Union[mp.Queue, SharedCircularBuffer],
+        detection_queue_DLA0: Union[mp.Queue, SharedCircularBuffer],
+        detection_queue_DLA1: Union[mp.Queue, SharedCircularBuffer],
+        tracking_queue: Union[mp.Queue, SharedCircularBuffer],
+        mp_stop_event: Optional[mp.Event] = None,
+        is_process: bool = False,
     ):
         tracker_wrapper = TrackerWrapper(frame_rate=30)
         stop_gpu = False
@@ -406,19 +446,21 @@ class DetectionTrackingPipeline(ABC):
 
             mp_stop_event.wait() if mp_stop_event else None
             logging.debug(f"[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
+            os._exit(0) if is_process else None
 
     def draw_and_write_frames(
         self,
-        tracking_queue,
-        times_queue,
-        output_video_path,
-        classes,
-        memory,
-        colors,
-        stop_event,
-        tcp_conn,
-        is_tcp,
-        mp_stop_event=None,
+        tracking_queue: Union[mp.Queue, SharedCircularBuffer],
+        times_queue: Union[mp.Queue, SharedCircularBuffer],
+        output_video_path: str,
+        classes: dict,
+        memory: dict,
+        colors: dict,
+        stop_event: mp.Event,
+        tcp_conn: mp.Event,
+        is_tcp: bool,
+        mp_stop_event: Optional[mp.Event] = None,
+        is_process: bool = False,
     ):
         import threading
         import time
@@ -542,7 +584,17 @@ class DetectionTrackingPipeline(ABC):
             client_socket.close()
             server_socker.close()
 
-    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event=None):
+        os._exit(0) if is_process else None
+
+    def write_to_csv(
+        self,
+        times_queue: Union[mp.Queue, SharedCircularBuffer],
+        output_file: str,
+        parallel_mode: str,
+        stop_event: mp.Event,
+        mp_stop_event: Optional[mp.Event] = None,
+        is_process: bool = False,
+    ):
         from lib.create_excel import (
             create_csv_file,
             add_row_to_csv,
@@ -592,7 +644,17 @@ class DetectionTrackingPipeline(ABC):
 
         logging.debug(f"[PROGRAM - WRITE TO CSV] Escritura de tiempos terminada")
 
-    def hardware_usage(self, parallel_mode, stop_event, t1_start, tcp_conn, is_tcp):
+        os._exit(0) if is_process else None
+
+    def hardware_usage(
+        self,
+        parallel_mode: str,
+        stop_event: mp.Event,
+        t1_start: mp.Event,
+        tcp_event: mp.Event,
+        is_tcp: bool = False,
+        is_process: bool = False,
+    ):
         import subprocess
         from datetime import datetime
 
@@ -606,7 +668,7 @@ class DetectionTrackingPipeline(ABC):
 
         # Espera inicial para sincronizar con el evento
         t1_start.wait()
-        tcp_conn.wait() if is_tcp else None
+        tcp_event.wait() if is_tcp else None
 
         # Iniciar el proceso de tegrastats
         process = subprocess.Popen(
@@ -623,6 +685,8 @@ class DetectionTrackingPipeline(ABC):
         process.wait()
 
         logging.debug(f"[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
+
+        os._exit(0) if is_process else None
 
     @abstractmethod
     def run(self):

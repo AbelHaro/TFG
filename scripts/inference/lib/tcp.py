@@ -38,8 +38,8 @@ def tcp_server(host: str, port: int):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="TCP Full-Duplex Server")
-    parser.add_argument('--host', default='0.0.0.0', help="Dirección IP del servidor")
-    parser.add_argument('--port', type=int, default=8765, help="Puerto de conexión")
+    parser.add_argument("--host", default="0.0.0.0", help="Dirección IP del servidor")
+    parser.add_argument("--port", type=int, default=8765, help="Puerto de conexión")
     args = parser.parse_args()
 
     tcp_server(args.host, args.port)

@@ -9,7 +9,7 @@ class TrackerWrapper:
 
     def __init__(self, frame_rate=30):
         self.args = Namespace(
-            tracker_type='bytetrack',
+            tracker_type="bytetrack",
             track_high_thresh=0.25,
             track_low_thresh=0.1,
             new_track_thresh=0.25,

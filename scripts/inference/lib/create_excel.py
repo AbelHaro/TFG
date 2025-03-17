@@ -29,7 +29,7 @@ def create_csv_file(parallel_mode, file_name="default.csv"):
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     # Crear o sobrescribir el archivo CSV con las cabeceras
-    with open(file_path, mode='w', newline='') as f:
+    with open(file_path, mode="w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(headers)
     print(f"[CREATE EXCEL] Archivo {file_path} creado o sobrescrito con cabeceras de tiempos.")
@@ -72,7 +72,7 @@ def add_row_to_csv(file_path, frame_index, times):
     ]
 
     # Escribe la fila en el archivo CSV
-    with open(file_path, mode='a', newline='') as f:
+    with open(file_path, mode="a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(row)
     # print(f"[CREATE EXCEL] Fila añadida en {file_path} para el frame {frame_index}")
@@ -90,20 +90,20 @@ def add_fps_to_csv(file_path, frame_index, fps_value):
     # Verificar si el archivo tiene los encabezados de tiempos
     rewrite_headers = False
     if os.path.exists(file_path):
-        with open(file_path, mode='r', newline='') as f:
+        with open(file_path, mode="r", newline="") as f:
             first_row = next(csv.reader(f), [])
             if first_row != ["Frame", "FPS"]:  # No son los encabezados de FPS
                 rewrite_headers = True
 
     # Si es la primera vez, reescribe los encabezados
     if rewrite_headers:
-        with open(file_path, mode='w', newline='') as f:
+        with open(file_path, mode="w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["Frame", "FPS"])
         # print(f"[CREATE EXCEL] Encabezados de tiempos reemplazados por los de FPS en {file_path}.")
 
     # Añadir fila con el valor de FPS
-    with open(file_path, mode='a', newline='') as f:
+    with open(file_path, mode="a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([frame_index, format_number(fps_value)])
     # print(f"[CREATE EXCEL] FPS {fps_value} añadido para el frame {frame_index} en {file_path}")
@@ -113,7 +113,7 @@ def format_number(number):
     """
     Formatea un número al estilo 'es_ES' (con coma como separador decimal).
     """
-    return f"{number:.6f}".replace('.', ',')
+    return f"{number:.6f}".replace(".", ",")
 
 
 def create_excel_from_csv(
@@ -134,17 +134,17 @@ def create_excel_from_csv(
 
     # Leer los CSVs
     times_data = []
-    with open(aux_file_path + times_name, mode='r') as f:
+    with open(aux_file_path + times_name, mode="r") as f:
         reader = csv.reader(f)
         times_data = list(reader)
 
     fps_data = []
-    with open(aux_file_path + fps_name, mode='r') as f:
+    with open(aux_file_path + fps_name, mode="r") as f:
         reader = csv.reader(f)
         fps_data = list(reader)
 
     hardware_usage_data = []
-    with open(aux_file_path + hardware_usage_name, mode='r') as f:
+    with open(aux_file_path + hardware_usage_name, mode="r") as f:
         reader = csv.reader(f)
         hardware_usage_data = list(reader)
 

@@ -1,8 +1,8 @@
 from ultralytics import YOLO
 import cv2
 
-model_path = '/TFG/models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16_GPU.engine'
-video_path = f'../../datasets_labeled/videos/contar_objetos_40_2min.mp4'
+model_path = "/TFG/models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16_GPU.engine"
+video_path = f"../../datasets_labeled/videos/contar_objetos_40_2min.mp4"
 
 model = YOLO(model_path)
 model(conf=0.5, device="cuda:0")

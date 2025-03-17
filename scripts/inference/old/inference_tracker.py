@@ -30,7 +30,7 @@ if not os.path.exists(video_path):
     raise FileNotFoundError(f"El video '{video_path}' no existe.")
 
 # Cargar el modelo
-model = YOLO(model_path, task='detect')
+model = YOLO(model_path, task="detect")
 
 # Configuración del modelo
 model(device="cuda:0", conf=0.5, half=True, imgsz=(640, 640), augment=True)

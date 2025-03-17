@@ -79,15 +79,15 @@ def get_total_frames(video_path):
 
 def update_memory(track_id, detected_class, memory):
     if track_id not in memory:
-        memory[track_id] = {'defective': detected_class.endswith('-d'), 'visible_frames': 30}
+        memory[track_id] = {"defective": detected_class.endswith("-d"), "visible_frames": 30}
     else:
-        memory[track_id]['defective'] |= detected_class.endswith('-d')
-        memory[track_id]['visible_frames'] = 60  # Reset counter
+        memory[track_id]["defective"] |= detected_class.endswith("-d")
+        memory[track_id]["visible_frames"] = 60  # Reset counter
 
-        if memory[track_id]['defective'] and not detected_class.endswith('-d'):
-            detected_class = detected_class + '-d'
+        if memory[track_id]["defective"] and not detected_class.endswith("-d"):
+            detected_class = detected_class + "-d"
 
-    memory[track_id]['class'] = detected_class
+    memory[track_id]["class"] = detected_class
 
 
 def process_frames(frame_queue, detection_queue, model):
@@ -105,7 +105,7 @@ def process_frames(frame_queue, detection_queue, model):
             imgsz=(640, 640),
             half=True,
             augment=True,
-            task='detect',
+            task="detect",
         )
         t2 = cv2.getTickCount()
         total_time_processing += (t2 - t1) / cv2.getTickFrequency()
@@ -118,7 +118,7 @@ def process_frames(frame_queue, detection_queue, model):
 def tracking_frames(detection_queue, tracking_queue):
     global total_time_tracking
     args = Namespace(
-        tracker_type='bytetrack',
+        tracker_type="bytetrack",
         track_high_thresh=0.25,
         track_low_thresh=0.1,
         new_track_thresh=0.25,
@@ -167,7 +167,7 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
 
         if out is None:
             frame_height, frame_width = frame.shape[:2]
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             out = cv2.VideoWriter(output_video_path, fourcc, 20, (frame_width, frame_height))
 
         for obj in tracked_objects:
@@ -182,20 +182,20 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
             update_memory(obj_id, detected_class, memory)
             if conf < 0.4:
                 continue
-            detected_class = memory[obj_id]['class']
+            detected_class = memory[obj_id]["class"]
             color = colors.get(detected_class, (255, 255, 255))
 
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
-            text = f'ID:{obj_id} {detected_class} {conf:.2f}'
+            text = f"ID:{obj_id} {detected_class} {conf:.2f}"
             if pixel_to_cm_ratio > 0:
-                text += f' {((xmax -xmin) * pixel_to_cm_ratio):.3f} cm'
+                text += f" {((xmax -xmin) * pixel_to_cm_ratio):.3f} cm"
             cv2.putText(
                 frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2
             )
 
         for track_id in list(memory):
-            memory[track_id]['visible_frames'] -= 1
-            if memory[track_id]['visible_frames'] <= 0:
+            memory[track_id]["visible_frames"] -= 1
+            if memory[track_id]["visible_frames"] <= 0:
                 del memory[track_id]
 
         out.write(frame)
@@ -207,35 +207,35 @@ def draw_and_write_frames(tracking_queue, output_video_path, classes, memory, co
 
 
 def main():
-    model_path = '../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine'
-    video_path = '../datasets_labeled/videos/aruco_canicas.mp4'
-    output_dir = '../inference_predictions/custom_tracker'
+    model_path = "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine"
+    video_path = "../datasets_labeled/videos/aruco_canicas.mp4"
+    output_dir = "../inference_predictions/custom_tracker"
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, 'aruco_video_con_tracking.mp4')
+    output_video_path = os.path.join(output_dir, "aruco_video_con_tracking.mp4")
 
     classes = {
-        0: 'negra',
-        1: 'blanca',
-        2: 'verde',
-        3: 'azul',
-        4: 'negra-d',
-        5: 'blanca-d',
-        6: 'verde-d',
-        7: 'azul-d',
+        0: "negra",
+        1: "blanca",
+        2: "verde",
+        3: "azul",
+        4: "negra-d",
+        5: "blanca-d",
+        6: "verde-d",
+        7: "azul-d",
     }
     colors = {
-        'negra': (0, 0, 255),
-        'blanca': (0, 255, 0),
-        'verde': (255, 0, 0),
-        'azul': (255, 255, 0),
-        'negra-d': (0, 165, 255),
-        'blanca-d': (255, 165, 0),
-        'verde-d': (255, 105, 180),
-        'azul-d': (255, 0, 255),
+        "negra": (0, 0, 255),
+        "blanca": (0, 255, 0),
+        "verde": (255, 0, 0),
+        "azul": (255, 255, 0),
+        "negra-d": (0, 165, 255),
+        "blanca-d": (255, 165, 0),
+        "verde-d": (255, 105, 180),
+        "azul-d": (255, 0, 255),
     }
     memory = {}
 
-    model = YOLO(model_path, task='detect')
+    model = YOLO(model_path, task="detect")
 
     aruco_frame_queue = Queue()
     frame_queue = Queue(maxsize=10)
@@ -280,5 +280,5 @@ def main():
     print(f"Relación píxel a cm: {pixel_to_cm_ratio:.3f}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
