@@ -81,8 +81,7 @@ def initialize_pipeline(args):
     mode = f"{args.mode}_{mp.cpu_count()}CORE"
     model_name = f"yolo11{args.model_size}"
 
-    #GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU.engine"  
-    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}.pt"  
+    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU_batch4.engine"  
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1.engine"
 

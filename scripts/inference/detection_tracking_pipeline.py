@@ -212,7 +212,7 @@ class DetectionTrackingPipeline(ABC):
         new_height = 640
         overlap_pixels = 100
 
-        model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
+        #model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
 
         t1_start.set()
 
@@ -227,12 +227,6 @@ class DetectionTrackingPipeline(ABC):
             t1 = cv2.getTickCount()
             
             sub_images, horizontal_splits, vertical_splits = split_image_with_overlap(frame, new_width, new_height, overlap_pixels)
-
-
-            images_chw = np.array([np.transpose(img, (2, 0, 1)) for img in sub_images])
-            images_tensor = torch.tensor(images_chw, dtype=torch.float32)
-            images_tensor /= 255.0
-            images_tensor = images_tensor.half()
 
             results = model.predict(sub_images, conf=0.5, half=True, augment=True, batch=4)
            
@@ -279,9 +273,13 @@ class DetectionTrackingPipeline(ABC):
             )
 
             # Mostrar los resultados formateados
-            print("Resultados formateados:", result_formatted)
-
-
+            #print("Resultados formateados:", result_formatted)
+            
+            times_detect_function = {}
+            times_detect_function["preprocess"] = results[0].speed["preprocess"]
+            times_detect_function["inference"] = results[0].speed["inference"]
+            times_detect_function["postprocess"] = results[0].speed["postprocess"]
+          
             # Medir el tiempo de procesamiento
             t2 = cv2.getTickCount()
             processing_time = (t2 - t1) / cv2.getTickFrequency()
@@ -290,11 +288,6 @@ class DetectionTrackingPipeline(ABC):
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function
 
-            # Mostrar los resultados formateados
-            print("Resultados formateados:", result_formatted)
-
-            # Poner el frame y los resultados en la cola
-            print("[PROCESS FRAMES SAHI] Poniendo frame a la cola")
             detection_queue.put((frame, result_formatted, times))
 
         mp_stop_event.wait() if mp_stop_event else None
