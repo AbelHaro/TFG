@@ -24,24 +24,24 @@ def update_memory(tracked_objects, memory, classes):
         track_id = int(obj[4])
         detected_class = classes[int(obj[6])]
 
-        is_defective = detected_class.endswith('-d')
+        is_defective = detected_class.endswith("-d")
         if track_id in memory:
             entry = memory[track_id]
-            entry['defective'] |= is_defective
-            entry['visible_frames'] = FRAME_AGE
-            if entry['defective'] and not is_defective:
-                detected_class += '-d'
-            entry['class'] = detected_class
+            entry["defective"] |= is_defective
+            entry["visible_frames"] = FRAME_AGE
+            if entry["defective"] and not is_defective:
+                detected_class += "-d"
+            entry["class"] = detected_class
         else:
             memory[track_id] = {
-                'defective': is_defective,
-                'visible_frames': FRAME_AGE,
-                'class': detected_class,
+                "defective": is_defective,
+                "visible_frames": FRAME_AGE,
+                "class": detected_class,
             }
 
     for track_id in list(memory):
-        memory[track_id]['visible_frames'] -= 1
-        if memory[track_id]['visible_frames'] <= 0:
+        memory[track_id]["visible_frames"] -= 1
+        if memory[track_id]["visible_frames"] <= 0:
             del memory[track_id]
 
 
@@ -84,7 +84,7 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
 
     times_detect_function = {}
 
-    model = YOLO(model_path, task='detect')
+    model = YOLO(model_path, task="detect")
     dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
     model.predict(
         source=dummy_frame,
@@ -93,7 +93,7 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
         imgsz=(640, 640),
         half=True,
         augment=True,
-        task='detect',
+        task="detect",
     )
 
     t1_start.set()
@@ -114,7 +114,7 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
             imgsz=(640, 640),
             half=True,
             augment=True,
-            task='detect',
+            task="detect",
             show_labels=False,
             show_conf=False,
         )
@@ -147,7 +147,7 @@ class TrackerWrapper:
 
     def __init__(self, frame_rate=20):
         self.args = Namespace(
-            tracker_type='bytetrack',
+            tracker_type="bytetrack",
             track_high_thresh=0.25,
             track_low_thresh=0.1,
             new_track_thresh=0.25,
@@ -279,7 +279,7 @@ def draw_and_write_frames(
 
         if out is None:
             frame_height, frame_width = frame.shape[:2]
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             out = cv2.VideoWriter(output_video_path, fourcc, 20, (frame_width, frame_height))
 
         # Actualiza la memoria con objetos rastreados
@@ -293,10 +293,10 @@ def draw_and_write_frames(
             if conf < 0.4:
                 continue
 
-            detected_class = memory[obj_id]['class']
+            detected_class = memory[obj_id]["class"]
             color = colors.get(detected_class, (255, 255, 255))
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
-            text = f'ID:{obj_id} {detected_class} {conf:.2f}'
+            text = f"ID:{obj_id} {detected_class} {conf:.2f}"
             cv2.putText(
                 frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2
             )
@@ -427,37 +427,37 @@ def main():
     hardware_DLA1 = "DLA1"
     mode = f"MAXN_{mp.multiprocessing.cpu_count()}CORE"
 
-    model_path_DLA0 = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware_DLA0}.engine'
-    model_path_DLA1 = f'../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware_DLA1}.engine'
+    model_path_DLA0 = f"../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware_DLA0}.engine"
+    model_path_DLA1 = f"../../models/canicas/2024_11_28/2024_11_28_canicas_{model_name}_{precision}_{hardware_DLA1}.engine"
     # model_path = f'../../models/canicas/2024_11_28/trt/model_gn.engine'
     # video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     # video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
-    video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
-    output_dir = '../../inference_predictions/custom_tracker'
+    video_path = f"../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4"
+    output_dir = "../../inference_predictions/custom_tracker"
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, 'multiprocesos_tensorRT_manual_export_DLA0.mp4')
+    output_video_path = os.path.join(output_dir, "multiprocesos_tensorRT_manual_export_DLA0.mp4")
 
     output_hardware_stats = f"{model_name}_{precision}_{hardware_DLA0}-{hardware_DLA1}_{objects_count}_objects_{mode}.csv"
 
     CLASSES = {
-        0: 'negra',
-        1: 'blanca',
-        2: 'verde',
-        3: 'azul',
-        4: 'negra-d',
-        5: 'blanca-d',
-        6: 'verde-d',
-        7: 'azul-d',
+        0: "negra",
+        1: "blanca",
+        2: "verde",
+        3: "azul",
+        4: "negra-d",
+        5: "blanca-d",
+        6: "verde-d",
+        7: "azul-d",
     }
     COLORS = {
-        'negra': (0, 0, 255),
-        'blanca': (0, 255, 0),
-        'verde': (255, 0, 0),
-        'azul': (255, 255, 0),
-        'negra-d': (0, 165, 255),
-        'blanca-d': (255, 165, 0),
-        'verde-d': (255, 105, 180),
-        'azul-d': (255, 0, 255),
+        "negra": (0, 0, 255),
+        "blanca": (0, 255, 0),
+        "verde": (255, 0, 0),
+        "azul": (255, 255, 0),
+        "negra-d": (0, 165, 255),
+        "blanca-d": (255, 165, 0),
+        "verde-d": (255, 105, 180),
+        "azul-d": (255, 0, 255),
     }
 
     memory = {}
@@ -531,7 +531,7 @@ def main():
     print(f"[PROGRAM] Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
 
 
-if __name__ == '__main__':
-    mp.multiprocessing.set_start_method('spawn')
+if __name__ == "__main__":
+    mp.multiprocessing.set_start_method("spawn")
     print("[PROGRAM] Number of cpu : ", mp.multiprocessing.cpu_count())
     main()

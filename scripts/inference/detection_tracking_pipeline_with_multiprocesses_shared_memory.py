@@ -1,5 +1,5 @@
 from detection_tracking_pipeline import DetectionTrackingPipeline
-import torch.multiprocessing as mp  # type: ignore
+import torch.multiprocessing as mp
 import cv2
 from classes.shared_circular_buffer import SharedCircularBuffer
 
@@ -22,71 +22,28 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
         self.parallel_mode = parallel_mode
         self.is_tcp = is_tcp
 
+        # Colas compartidas
         self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
         self.detection_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
         self.tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
         self.times_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
 
+        # Memoria compartida
         self.memory = {}
 
+        # Eventos de control
         self.tcp_event = mp.Event()
-
         self.stop_event = mp.Event()
-
         self.t1_start = mp.Event()
-
         self.mp_stop_event = mp.Event()
 
-    def capture_frames(self, video_path, frame_queue, stop_event, tcp_event, is_tcp, mp_stop_event):
-        return super().capture_frames(
-            video_path, frame_queue, stop_event, tcp_event, is_tcp, mp_stop_event=mp_stop_event
-        )
-
-    def process_frames(self, frame_queue, detection_queue, model_path, t1_start, mp_stop_event):
-        return super().process_frames_sahi(
-            frame_queue, detection_queue, model_path, t1_start, mp_stop_event=mp_stop_event
-        )
-
-    def tracking_frames(self, detection_queue, tracking_queue, mp_stop_event):
-        return super().tracking_frames(detection_queue, tracking_queue, mp_stop_event=mp_stop_event)
-
-    def draw_and_write_frames(
-        self,
-        tracking_queue,
-        times_queue,
-        output_video_path,
-        classes,
-        memory,
-        colors,
-        stop_event,
-        tcp_event,
-        is_tcp,
-        mp_stop_event,
-    ):
-        return super().draw_and_write_frames(
-            tracking_queue,
-            times_queue,
-            output_video_path,
-            classes,
-            memory,
-            colors,
-            stop_event,
-            tcp_event,
-            is_tcp,
-            mp_stop_event=mp_stop_event,
-        )
-
-    def write_to_csv(self, times_queue, output_file, parallel_mode, stop_event, mp_stop_event):
-        return super().write_to_csv(
-            times_queue, output_file, parallel_mode, stop_event, mp_stop_event=mp_stop_event
-        )
-
-    def hardware_usage(self, parallel_mode, stop_event, t1_start, tcp_event, is_tcp):
-        return super().hardware_usage(parallel_mode, stop_event, t1_start, tcp_event, is_tcp)
+        self.is_process = True
+        self.mh_num = 1
 
     def run(self):
+        # Definir los procesos
         processes = [
-            mp.multiprocessing.Process(
+            mp.Process(
                 target=self.capture_frames,
                 args=(
                     self.video_path,
@@ -95,23 +52,31 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
                     self.tcp_event,
                     self.is_tcp,
                     self.mp_stop_event,
+                    self.mh_num,
+                    self.is_process,
                 ),
             ),
-            mp.multiprocessing.Process(
-                target=self.process_frames,
+            mp.Process(
+                target=self.process_frames_sahi,
                 args=(
                     self.frame_queue,
                     self.detection_queue,
                     self.model_path,
                     self.t1_start,
                     self.mp_stop_event,
+                    self.is_process,
                 ),
             ),
-            mp.multiprocessing.Process(
+            mp.Process(
                 target=self.tracking_frames,
-                args=(self.detection_queue, self.tracking_queue, self.mp_stop_event),
+                args=(
+                    self.detection_queue,
+                    self.tracking_queue,
+                    self.mp_stop_event,
+                    self.is_process,
+                ),
             ),
-            mp.multiprocessing.Process(
+            mp.Process(
                 target=self.draw_and_write_frames,
                 args=(
                     self.tracking_queue,
@@ -124,9 +89,10 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
                     self.tcp_event,
                     self.is_tcp,
                     self.mp_stop_event,
+                    self.is_process,
                 ),
             ),
-            mp.multiprocessing.Process(
+            mp.Process(
                 target=self.write_to_csv,
                 args=(
                     self.times_queue,
@@ -134,9 +100,10 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
                     self.parallel_mode,
                     self.stop_event,
                     self.mp_stop_event,
+                    self.is_process,
                 ),
             ),
-            mp.multiprocessing.Process(
+            mp.Process(
                 target=self.hardware_usage,
                 args=(
                     self.parallel_mode,
@@ -144,34 +111,33 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
                     self.t1_start,
                     self.tcp_event,
                     self.is_tcp,
+                    self.is_process,
                 ),
             ),
         ]
 
+        # Iniciar todos los procesos
         t1 = cv2.getTickCount()
-
         for process in processes:
             process.start()
 
+        # Esperar a que se detenga el pipeline
         self.stop_event.wait()
 
+        # Calcular tiempo total y FPS
         t2 = cv2.getTickCount()
         time = (t2 - t1) / cv2.getTickFrequency()
-
-        self.frame_queue.close()
-        self.detection_queue.close()
-        self.tracking_queue.close()
-        self.times_queue.close()
-
-        self.frame_queue.unlink()
-        self.detection_queue.unlink()
-        self.tracking_queue.unlink()
-        self.times_queue.unlink()
-
         self.total_frames = self.get_total_frames(self.video_path)
+        print(f"Total time: {time:.2f} s, FPS: {self.total_frames / time:.2f}")
 
-        print(
-            f"[DETECTION_TRACKING_PIPELINE_WITH_THREADS] Total time: {time:.2f} s, FPS: {self.total_frames / time:.2f}"
-        )
+        # Cerrar y liberar recursos
+        for queue in [
+            self.frame_queue,
+            self.detection_queue,
+            self.tracking_queue,
+            self.times_queue,
+        ]:
+            queue.close()
+            queue.unlink()
 
-        print("[DETECTION_TRACKING_PIPELINE_WITH_THREADS] Finished running threads.")
+        print("Pipeline finished.")

@@ -34,10 +34,10 @@ while True:
     annotated_frame = results[0].plot()
 
     # Mostrar el frame con las detecciones
-    cv2.imshow('Camera Feed', annotated_frame)
+    cv2.imshow("Camera Feed", annotated_frame)
 
     # Salir si se presiona 'q'
-    if cv2.waitKey(1) == ord('q'):
+    if cv2.waitKey(1) == ord("q"):
         break
 
 # Liberar la cámara y cerrar las ventanas

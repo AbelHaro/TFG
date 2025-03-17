@@ -9,42 +9,42 @@ from shared_circular_buffer import SharedCircularBuffer
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--num_objects',
+    "--num_objects",
     default=40,
     type=int,
     choices=[0, 18, 40, 48, 60, 70, 88, 176],
-    help='Número de objetos a contar, posibles valores: {0, 18, 40, 48, 60, 70, 88, 176}, default=40',
+    help="Número de objetos a contar, posibles valores: {0, 18, 40, 48, 60, 70, 88, 176}, default=40",
 )
 parser.add_argument(
-    '--model_size',
-    default='n',
+    "--model_size",
+    default="n",
     type=str,
     choices=["n", "s", "m", "l", "x"],
-    help='Talla del modelo {n, s, m, l, x}, default=n',
+    help="Talla del modelo {n, s, m, l, x}, default=n",
 )
 parser.add_argument(
-    '--precision',
-    default='FP16',
+    "--precision",
+    default="FP16",
     type=str,
     choices=["FP32", "FP16", "INT8"],
-    help='Precisión del modelo {FP32, FP16, INT8}, default=FP16',
+    help="Precisión del modelo {FP32, FP16, INT8}, default=FP16",
 )
 parser.add_argument(
-    '--hardware',
-    default='GPU',
+    "--hardware",
+    default="GPU",
     type=str,
     choices=["GPU", "DLA0", "DLA1"],
-    help='Hardware a usar {GPU, DLA0, DLA1}, default=GPU',
+    help="Hardware a usar {GPU, DLA0, DLA1}, default=GPU",
 )
 parser.add_argument(
-    '--mode',
+    "--mode",
     required=True,
-    default='MAXN',
+    default="MAXN",
     type=str,
     choices=["MAXN", "30W", "15W", "10W"],
-    help='Modo de energía a usar {MAXN, 30W, 15W, 10W}, default=MAXN',
+    help="Modo de energía a usar {MAXN, 30W, 15W, 10W}, default=MAXN",
 )
-parser.add_argument('--tcp', default=False, type=bool, help='Usar conexión TCP, default=False')
+parser.add_argument("--tcp", default=False, type=bool, help="Usar conexión TCP, default=False")
 
 args = parser.parse_args()
 
@@ -68,24 +68,24 @@ def update_memory(tracked_objects, memory, classes):
         track_id = int(obj[4])
         detected_class = classes[int(obj[6])]
 
-        is_defective = detected_class.endswith('-d')
+        is_defective = detected_class.endswith("-d")
         if track_id in memory:
             entry = memory[track_id]
-            entry['defective'] |= is_defective
-            entry['visible_frames'] = FRAME_AGE
-            if entry['defective'] and not is_defective:
-                detected_class += '-d'
-            entry['class'] = detected_class
+            entry["defective"] |= is_defective
+            entry["visible_frames"] = FRAME_AGE
+            if entry["defective"] and not is_defective:
+                detected_class += "-d"
+            entry["class"] = detected_class
         else:
             memory[track_id] = {
-                'defective': is_defective,
-                'visible_frames': FRAME_AGE,
-                'class': detected_class,
+                "defective": is_defective,
+                "visible_frames": FRAME_AGE,
+                "class": detected_class,
             }
 
     for track_id in list(memory):
-        memory[track_id]['visible_frames'] -= 1
-        if memory[track_id]['visible_frames'] <= 0:
+        memory[track_id]["visible_frames"] -= 1
+        if memory[track_id]["visible_frames"] <= 0:
             del memory[track_id]
 
 
@@ -98,7 +98,7 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
         raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
     # cap = cv2.VideoCapture(video_path)
-    cap = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L2)
+    cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)
     # Establece la resolución de la cámara a 640x640
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
@@ -115,7 +115,7 @@ def capture_frames(video_path, frame_queue, stop_event, tcp_conn, is_tcp):
         t1 = cv2.getTickCount()
         ret, frame = cap.read()
 
-        if not ret or cv2.waitKey(1) & 0xFF == ord('q'):
+        if not ret or cv2.waitKey(1) & 0xFF == ord("q"):
             print("[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola")
             print("[PROGRAM - CAPTURE FRAMES - DEBUG] Se han procesado", frame_count, "frames")
             break
@@ -140,7 +140,7 @@ def process_frames(frame_queue, detection_queue, model_path, stop_event, t1_star
 
     times_detect_function = {}
 
-    model = YOLO(model_path, task='detect')
+    model = YOLO(model_path, task="detect")
 
     model(device="cuda:0", conf=0.5, half=True, imgsz=(640, 640), augment=True)
 
@@ -206,7 +206,7 @@ class TrackerWrapper:
 
     def __init__(self, frame_rate=20):
         self.args = Namespace(
-            tracker_type='bytetrack',
+            tracker_type="bytetrack",
             track_high_thresh=0.25,
             track_low_thresh=0.1,
             new_track_thresh=0.25,
@@ -395,7 +395,7 @@ def draw_and_write_frames(
 
         if out is None:
             frame_height, frame_width = frame.shape[:2]
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             out = cv2.VideoWriter(output_video_path, fourcc, 20, (frame_width, frame_height))
 
         update_memory(tracked_objects, memory, classes)
@@ -410,7 +410,7 @@ def draw_and_write_frames(
 
             # Draw object information
             xmin, ymin, xmax, ymax, obj_id = map(int, obj[:5])
-            detected_class = memory[obj_id]['class']
+            detected_class = memory[obj_id]["class"]
             color = colors.get(detected_class, (255, 255, 255))
 
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 1)
@@ -418,12 +418,12 @@ def draw_and_write_frames(
 
             speed_cms = speed * (px_to_cm_ratio if px_to_cm_ratio else 0)
             max_speed = max(speed_cms, max_speed)
-            text = f'ID:{obj_id} {detected_class} {float(obj[5]):.2f} Speed:{speed_cms:.1f}cm/s'
+            text = f"ID:{obj_id} {detected_class} {float(obj[5]):.2f} Speed:{speed_cms:.1f}cm/s"
             cv2.putText(
                 frame, text, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2
             )
 
-            if detected_class.endswith('-d') and not msg_sended and is_tcp:
+            if detected_class.endswith("-d") and not msg_sended and is_tcp:
                 threading.Thread(
                     target=handle_send, args=(client_socket, "DETECTED_DEFECT"), daemon=True
                 ).start()
@@ -435,16 +435,16 @@ def draw_and_write_frames(
                 cv2.line(frame, points[i], points[i + 1], color, 2)
 
         cv2.putText(
-            frame, f'Frame: {frame_number}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+            frame, f"Frame: {frame_number}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
         )
         cv2.putText(
-            frame, f'FPS: {FPS_LABEL}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+            frame, f"FPS: {FPS_LABEL}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
         )
         out.write(frame)
         FPS_COUNT += 1
 
         cv2.imshow("Frame", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
         t2 = cv2.getTickCount()
@@ -567,37 +567,37 @@ def main():
 
     print("\n\n[PROGRAM] Opciones seleccionadas: ", args, "\n\n")
 
-    model_path = f'../../models/canicas/{version}/{version}_canicas_{model_name}_{precision}_{hardware}.engine'
+    model_path = f"../../models/canicas/{version}/{version}_canicas_{model_name}_{precision}_{hardware}.engine"
     # model_path = f'../../models/canicas/2024_11_28/trt/model_gn.engine'
     # video_path = '../../datasets_labeled/videos/video_muchas_canicas.mp4'
     # video_path = '../../datasets_labeled/videos/prueba_tiempo_tracking.mp4'
     # video_path = f'../../datasets_labeled/videos/contar_objetos_{objects_count}_2min.mp4'
-    video_path = f'../../datasets_labeled/videos/prueba_velocidad_07_20FPS.mp4'
-    output_dir = '../../inference_predictions/custom_tracker'
+    video_path = f"../../datasets_labeled/videos/prueba_velocidad_07_20FPS.mp4"
+    output_dir = "../../inference_predictions/custom_tracker"
     os.makedirs(output_dir, exist_ok=True)
-    output_video_path = os.path.join(output_dir, f'prueba_velocidad_07_20FPS.mp4')
+    output_video_path = os.path.join(output_dir, f"prueba_velocidad_07_20FPS.mp4")
 
     output_hardware_stats = f"{model_name}_{precision}_{hardware}_{objects_count}_objects_{mode}"
 
     CLASSES = {
-        0: 'negra',
-        1: 'blanca',
-        2: 'verde',
-        3: 'azul',
-        4: 'negra-d',
-        5: 'blanca-d',
-        6: 'verde-d',
-        7: 'azul-d',
+        0: "negra",
+        1: "blanca",
+        2: "verde",
+        3: "azul",
+        4: "negra-d",
+        5: "blanca-d",
+        6: "verde-d",
+        7: "azul-d",
     }
     COLORS = {
-        'negra': (0, 0, 255),
-        'blanca': (0, 255, 0),
-        'verde': (255, 0, 0),
-        'azul': (255, 255, 0),
-        'negra-d': (0, 165, 255),
-        'blanca-d': (255, 165, 0),
-        'verde-d': (255, 105, 180),
-        'azul-d': (255, 0, 255),
+        "negra": (0, 0, 255),
+        "blanca": (0, 255, 0),
+        "verde": (255, 0, 0),
+        "azul": (255, 255, 0),
+        "negra-d": (0, 165, 255),
+        "blanca-d": (255, 165, 0),
+        "verde-d": (255, 105, 180),
+        "azul-d": (255, 0, 255),
     }
 
     memory = {}
@@ -681,7 +681,7 @@ def main():
     print(f"[PROGRAM] Tiempo total: {total_time:.3f}s, FPS: {total_frames / total_time:.3f}")
 
 
-if __name__ == '__main__':
-    mp.multiprocessing.set_start_method('spawn')
+if __name__ == "__main__":
+    mp.multiprocessing.set_start_method("spawn")
     print("[PROGRAM] Number of cpu : ", mp.multiprocessing.cpu_count())
     main()

@@ -5,7 +5,7 @@ import pandas as pd
 # Función para procesar una línea de tegrastats
 def process_tegrastats_line(line):
     # Extraer el uso y frecuencia de cada núcleo del CPU
-    cpu_usage_match = re.findall(r'CPU \[([\d%@,off ]+)\]', line)
+    cpu_usage_match = re.findall(r"CPU \[([\d%@,off ]+)\]", line)
     cpu_usage = cpu_usage_match[0].split(",") if cpu_usage_match else []
 
     # Crear un diccionario para los núcleos
@@ -26,19 +26,19 @@ def process_tegrastats_line(line):
             )
 
     # Extraer el uso y frecuencia de la GPU
-    gpu_match = re.search(r'GR3D_FREQ (\d+)%@\[(\d+)\]', line)
+    gpu_match = re.search(r"GR3D_FREQ (\d+)%@\[(\d+)\]", line)
     gpu_data = {
         "GPU_Usage_%": int(gpu_match.group(1)) if gpu_match else 0,
         "GPU_Freq_MHz": int(gpu_match.group(2)) if gpu_match else 0,
     }
 
     # Extraer los consumos energéticos
-    power_data = re.findall(r'(GPU|CPU|SOC|CV|VDDRQ|SYS5V) (\d+)mW', line)
+    power_data = re.findall(r"(GPU|CPU|SOC|CV|VDDRQ|SYS5V) (\d+)mW", line)
     power_dict = {f"{key}_mW": int(value) for key, value in power_data}
 
     # Calcular el consumo energético total
     total_power = sum(power_dict.values())
-    power_dict['Total_Power_mW'] = total_power
+    power_dict["Total_Power_mW"] = total_power
 
     # Unir toda la información en un solo diccionario
     return {**cpu_columns, **cpu_frequencies, **gpu_data, **power_dict}
@@ -47,7 +47,7 @@ def process_tegrastats_line(line):
 # Leer el archivo de tegrastats
 def parse_tegrastats_file(filename):
     data = []
-    with open(filename, 'r') as file:
+    with open(filename, "r") as file:
         for line in file:
             if "CPU" in line and "mW" in line:  # Filtrar líneas relevantes
                 data.append(process_tegrastats_line(line))
