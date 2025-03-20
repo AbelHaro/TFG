@@ -4,12 +4,20 @@ from inference.lib.sahi import split_image_with_overlap, process_detection_resul
 import os
 import shutil
 
-# Elimina todo el contenido del directorio 'slices' si existe
-if os.path.exists('slices'):
-    shutil.rmtree('slices')
+# Crear directorio base 'slices' si no existe
+base_dir = 'slices'
+if not os.path.exists(base_dir):
+    os.makedirs(base_dir)
 
-# Crea el directorio 'slices'
-os.makedirs('slices', exist_ok=True)
+# Encontrar el siguiente número de run disponible
+run_number = 1
+while os.path.exists(os.path.join(base_dir, f'run{run_number}')):
+    run_number += 1
+
+# Crear el directorio para esta ejecución
+slices_dir = os.path.join(base_dir, f'run{run_number}')
+os.makedirs(slices_dir)
+print(f"Creado directorio para run {run_number}: {slices_dir}")
 
 model_path = '../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_GPU_batch4.engine'
 
@@ -23,9 +31,13 @@ sliced_images, horizontal_splits, vertical_splits = split_image_with_overlap(
     original_image, 640, 640, 100
 )
 
-# Guarda los slices en el directorio 'slices'
+# Guarda los slices en el directorio del run actual
+print(f"[Run {run_number}] Guardando slices...")
 for i, img in enumerate(sliced_images):
-    cv2.imwrite(f'slices/slice_{i}.jpg', img)
+    slice_path = os.path.join(slices_dir, f'slice_{i:02d}.jpg')
+    cv2.imwrite(slice_path, img)
+    # Forzar la liberación de la imagen
+    img = None
 
 # Realiza la predicción en los slices
 results = model.predict(sliced_images, conf=0.5, half=True, augment=True, batch=4)
@@ -40,54 +52,51 @@ for i, result in enumerate(results):
 
     for cls_val, conf_val, xywh_val in zip(cls, conf, xywh):
         predict_len += 1
-        x, y, w, h = map(int, xywh_val)
-        xmin = x - w // 2
-        ymin = y - h // 2
-        xmax = x + w // 2
-        ymax = y + h // 2
-
-        cv2.rectangle(sliced_images[i], (xmin, ymin), (xmax, ymax), (0, 255, 255), 2)
-        cv2.putText(
-            sliced_images[i],
-            str(cls_val.item()),
-            (xmin, ymin),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 255, 255),
-            2,
-        )
-
-    cv2.imwrite(f'slices/slice_{i}_result.jpg', sliced_images[i])
+        
+    # Solo guardamos los slices sin dibujar las detecciones
+    cv2.imwrite(os.path.join(slices_dir, f'slice_{i:02d}.jpg'), sliced_images[i])
+    print(f"[Run {run_number}] Procesado slice {i+1}/{len(sliced_images)}")
+    # Liberar la imagen después de guardarla
+    sliced_images[i] = None
 
 # Transforma los resultados al sistema de coordenadas de la imagen original
 transformed_results = process_detection_results(
-    results, horizontal_splits, vertical_splits, 640, 640, 10
+    results, horizontal_splits, vertical_splits, 640, 640, 100
 )
 
-# Copia de la imagen original antes de dibujar los resultados transformados
-image_with_transformed = original_image.copy()
-
+# 1. Guardar imagen con todas las detecciones sin filtrar (AZUL)
+print(f"\n[Run {run_number}] Guardando imagen con todas las detecciones ({len(transformed_results)})...")
+image_raw = original_image.copy()
 for cls, conf, xmin, ymin, xmax, ymax in transformed_results:
-    cv2.rectangle(image_with_transformed, (xmin, ymin), (xmax, ymax), (0, 255, 255), 2)
-    cv2.putText(
-        image_with_transformed,
-        str(cls),
-        (xmin, ymin),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 255),
-        2,
-    )
-cv2.imwrite("slices/1080x1080_result_overlap.jpg", image_with_transformed)
+    # Color azul puro (255, 0, 0) en formato BGR
+    cv2.rectangle(image_raw, (xmin, ymin), (xmax, ymax), (255, 0, 0), 2)
+raw_path = os.path.join(slices_dir, "detecciones_sin_filtrar_azul.jpg")
+cv2.imwrite(raw_path, image_raw)
+image_raw = None
 
-# Copia de la imagen original antes de dibujar los resultados finales tras NMS y overlap
+# 2. Aplicar y visualizar resultados de NMS (ROJO)
+print(f"[Run {run_number}] Aplicando NMS (IoU: 0.3, Conf: 0.5)...")
+final_results = apply_nms(transformed_results, iou_threshold=0.3, conf_threshold=0.3)
+print(f"Detecciones finales después de NMS: {len(final_results)}")
+
+# # Código comentado: Filtrado de solapamiento
+# print(f"[Run {run_number}] Aplicando filtrado de solapamiento (threshold: 0.8)...")
+# overlap_results = apply_overlapping(final_results, overlap_threshold=0.8)
+# print(f"Detecciones después del filtrado de solapamiento: {len(overlap_results)}")
+#
+# image_overlap = original_image.copy()
+# for cls, conf, xmin, ymin, xmax, ymax in overlap_results:
+#     cv2.rectangle(image_overlap, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+#     cv2.putText(image_overlap, f"{conf:.2f}", (xmin, ymin-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+# overlap_path = os.path.join(slices_dir, "detecciones_post_overlap_verde.jpg")
+# cv2.imwrite(overlap_path, image_overlap)
+# image_overlap = None
+
+# Preparar imagen para resultados finales
 image_with_final = original_image.copy()
+original_image = None  # Liberar la imagen original
 
-# Aplica NMS a los resultados transformados
-nms_results = apply_nms(transformed_results, iou_threshold=0.4, conf_threshold=0.5)
-
-# Aplica NMS con solapamiento a los resultados
-final_results = apply_overlapping(nms_results, overlap_threshold=0.8)
+# Cambiar todos los cv2.rectangle y cv2.putText posteriores para usar rojo puro (0, 0, 255)
 
 for i, (cls, conf, xmin, ymin, xmax, ymax) in enumerate(final_results):
     # Verifica que las coordenadas estén dentro de los límites de la imagen
@@ -96,20 +105,66 @@ for i, (cls, conf, xmin, ymin, xmax, ymax) in enumerate(final_results):
     xmax = min(image_with_final.shape[1], xmax)
     ymax = min(image_with_final.shape[0], ymax)
     
-    cv2.rectangle(image_with_final, (xmin, ymin), (xmax, ymax), (0, 255, 255), 2)
+    # Color rojo puro para las detecciones finales
+    RED_COLOR = (0, 0, 255)  # BGR format
+    
+    # Dibujar el rectángulo en rojo
+    cv2.rectangle(image_with_final, (xmin, ymin), (xmax, ymax), RED_COLOR, 2)
+    
+    # Añadir texto con clase, ID y confianza
+    label = f"#{i} {cls} ({conf:.2f})"
+    
+    # Dibujar fondo para el texto para mejor visibilidad
+    (text_width, text_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+    cv2.rectangle(image_with_final,
+                 (xmin, ymin - text_height - 5),
+                 (xmin + text_width, ymin),
+                 (0, 0, 0),
+                 -1)
+    
+    # Dibujar el texto en rojo
     cv2.putText(
         image_with_final,
-        f"{i}: {cls}",
-        (xmin, ymin),
+        label,
+        (xmin, ymin - 5),
         cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 255),
+        0.5,
+        RED_COLOR,
         2,
     )
-    print(f"Detection {i}: class={cls}, conf={conf:.2f}, bbox=({xmin},{ymin},{xmax},{ymax})")
+    
+    # Imprimir información detallada en la consola
+    print(f"Detection #{i}:")
+    print(f"  - Class: {cls}")
+    print(f"  - Confidence: {conf:.3f}")
+    print(f"  - BBox: ({xmin},{ymin},{xmax},{ymax})")
 
-cv2.imwrite("slices/1080x1080_final_result_v2.jpg", image_with_final)
+# Guardar imagen final
+print(f"\n[Run {run_number}] Guardando resultado final...")
+final_path = os.path.join(slices_dir, "detecciones_final_rojo.jpg")
+cv2.imwrite(final_path, image_with_final)
+image_with_final = None  # Liberar memoria
 
-print(f"Predictions: {predict_len}")
-print(f"Tras el NMS: {len(nms_results)}")
-print(f"Tras el NMS con solapamiento: {len(final_results)}")
+print(f"\n[Run {run_number}] Resumen del proceso de detección:")
+print(f"1. Procesamiento inicial:")
+print(f"   - Detecciones en slices individuales: {predict_len}")
+print(f"   - Archivos: slice_XX.jpg, slice_XX_result.jpg")
+
+print(f"\n2. Proceso de filtrado:")
+print(f"   a. Transformación a coordenadas globales: {len(transformed_results)} detecciones")
+print(f"      → Ver: detecciones_sin_filtrar_azul.jpg (AZUL)")
+print(f"   b. Después de NMS: {len(final_results)} detecciones")
+print(f"      → Ver: detecciones_final_rojo.jpg (ROJO)")
+
+print(f"\nEstadísticas de reducción:")
+if len(transformed_results) > 0:
+    nms_filtered = ((len(transformed_results) - len(final_results)) / len(transformed_results) * 100)
+    print(f"- NMS eliminó: {nms_filtered:.1f}% de las detecciones")
+
+print(f"\nArchivos generados en: {slices_dir}")
+print("1. Slices:")
+print("   - Originales: slice_XX.jpg")
+print("   - Con detecciones: slice_XX_result.jpg")
+print("2. Resultados de filtrado (por color):")
+print("   - Todas las detecciones: detecciones_sin_filtrar_azul.jpg (AZUL)")
+print("   - Después de NMS: detecciones_final_rojo.jpg (ROJO)")
