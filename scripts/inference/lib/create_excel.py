@@ -75,9 +75,6 @@ def add_row_to_csv(file_path, frame_index, times):
     with open(file_path, mode="a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(row)
-        
-    print(f"[CREATE EXCEL] Fila añadida en {file_path} para el frame {frame_index}")
-
 
 def add_fps_to_csv(file_path, frame_index, fps_value):
     """
@@ -107,9 +104,6 @@ def add_fps_to_csv(file_path, frame_index, fps_value):
     with open(file_path, mode="a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([frame_index, format_number(fps_value)])
-        
-    print(f"[CREATE EXCEL] FPS {fps_value} añadido para el frame {frame_index} en {file_path}")
-
 
 def format_number(number):
     """

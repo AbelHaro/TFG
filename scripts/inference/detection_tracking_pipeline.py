@@ -11,9 +11,23 @@ from classes.shared_circular_buffer import SharedCircularBuffer
 
 
 class DetectionTrackingPipeline(ABC):
+    """Clase base para pipelines de detección y tracking."""
 
+    # Configuración de logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
+    # Configuración por defecto de SAHI
+    DEFAULT_SAHI_CONFIG = {
+        "slice_width": 640,
+        "slice_height": 640,
+        "overlap_pixels": 100,
+        "iou_threshold": 0.4,
+        "conf_threshold": 0.5,
+        "overlap_threshold": 0.8,
+        "batch_size": 4
+    }
+
+    # Clases y colores para visualización
     CLASSES = {
         0: "negra",
         1: "blanca",
@@ -37,6 +51,7 @@ class DetectionTrackingPipeline(ABC):
     }
 
     def get_total_frames(self, video_path: str) -> int:
+        """Obtiene el número total de frames en un video."""
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise IOError(f"Error al abrir el archivo de video: {video_path}")
@@ -116,9 +131,6 @@ class DetectionTrackingPipeline(ABC):
             # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
             frame_queue.put((frame, times))
             frame_count += 1
-            
-            if frame_count > 300:
-                break
 
         cap.release()
         logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
@@ -187,15 +199,13 @@ class DetectionTrackingPipeline(ABC):
                 cls=results[0].boxes.cls.cpu(),
             )
             t2 = cv2.getTickCount()
+            
+            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de procesamiento: {((t2 - t1) / cv2.getTickFrequency()) * 1000:.2f} ms")
 
             processing_time = (t2 - t1) / cv2.getTickFrequency()
 
             times["processing"] = processing_time
-            times["detect_function"] = times_detect_function
-            
-            print(f"[DEBUG] Tiempos de la función de detección: {times_detect_function}")
-            
-            print(f"[DEBUG] Tiempos: {times}")
+            times["detect_function"] = times_detect_function            
 
             detection_queue.put((frame, result_formatted, times))
 
@@ -232,7 +242,8 @@ class DetectionTrackingPipeline(ABC):
         overlap_pixels = 100
 
         # model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
-
+        dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
+        model.predict([dummy_frame, dummy_frame, dummy_frame, dummy_frame], conf=0.5, half=True, augment=True, batch=4)        
         t1_start.set()
 
         while True:
@@ -244,13 +255,23 @@ class DetectionTrackingPipeline(ABC):
 
             frame, times = item
             t1 = cv2.getTickCount()
+            
+            t1_aux = cv2.getTickCount()
 
             sub_images, horizontal_splits, vertical_splits = split_image_with_overlap(
                 frame, new_width, new_height, overlap_pixels
             )
+            
+            t2_aux = cv2.getTickCount()
+            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de división de imagen: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
 
+            t1_aux = cv2.getTickCount()
             results = model.predict(sub_images, conf=0.5, half=True, augment=True, batch=4)
-
+            t2_aux = cv2.getTickCount()
+            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de inferencia: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
+            
+            t1_aux = cv2.getTickCount()
+            
             transformed_results = process_detection_results(
                 results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels
             )
@@ -260,6 +281,8 @@ class DetectionTrackingPipeline(ABC):
 
             # Se aplica NMS con solapamiento a los resultados
             final_results = apply_overlapping(nms_results, overlap_threshold=0.8)
+            
+            
 
             # Inicializar listas vacías
             xywh = []
@@ -307,26 +330,24 @@ class DetectionTrackingPipeline(ABC):
 
             # Mostrar los resultados formateados
             # print("Resultados formateados:", result_formatted)
+            t2_aux = cv2.getTickCount()
+            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de postprocesamiento: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
 
             times_detect_function["preprocess"] = results[0].speed["preprocess"]
             times_detect_function["inference"] = results[0].speed["inference"]
             times_detect_function["postprocess"] = results[0].speed["postprocess"]
             
-            print(f"[DEBUG] Tiempos de la función de detección: {times_detect_function}")
 
             # Medir el tiempo de procesamiento
             t2 = cv2.getTickCount()
             processing_time = (t2 - t1) / cv2.getTickFrequency()
+            
+            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de procesamiento: {processing_time * 1000:.2f} ms")
 
-            logging.debug(
-                f"[PROGRAM - PROCESS FRAMES] Tiempo de procesamiento: {processing_time:.6f} s"
-            )
             # Actualizar el diccionario de tiempos
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function
             
-            print(f"[DEBUG] Tiempos: {times}")
-
             detection_queue.put((frame, result_formatted, times))
 
         mp_stop_event.wait() if mp_stop_event else None
