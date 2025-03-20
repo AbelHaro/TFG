@@ -116,6 +116,9 @@ class DetectionTrackingPipeline(ABC):
             # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
             frame_queue.put((frame, times))
             frame_count += 1
+            
+            if frame_count > 300:
+                break
 
         cap.release()
         logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
@@ -185,12 +188,14 @@ class DetectionTrackingPipeline(ABC):
             )
             t2 = cv2.getTickCount()
 
-            print("Resultados:", result_formatted)
-
             processing_time = (t2 - t1) / cv2.getTickFrequency()
 
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function
+            
+            print(f"[DEBUG] Tiempos de la función de detección: {times_detect_function}")
+            
+            print(f"[DEBUG] Tiempos: {times}")
 
             detection_queue.put((frame, result_formatted, times))
 
@@ -303,10 +308,11 @@ class DetectionTrackingPipeline(ABC):
             # Mostrar los resultados formateados
             # print("Resultados formateados:", result_formatted)
 
-            times_detect_function = {}
             times_detect_function["preprocess"] = results[0].speed["preprocess"]
             times_detect_function["inference"] = results[0].speed["inference"]
             times_detect_function["postprocess"] = results[0].speed["postprocess"]
+            
+            print(f"[DEBUG] Tiempos de la función de detección: {times_detect_function}")
 
             # Medir el tiempo de procesamiento
             t2 = cv2.getTickCount()
@@ -318,6 +324,8 @@ class DetectionTrackingPipeline(ABC):
             # Actualizar el diccionario de tiempos
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function
+            
+            print(f"[DEBUG] Tiempos: {times}")
 
             detection_queue.put((frame, result_formatted, times))
 
