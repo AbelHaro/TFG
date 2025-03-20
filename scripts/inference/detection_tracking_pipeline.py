@@ -129,7 +129,7 @@ class DetectionTrackingPipeline(ABC):
             total_frame_time = (t2 - t1) / cv2.getTickFrequency()
             times = {"capture": total_frame_time}
             # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
-            frame_queue.put((frame, times))
+            frame_queue.put((frame, times, frame_count))
             frame_count += 1
 
         cap.release()
@@ -164,12 +164,11 @@ class DetectionTrackingPipeline(ABC):
 
         while True:
             item = frame_queue.get()
-            # print(f"[DEBUG] Item recibido: {item}")
             if item is None:
                 detection_queue.put(None)
                 break
 
-            frame, times = item
+            frame, times, frame_count = item
 
             t1 = cv2.getTickCount()
 
@@ -199,15 +198,13 @@ class DetectionTrackingPipeline(ABC):
                 cls=results[0].boxes.cls.cpu(),
             )
             t2 = cv2.getTickCount()
-            
-            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de procesamiento: {((t2 - t1) / cv2.getTickFrequency()) * 1000:.2f} ms")
-
+        
             processing_time = (t2 - t1) / cv2.getTickFrequency()
 
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function            
 
-            detection_queue.put((frame, result_formatted, times))
+            detection_queue.put((frame, result_formatted, times, frame_count))
 
         mp_stop_event.wait() if mp_stop_event else None
         logging.debug(f"[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
@@ -253,7 +250,7 @@ class DetectionTrackingPipeline(ABC):
                 detection_queue.put(None)
                 break
 
-            frame, times = item
+            frame, times, frame_count = item
             t1 = cv2.getTickCount()
             
             t1_aux = cv2.getTickCount()
@@ -342,13 +339,11 @@ class DetectionTrackingPipeline(ABC):
             t2 = cv2.getTickCount()
             processing_time = (t2 - t1) / cv2.getTickFrequency()
             
-            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de procesamiento: {processing_time * 1000:.2f} ms")
-
             # Actualizar el diccionario de tiempos
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function
             
-            detection_queue.put((frame, result_formatted, times))
+            detection_queue.put((frame, result_formatted, times, frame_count))
 
         mp_stop_event.wait() if mp_stop_event else None
         logging.debug(f"[PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado")
@@ -372,7 +367,7 @@ class DetectionTrackingPipeline(ABC):
                 break
 
             t1 = cv2.getTickCount()
-            frame, result, times = item
+            frame, result, times, _  = item
 
             outputs = tracker_wrapper.track(result, frame)
 
