@@ -67,10 +67,17 @@ def parse_arguments():
 
     parser.add_argument(
         "--parallel",
-        default="threads",
+        default="mp_shared_memory",
         type=str,
         choices=["threads", "mp", "mp_shared_memory", "mp_hardware"],
         help="Modo de paralelización a usar, default=threads",
+    )
+    
+    parser.add_argument(
+        "--sahi",
+        default=False,
+        type=bool,
+        help="Usar el modo de procesamiento sahi, default=False",
     )
 
     return parser.parse_args()
@@ -81,12 +88,12 @@ def initialize_pipeline(args):
     mode = f"{args.mode}_{mp.cpu_count()}CORE"
     model_name = f"yolo11{args.model_size}"
 
-    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU_batch4.engine"
+    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU.engine"
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1.engine"
 
-    # video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
-    video_path = f"../../datasets_labeled/videos/test/test_1080x1080.mp4"
+    video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
+    #video_path = f"../../datasets_labeled/videos/test/test_1080x1080.mp4"
     output_dir = "../../inference_predictions/custom_tracker"
 
     os.makedirs(output_dir, exist_ok=True)
@@ -123,6 +130,7 @@ def initialize_pipeline(args):
             output_times,
             args.parallel,
             args.tcp,
+            args.sahi,
         )
         if args.parallel != "mp_hardware"
         else pipeline_classes[args.parallel](
@@ -134,6 +142,7 @@ def initialize_pipeline(args):
             output_times,
             args.parallel,
             args.tcp,
+            args.sahi,
         )
     )
 

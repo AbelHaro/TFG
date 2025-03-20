@@ -14,6 +14,7 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
         output_times,
         parallel_mode,
         is_tcp=False,
+        sahi=False,
     ):
         self.video_path = video_path
         self.model_path = model_path
@@ -21,6 +22,7 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
         self.output_times = output_times
         self.parallel_mode = parallel_mode
         self.is_tcp = is_tcp
+        self.sahi = sahi
 
         # Colas compartidas
         self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
@@ -57,7 +59,7 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
                 ),
             ),
             mp.Process(
-                target=self.process_frames_sahi,
+                target=self.process_frames,
                 args=(
                     self.frame_queue,
                     self.detection_queue,

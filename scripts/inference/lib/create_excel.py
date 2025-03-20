@@ -75,7 +75,8 @@ def add_row_to_csv(file_path, frame_index, times):
     with open(file_path, mode="a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(row)
-    # print(f"[CREATE EXCEL] Fila añadida en {file_path} para el frame {frame_index}")
+        
+    print(f"[CREATE EXCEL] Fila añadida en {file_path} para el frame {frame_index}")
 
 
 def add_fps_to_csv(file_path, frame_index, fps_value):
@@ -106,7 +107,8 @@ def add_fps_to_csv(file_path, frame_index, fps_value):
     with open(file_path, mode="a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([frame_index, format_number(fps_value)])
-    # print(f"[CREATE EXCEL] FPS {fps_value} añadido para el frame {frame_index} en {file_path}")
+        
+    print(f"[CREATE EXCEL] FPS {fps_value} añadido para el frame {frame_index} en {file_path}")
 
 
 def format_number(number):
@@ -200,11 +202,21 @@ def create_excel_from_csv(
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    import shutil
+    print(f"[CREATE EXCEL] Borrando el excel anterior en {file_path + output_name}...")
+    try:
+        os.remove(file_path + output_name)
+    except FileNotFoundError:
+        pass
+    print(f"[CREATE EXCEL] Excel anterior borrado exitosamente en {file_path + output_name}.")    
+    
+    
     # Guardar el libro de trabajo como archivo Excel
+    print(f"[CREATE EXCEL] Guardando Excel en {file_path + output_name}...")
     wb.save(file_path + output_name)
+    print(f"[CREATE EXCEL] Excel guardado exitosamente en {file_path + output_name}.")
 
     # Opcional: borrar los archivos CSV después de crear el Excel
-    import shutil
 
     shutil.rmtree(f"/TFG/excels/{parallel_mode}/aux_files/")
 
