@@ -17,3 +17,5 @@
 /create_dataset/**/*.txt
 /create_dataset/**/*.png
 /create_dataset/**/*.mp4
+
+/scripts/runs
