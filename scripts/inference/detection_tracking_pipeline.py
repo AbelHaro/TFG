@@ -227,20 +227,26 @@ class DetectionTrackingPipeline(ABC):
             process_detection_results,
             apply_overlapping,
         )
-        import torch
-        import numpy as np
+        try:
+            import torch
+            import numpy as np
+            from typing import List, Tuple
+        except ImportError as e:
+            raise ImportError(f"Error importing required packages: {e}")
 
         times_detect_function = {}
-
         model = YOLO(model_path, task="detect")
-
-        new_width = 640
-        new_height = 640
-        overlap_pixels = 100
-
-        # model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
-        dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
-        model.predict([dummy_frame, dummy_frame, dummy_frame, dummy_frame], conf=0.5, half=True, augment=True, batch=4)        
+        
+        # Configuración de SAHI desde las constantes de clase
+        new_width = self.DEFAULT_SAHI_CONFIG["slice_width"]
+        new_height = self.DEFAULT_SAHI_CONFIG["slice_height"]
+        overlap_pixels = self.DEFAULT_SAHI_CONFIG["overlap_pixels"]
+        batch_size = self.DEFAULT_SAHI_CONFIG["batch_size"]
+        
+        # Warm up del modelo con batch
+        dummy_frame = np.zeros((new_height, new_width, 3), dtype=np.uint8)
+        dummy_batch = [dummy_frame] * batch_size
+        model.predict(dummy_batch, conf=0.5, half=True, augment=True, batch=batch_size)
         t1_start.set()
 
         while True:
@@ -281,42 +287,34 @@ class DetectionTrackingPipeline(ABC):
             
             
 
-            # Inicializar listas vacías
-            xywh = []
-            confidences = []
-            classes = []
-
-            # Procesar cada detección en final_results
-            for i, result in enumerate(final_results):
-
-                cls, conf, xmin, ymin, xmax, ymax = result
-
-                x = (xmin + xmax) / 2
-                y = (ymin + ymax) / 2
-                width = xmax - xmin
-                height = ymax - ymin
-                xywh.append([x, y, width, height])
-
-                # Agregar la confianza y la clase a las listas
-                confidences.append(conf)
-                classes.append(cls)
-
-            # Convertir las listas a tensores de PyTorch con tamaño correcto
-            xywh_tensor = (
-                torch.tensor(xywh, dtype=torch.float32)
-                if xywh
-                else torch.empty((0, 4), dtype=torch.float32)
-            )
-            confidences_tensor = (
-                torch.tensor(confidences, dtype=torch.float32)
-                if confidences
-                else torch.empty(0, dtype=torch.float32)
-            )
-            classes_tensor = (
-                torch.tensor(classes, dtype=torch.float32)
-                if classes
-                else torch.empty(0, dtype=torch.float32)
-            )
+            # Convertir final_results a array de numpy para procesamiento vectorizado
+            if final_results:
+                # Convertir la lista de tuplas a un array numpy
+                results_array = np.array(final_results)
+                
+                # Extraer componentes [cls, conf, xmin, ymin, xmax, ymax]
+                classes = results_array[:, 0]
+                confidences = results_array[:, 1]
+                boxes = results_array[:, 2:6]  # [xmin, ymin, xmax, ymax]
+                
+                # Calcular xywh de forma vectorizada
+                widths = boxes[:, 2] - boxes[:, 0]    # xmax - xmin
+                heights = boxes[:, 3] - boxes[:, 1]   # ymax - ymin
+                x_centers = (boxes[:, 0] + boxes[:, 2]) / 2  # (xmin + xmax) / 2
+                y_centers = (boxes[:, 1] + boxes[:, 3]) / 2  # (ymin + ymax) / 2
+                
+                # Apilar para crear el array xywh
+                xywh = np.stack([x_centers, y_centers, widths, heights], axis=1)
+                
+                # Convertir a tensores PyTorch
+                xywh_tensor = torch.from_numpy(xywh).float()
+                confidences_tensor = torch.from_numpy(confidences).float()
+                classes_tensor = torch.from_numpy(classes).float()
+            else:
+                # Si no hay detecciones, crear tensores vacíos
+                xywh_tensor = torch.empty((0, 4), dtype=torch.float32)
+                confidences_tensor = torch.empty(0, dtype=torch.float32)
+                classes_tensor = torch.empty(0, dtype=torch.float32)
 
             # Crear el objeto Namespace con los resultados formateados
             result_formatted = Namespace(

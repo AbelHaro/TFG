@@ -27,3 +27,6 @@ cat /sys/devices/platform/host1x/158c0000.nvdla1/power/runtime_status   #DLA1
 
 # Configurar pines GPIO
 sudo /opt/nvidia/jetson-io/jetson-io.py
+
+# Exportar a TensorRT
+yolo export format=engine half=True batch=4 imgsz=640 model=
