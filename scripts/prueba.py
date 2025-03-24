@@ -44,7 +44,8 @@ slices_dir = os.path.join(base_dir, f'run{run_number}')
 os.makedirs(slices_dir)
 print(f"Creado directorio para run {run_number}: {slices_dir}")
 
-model_path = '../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_GPU_batch4.engine'
+#model_path = '../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_GPU_batch4.engine'
+model_path = '../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n.pt'
 
 model = YOLO(model_path, task='detect')
 
@@ -55,7 +56,7 @@ original_image = cv2.imread(image_path)
 
 # Divide la imagen en slices con solapamiento
 sliced_images, horizontal_splits, vertical_splits = split_image_with_overlap(
-    original_image, 640, 640, 100
+    original_image, 640, 640, 300
 )
 
 # Guarda los slices en el directorio del run actual
@@ -111,7 +112,7 @@ for i, result in enumerate(results):
 
 # Transforma los resultados al sistema de coordenadas de la imagen original
 transformed_results = process_detection_results(
-    results, horizontal_splits, vertical_splits, 640, 640, 100
+    results, horizontal_splits, vertical_splits, 640, 640, 300, original_image.shape[1], original_image.shape[0]
 )
 
 # 1. Guardar imagen con todas las detecciones sin filtrar
