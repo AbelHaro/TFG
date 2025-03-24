@@ -19,3 +19,5 @@
 /create_dataset/**/*.mp4
 
 /scripts/runs
+/scripts/slices
+
