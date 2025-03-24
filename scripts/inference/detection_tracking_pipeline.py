@@ -20,7 +20,7 @@ class DetectionTrackingPipeline(ABC):
     DEFAULT_SAHI_CONFIG = {
         "slice_width": 640,
         "slice_height": 640,
-        "overlap_pixels": 100,
+        "overlap_pixels": 200,
         "iou_threshold": 0.4,
         "conf_threshold": 0.5,
         "overlap_threshold": 0.8,
@@ -276,7 +276,7 @@ class DetectionTrackingPipeline(ABC):
             t1_aux = cv2.getTickCount()
             
             transformed_results = process_detection_results(
-                results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels
+                results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels, frame.shape[1], frame.shape[0]
             )
 
             # Se aplica NMS a los resultados

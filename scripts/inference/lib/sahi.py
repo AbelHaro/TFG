@@ -44,36 +44,26 @@ def split_image_with_overlap(original_image, new_width, new_height, overlap_pixe
     sub_images = []
     
     
+    # Calculate effective step sizes
+    step_x = new_width - overlap_pixels
+    step_y = new_height - overlap_pixels
+
     # Calculate the number of splits for horizontal and vertical axes
-    horizontal_splits = math.ceil(original_width / step_x)
-    vertical_splits = math.ceil(original_height / step_y)
-    
+    horizontal_splits = math.ceil((original_width - overlap_pixels) / step_x)
+    vertical_splits = math.ceil((original_height - overlap_pixels) / step_y)
+
 
     # Use for loops to extract the sub-images
-    for y in range(0, original_height, step_y):
-        for x in range(0, original_width, step_x):
-            # Calculate the start and end coordinates for the sub-image
-            start_x = x
-            start_y = y
+    for i in range(vertical_splits):
+        for j in range(horizontal_splits):
+            # Calculate initial coordinates
+            start_x = min(j * step_x, original_width - new_width)
+            start_y = min(i * step_y, original_height - new_height)
             end_x = start_x + new_width
             end_y = start_y + new_height
 
-            # If the sub-image goes beyond the original image boundaries, adjust the start coordinates
-            if end_x > original_width:
-                start_x = original_width - new_width
-                end_x = original_width
-            if end_y > original_height:
-                start_y = original_height - new_height
-                end_y = original_height
-
             # Extract the sub-image
             sub_image = original_image[start_y:end_y, start_x:end_x]
-
-            # If the sub-image is smaller than the desired size, pad it with zeros (black)
-            if sub_image.shape[0] < new_height or sub_image.shape[1] < new_width:
-                padded_sub_image = np.zeros((new_height, new_width, 3), dtype=np.uint8)
-                padded_sub_image[:sub_image.shape[0], :sub_image.shape[1]] = sub_image
-                sub_image = padded_sub_image
 
             sub_images.append(sub_image)
 
@@ -196,26 +186,25 @@ def apply_overlapping(detected_boxes, overlap_threshold=0.8):
 
     return filtered_boxes
 
-def process_detection_results(results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels):
+def process_detection_results(results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels, original_width, original_height):
     """
     Procesa los resultados de detección de las sub-imágenes y los transforma a coordenadas globales.
     
     Args:
         results: Resultados de detección YOLO para cada sub-imagen.
-        sub_images: Lista de sub-imágenes.
         horizontal_splits: Número de divisiones horizontales.
+        vertical_splits: Número de divisiones verticales.
         new_width: Ancho de cada sub-imagen.
         new_height: Alto de cada sub-imagen.
         overlap_pixels: Solapamiento entre sub-imágenes en píxeles.
+        original_width: Ancho de la imagen original.
+        original_height: Alto de la imagen original.
         
     Returns:
         list: Lista de detecciones transformadas a coordenadas globales.
     """
     transformed_results = []
-    iter = 0
     
-    # Iterar sobre las sub-imágenes y los resultados de la detección
-
     for idx in range(len(results)):
         
         
@@ -225,20 +214,38 @@ def process_detection_results(results, horizontal_splits, vertical_splits, new_w
         conf = results[idx].boxes.conf.cpu()
         xyxy = results[idx].boxes.xyxy.cpu()
 
-    
+
 
         for cls, conf, xyxy in zip(cls, conf, xyxy):
 
             # Las coordenadas locales en la sub-imagen
             xmin, ymin, xmax, ymax = map(int, xyxy)  # Convertir las coordenadas a enteros
 
-            # Calcular el desplazamiento de la sub-imagen dentro de la imagen original
-            row = idx // vertical_splits  # Fila de la sub-imagen
-            col = idx % horizontal_splits  # Columna de la sub-imagen
+            # Calcular la posición de la sub-imagen
+            row = idx // horizontal_splits  # Fila de la sub-imagen
+            col = idx % horizontal_splits   # Columna de la sub-imagen
             
-            # Calcular el desplazamiento para la sub-imagen
-            offset_x = col * (new_width - overlap_pixels * 2)
-            offset_y = row * (new_height - overlap_pixels * 2)
+            # Calcular el paso efectivo (distancia entre sub-imágenes)
+            step_x = new_width - overlap_pixels
+            step_y = new_height - overlap_pixels
+            
+            # Calcular offsets base
+            base_offset_x = col * step_x
+            base_offset_y = row * step_y
+            
+            # Ajustar offsets para las últimas sub-imágenes
+            if col == horizontal_splits - 1 and base_offset_x + new_width > original_width:
+                offset_x = original_width - new_width
+            else:
+                offset_x = base_offset_x
+                
+            if row == vertical_splits - 1 and base_offset_y + new_height > original_height:
+                offset_y = original_height - new_height
+            else:
+                offset_y = base_offset_y
+            
+                
+            
             
             # Ajustar las coordenadas a la imagen original
             global_xmin = xmin + offset_x
@@ -251,6 +258,6 @@ def process_detection_results(results, horizontal_splits, vertical_splits, new_w
 
         # Guardar la imagen con los cuadros delimitadores ajustados
         #cv2.imwrite(f"./results/1080x1080_{iter}.jpg", image)
-        iter += 1
+        #iter += 1
         
     return transformed_results
