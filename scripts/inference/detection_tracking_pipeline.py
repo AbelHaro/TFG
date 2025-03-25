@@ -20,11 +20,11 @@ class DetectionTrackingPipeline(ABC):
     DEFAULT_SAHI_CONFIG = {
         "slice_width": 640,
         "slice_height": 640,
-        "overlap_pixels": 200,
+        "overlap_pixels": 300,
         "iou_threshold": 0.4,
         "conf_threshold": 0.5,
         "overlap_threshold": 0.8,
-        "batch_size": 4
+        "batch_size": 9
     }
 
     # Clases y colores para visualización
