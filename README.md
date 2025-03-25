@@ -35,3 +35,15 @@ El proyecto se centra en maximizar la eficiencia y velocidad de detección mante
 4. Validación con datos reales
 
 Este sistema está diseñado para aplicaciones industriales que requieren inspección visual automatizada de alta velocidad
+
+## Resumen largo
+
+Este trabajo de fin de grado abarca el desarrollo de un sistema de visión artificial para la detección de defectos en objetos en movimiento, utilizando Redes Neuronales Profundas (Deep Neural Networks) con optimizaciones específicas para hardware NVIDIA.
+
+El sistema implementado permite la detección y seguimiento de objetos en tiempo real mediante el uso de YOLOv11, aplicando diversas técnicas de optimización. Para mejorar la eficiencia, se ha desarrollado un pipeline modular que incorpora procesamiento paralelo, uso de memoria compartida y optimizaciones específicas para hardware NVIDIA, como TensorRT y DLA. La detección de objetos pequeños se ha mejorado mediante la técnica SAHI (Slicing Aided Hyper Inference). De esta forma, el sistema mantiene un equilibrio entre precisión y rendimiento, asegurando una ejecución en tiempo real.
+
+Aprovechar al máximo las capacidades del hardware NVIDIA no es una tarea sencilla, ya que depende de múltiples factores, como la gestión eficiente de la memoria, la complejidad del modelo neuronal y las limitaciones computacionales del hardware específico. Por ello, este trabajo se centra en identificar los cuellos de botella en el diseño y optimizar el flujo de procesamiento para maximizar el rendimiento del sistema en tiempo real.
+
+En este trabajo se utilizan dispositivos de la serie Nvidia Jetson, unos dispositivos optimizados para tareas de inteligencia artificial en el borde (edge computing). Existen principalmente dos formas de optimizar la ejecución de redes neuronales en este hardware: mediante TensorRT, que permite la aceleración del modelo utilizando técnicas como la cuantización y la fusión de capas, y/o utilizando el Deep Learning Accelerator (DLA), un motor de hardware especializado para la inferencia eficiente.
+
+Para comparar las técnicas utilizadas, se ha implementado una aplicación para evaluarlas en función del rendimiento obtenido, la utilización de recursos y el consumo de energía.
