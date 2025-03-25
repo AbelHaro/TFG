@@ -34,4 +34,4 @@ El proyecto se centra en maximizar la eficiencia y velocidad de detección mante
 3. Aprovechamiento del hardware NVIDIA
 4. Validación con datos reales
 
-Este sistema está diseñado para aplicaciones industriales que requieren inspección visual automatizada de alta velocidad.
+Este sistema está diseñado para aplicaciones industriales que requieren inspección visual automatizada de alta velocidad
