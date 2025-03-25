@@ -5,6 +5,28 @@ import os
 import shutil
 from typing import Dict, Tuple
 
+# Configuración de parámetros
+CONFIG = {
+    # Parámetros para división de imagen
+    'SLICE_WIDTH': 640,
+    'SLICE_HEIGHT': 640,
+    'OVERLAP_PIXELS': 300,
+    
+    # Parámetros para predicción
+    'PREDICTION': {
+        'conf': 0.5,
+        'half': True,
+        'augment': True,
+        'batch': 4
+    },
+    
+    # Parámetros para NMS
+    'NMS': {
+        'iou_threshold': 0.3,
+        'conf_threshold': 0.5
+    }
+}
+
 # Mapeo de clases a nombres
 CLASS_MAPPING: Dict[int, str] = {
     0: "negra",
@@ -56,7 +78,10 @@ original_image = cv2.imread(image_path)
 
 # Divide la imagen en slices con solapamiento
 sliced_images, horizontal_splits, vertical_splits = split_image_with_overlap(
-    original_image, 640, 640, 200
+    original_image, 
+    CONFIG['SLICE_WIDTH'], 
+    CONFIG['SLICE_HEIGHT'], 
+    CONFIG['OVERLAP_PIXELS']
 )
 
 # Guarda los slices en el directorio del run actual
@@ -66,7 +91,10 @@ for i, img in enumerate(sliced_images):
     cv2.imwrite(slice_path, img)
 
 # Realiza la predicción en los slices
-results = model.predict(sliced_images, conf=0.5, half=True, augment=True, batch=4)
+results = model.predict(
+    sliced_images, 
+    **CONFIG['PREDICTION']
+)
 
 predict_len = 0
 
@@ -112,7 +140,9 @@ for i, result in enumerate(results):
 
 # Transforma los resultados al sistema de coordenadas de la imagen original
 transformed_results = process_detection_results(
-    results, horizontal_splits, vertical_splits, 640, 640, 200, original_image.shape[1], original_image.shape[0]
+    results, horizontal_splits, vertical_splits, 
+    CONFIG['SLICE_WIDTH'], CONFIG['SLICE_HEIGHT'], CONFIG['OVERLAP_PIXELS'], 
+    original_image.shape[1], original_image.shape[0]
 )
 
 # 1. Guardar imagen con todas las detecciones sin filtrar
@@ -140,8 +170,11 @@ cv2.imwrite(raw_path, image_raw)
 image_raw = None
 
 # 2. Aplicar y visualizar resultados de NMS
-print(f"[Run {run_number}] Aplicando NMS (IoU: 0.3, Conf: 0.5)...")
-final_results = apply_nms_custom(transformed_results, iou_threshold=0.3, conf_threshold=0.5)
+print(f"[Run {run_number}] Aplicando NMS (IoU: {CONFIG['NMS']['iou_threshold']}, Conf: {CONFIG['NMS']['conf_threshold']})...")
+final_results = apply_nms_custom(
+    transformed_results, 
+    **CONFIG['NMS']
+)
 print(f"Detecciones finales después de NMS: {len(final_results)}")
 
 # Preparar imagen para resultados finales
