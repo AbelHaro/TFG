@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 import numpy as np
-from inference.lib.sahi import split_image_with_overlap, process_detection_results, apply_nms, apply_overlapping
+from inference.lib.sahi import split_image_with_overlap, process_detection_results, apply_nms, apply_nms_custom
 import os
 import shutil
 from datetime import datetime
@@ -112,11 +112,11 @@ def process_image_batch(image_paths, model, output_dir, batch_size=4):
             
             # Procesar resultados
             transformed_results = process_detection_results(
-                results, horizontal_splits, vertical_splits, 640, 640, 100
+                results, horizontal_splits, vertical_splits, 640, 640, 100, original_image.shape[1], original_image.shape[0]    
             )
             
             # Aplicar NMS
-            final_results = apply_nms(transformed_results, iou_threshold=0.3, conf_threshold=0.3)
+            final_results = apply_nms_custom(transformed_results, iou_threshold=0.3, conf_threshold=0.3)
             print(f"Detecciones encontradas: {len(final_results)}")
             
             # Preparar imagen final

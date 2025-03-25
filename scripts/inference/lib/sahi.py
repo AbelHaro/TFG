@@ -69,6 +69,7 @@ def split_image_with_overlap(original_image, new_width, new_height, overlap_pixe
 
     return sub_images, horizontal_splits, vertical_splits
 
+
 def apply_nms(transformed_results, iou_threshold=0.4, conf_threshold=0.5):
     """
     Aplica el algoritmo NMS para eliminar las cajas superpuestas.
@@ -110,6 +111,72 @@ def apply_nms(transformed_results, iou_threshold=0.4, conf_threshold=0.5):
         xmin, ymin, xmax, ymax = boxes[i]
         filtered_results.append((cls, conf, xmin, ymin, xmax, ymax))
 
+    return filtered_results
+
+def apply_nms_custom(transformed_results, iou_threshold=0.4, conf_threshold=0.5):
+    """
+    Aplica el algoritmo NMS personalizado para eliminar las cajas superpuestas.
+
+    Args:
+        transformed_results (list): Lista de resultados con clases, confianza y coordenadas de las cajas.
+        iou_threshold (float): Umbral de IOU para la NMS. (por defecto 0.4).
+        conf_threshold (float): Umbral de confianza. Las cajas con confianza menor que este umbral se descartan. (por defecto 0.5).
+
+    Returns:
+        list: Lista de resultados filtrados después de aplicar NMS.
+    """
+    # Organizamos los resultados por clase
+    class_boxes = {}
+    for cls, conf, xmin, ymin, xmax, ymax in transformed_results:
+        if conf >= conf_threshold:  # Filtrar por umbral de confianza
+            if cls not in class_boxes:
+                class_boxes[cls] = []
+            class_boxes[cls].append((conf, xmin, ymin, xmax, ymax))
+    
+    filtered_results = []
+    
+    # Procesar cada clase por separado
+    for cls, boxes in class_boxes.items():
+        # Ordenar cajas por confianza (descendente)
+        boxes.sort(reverse=True)  # Ordenar por confianza (primer elemento de la tupla)
+        
+        keep = []  # Índices de cajas a mantener
+        
+        while boxes:
+            # Tomar la caja con mayor confianza
+            best_box = boxes.pop(0)
+            keep.append((cls, *best_box))  # Guardar la mejor caja
+            
+            # Comparar con el resto de cajas
+            remaining_boxes = []
+            for box in boxes:
+                # Calcular IoU
+                best_area = (best_box[3] - best_box[1]) * (best_box[4] - best_box[2])
+                box_area = (box[3] - box[1]) * (box[4] - box[2])
+                
+                # Calcular coordenadas de intersección
+                x1 = max(best_box[1], box[1])
+                y1 = max(best_box[2], box[2])
+                x2 = min(best_box[3], box[3])
+                y2 = min(best_box[4], box[4])
+                
+                # Calcular área de intersección
+                w = max(0, x2 - x1)
+                h = max(0, y2 - y1)
+                intersection = w * h
+                
+                # Calcular IoU
+                union = best_area + box_area - intersection
+                iou = intersection / union if union > 0 else 0
+                
+                # Si IoU está por debajo del umbral, mantener la caja
+                if iou <= iou_threshold:
+                    remaining_boxes.append(box)
+            
+            boxes = remaining_boxes  # Actualizar lista de cajas restantes
+        
+        filtered_results.extend(keep)  # Agregar cajas mantenidas al resultado final
+    
     return filtered_results
 
 
