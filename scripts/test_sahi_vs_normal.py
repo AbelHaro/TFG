@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 import numpy as np
-from inference.lib.sahi import split_image_with_overlap, process_detection_results, apply_nms, apply_overlapping
+from inference.lib.sahi import split_image_with_overlap, process_detection_results, apply_nms, apply_nms_custom
 import os
 import shutil
 from datetime import datetime
@@ -37,7 +37,7 @@ def process_normal_results(results) -> List[Tuple[float, float, float, float, in
     
     return processed_results
 
-def process_sahi_results(results, horizontal_splits, vertical_splits) -> List[Tuple[float, float, float, float, int, float]]:
+def process_sahi_results(results, horizontal_splits, vertical_splits, original_width, original_height) -> List[Tuple[float, float, float, float, int, float]]:
     """
     Procesa los resultados de la inferencia con SAHI para obtener formato xyxy, cls, conf
     
@@ -51,11 +51,13 @@ def process_sahi_results(results, horizontal_splits, vertical_splits) -> List[Tu
     """
     # Procesar detecciones de los slices a coordenadas globales
     transformed_results = process_detection_results(
-        results, horizontal_splits, vertical_splits, 640, 640, 100
+        results, horizontal_splits, vertical_splits, 640, 640, 100, original_width, original_height
     )
     
+    print(f"Detecciones de SAHI antes del NMS: {len(transformed_results)}")
+    
     # Aplicar NMS
-    final_results = apply_nms(transformed_results, iou_threshold=0.3, conf_threshold=0.3)
+    final_results = apply_nms_custom(transformed_results, iou_threshold=0.3, conf_threshold=0.3)
     
     # Los resultados de SAHI ya vienen en formato (cls, conf, xmin, ymin, xmax, ymax)
     # Reordenar a (xmin, ymin, xmax, ymax, cls, conf)
@@ -384,7 +386,7 @@ def main():
             image_1080, 640, 640, 100
         )
         results_sahi = model_batch4.predict(sliced_images_1080, conf=0.5, half=True, augment=True, batch=4)
-        detections_sahi = process_sahi_results(results_sahi, horizontal_splits, vertical_splits)
+        detections_sahi = process_sahi_results(results_sahi, horizontal_splits, vertical_splits, image_1080.shape[1], image_1080.shape[0])
         print(f"Detecciones SAHI encontradas: {len(detections_sahi)}")
         
         # Procesar ground truth - usar tamaño de imagen 1080 ya que las etiquetas están en ese formato

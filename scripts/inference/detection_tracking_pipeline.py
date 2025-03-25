@@ -226,7 +226,8 @@ class DetectionTrackingPipeline(ABC):
             apply_nms,
             process_detection_results,
             apply_overlapping,
-        )
+            apply_nms_custom,
+            )
         try:
             import torch
             import numpy as np
@@ -280,7 +281,7 @@ class DetectionTrackingPipeline(ABC):
             )
 
             # Se aplica NMS a los resultados
-            nms_results = apply_nms(transformed_results, iou_threshold=0.4, conf_threshold=0.5)
+            nms_results = apply_nms_custom(transformed_results, iou_threshold=0.4, conf_threshold=0.5)
 
             # Se aplica NMS con solapamiento a los resultados
             final_results = apply_overlapping(nms_results, overlap_threshold=0.8)
