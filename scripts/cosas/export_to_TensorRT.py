@@ -14,9 +14,9 @@ models_name = [
 ]
 
 hardware = [
-    #0,
+    0,
     #"dla:0",
-    "dla:1",
+    #"dla:1",
 ]
 
 precision = {
@@ -24,7 +24,7 @@ precision = {
     "int8": False,
 }
 
-batch_size = 1
+batch_size = 9
 
 if precision["half"] and precision["int8"]:
     print("ERROR: Solo se puede elegir un tamaño de precisión")
