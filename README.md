@@ -7,7 +7,7 @@
 
 (2) Detección de defectos en objetos en movimiento mediante Redes Neuronales Profundas con optimizaciones específicas para hardware NVIDIA.
 
-## Resumen largo
+## Resumen
 
 Este trabajo de fin de grado abarca el desarrollo de un sistema de visión artificial para la detección de defectos en objetos en movimiento, utilizando Redes Neuronales Profundas (Deep Neural Networks) con optimizaciones específicas para hardware NVIDIA. Aprovechar al máximo las capacidades de estos dispositivos no es una tarea sencilla, ya que depende de múltiples factores, como la gestión eficiente de la memoria, la complejidad del modelo neuronal y las limitaciones computacionales del hardware específico. Por ello, este trabajo se centra en identificar los cuellos de botella en el diseño y optimizar el flujo de procesamiento para maximizar el rendimiento del sistema en tiempo real.
 
