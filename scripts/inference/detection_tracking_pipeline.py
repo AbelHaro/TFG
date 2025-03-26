@@ -8,6 +8,7 @@ import logging
 from typing import Union, Optional
 import torch.multiprocessing as mp
 from classes.shared_circular_buffer import SharedCircularBuffer
+from lib.constants import TIMING_FIELDS
 
 
 class DetectionTrackingPipeline(ABC):
@@ -27,7 +28,7 @@ class DetectionTrackingPipeline(ABC):
         "batch_size": 8
     }
 
-    # Clases y colores para visualización
+    # Clases y colores para visualización desde config
     CLASSES = {
         0: "negra",
         1: "blanca",
@@ -104,7 +105,13 @@ class DetectionTrackingPipeline(ABC):
                 frame_queue.put(None)
             raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
-        cap = cv2.VideoCapture(video_path)
+        #cap = cv2.VideoCapture(video_path)
+        cap = cv2.VideoCapture('/dev/video0')
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        cap.set(cv2.CAP_PROP_FPS, 30)
+        
+        
 
         if not cap.isOpened():
             frame_queue.put(None)
@@ -127,10 +134,13 @@ class DetectionTrackingPipeline(ABC):
 
             t2 = cv2.getTickCount()
             total_frame_time = (t2 - t1) / cv2.getTickFrequency()
-            times = {"capture": total_frame_time}
+            times = {TIMING_FIELDS["CAPTURE"]: total_frame_time}
             # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
             frame_queue.put((frame, times, frame_count))
             frame_count += 1
+            
+            if frame_count > 300:
+                break
 
         cap.release()
         logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
@@ -176,19 +186,19 @@ class DetectionTrackingPipeline(ABC):
             t1_aux = cv2.getTickCount()
             preprocessed = model.predictor.preprocess([frame])
             t2_aux = cv2.getTickCount()
-            times_detect_function["preprocess"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function[TIMING_FIELDS["PREPROCESS"]] = (t2_aux - t1_aux) / cv2.getTickFrequency()
 
             # Realiza la inferencia
             t1_aux = cv2.getTickCount()
             output = model.predictor.inference(preprocessed)
             t2_aux = cv2.getTickCount()
-            times_detect_function["inference"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function[TIMING_FIELDS["INFERENCE"]] = (t2_aux - t1_aux) / cv2.getTickFrequency()
 
             # Postprocesa los resultados
             t1_aux = cv2.getTickCount()
             results = model.predictor.postprocess(output, preprocessed, [frame])
             t2_aux = cv2.getTickCount()
-            times_detect_function["postprocess"] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function[TIMING_FIELDS["POSTPROCESS"]] = (t2_aux - t1_aux) / cv2.getTickFrequency()
 
             # results = model.predict(source=frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
 
@@ -201,8 +211,8 @@ class DetectionTrackingPipeline(ABC):
         
             processing_time = (t2 - t1) / cv2.getTickFrequency()
 
-            times["processing"] = processing_time
-            times["detect_function"] = times_detect_function            
+            times[TIMING_FIELDS["PROCESSING"]] = processing_time
+            times[TIMING_FIELDS["DETECT_FUNCTION"]] = times_detect_function
 
             detection_queue.put((frame, result_formatted, times, frame_count))
 
@@ -374,8 +384,8 @@ class DetectionTrackingPipeline(ABC):
 
             tracking_time = (t2 - t1) / cv2.getTickFrequency()
 
-            times["tracking"] = tracking_time
-            times["objects_count"] = len(outputs)
+            times[TIMING_FIELDS["TRACKING"]] = tracking_time
+            times[TIMING_FIELDS["OBJECTS_COUNT"]] = len(outputs)
 
             tracking_queue.put((frame, outputs, times))
 

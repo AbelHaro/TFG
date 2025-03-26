@@ -1,6 +1,7 @@
 import os
 import csv
 from openpyxl import Workbook
+from .excel_headers import TIMING_HEADERS
 
 
 def create_csv_file(parallel_mode, file_name="default.csv"):
@@ -9,20 +10,6 @@ def create_csv_file(parallel_mode, file_name="default.csv"):
 
     :param file_path: Ruta completa del archivo CSV.
     """
-    # Cabeceras por defecto para tiempos
-    headers = [
-        "Frame",
-        "Captura",
-        "Procesamiento",
-        "Tracking",
-        "Escritura",
-        "Cantidad Objetos",
-        "Tiempo Total (ms)",
-        "Tiempo por Objeto Tracking (ms)",
-        "Preprocess",
-        "Inference",
-        "Postprocess",
-    ]
 
     file_path = f"/TFG/excels/{parallel_mode}/aux_files/" + file_name
 
@@ -31,7 +18,7 @@ def create_csv_file(parallel_mode, file_name="default.csv"):
     # Crear o sobrescribir el archivo CSV con las cabeceras
     with open(file_path, mode="w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(headers)
+        writer.writerow(TIMING_HEADERS)
     print(f"[CREATE EXCEL] Archivo {file_path} creado o sobrescrito con cabeceras de tiempos.")
 
     return file_path
@@ -179,7 +166,7 @@ def create_excel_from_csv(
         fps_sheet.append(processed_row)
 
     # Crear la hoja de 'Hardware Usage'
-    fps_sheet = wb.create_sheet(title="Hardware Usage")
+    hardware_sheet = wb.create_sheet(title="Hardware Usage")
     for row in hardware_usage_data:
         processed_row = [
             (
