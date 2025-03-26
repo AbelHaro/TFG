@@ -3,16 +3,12 @@
 
 ## Título
 
-(1) Desarrollo de una aplicación para la detección de defectos en objetos en movimiento mediante Redes Neuronales Profundas con optimizaciones específicas para hardware NVIDIA.
+(1) Desarrollo de una aplicación para la detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA.
 
-(2) Detección de defectos en objetos en movimiento mediante Redes Neuronales Profundas con optimizaciones específicas para hardware NVIDIA.
+(2) Detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA.
 
 ## Resumen
 
-Este trabajo de fin de grado abarca el desarrollo de un sistema de visión artificial para la detección de defectos en objetos en movimiento, utilizando Redes Neuronales Profundas (Deep Neural Networks) con optimizaciones específicas para hardware NVIDIA. Aprovechar al máximo las capacidades de estos dispositivos no es una tarea sencilla, ya que depende de múltiples factores, como la gestión eficiente de la memoria, la complejidad del modelo neuronal y las limitaciones computacionales del hardware específico. Por ello, este trabajo se centra en identificar los cuellos de botella en el diseño y optimizar el flujo de procesamiento para maximizar el rendimiento del sistema en tiempo real.
+Este trabajo de fin de grado abarcará el desarrollo de un sistema de visión artificial para la detección de defectos en objetos en movimiento, utilizando Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA. Aprovechar al máximo las capacidades de estos dispositivos no será una tarea sencilla, ya que dependerá de múltiples factores, como la gestión eficiente de la memoria, la complejidad del modelo neuronal, las limitaciones computacionales del hardware específico y el consumo energético del sistema. Dado que estos dispositivos están diseñados para operar en entornos con restricciones de energía, será fundamental optimizar el uso de los recursos para minimizar el consumo sin comprometer el rendimiento.
 
-Para ello, se utilizan dispositivos de la serie Nvidia Jetson, diseñados para tareas de inteligencia artificial en el borde (edge computing). Existen principalmente dos formas de optimizar la ejecución de redes neuronales en este hardware: mediante TensorRT, que permite la aceleración del modelo utilizando técnicas como la cuantización y la fusión de capas, y/o utilizando el Deep Learning Accelerator (DLA), un motor de hardware especializado para la inferencia eficiente.
-
-El sistema implementado permite la detección y seguimiento de objetos en tiempo real mediante el uso de YOLOv11, aplicando diversas técnicas de optimización. Para mejorar la eficiencia, se ha desarrollado un pipeline modular que incorpora procesamiento paralelo, uso de memoria compartida y optimizaciones específicas para hardware NVIDIA, como TensorRT y DLA. La detección de objetos pequeños se ha mejorado mediante la técnica SAHI (Slicing Aided Hyper Inference). De esta forma, el sistema mantiene un equilibrio entre precisión y rendimiento, asegurando una ejecución en tiempo real.
-
-Para comparar las técnicas utilizadas, se ha implementado una aplicación que evalúa el rendimiento obtenido, la utilización de recursos y el consumo de energía.
+Por ello, este trabajo se centrará en identificar los cuellos de botella en el diseño y optimizar el flujo de procesamiento para maximizar tanto el rendimiento del sistema en tiempo real como su eficiencia energética. Para ello, se utilizarán dispositivos de la serie Nvidia Jetson, diseñados para tareas de inteligencia artificial en el borde (edge computing), donde la gestión del consumo energético es un factor crítico.
