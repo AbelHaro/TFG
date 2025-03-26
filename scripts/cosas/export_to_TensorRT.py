@@ -24,7 +24,7 @@ precision = {
     "int8": False,
 }
 
-batch_size = 9
+batch_size = 8
 
 if precision["half"] and precision["int8"]:
     print("ERROR: Solo se puede elegir un tamaño de precisión")

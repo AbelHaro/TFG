@@ -88,16 +88,22 @@ def initialize_pipeline(args):
     mode = f"{args.mode}_{mp.cpu_count()}CORE"
     model_name = f"yolo11{args.model_size}"
 
-    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU_batch9.engine"
+    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU_batch8.engine"
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1.engine"
     
     
     model_path = GPU_model_path if args.hardware == "GPU" else DLA0_model_path if args.hardware == "DLA0" else DLA1_model_path
 
-    #video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
-    #video_path = f"../../datasets_labeled/videos/test/test_640x640_2400fps.mp4"
-    video_path = f"../../datasets_labeled/videos/test/test_1080x1080_2400fps.mp4"
+    if args.num_objects == "libre":
+        if args.sahi:
+            video_path = f"../../datasets_labeled/videos/test/test_altura_1920x1080.mp4"
+        else:
+            video_path = f"../../datasets_labeled/videos/test/test_640x640_2400fps.mp4"
+    else:
+        video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
+        
+        
     output_dir = "../../inference_predictions/custom_tracker"
 
     os.makedirs(output_dir, exist_ok=True)
