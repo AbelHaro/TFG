@@ -19,5 +19,6 @@ TIMING_FIELDS = {
 EXCEL_SHEETS = {
     "TIMES": "Times",
     "FPS": "FPS",
-    "HARDWARE": "Hardware Usage"
+    "HARDWARE": "Hardware Usage",
+    "FRAME": "Frame"
 }

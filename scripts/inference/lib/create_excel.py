@@ -2,6 +2,7 @@ import os
 import csv
 from openpyxl import Workbook
 from .excel_headers import TIMING_HEADERS
+from .constants import TIMING_FIELDS, EXCEL_SHEETS
 
 
 def create_csv_file(parallel_mode, file_name="default.csv"):
@@ -32,14 +33,14 @@ def add_row_to_csv(file_path, frame_index, times):
     :param frame_index: Índice del frame actual.
     :param times: Diccionario con los tiempos del frame.
     """
-    capture_time = times.get("capture", 0)
-    process_time = times.get("processing", 0)
-    preprocess_time = times.get("detect_function", {}).get("preprocess", 0)
-    inference_time = times.get("detect_function", {}).get("inference", 0)
-    postprocess_time = times.get("detect_function", {}).get("postprocess", 0)
-    track_time = times.get("tracking", 0)
-    write_time = times.get("writing", 0)
-    object_count = times.get("objects_count", 0)
+    capture_time = times.get(TIMING_FIELDS["CAPTURE"], 0)
+    process_time = times.get(TIMING_FIELDS["PROCESSING"], 0)
+    preprocess_time = times.get(TIMING_FIELDS["DETECT_FUNCTION"], {}).get(TIMING_FIELDS["PREPROCESS"], 0)
+    inference_time = times.get(TIMING_FIELDS["DETECT_FUNCTION"], {}).get(TIMING_FIELDS["INFERENCE"], 0)
+    postprocess_time = times.get(TIMING_FIELDS["DETECT_FUNCTION"], {}).get(TIMING_FIELDS["POSTPROCESS"], 0)
+    track_time = times.get(TIMING_FIELDS["TRACKING"], 0)
+    write_time = times.get(TIMING_FIELDS["WRITING"], 0)
+    object_count = times.get(TIMING_FIELDS["OBJECTS_COUNT"], 0)
 
     total_frame_time = capture_time + process_time + track_time + write_time
     time_per_object = (track_time / object_count * 1000) if object_count > 0 else 0
@@ -77,14 +78,14 @@ def add_fps_to_csv(file_path, frame_index, fps_value):
     if os.path.exists(file_path):
         with open(file_path, mode="r", newline="") as f:
             first_row = next(csv.reader(f), [])
-            if first_row != ["Frame", "FPS"]:  # No son los encabezados de FPS
+            if first_row != [EXCEL_SHEETS["FRAME"], EXCEL_SHEETS["FPS"]]:  # No son los encabezados de FPS
                 rewrite_headers = True
 
     # Si es la primera vez, reescribe los encabezados
     if rewrite_headers:
         with open(file_path, mode="w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(["Frame", "FPS"])
+            writer.writerow([EXCEL_SHEETS["FRAME"], EXCEL_SHEETS["FPS"]])
         # print(f"[CREATE EXCEL] Encabezados de tiempos reemplazados por los de FPS en {file_path}.")
 
     # Añadir fila con el valor de FPS
@@ -136,9 +137,9 @@ def create_excel_from_csv(
 
     # Crear la hoja de 'Times'
     times_sheet = wb.active
-    times_sheet.title = "Times"
+    times_sheet.title = EXCEL_SHEETS["TIMES"]
 
-    # Escribir los datos de times.csv en la hoja 'Times'
+    # Escribir los datos de times.csv en la hoja de tiempos
     for row in times_data:
         processed_row = [
             (
@@ -151,9 +152,9 @@ def create_excel_from_csv(
         times_sheet.append(processed_row)
 
     # Crear la hoja de 'FPS'
-    fps_sheet = wb.create_sheet(title="FPS")
+    fps_sheet = wb.create_sheet(title=EXCEL_SHEETS["FPS"])
 
-    # Escribir los datos de fps.csv en la hoja 'FPS'
+    # Escribir los datos de fps.csv en la hoja de FPS
     for row in fps_data:
         processed_row = [
             (
@@ -166,7 +167,7 @@ def create_excel_from_csv(
         fps_sheet.append(processed_row)
 
     # Crear la hoja de 'Hardware Usage'
-    hardware_sheet = wb.create_sheet(title="Hardware Usage")
+    hardware_sheet = wb.create_sheet(title=EXCEL_SHEETS["HARDWARE"])
     for row in hardware_usage_data:
         processed_row = [
             (
@@ -176,7 +177,7 @@ def create_excel_from_csv(
             )
             for cell in row
         ]
-        fps_sheet.append(processed_row)
+        hardware_sheet.append(processed_row)
 
     # Verificar si la ruta de salida existe, si no, crearla
     output_dir = os.path.dirname(output_name)
