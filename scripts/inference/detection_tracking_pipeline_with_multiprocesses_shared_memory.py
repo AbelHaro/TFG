@@ -26,9 +26,9 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
 
         # Colas compartidas
         self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
-        self.detection_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
-        self.tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
-        self.times_queue = SharedCircularBuffer(queue_size=10, max_item_size=4)
+        self.detection_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
+        self.tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
+        self.times_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
 
         # Memoria compartida
         self.memory = {}

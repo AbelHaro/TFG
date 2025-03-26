@@ -97,7 +97,7 @@ def initialize_pipeline(args):
 
     if args.num_objects == "libre":
         if args.sahi:
-            video_path = f"../../datasets_labeled/videos/test/test_altura_1920x1080.mp4"
+            video_path = f"../../datasets_labeled/videos/test/test_altura_1080x1080.mp4"
         else:
             video_path = f"../../datasets_labeled/videos/test/test_640x640_2400fps.mp4"
     else:
