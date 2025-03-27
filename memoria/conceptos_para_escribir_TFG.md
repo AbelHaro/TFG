@@ -1,5 +1,7 @@
 # SOBRE REDES NEURONALES
 
+CTRL+Shift+V para abrir previsualización
+
 machine learning, deep learning, neural network
 
 convolutional neural network
@@ -38,7 +40,13 @@ No segmentación vs Segmentación programa para la inferencia
 
 Segmentación basada en hilos o en procesos por culpa del GIL
 
+SAHI (Slicing Aided Hyper Inference), que aporta y que problemas trae
+
 Comparaciones según consumo energético
+
+# PRUEBA DE CONCEPTO 
+
+Uso de la cinta transportadora para el análisis
 
 # POSIBLES
 
