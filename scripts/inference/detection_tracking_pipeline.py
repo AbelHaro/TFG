@@ -10,6 +10,15 @@ import torch.multiprocessing as mp
 from classes.shared_circular_buffer import SharedCircularBuffer
 from lib.constants import TIMING_FIELDS
 
+DEFAULT_SAHI_CONFIG = {
+    "slice_width": 640,
+    "slice_height": 640,
+    "overlap_pixels": 200,
+    "iou_threshold": 0.4,
+    "conf_threshold": 0.5,
+    "overlap_threshold": 0.8,
+    "batch_size": 4
+}
 
 class DetectionTrackingPipeline(ABC):
     """Clase base para pipelines de detección y tracking."""
@@ -18,15 +27,7 @@ class DetectionTrackingPipeline(ABC):
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
     # Configuración por defecto de SAHI
-    DEFAULT_SAHI_CONFIG = {
-        "slice_width": 640,
-        "slice_height": 640,
-        "overlap_pixels": 200,
-        "iou_threshold": 0.4,
-        "conf_threshold": 0.5,
-        "overlap_threshold": 0.8,
-        "batch_size": 8
-    }
+
 
     # Clases y colores para visualización desde config
     CLASSES = {
@@ -105,11 +106,11 @@ class DetectionTrackingPipeline(ABC):
                 frame_queue.put(None)
             raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
-        #cap = cv2.VideoCapture(video_path)
-        cap = cv2.VideoCapture('/dev/video0')
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        cap.set(cv2.CAP_PROP_FPS, 30)
+        cap = cv2.VideoCapture(video_path)
+        #cap = cv2.VideoCapture('/dev/video0')
+        #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        #cap.set(cv2.CAP_PROP_FPS, 30)
         
         
 
@@ -249,10 +250,10 @@ class DetectionTrackingPipeline(ABC):
         model = YOLO(model_path, task="detect")
         
         # Configuración de SAHI desde las constantes de clase
-        new_width = self.DEFAULT_SAHI_CONFIG["slice_width"]
-        new_height = self.DEFAULT_SAHI_CONFIG["slice_height"]
-        overlap_pixels = self.DEFAULT_SAHI_CONFIG["overlap_pixels"]
-        batch_size = self.DEFAULT_SAHI_CONFIG["batch_size"]
+        new_width = DEFAULT_SAHI_CONFIG["slice_width"]
+        new_height = DEFAULT_SAHI_CONFIG["slice_height"]
+        overlap_pixels = DEFAULT_SAHI_CONFIG["overlap_pixels"]
+        batch_size = DEFAULT_SAHI_CONFIG["batch_size"]
         
         # Warm up del modelo con batch
         dummy_frame = np.zeros((new_height, new_width, 3), dtype=np.uint8)

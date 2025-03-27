@@ -3,6 +3,9 @@ import os
 import torch.multiprocessing as mp  # type: ignore
 
 from lib.tcp import tcp_server
+from lib.sahi import split_image_with_overlap
+import numpy as np
+from detection_tracking_pipeline import DEFAULT_SAHI_CONFIG
 
 # Importación de módulos propios
 import detection_tracking_pipeline_with_threads
@@ -87,10 +90,21 @@ def initialize_pipeline(args):
     """Inicializa el pipeline de detección y tracking según el modo de paralelización."""
     mode = f"{args.mode}_{mp.cpu_count()}CORE"
     model_name = f"yolo11{args.model_size}"
+    
+    batch_size = 1
+    
+    if args.sahi:
+        height = width = 1080
+        dummy_image = np.zeros((height, width, 3), dtype=np.uint8)
+        _, horizontal_splits, vertical_splits = split_image_with_overlap(dummy_image, DEFAULT_SAHI_CONFIG["slice_width"], DEFAULT_SAHI_CONFIG["slice_height"], DEFAULT_SAHI_CONFIG["overlap_pixels"])
+        batch_size = horizontal_splits*vertical_splits
+        print(f"[PROGRAM] Modo sahi activado. División de la imagen: {horizontal_splits}x{vertical_splits}, batch_size de {horizontal_splits*vertical_splits}")
 
-    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU_batch8.engine"
-    DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0.engine"
-    DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1.engine"
+    batch_suffix = f"_batch{batch_size}" if batch_size > 1 else ""
+
+    GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU{batch_suffix}.engine"
+    DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0{batch_suffix}.engine"
+    DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1{batch_suffix}.engine"
     
     
     model_path = GPU_model_path if args.hardware == "GPU" else DLA0_model_path if args.hardware == "DLA0" else DLA1_model_path
