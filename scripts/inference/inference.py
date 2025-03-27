@@ -126,7 +126,7 @@ def initialize_pipeline(args):
         output_dir,
         f"{args.parallel}_{model_name}_{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}.mp4",
     )
-    sahi_prefix = "sahi_" if args.sahi else ""
+    sahi_prefix = f"sahi_batch{batch_size}_" if args.sahi else ""
     output_times = f"{model_name}_{sahi_prefix}{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}"
 
     print("\n\n[PROGRAM] Opciones seleccionadas:", args, "\n\n")
