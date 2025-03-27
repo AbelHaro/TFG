@@ -158,9 +158,6 @@ class DetectionTrackingPipeline(ABC):
             # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
             frame_queue.put((frame, times, frame_count))
             frame_count += 1
-            
-            if frame_count > 300:
-                break
 
         cap.release()
         logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
@@ -297,12 +294,12 @@ class DetectionTrackingPipeline(ABC):
             )
             
             t2_aux = cv2.getTickCount()
-            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de división de imagen: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
+            #logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de división de imagen: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
 
             t1_aux = cv2.getTickCount()
-            results = model.predict(sub_images, conf=0.5, half=True, augment=True, batch=4)
+            results = model.predict(sub_images, conf=0.5, half=True, augment=True, batch=4, verbose=False)
             t2_aux = cv2.getTickCount()
-            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de inferencia: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
+            #logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de inferencia: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
             
             t1_aux = cv2.getTickCount()
             
@@ -357,7 +354,7 @@ class DetectionTrackingPipeline(ABC):
             # Mostrar los resultados formateados
             # print("Resultados formateados:", result_formatted)
             t2_aux = cv2.getTickCount()
-            logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de postprocesamiento: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
+            #logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de postprocesamiento: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
 
             times_detect_function["preprocess"] = results[0].speed["preprocess"]
             times_detect_function["inference"] = results[0].speed["inference"]
@@ -371,6 +368,8 @@ class DetectionTrackingPipeline(ABC):
             # Actualizar el diccionario de tiempos
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function
+            
+            
             
             detection_queue.put((frame, result_formatted, times, frame_count))
 
@@ -616,7 +615,7 @@ class DetectionTrackingPipeline(ABC):
 
             # print(f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado")
 
-            if frame_number % 20 == 0:
+            if frame_number % 30 == 0:
                 print(
                     f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado",
                     end="\r",

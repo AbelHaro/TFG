@@ -6,7 +6,7 @@ data_dir = f"/TFG/datasets_labeled/{version}_canicas_dataset/data.yaml"
 model_path = f"/TFG/models/canicas/{version}/"
 
 models_name = [
-    f"{version}_canicas_yolo11n.pt",
+    f"{version}_canicas_yolo12n.pt",
     #f"{version}_canicas_yolo11s.pt",
     #f"{version}_canicas_yolo11m.pt",
     #f"{version}_canicas_yolo11l.pt",
@@ -24,7 +24,7 @@ precision = {
     "int8": False,
 }
 
-batch_size = 8
+batch_size = 1
 
 if precision["half"] and precision["int8"]:
     print("ERROR: Solo se puede elegir un tamaño de precisión")
