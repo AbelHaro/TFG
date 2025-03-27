@@ -5,8 +5,9 @@ import signal
 import sys
 import uuid
 
-# Crear el directorio ./images si no existe
-os.makedirs("./images", exist_ok=True)
+# Crear los directorios para las diferentes resoluciones
+os.makedirs("./images/1080", exist_ok=True)
+os.makedirs("./images/640", exist_ok=True)
 
 # Inicializar la cámara
 cap = cv2.VideoCapture(2)
@@ -42,14 +43,18 @@ while True:
         # Obtener la fecha y hora actual
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         unique_id = uuid.uuid4()
-        filename = f"./images/{timestamp}-{unique_id}.jpg"
+        base_filename = f"{timestamp}-{unique_id}.jpg"
 
-        # Redimensionar la imagen a 640 x 640
-        resized_frame = cv2.resize(frame, (640, 640))
+        # Redimensionar la imagen a 1080 x 1080
+        frame_1080 = cv2.resize(frame, (1080, 1080))
+        
+        # Crear versión 640 x 640
+        frame_640 = cv2.resize(frame_1080, (640, 640))
 
-        # Guardar la imagen
-        cv2.imwrite(filename, resized_frame)
-        print(f"Foto guardada: {filename}")
+        # Guardar ambas versiones
+        cv2.imwrite(f"./images/1080/{base_filename}", frame_1080)
+        cv2.imwrite(f"./images/640/{base_filename}", frame_640)
+        print(f"Fotos guardadas en 1080p y 640p: {base_filename}")
 
     elif key == ord('q'):
         break

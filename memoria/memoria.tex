@@ -1,0 +1,78 @@
+\documentclass[12pt,a4paper]{report}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{cite}
+\usepackage{hyperref}
+
+% Document information
+\title{Título del Trabajo de Fin de Grado}
+\author{Tu Nombre}
+\date{\today}
+
+\begin{document}
+
+% Title page
+\maketitle
+
+% Abstract
+\begin{abstract}
+Este es un resumen del trabajo. Aquí se describe brevemente el contenido, 
+la metodología utilizada y las conclusiones principales.
+\end{abstract}
+
+% Table of contents
+\tableofcontents
+\newpage
+
+% Introduction
+\chapter{Introducción}
+\section{Motivación}
+Este es un ejemplo de texto en la sección de motivación.
+
+\section{Objetivos}
+Los objetivos de este trabajo son:
+\begin{itemize}
+    \item Primer objetivo
+    \item Segundo objetivo
+    \item Tercer objetivo
+\end{itemize}
+
+% Chapter example
+\chapter{Marco Teórico}
+\section{Sección de ejemplo}
+Aquí va el contenido de la sección.
+
+% Figure example
+\begin{figure}[h]
+    \centering
+    \caption{Descripción de la figura}
+    \label{fig:ejemplo}
+\end{figure}
+
+% Table example
+\begin{table}[h]
+    \centering
+    \caption{Tabla de ejemplo}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Columna 1 & Columna 2 & Columna 3 \\
+        \hline
+        Dato 1 & Dato 2 & Dato 3 \\
+        Dato 4 & Dato 5 & Dato 6 \\
+        \hline
+    \end{tabular}
+    \label{tab:ejemplo}
+\end{table}
+
+% Bibliography
+\chapter{Bibliografía}
+\begin{thebibliography}{99}
+    \bibitem{referencia1} Autor, A. (Año). Título del libro. Editorial.
+    \bibitem{referencia2} Autor, B. (Año). Título del artículo. Revista, Volumen(Número), páginas.
+\end{thebibliography}
+
+\end{document}
