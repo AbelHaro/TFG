@@ -63,31 +63,50 @@ class DetectionTrackingPipeline(ABC):
 
     def update_memory(self, tracked_objects, memory, classes) -> None:
         FRAME_AGE = 60
+        PERMANENT_DEFECT_THRESHOLD = 3  # Número de frames consecutivos para marcar como "defecto permanente"
 
         for obj in tracked_objects:
             track_id = int(obj[4])
             detected_class = classes[int(obj[6])]
-
             is_defective = detected_class.endswith("-d")
+
             if track_id in memory:
                 entry = memory[track_id]
-                entry["defective"] |= is_defective
+                
+                if entry.get("permanent_defect", False):
+                    entry["visible_frames"] = FRAME_AGE
+                    continue
+                
+                
+                if is_defective:
+                    entry["defect_counter"] = entry.get("defect_counter", 0) + 1
+                else:
+                    entry["defect_counter"] = 0
+                
+                # Si alcanza el umbral, lo marcamos como defectuoso permanente
+                if entry["defect_counter"] >= PERMANENT_DEFECT_THRESHOLD:
+                    entry["permanent_defect"] = True
+                    entry["defective"] = True
+                    detected_class = detected_class
+                
+                entry["defective"] = entry.get("permanent_defect", False) or is_defective
                 entry["visible_frames"] = FRAME_AGE
-                if entry["defective"] and not is_defective:
-                    detected_class += "-d"
                 entry["class"] = detected_class
             else:
                 memory[track_id] = {
                     "defective": is_defective,
                     "visible_frames": FRAME_AGE,
                     "class": detected_class,
+                    "defect_counter": 1 if is_defective else 0,
+                    "permanent_defect": False,
                 }
 
+        # Limpieza de memoria (objetos no vistos en FRAME_AGE frames)
         for track_id in list(memory):
             memory[track_id]["visible_frames"] -= 1
             if memory[track_id]["visible_frames"] <= 0:
                 del memory[track_id]
-
+            
     def capture_frames(
         self,
         video_path: str,
