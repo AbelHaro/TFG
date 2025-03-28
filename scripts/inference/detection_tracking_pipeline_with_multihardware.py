@@ -1,6 +1,7 @@
 from detection_tracking_pipeline import DetectionTrackingPipeline
 import torch.multiprocessing as mp  # type: ignore
 import cv2
+from classes.shared_circular_buffer import SharedCircularBuffer
 
 
 class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
@@ -28,12 +29,12 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
         self.sahi = sahi
 
         # Colas específicas para multihardware
-        self.frame_queue = mp.Queue(maxsize=10)
-        self.detection_queue_GPU = mp.Queue(maxsize=10)
-        self.detection_queue_DLA0 = mp.Queue(maxsize=10)
-        self.detection_queue_DLA1 = mp.Queue(maxsize=10)
-        self.tracking_queue = mp.Queue(maxsize=10)
-        self.times_queue = mp.Queue(maxsize=10)
+        self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
+        self.detection_queue_GPU = SharedCircularBuffer(queue_size=1, max_item_size=16)
+        self.detection_queue_DLA0 = SharedCircularBuffer(queue_size=1, max_item_size=16)
+        self.detection_queue_DLA1 = SharedCircularBuffer(queue_size=1, max_item_size=16)
+        self.tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
+        self.times_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
 
         # Memoria compartida
         self.memory = {}
@@ -56,6 +57,7 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
                 args=(
                     self.video_path,
                     self.frame_queue,
+                    self.t1_start,
                     self.stop_event,
                     self.tcp_event,
                     self.is_tcp,
@@ -159,6 +161,17 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
 
         # Esperar a que se detenga el pipeline
         self.stop_event.wait()
+
+        for queue in [
+            self.frame_queue,
+            self.detection_queue_GPU,
+            self.detection_queue_DLA0,
+            self.detection_queue_DLA1,
+            self.tracking_queue,
+            self.times_queue,
+        ]:
+            queue.close()
+            queue.unlink()
 
         # Calcular tiempo total y FPS
         t2 = cv2.getTickCount()
