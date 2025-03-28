@@ -75,7 +75,7 @@ def parse_arguments():
         choices=["threads", "mp", "mp_shared_memory", "mp_hardware"],
         help="Modo de paralelización a usar, default=threads",
     )
-    
+
     parser.add_argument(
         "--sahi",
         default=False,
@@ -90,24 +90,34 @@ def initialize_pipeline(args):
     """Inicializa el pipeline de detección y tracking según el modo de paralelización."""
     mode = f"{args.mode}_{mp.cpu_count()}CORE"
     model_name = f"yolo11{args.model_size}"
-    
+
     batch_size = 1
-    
+
     if args.sahi:
         height = width = 1080
         dummy_image = np.zeros((height, width, 3), dtype=np.uint8)
-        _, horizontal_splits, vertical_splits = split_image_with_overlap(dummy_image, DEFAULT_SAHI_CONFIG["slice_width"], DEFAULT_SAHI_CONFIG["slice_height"], DEFAULT_SAHI_CONFIG["overlap_pixels"])
-        batch_size = horizontal_splits*vertical_splits
-        print(f"[PROGRAM] Modo sahi activado. División de la imagen: {horizontal_splits}x{vertical_splits}, batch_size de {horizontal_splits*vertical_splits}")
+        _, horizontal_splits, vertical_splits = split_image_with_overlap(
+            dummy_image,
+            DEFAULT_SAHI_CONFIG["slice_width"],
+            DEFAULT_SAHI_CONFIG["slice_height"],
+            DEFAULT_SAHI_CONFIG["overlap_pixels"],
+        )
+        batch_size = horizontal_splits * vertical_splits
+        print(
+            f"[PROGRAM] Modo sahi activado. División de la imagen: {horizontal_splits}x{vertical_splits}, batch_size de {horizontal_splits*vertical_splits}"
+        )
 
     batch_suffix = f"_batch{batch_size}" if batch_size > 1 else ""
 
     GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU{batch_suffix}.engine"
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0{batch_suffix}.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1{batch_suffix}.engine"
-    
-    
-    model_path = GPU_model_path if args.hardware == "GPU" else DLA0_model_path if args.hardware == "DLA0" else DLA1_model_path
+
+    model_path = (
+        GPU_model_path
+        if args.hardware == "GPU"
+        else DLA0_model_path if args.hardware == "DLA0" else DLA1_model_path
+    )
 
     if args.num_objects == "libre":
         if args.sahi:
@@ -116,8 +126,7 @@ def initialize_pipeline(args):
             video_path = f"../../datasets_labeled/videos/test/test_640x640_2400fps.mp4"
     else:
         video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
-        
-        
+
     output_dir = "../../inference_predictions/custom_tracker"
 
     os.makedirs(output_dir, exist_ok=True)

@@ -1,4 +1,4 @@
-from ultralytics import YOLO
+from ultralytics import YOLO, RTDETR
 import torch
 from check_gpu_exists import exists_gpu
 import os
@@ -11,7 +11,7 @@ if not exists_gpu():
 # Definir el directorio de salida y el conjunto de datos
 version = "2025_02_24"
 output_dir = f"/TFG/models/canicas/{version}/"
-dataset_dir = "/TFG/datasets_labeled/2025_02_24_canicas_dataset/data.yaml"
+dataset_dir = f"/TFG/datasets_labeled/{version}_canicas_dataset/data.yaml"
 
 # Crear el directorio de salida si no existe
 if not os.path.exists(output_dir):
@@ -20,6 +20,7 @@ if not os.path.exists(output_dir):
 # Modelos base a usar para entrenamiento
 base_models = [
     "yolo12n.pt",
+    #"rtdetr-l.pt",
     #"yolo11s.pt",
     #"yolo11m.pt",
     #"yolo11l.pt",
