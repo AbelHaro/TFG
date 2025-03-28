@@ -1,77 +1,89 @@
 from ultralytics import YOLO
 import os
 
-version = "2025_02_24"
-data_dir = f"/TFG/datasets_labeled/{version}_canicas_dataset/data.yaml"
-model_path = f"/TFG/models/canicas/{version}/"
+VERSION = "2025_02_24"
+DATASET_PATH = f"/TFG/datasets_labeled/{VERSION}_canicas_dataset/data.yaml"
+MODEL_BASE_PATH = f"/TFG/models/canicas/{VERSION}/"
 
-models_name = [
-    f"{version}_canicas_yolo12n.pt",
-    #f"{version}_canicas_yolo11s.pt",
-    #f"{version}_canicas_yolo11m.pt",
-    #f"{version}_canicas_yolo11l.pt",
-    # f"{version}_canicas_yolo11x.pt",
+MODELS = [
+    f"{VERSION}_canicas_yolo11n.pt"
 ]
 
-hardware = [
-    0,
-    #"dla:0",
-    #"dla:1",
-]
+HARDWARE_DEVICES = [
+    0, 
+    "dla:0", 
+    "dla:1"
+    ]
 
-precision = {
+PRECISION_CONFIG = {
     "half": True,
-    "int8": False,
+    "int8": False
 }
 
-batch_size = 1
+EXPORT_CONFIG = {
+    "batch_size": 1,
+    "image_size": 640,
+    "enable_nms": False,
+    "enable_simplify": True
+}
 
-if precision["half"] and precision["int8"]:
-    print("ERROR: Solo se puede elegir un tamaño de precisión")
-    exit()
+def validate_precision_config():
+    if PRECISION_CONFIG["half"] and PRECISION_CONFIG["int8"]:
+        print("ERROR: Solo se puede elegir un tamaño de precisión")
+        exit()
 
-for model_name in models_name:
-    for hw in hardware:
-        print(f"[EXPORT TO TensorRT] Exporting model {model_name} to TensorRT with hardware {hw}")
+def get_precision_suffix():
+    if PRECISION_CONFIG["half"]:
+        return "FP16"
+    elif PRECISION_CONFIG["int8"]:
+        return "INT8"
+    return "FP32"
 
-        # Cargar el modelo entrenado
-        model = YOLO(model_path + model_name)
+def get_hardware_suffix(device, batch_size):
+    device_mapping = {
+        0: "GPU",
+        "dla:0": "DLA0",
+        "dla:1": "DLA1"
+    }
+    
+    suffix = device_mapping.get(device, "UNKNOWN")
+    
+    if batch_size != 1:
+        suffix += f"_batch{batch_size}"
+    
+    return suffix
 
-        # Exportar el modelo en formato engine
-        model.export(
-            data=data_dir,
-            format="engine",
-            half=precision["half"],
-            int8=precision["int8"],
-            device=hw,
-            imgsz=640,
-            batch=batch_size,
-            #simplify=True,
-            #nms=True
-        )
+def export_model(model_name, device):
+    print(f"[EXPORT TO TensorRT] Exporting model {model_name} to TensorRT with hardware {device}")
+    
+    model = YOLO(MODEL_BASE_PATH + model_name)
+    
+    model.export(
+        data=DATASET_PATH,
+        format="engine",
+        half=PRECISION_CONFIG["half"],
+        int8=PRECISION_CONFIG["int8"],
+        device=device,
+        imgsz=EXPORT_CONFIG["image_size"],
+        batch=EXPORT_CONFIG["batch_size"],
+        simplify=EXPORT_CONFIG["enable_simplify"],
+        nms=EXPORT_CONFIG["enable_nms"]
+    )
+    
+    precision_suffix = get_precision_suffix()
+    hardware_suffix = get_hardware_suffix(device, EXPORT_CONFIG["batch_size"])
+    
+    source_path = f"{MODEL_BASE_PATH}{model_name.replace('.pt', '.engine')}"
+    target_path = f"{MODEL_BASE_PATH}{model_name.replace('.pt', '')}_{precision_suffix}_{hardware_suffix}.engine"
+    
+    os.system(f"mv {source_path} {target_path}")
 
-        # Ajustar el sufijo del nombre del archivo según la precisión
-        if precision["half"]:
-            precision_suffix = "FP16"
-        elif precision["int8"]:
-            precision_suffix = "INT8"
-        else:
-            precision_suffix = "FP32"
+def main():
+    validate_precision_config()
+    
+    for model_name in MODELS:
+        for device in HARDWARE_DEVICES:
+            export_model(model_name, device)
 
-        # Ajustar el sufijo del nombre del archivo según el hardware
-        if hw == 0:
-            hardware_suffix = "GPU"
-        elif hw == "dla:0":
-            hardware_suffix = "DLA0"
-        elif hw == "dla:1":
-            hardware_suffix = "DLA1"
-        else:
-            hardware_suffix = "UNKNOWN"
-            
-        if batch_size != 1:
-            hardware_suffix += f"_batch{batch_size}"
-
-        # Renombrar el archivo exportado
-        src = f"{model_path}{model_name.replace('.pt', '.engine')}"
-        dst = f"{model_path}{model_name.replace('.pt', '')}_{precision_suffix}_{hardware_suffix}.engine"
-        os.system(f"mv {src} {dst}")
+if __name__ == "__main__":
+    main()
