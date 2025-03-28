@@ -51,6 +51,7 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
                 args=(
                     self.video_path,
                     self.frame_queue,
+                    self.t1_start,
                     self.stop_event,
                     self.tcp_event,
                     self.is_tcp,

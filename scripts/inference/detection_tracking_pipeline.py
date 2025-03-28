@@ -17,8 +17,9 @@ DEFAULT_SAHI_CONFIG = {
     "iou_threshold": 0.4,
     "conf_threshold": 0.5,
     "overlap_threshold": 0.8,
-    "batch_size": 4
+    "batch_size": 4,
 }
+
 
 class DetectionTrackingPipeline(ABC):
     """Clase base para pipelines de detección y tracking."""
@@ -27,7 +28,6 @@ class DetectionTrackingPipeline(ABC):
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
     # Configuración por defecto de SAHI
-
 
     # Clases y colores para visualización desde config
     CLASSES = {
@@ -63,7 +63,9 @@ class DetectionTrackingPipeline(ABC):
 
     def update_memory(self, tracked_objects, memory, classes) -> None:
         FRAME_AGE = 60
-        PERMANENT_DEFECT_THRESHOLD = 3  # Número de frames consecutivos para marcar como "defecto permanente"
+        PERMANENT_DEFECT_THRESHOLD = (
+            3  # Número de frames consecutivos para marcar como "defecto permanente"
+        )
 
         for obj in tracked_objects:
             track_id = int(obj[4])
@@ -72,23 +74,22 @@ class DetectionTrackingPipeline(ABC):
 
             if track_id in memory:
                 entry = memory[track_id]
-                
+
                 if entry.get("permanent_defect", False):
                     entry["visible_frames"] = FRAME_AGE
                     continue
-                
-                
+
                 if is_defective:
                     entry["defect_counter"] = entry.get("defect_counter", 0) + 1
                 else:
                     entry["defect_counter"] = 0
-                
+
                 # Si alcanza el umbral, lo marcamos como defectuoso permanente
                 if entry["defect_counter"] >= PERMANENT_DEFECT_THRESHOLD:
                     entry["permanent_defect"] = True
                     entry["defective"] = True
                     detected_class = detected_class
-                
+
                 entry["defective"] = entry.get("permanent_defect", False) or is_defective
                 entry["visible_frames"] = FRAME_AGE
                 entry["class"] = detected_class
@@ -106,11 +107,12 @@ class DetectionTrackingPipeline(ABC):
             memory[track_id]["visible_frames"] -= 1
             if memory[track_id]["visible_frames"] <= 0:
                 del memory[track_id]
-            
+
     def capture_frames(
         self,
         video_path: str,
         frame_queue: Union[mp.Queue, SharedCircularBuffer],
+        t1_start: mp.Event,
         stop_event: mp.Event,
         tcp_event: mp.Event,
         is_tcp: bool,
@@ -126,12 +128,10 @@ class DetectionTrackingPipeline(ABC):
             raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
         cap = cv2.VideoCapture(video_path)
-        #cap = cv2.VideoCapture('/dev/video0')
-        #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        #cap.set(cv2.CAP_PROP_FPS, 30)
-        
-        
+        # cap = cv2.VideoCapture('/dev/video0')
+        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        # cap.set(cv2.CAP_PROP_FPS, 30)
 
         if not cap.isOpened():
             frame_queue.put(None)
@@ -140,6 +140,8 @@ class DetectionTrackingPipeline(ABC):
         tcp_event.wait() if is_tcp else None
 
         frame_count = 0
+
+        t1_start.wait()
 
         while cap.isOpened() and not stop_event.is_set():
             t1 = cv2.getTickCount()
@@ -203,19 +205,25 @@ class DetectionTrackingPipeline(ABC):
             t1_aux = cv2.getTickCount()
             preprocessed = model.predictor.preprocess([frame])
             t2_aux = cv2.getTickCount()
-            times_detect_function[TIMING_FIELDS["PREPROCESS"]] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function[TIMING_FIELDS["PREPROCESS"]] = (
+                t2_aux - t1_aux
+            ) / cv2.getTickFrequency()
 
             # Realiza la inferencia
             t1_aux = cv2.getTickCount()
             output = model.predictor.inference(preprocessed)
             t2_aux = cv2.getTickCount()
-            times_detect_function[TIMING_FIELDS["INFERENCE"]] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function[TIMING_FIELDS["INFERENCE"]] = (
+                t2_aux - t1_aux
+            ) / cv2.getTickFrequency()
 
             # Postprocesa los resultados
             t1_aux = cv2.getTickCount()
             results = model.predictor.postprocess(output, preprocessed, [frame])
             t2_aux = cv2.getTickCount()
-            times_detect_function[TIMING_FIELDS["POSTPROCESS"]] = (t2_aux - t1_aux) / cv2.getTickFrequency()
+            times_detect_function[TIMING_FIELDS["POSTPROCESS"]] = (
+                t2_aux - t1_aux
+            ) / cv2.getTickFrequency()
 
             # results = model.predict(source=frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
 
@@ -225,7 +233,7 @@ class DetectionTrackingPipeline(ABC):
                 cls=results[0].boxes.cls.cpu(),
             )
             t2 = cv2.getTickCount()
-        
+
             processing_time = (t2 - t1) / cv2.getTickFrequency()
 
             times[TIMING_FIELDS["PROCESSING"]] = processing_time
@@ -254,7 +262,8 @@ class DetectionTrackingPipeline(ABC):
             process_detection_results,
             apply_overlapping,
             apply_nms_custom,
-            )
+        )
+
         try:
             import torch
             import numpy as np
@@ -264,13 +273,13 @@ class DetectionTrackingPipeline(ABC):
 
         times_detect_function = {}
         model = YOLO(model_path, task="detect")
-        
+
         # Configuración de SAHI desde las constantes de clase
         new_width = DEFAULT_SAHI_CONFIG["slice_width"]
         new_height = DEFAULT_SAHI_CONFIG["slice_height"]
         overlap_pixels = DEFAULT_SAHI_CONFIG["overlap_pixels"]
         batch_size = DEFAULT_SAHI_CONFIG["batch_size"]
-        
+
         # Warm up del modelo con batch
         dummy_frame = np.zeros((new_height, new_width, 3), dtype=np.uint8)
         dummy_batch = [dummy_frame] * batch_size
@@ -286,54 +295,63 @@ class DetectionTrackingPipeline(ABC):
 
             frame, times, frame_count = item
             t1 = cv2.getTickCount()
-            
+
             t1_aux = cv2.getTickCount()
 
             sub_images, horizontal_splits, vertical_splits = split_image_with_overlap(
                 frame, new_width, new_height, overlap_pixels
             )
-            
+
             t2_aux = cv2.getTickCount()
-            #logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de división de imagen: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
+            # logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de división de imagen: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
 
             t1_aux = cv2.getTickCount()
-            results = model.predict(sub_images, conf=0.5, half=True, augment=True, batch=4, verbose=False)
+            results = model.predict(
+                sub_images, conf=0.5, half=True, augment=True, batch=4, verbose=False
+            )
             t2_aux = cv2.getTickCount()
-            #logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de inferencia: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
-            
+            # logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de inferencia: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
+
             t1_aux = cv2.getTickCount()
-            
+
             transformed_results = process_detection_results(
-                results, horizontal_splits, vertical_splits, new_width, new_height, overlap_pixels, frame.shape[1], frame.shape[0]
+                results,
+                horizontal_splits,
+                vertical_splits,
+                new_width,
+                new_height,
+                overlap_pixels,
+                frame.shape[1],
+                frame.shape[0],
             )
 
             # Se aplica NMS a los resultados
-            nms_results = apply_nms_custom(transformed_results, iou_threshold=0.4, conf_threshold=0.5)
+            nms_results = apply_nms_custom(
+                transformed_results, iou_threshold=0.4, conf_threshold=0.5
+            )
 
             # Se aplica NMS con solapamiento a los resultados
             final_results = apply_overlapping(nms_results, overlap_threshold=0.8)
-            
-            
 
             # Convertir final_results a array de numpy para procesamiento vectorizado
             if final_results:
                 # Convertir la lista de tuplas a un array numpy
                 results_array = np.array(final_results)
-                
+
                 # Extraer componentes [cls, conf, xmin, ymin, xmax, ymax]
                 classes = results_array[:, 0]
                 confidences = results_array[:, 1]
                 boxes = results_array[:, 2:6]  # [xmin, ymin, xmax, ymax]
-                
+
                 # Calcular xywh de forma vectorizada
-                widths = boxes[:, 2] - boxes[:, 0]    # xmax - xmin
-                heights = boxes[:, 3] - boxes[:, 1]   # ymax - ymin
+                widths = boxes[:, 2] - boxes[:, 0]  # xmax - xmin
+                heights = boxes[:, 3] - boxes[:, 1]  # ymax - ymin
                 x_centers = (boxes[:, 0] + boxes[:, 2]) / 2  # (xmin + xmax) / 2
                 y_centers = (boxes[:, 1] + boxes[:, 3]) / 2  # (ymin + ymax) / 2
-                
+
                 # Apilar para crear el array xywh
                 xywh = np.stack([x_centers, y_centers, widths, heights], axis=1)
-                
+
                 # Convertir a tensores PyTorch
                 xywh_tensor = torch.from_numpy(xywh).float()
                 confidences_tensor = torch.from_numpy(confidences).float()
@@ -354,23 +372,20 @@ class DetectionTrackingPipeline(ABC):
             # Mostrar los resultados formateados
             # print("Resultados formateados:", result_formatted)
             t2_aux = cv2.getTickCount()
-            #logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de postprocesamiento: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
+            # logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de postprocesamiento: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
 
             times_detect_function["preprocess"] = results[0].speed["preprocess"]
             times_detect_function["inference"] = results[0].speed["inference"]
             times_detect_function["postprocess"] = results[0].speed["postprocess"]
-            
 
             # Medir el tiempo de procesamiento
             t2 = cv2.getTickCount()
             processing_time = (t2 - t1) / cv2.getTickFrequency()
-            
+
             # Actualizar el diccionario de tiempos
             times["processing"] = processing_time
             times["detect_function"] = times_detect_function
-            
-            
-            
+
             detection_queue.put((frame, result_formatted, times, frame_count))
 
         mp_stop_event.wait() if mp_stop_event else None
@@ -395,7 +410,7 @@ class DetectionTrackingPipeline(ABC):
                 break
 
             t1 = cv2.getTickCount()
-            frame, result, times, _  = item
+            frame, result, times, _ = item
 
             outputs = tracker_wrapper.track(result, frame)
 
@@ -450,6 +465,9 @@ class DetectionTrackingPipeline(ABC):
             # Verificar si todas las colas están vacías
             if stop_gpu and stop_dla0 and stop_dla1:
                 tracking_queue.put(None)
+                mp_stop_event.wait() if mp_stop_event else None
+                logging.debug(f"[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
+                os._exit(0) if is_process else None
                 break
 
             t1 = cv2.getTickCount()
@@ -495,10 +513,6 @@ class DetectionTrackingPipeline(ABC):
 
             # Añadir el resultado al tracking_queue
             tracking_queue.put((frame, outputs, times))
-
-            mp_stop_event.wait() if mp_stop_event else None
-            logging.debug(f"[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
-            os._exit(0) if is_process else None
 
     def draw_and_write_frames(
         self,
