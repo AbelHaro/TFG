@@ -91,7 +91,7 @@ def initialize_pipeline(args):
     mode = f"{args.mode}_{mp.cpu_count()}CORE"
     model_name = f"yolo11{args.model_size}"
 
-    batch_size = 1
+    batch_size = 4
 
     if args.sahi:
         height = width = 1080

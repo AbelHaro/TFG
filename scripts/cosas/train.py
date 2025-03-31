@@ -19,7 +19,7 @@ if not os.path.exists(output_dir):
 
 # Modelos base a usar para entrenamiento
 base_models = [
-    "yolo12n.pt",
+    "yolov3-tinyu.pt",
     #"rtdetr-l.pt",
     #"yolo11s.pt",
     #"yolo11m.pt",
@@ -37,7 +37,7 @@ for base_model in base_models:
     model = YOLO(base_model)
 
     # Entrenamiento del modelo
-    results = model.train(data=dataset_dir, epochs=30, device=0, imgsz=640)
+    results = model.train(data=dataset_dir, epochs=30, device=0, imgsz=640, batch=.5)
 
     # Definir la ruta completa para guardar el modelo
     save_path = os.path.join(output_dir, f"{version}_canicas_{base_model}")
