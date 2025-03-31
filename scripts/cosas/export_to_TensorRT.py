@@ -4,20 +4,22 @@ import os
 VERSION = "2025_02_24"
 DATASET_PATH = f"/TFG/datasets_labeled/{VERSION}_canicas_dataset/data.yaml"
 MODEL_BASE_PATH = f"/TFG/models/canicas/{VERSION}/"
+MODEL_BASE_PATH = f"./"
 
 MODELS = [
-    f"{VERSION}_canicas_yolo11n.pt"
+    f"yolov5nu.pt",
+    #f"{VERSION}_canicas_yolo11n.pt",
 ]
 
 HARDWARE_DEVICES = [
-    0, 
+   # 0, 
     "dla:0", 
     "dla:1"
     ]
 
 PRECISION_CONFIG = {
-    "half": True,
-    "int8": False
+    "half": False,
+    "int8": True
 }
 
 EXPORT_CONFIG = {
