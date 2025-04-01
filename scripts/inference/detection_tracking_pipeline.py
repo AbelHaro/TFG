@@ -9,6 +9,7 @@ from typing import Union, Optional
 import torch.multiprocessing as mp
 from classes.shared_circular_buffer import SharedCircularBuffer
 from lib.constants import TIMING_FIELDS
+import time
 
 DEFAULT_SAHI_CONFIG = {
     "slice_width": 640,
@@ -108,66 +109,83 @@ class DetectionTrackingPipeline(ABC):
             if memory[track_id]["visible_frames"] <= 0:
                 del memory[track_id]
 
-    def capture_frames(
-        self,
-        video_path: str,
-        frame_queue: Union[mp.Queue, SharedCircularBuffer],
-        t1_start: mp.Event,
-        stop_event: mp.Event,
-        tcp_event: mp.Event,
-        is_tcp: bool,
-        mp_stop_event: Optional[mp.Event] = None,
-        mh_num: int = 1,
-        is_process: bool = False,
-    ):
-        logging.debug(f"[PROGRAM - CAPTURE FRAMES] Iniciando captura de frames")
+    def capture_frames( 
+            self,
+            video_path: str,
+            frame_queue: Union[mp.Queue, SharedCircularBuffer],
+            t1_start: mp.Event,
+            stop_event: mp.Event,
+            tcp_event: mp.Event,
+            is_tcp: bool,
+            mp_stop_event: Optional[mp.Event] = None,
+            mh_num: int = 1,
+            is_process: bool = False,
+            ):
+            logging.debug(f"[PROGRAM - CAPTURE FRAMES] Iniciando captura de frames")
 
-        if not os.path.exists(video_path):
+            if not os.path.exists(video_path):
+                for _ in range(mh_num):
+                    frame_queue.put(None)
+                raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
+
+            cap = cv2.VideoCapture(video_path)
+            # cap = cv2.VideoCapture('/dev/video0')
+            # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+            # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+            # cap.set(cv2.CAP_PROP_FPS, 30)
+            
+            first_time = True
+
+            if not cap.isOpened():
+                frame_queue.put(None)
+                raise IOError(f"Error al abrir el archivo de video: {video_path}")
+
+            tcp_event.wait() if is_tcp else None
+
+            frame_count = 0
+
+            import time
+            t1_start.wait()
+            frame_time = 1/30  # tiempo entre frames para 30fps
+
+            while cap.isOpened() and not stop_event.is_set():
+                loop_start_time = time.time()
+                
+                if first_time:
+                    t1 = cv2.getTickCount()
+                    first_time = False
+                    
+                ret, frame = cap.read()
+
+                if not ret:
+                    logging.debug(
+                        f"[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola"
+                    )
+                    logging.debug(f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames")
+                    break
+
+                    
+                t2 = cv2.getTickCount()
+                total_frame_time = (t2 - t1) / cv2.getTickFrequency()
+                t1 = cv2.getTickCount()
+                
+                times = {TIMING_FIELDS["CAPTURE"]: total_frame_time}
+                # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
+                frame_queue.put((frame, times, frame_count))
+                
+                elapsed_time = time.time() - loop_start_time
+                if elapsed_time < frame_time:
+                    time.sleep(frame_time - elapsed_time)
+                    
+                frame_count += 1
+                               
+            cap.release()
+            logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
             for _ in range(mh_num):
                 frame_queue.put(None)
-            raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
-        cap = cv2.VideoCapture(video_path)
-        # cap = cv2.VideoCapture('/dev/video0')
-        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        # cap.set(cv2.CAP_PROP_FPS, 30)
-
-        if not cap.isOpened():
-            frame_queue.put(None)
-            raise IOError(f"Error al abrir el archivo de video: {video_path}")
-
-        tcp_event.wait() if is_tcp else None
-
-        frame_count = 0
-
-        t1_start.wait()
-
-        while cap.isOpened() and not stop_event.is_set():
-            t1 = cv2.getTickCount()
-            ret, frame = cap.read()
-
-            if not ret:
-                logging.debug(
-                    f"[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola"
-                )
-                logging.debug(f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames")
-                break
-
-            t2 = cv2.getTickCount()
-            total_frame_time = (t2 - t1) / cv2.getTickFrequency()
-            times = {TIMING_FIELDS["CAPTURE"]: total_frame_time}
-            # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
-            frame_queue.put((frame, times, frame_count))
-            frame_count += 1
-
-        cap.release()
-        logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
-        for _ in range(mh_num):
-            frame_queue.put(None)
-
-        mp_stop_event.wait() if mp_stop_event else None
-        os._exit(0) if is_process else None
+            mp_stop_event.wait() if mp_stop_event else None
+            os._exit(0) if is_process else None
 
     def process_frames(
         self,
@@ -617,9 +635,9 @@ class DetectionTrackingPipeline(ABC):
             out.write(frame)
             FPS_COUNT += 1
 
-            cv2.imshow("Frame", frame)
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
+            #cv2.imshow("Frame", frame)
+            #if cv2.waitKey(1) & 0xFF == ord("q"):
+            #    break
 
             t2 = cv2.getTickCount()
             writing_time = (t2 - t1) / cv2.getTickFrequency()
@@ -657,6 +675,7 @@ class DetectionTrackingPipeline(ABC):
         times_queue: Union[mp.Queue, SharedCircularBuffer],
         output_file: str,
         parallel_mode: str,
+        t1_start: mp.Event,
         stop_event: mp.Event,
         mp_stop_event: Optional[mp.Event] = None,
         is_process: bool = False,
@@ -676,6 +695,9 @@ class DetectionTrackingPipeline(ABC):
         fps_excel_file = create_csv_file(parallel_mode, file_name=fps_name)
 
         frame_count = 0
+        
+        t1_start.wait()
+        t1 = cv2.getTickCount()
 
         while True:
             item = times_queue.get()
@@ -696,9 +718,14 @@ class DetectionTrackingPipeline(ABC):
         hardware_usage_file = "hardware_usage_aux.csv"
 
         stop_event.wait()
+        t2 = cv2.getTickCount()
+        total_time = (t2 - t1) / cv2.getTickFrequency()
+        
         mp_stop_event.set() if mp_stop_event else None
 
-        create_tegrastats_file(tegra_stats_output, hardware_usage_name)
+
+        print(f"[PROGRAM - WRITE TO CSV] Total time de write_to_csv: {total_time:.2f} s")
+        create_tegrastats_file(tegra_stats_output, hardware_usage_name, total_time)
 
         create_excel_from_csv(
             times_name,

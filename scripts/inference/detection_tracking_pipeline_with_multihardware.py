@@ -136,6 +136,7 @@ class DetectionTrackingPipelineWithMultiHardware(DetectionTrackingPipeline):
                     self.times_queue,
                     self.output_times,
                     self.parallel_mode,
+                    self.t1_start,
                     self.stop_event,
                     self.mp_stop_event,
                     self.is_process,

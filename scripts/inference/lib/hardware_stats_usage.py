@@ -45,12 +45,29 @@ def process_tegrastats_line(line):
 
 
 # Leer el archivo de tegrastats
-def parse_tegrastats_file(filename):
+def parse_tegrastats_file(filename, total_time):
     data = []
     with open(filename, "r") as file:
         for line in file:
             if "CPU" in line and "mW" in line:  # Filtrar líneas relevantes
                 data.append(process_tegrastats_line(line))
+                    
+    for i, d in enumerate(data):
+        # Convertir los valores de frecuencia a MHz
+        
+            if d["Total_Power_mW"]:
+                data[i]["mJ"] = int(d["Total_Power_mW"] * (total_time / len(data)))
+    
+    total_mj = 0
+    for i, d in enumerate(data):
+        if d["Total_Power_mW"]:
+            total_mj += d["mJ"]
+
+    
+    data[0]["Total_mJ"] = total_mj
+    data[0]["Total_J"] = total_mj / 1000
+    data[0]["Total_Time_s"] = total_time    
+    
     return data
 
 
@@ -62,8 +79,8 @@ def save_to_csv(data, output_filename):
 
 
 # Función para crear el archivo procesado desde tegrastats
-def create_tegrastats_file(input_file, output_file):
+def create_tegrastats_file(input_file, output_file, total_time):
     print(f"[HARDWARE STATS USAGE] Procesando archivo {input_file}...")
-    data = parse_tegrastats_file(input_file)
+    data = parse_tegrastats_file(input_file, total_time)
     save_to_csv(data, output_file)
     print(f"[HARDWARE STATS USAGE] Proceso completado")

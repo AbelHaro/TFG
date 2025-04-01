@@ -101,6 +101,7 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
                     self.times_queue,
                     self.output_times,
                     self.parallel_mode,
+                    self.t1_start,
                     self.stop_event,
                     self.mp_stop_event,
                     self.is_process,
@@ -120,10 +121,11 @@ class DetectionTrackingPipelineWithMultiprocessesSharedMemory(DetectionTrackingP
         ]
 
         # Iniciar todos los procesos
-        t1 = cv2.getTickCount()
         for process in processes:
             process.start()
 
+        self.t1_start.wait()
+        t1 = cv2.getTickCount()
         # Esperar a que se detenga el pipeline
         self.stop_event.wait()
 
