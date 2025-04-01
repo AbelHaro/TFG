@@ -9,7 +9,7 @@ Aqui se detallan los avances realizados hasta el momento en el proyecto de fin d
 ## SOBRE REDES NEURONALES
 
 - [x] Entrenamiento de YOLO11 en sus diferentes talla {n, s, m, l, x} con el dataset de canicas
-- [x] Programa para hacer prunning del modelo de YOLO11
+- [x] Programa para hacer prunning de los modelos entrenados
 - [x] Exportación de Pytorch a ONNX y TensorRT en {FP32, FP16, INT8} y para {GPU, DLA0 y DLA1}
 - [x] En TensorRT, diferentes argumentos de exportación como el batch
 
@@ -41,16 +41,16 @@ Aqui se detallan los avances realizados hasta el momento en el proyecto de fin d
 - Modo de energía de la Jetson [10W..50W] dependiendo de la Jetson casos 3
 - Número de procesadores a usar [1..12] dependiendo de la Jetson casos 2
 - Jetson a usar [Nano, Xavier, Orin] casos 3
-- Modo de segmentación [secuencial, hilos, procesos (memoria distribuida), procesos (memoria compartida), multihardware] casos 5
+- Modo de segmentación [secuencial, hilos, procesos (memoria distribuida), procesos (memoria compartida), procesos multihardware (memoria compartida)] casos 5
 - Modo de precisión [FP32, FP16, INT8] casos 1, descartar FP32 e INT8
 - Modo de hardware [GPU, DLA] casos 2
 
-Total de combinaciones = (2 x 3 x 4 x 3 x 2 x 3 x 5 x 1 x 2) = 4320 casos, demasiados casos para realizar pruebas 
+Total de combinaciones = (2 x 3 x 4 x 3 x 2 x 3 x 5 x 1 x 2) = 4320 casos, demasiados casos para realizar pruebas, demasiadas combinaciones
 
 ### 3 opciones para poder realizar pruebas de rendimiento
 
 (1) Usar un script que contemple todos los casos y haga las ejecuciones sobre un vídeo pregrabado
-    -Problema: Cada caso ejecutará el prgrama en un tiempo diferente, por lo tanto no se adaptará a las necesidades de la cinta transportadora, donde el programa debe ejecutarse con un framerate determinado por la cámara.
+    -Problema: Cada caso ejecutará el programa en un tiempo diferente, por lo tanto no se adaptará a las necesidades de la cinta transportadora, donde el programa debe ejecutarse con un framerate determinado por la cámara.
 
 (2) Realizar las pruebas sobre la cinta transportadora
     -Problema: Demasiados casos a contemplar, por lo que se necesitaría un tiempo excesivo para realizar todas las pruebas

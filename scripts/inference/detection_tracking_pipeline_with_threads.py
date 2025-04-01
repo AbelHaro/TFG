@@ -102,6 +102,7 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
                     self.times_queue,
                     self.output_times,
                     self.parallel_mode,
+                    self.t1_start,
                     self.stop_event,
                     None,  # mp_stop_event no usado en hilos
                     self.is_process,
