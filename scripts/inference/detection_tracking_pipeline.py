@@ -23,7 +23,11 @@ DEFAULT_SAHI_CONFIG = {
 
 
 class DetectionTrackingPipeline(ABC):
-    """Clase base para pipelines de detección y tracking."""
+    """Clase base para pipelines de detección y tracking.
+    
+    Esta clase implementa la funcionalidad común para todos los tipos de pipelines
+    de detección y tracking, permitiendo diferentes estrategias de paralelización.
+    """
 
     # Configuración de logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -782,6 +786,53 @@ class DetectionTrackingPipeline(ABC):
 
         os._exit(0) if is_process else None
 
+    def __init__(
+        self,
+        video_path: str,
+        model_path: str,
+        output_video_path: str,
+        output_times: str,
+        parallel_mode: str,
+        is_tcp: bool = False,
+        sahi: bool = False,
+        max_fps: int = None,
+        mh_num: int = 1,
+        is_process: bool = True,
+    ):
+        """Inicializa el pipeline con la configuración común."""
+        self.video_path = video_path
+        self.model_path = model_path
+        self.output_video_path = output_video_path
+        self.output_times = output_times
+        self.parallel_mode = parallel_mode
+        self.is_tcp = is_tcp
+        self.sahi = sahi
+        self.max_fps = max_fps
+        self.mh_num = mh_num
+        self.is_process = is_process
+
+        # Eventos de control comunes
+        self.tcp_event = mp.Event()
+        self.stop_event = mp.Event()
+        self.t1_start = mp.Event()
+        self.mp_stop_event = mp.Event() if is_process else None
+
+        # Memoria compartida
+        self.memory = {}
+
+    def _initialize_queues(self):
+        """Método abstracto para inicializar las colas según el tipo de pipeline."""
+        pass
+
+    def _create_processes(self):
+        """Método abstracto para crear los procesos/hilos del pipeline."""
+        pass
+
+    def _cleanup(self):
+        """Método abstracto para limpieza de recursos."""
+        pass
+
     @abstractmethod
     def run(self):
+        """Ejecuta el pipeline. Debe ser implementado por las clases derivadas."""
         pass
