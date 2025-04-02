@@ -1,78 +1,22 @@
-\documentclass[12pt,a4paper]{report}
-
-% Packages
-\usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
-\usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{cite}
-\usepackage{hyperref}
-
-% Document information
-\title{Título del Trabajo de Fin de Grado}
-\author{Tu Nombre}
-\date{\today}
-
+\documentclass{article}
+\usepackage{booktabs} % Para mejorar el diseño de la tabla
+\usepackage{multirow} % Para fusionar filas
 \begin{document}
 
-% Title page
-\maketitle
-
-% Abstract
-\begin{abstract}
-Este es un resumen del trabajo. Aquí se describe brevemente el contenido, 
-la metodología utilizada y las conclusiones principales.
-\end{abstract}
-
-% Table of contents
-\tableofcontents
-\newpage
-
-% Introduction
-\chapter{Introducción}
-\section{Motivación}
-Este es un ejemplo de texto en la sección de motivación.
-
-\section{Objetivos}
-Los objetivos de este trabajo son:
-\begin{itemize}
-    \item Primer objetivo
-    \item Segundo objetivo
-    \item Tercer objetivo
-\end{itemize}
-
-% Chapter example
-\chapter{Marco Teórico}
-\section{Sección de ejemplo}
-Aquí va el contenido de la sección.
-
-% Figure example
-\begin{figure}[h]
-    \centering
-    \caption{Descripción de la figura}
-    \label{fig:ejemplo}
-\end{figure}
-
-% Table example
 \begin{table}[h]
     \centering
-    \caption{Tabla de ejemplo}
-    \begin{tabular}{|c|c|c|}
-        \hline
-        Columna 1 & Columna 2 & Columna 3 \\
-        \hline
-        Dato 1 & Dato 2 & Dato 3 \\
-        Dato 4 & Dato 5 & Dato 6 \\
-        \hline
+    \begin{tabular}{l c | ccc | ccc | ccc}
+        \toprule
+        Model & IoU & \multicolumn{3}{c|}{Inference (s)} & \multicolumn{3}{c|}{Power (W)} & \multicolumn{3}{c}{Energy (J)} \\
+        & & CPU & GPU & DLA & CPU & GPU & DLA & CPU & GPU & DLA \\
+        \midrule
+        YoloV7       & 0.62 & 1.65 & 0.13 & 0.12 & 7.60 & 15.1 & 15.1 & 20.5 & 1.97 & 1.78 \\
+        YoloV7Tiny   & 0.53 & 0.38 & 0.03 & 0.02 & 7.20 & 11.2 & 11.2 & 4.19 & 0.28 & 0.27 \\
+        MobilenetV1  & 0.45 & -    & 0.09 & 0.09 & 16.2 & 6.10 & -    & 1.52 & 0.56 & -    \\
+        \bottomrule
     \end{tabular}
-    \label{tab:ejemplo}
+    \caption{Comparación de modelos en términos de inferencia, consumo de energía y potencia.}
+    \label{tab:model_comparison}
 \end{table}
-
-% Bibliography
-\chapter{Bibliografía}
-\begin{thebibliography}{99}
-    \bibitem{referencia1} Autor, A. (Año). Título del libro. Editorial.
-    \bibitem{referencia2} Autor, B. (Año). Título del artículo. Revista, Volumen(Número), páginas.
-\end{thebibliography}
 
 \end{document}
