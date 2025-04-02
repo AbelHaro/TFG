@@ -50,7 +50,7 @@
 
 \title{???? ????????? \\
          ?????????????? ? ?????}
-\author{Abel Haro Armero}
+\author{Haro Armero, Abel}
 \tutor{?????? ???? ????????????}
 \curs{2024-2025}
 
@@ -107,7 +107,7 @@
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Estructura de la mem\'oria}
+\section{Estructura de la memoria}
 
 ????? ????????????? ????????????? ????????????? ????????????? ????????????? 
 
@@ -124,29 +124,82 @@
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
 \section{Redes neuronales convolucionales}
-Evolución de las redes neuronales convolucionales desde region based proposals (two stage regression) a single shot detector (one stage regression), yolo y por último yolo v11.
-
+Evolución de las redes neuronales convolucionales desde region based proposals (two stage regression) a single shot detector (one stage regression), YOLO y por último YOLO11. Hablar de las métricas de evaluación de los modelos, precisión, recall, mAP50 y mAP50-95.
 \section{Aceleradores de procesamiento gráfico}
-Evolución de los aceleradores de procesamiento gráfico desde la GPU, hasta los dispositivos de bajo cosumo en la série Jetson de NVIDIA.
+Evolución de los aceleradores de procesamiento gráfico desde la GPU, hasta los dispositivos de bajo consumo en la serie Jetson de NVIDIA.
 
 \section{Seguimiento de objetos en tiempo real}
 Explicación de como funcionan los algoritmos de multi-object tracking (MOT) en tiempo real, filtro de Kalman hasta BYTETrack.
 
+\section{SAHI}
+Explicación de la técnica de Slicing Aided Hyper Inference, como se utiliza para mejorar la precisión de los modelos de detección de objetos y como se aplica en este trabajo.
 
 \chapter{Análisis del problema}
 
 ????? ????????????? ????????????? ????????????? ????????????? ????????????? 
 
-\section{Diseño de la solución}
+\chapter{Diseño e implementación de la solución}
+En este capítulo se explicará la solución propuesta, como se ha diseñado y como se ha implementado.
+
+\section{Descripción del sistema}
+
+Descripción del sistema de visión artificial propuesto, como se ha diseñado y como se ha implementado.
+
+\section{Diseño de las etapas del sistema}
+
+Descripción de las etapas del sistema, como se han diseñado y como se han implementado.
+
+Etapas del sistema:
+\begin{itemize}
+   \item \textbf{Captura de imágenes:} Descripción de la etapa de captura de imágenes, como se ha diseñado y como se ha implementado.
+   \item \textbf{Inferencia:} Descripción de la etapa de inferencia, como se ha diseñado y como se ha implementado.
+   \item \textbf{Seguimiento:} Descripción de la etapa de seguimiento, como se ha diseñado y como se ha implementado.
+   \item \textbf{Escritura de resultados:} Descripción de la etapa de escritura de resultados, como se ha diseñado y como se ha implementado.
+\end{itemize}
+
+\section{Segmentación de las etapas del sistema}
+
+Tipos de segmentación de las etapas del sistema:
+
+\begin{itemize}
+   \item \textbf{No segmentada:} Secuencial
+   \item \textbf{Segmentación basada en hilos:} Cada etapa del sistema se ejecuta en un hilo diferente.
+   \item \textbf{Segmentación basada en procesos:} Cada etapa del sistema se ejecuta en un proceso diferente.
+   \item \textbf{Segmentación basada en hardware:} La etapa de inferencia se ejecuta en GPU, DLA0 y DLA1.
+   \item \textbf{Segmentación basada en procesos con memoria compartida:} Cada etapa del sistema se ejecuta en un proceso diferente, pero comparten la memoria.
+\end{itemize}
+
+    
 
 
-\chapter{Soluciones propuestas}
+\chapter{Análisis de la solución}
+
+En este capítulo se analizará la solución propuesta variando los parámetros posibles
+
+\section{Variación de los parámetros}
+Explicación de los parámetros que se pueden variar en la solución propuesta y su efecto en el rendimiento del sistema.
+\section{Tipo de segmentación}
+En esta sección se analizará el rendimiento de la solución propuesta variando el tipo de segmentación de las etapas del sistema con gráficas y tablas.
 
 \section{Talla del modelo}
+En esta sección se analizará el rendimiento de la solución propuesta variando la talla del modelo de detección de objetos con gráficas y tablas.
+\section{Modo de energía y cores de la CPU}
+En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo y el número de cores de la CPU con gráficas y tablas.
 
-????? ????????????? ????????????? ????????????? ????????????? ????????????? 
+\section{Tamaño de la imagen}
+En esta sección se analizará el rendimiento de la solución propuesta variando el tamaño de la imagen de entrada del modelo con la técnica de Slicing Aided Hyper Inference (SAHI) con gráficas y tablas.
 
-\section{}
+\chapter{Prueba de concepto}
+Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
+
+\section{Construcción del entorno}
+
+\section{Instalación del entorno}
+
+
+
+
+
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
@@ -155,7 +208,7 @@ Explicación de como funcionan los algoritmos de multi-object tracking (MOT) en 
 %                                 CONCLUSIONS                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Conclusions}
+\chapter{Conclusiones}
 
 ????? ????????????? ????????????? ????????????? ????????????? ????????????? 
 
