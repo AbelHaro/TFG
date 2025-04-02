@@ -27,19 +27,19 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         """Inicializa el pipeline unificado."""
         self.parallel_mode = parallel_mode
         self.is_process = parallel_mode != "threads"
-        super().__init__(
-            video_path,
-            model_path,
-            output_video_path,
-            output_times,
-            parallel_mode,
-            is_tcp,
-            sahi,
-            max_fps,
-            mh_num=1,
-            is_process=self.is_process,
-        )
+        self.video_path = video_path
+        self.model_path = model_path
+        self.output_video_path = output_video_path
+        self.output_times = output_times
+        self.is_tcp = is_tcp
+        self.sahi = sahi
+        self.max_fps = max_fps
+        self.dla0_model = dla0_model
+        self.dla1_model = dla1_model
+        self.mh_num = 1
         self._initialize_queues()
+        self._initialize_events()
+        self.memory = {}
 
     def _initialize_queues(self):
         """Inicializa las colas según el modo de paralelización."""
@@ -70,6 +70,14 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             self.detection_queue = mp.Queue(maxsize=10)
             self.tracking_queue = mp.Queue(maxsize=10)
             self.times_queue = mp.Queue(maxsize=10)
+            
+            
+    def _initialize_events(self):
+        self.stop_event = mp.Event() if self.is_process else threading.Event()
+        self.t1_start = mp.Event() if self.is_process else threading.Event()
+        self.tcp_event = mp.Event() if self.is_process else threading.Event()
+        self.mp_stop_event = mp.Event() if self.is_process else threading.Event()
+        
 
     def _get_worker_class(self) -> Type[Union[mp.Process, threading.Thread]]:
         """Retorna la clase de worker según el modo de paralelización."""
