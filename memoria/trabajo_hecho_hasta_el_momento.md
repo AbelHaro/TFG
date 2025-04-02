@@ -18,6 +18,7 @@ Aqui se detallan los avances realizados hasta el momento en el proyecto de fin d
 - [x] Exploración de diferentes aproximaciones para el pipeline de inferencia {secuencial, segmentación por hilos, segmentación por procesos (memoria distribuida) y segmentación por procesos (memoria compartida), multihardware (GPU, DLA0 y DLA1)} para el aprovechamiento de los recursos
 - [x] Programa para hacer pruebas de inferencia en diferentes aproximaciones
 - [x] Análisis de consumo energético en diferentes aproximaciones
+- [x] Programa para el análisis de consumo sobre un modelo sencillo completamente en DLA frente a un modelo completamente en GPU para el dataset CIFAR10
 
 ## SOBRE EL PIPELINE DE INFERENCIA
 
@@ -29,9 +30,9 @@ Aqui se detallan los avances realizados hasta el momento en el proyecto de fin d
 
 ## SOBRE LA CINTA TRANSPORTADORA
 
--- [x] Comunicación mediante TCP con la máquina de inferencia
--- [x] Programación del servo para el control de la cinta transportadora
--- [ ] Construcción de la cinta transportadora
+- [x] Comunicación mediante TCP con la máquina de inferencia
+- [x] Programación del servo para el control de la cinta transportadora
+- [ ] Construcción de la cinta transportadora
 
 ## VARIABLES A MODIFICAR PARA REALIZAR PRUEBAS
 
