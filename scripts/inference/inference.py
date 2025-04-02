@@ -82,6 +82,13 @@ def parse_arguments():
         type=bool,
         help="Usar el modo de procesamiento sahi, default=False",
     )
+    
+    parser.add_argument(
+        "--max_fps",
+        default=None,
+        type=int,
+        help="FPS máximo que genera la cámara, default=None",
+    )
 
     return parser.parse_args()
 
@@ -163,6 +170,7 @@ def initialize_pipeline(args):
             args.parallel,
             args.tcp,
             args.sahi,
+            args.max_fps,
         )
         if args.parallel != "mp_hardware"
         else pipeline_classes[args.parallel](
@@ -175,6 +183,7 @@ def initialize_pipeline(args):
             args.parallel,
             args.tcp,
             args.sahi,
+            args.max_fps,
         )
     )
 
