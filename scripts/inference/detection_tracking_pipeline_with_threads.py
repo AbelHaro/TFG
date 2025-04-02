@@ -16,6 +16,7 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
         parallel_mode,
         is_tcp=False,
         sahi=False,
+        max_fps=None,
     ):
         self.video_path = video_path
         self.model_path = model_path
@@ -24,6 +25,7 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
         self.parallel_mode = parallel_mode
         self.is_tcp = is_tcp
         self.sahi = sahi
+        self.max_fps = max_fps
 
         # Colas específicas para hilos
         self.frame_queue = Queue(maxsize=10)
@@ -58,6 +60,7 @@ class DetectionTrackingPipelineWithThreads(DetectionTrackingPipeline):
                     None,  # mp_stop_event no usado en hilos
                     self.mh_num,
                     self.is_process,
+                    self.max_fps,
                 ),
             ),
             threading.Thread(

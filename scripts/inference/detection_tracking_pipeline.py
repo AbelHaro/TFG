@@ -120,6 +120,7 @@ class DetectionTrackingPipeline(ABC):
             mp_stop_event: Optional[mp.Event] = None,
             mh_num: int = 1,
             is_process: bool = False,
+            max_frames: Optional[int] = None,
             ):
             logging.debug(f"[PROGRAM - CAPTURE FRAMES] Iniciando captura de frames")
 
@@ -146,7 +147,7 @@ class DetectionTrackingPipeline(ABC):
 
             import time
             t1_start.wait()
-            frame_time = 1/30  # tiempo entre frames para 30fps
+            frame_time = 1 / max_frames if max_frames else None
 
             while cap.isOpened() and not stop_event.is_set():
                 loop_start_time = time.time()
@@ -174,7 +175,7 @@ class DetectionTrackingPipeline(ABC):
                 frame_queue.put((frame, times, frame_count))
                 
                 elapsed_time = time.time() - loop_start_time
-                if elapsed_time < frame_time:
+                if max_frames and elapsed_time < frame_time:
                     time.sleep(frame_time - elapsed_time)
                     
                 frame_count += 1
