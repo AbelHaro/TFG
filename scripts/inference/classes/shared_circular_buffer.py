@@ -58,6 +58,36 @@ class SharedCircularBuffer:
             self.count.value += 1
 
             self.condition.notify()  # Notifica a `get` que hay un nuevo elemento disponible
+            
+    def put_nowait(self, item):
+        """Agrega un item a la cola en memoria compartida. Si la cola está llena, retorna False sin agregar el item."""
+        if isinstance(item, np.ndarray):
+            reshaped_item = item.reshape(-1)
+            item_data = {"data": reshaped_item, "shape": item.shape}
+        else:
+            item_data = {"data": item, "shape": None}
+
+        data_bytes = pickle.dumps(item_data)
+
+        if len(data_bytes) > self.max_item_size:
+            raise ValueError("El item es demasiado grande para la cola.")
+
+        with self.condition:
+            if self.count.value >= self.queue_size:
+                return False  # Cola llena, no se puede agregar el item
+
+            pos = (self.tail.value % self.queue_size) * self.max_item_size
+            self.shm.buf[pos : pos + len(data_bytes)] = memoryview(data_bytes)
+            
+            self.tail.value = (self.tail.value + 1) % self.queue_size
+            self.count.value += 1
+
+            self.condition.notify()  # Notifica a `get` que hay un nuevo elemento disponible
+            return True
+        
+        
+        
+        
 
     def get(self):
         """Extrae un item de la cola en memoria compartida, esperando si está vacía."""

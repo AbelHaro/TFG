@@ -176,7 +176,12 @@ class DetectionTrackingPipeline(ABC):
                 
                 times = {TIMING_FIELDS["CAPTURE"]: total_frame_time}
                 # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
-                frame_queue.put((frame, times, frame_count))
+                try:
+                    frame_queue.put((frame, times, frame_count)) if not max_frames else frame_queue.put_nowait((frame, times, frame_count))
+                
+                except Exception as e:
+                    pass
+                    
                 
                 elapsed_time = time.time() - loop_start_time
                 if max_frames and elapsed_time < frame_time:
@@ -756,6 +761,8 @@ class DetectionTrackingPipeline(ABC):
         )
 
         logging.debug(f"[PROGRAM - WRITE TO CSV] Escritura de tiempos terminada")
+        
+        print(f"[PROGRAM - WRITE TO CSV] Se han procesado {frame_count} frames")
 
         os._exit(0) if is_process else None
 
