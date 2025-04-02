@@ -45,7 +45,7 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         """Inicializa las colas según el modo de paralelización."""
         if self.parallel_mode == "mp_hardware":
             # Configuración para múltiple hardware
-            self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
+            self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16) if not self.max_fps else SharedCircularBuffer(queue_size=1, max_item_size=16)
             self.detection_queue_GPU = SharedCircularBuffer(queue_size=1, max_item_size=16)
             self.detection_queue_DLA0 = SharedCircularBuffer(queue_size=1, max_item_size=16)
             self.detection_queue_DLA1 = SharedCircularBuffer(queue_size=1, max_item_size=16)
@@ -54,19 +54,19 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             self.mh_num = 3  # GPU + 2 DLA
         elif self.parallel_mode == "threads":
             # Configuración para hilos
-            self.frame_queue = Queue(maxsize=10)
+            self.frame_queue = Queue(maxsize=10) if  not self.max_fps else Queue(maxsize=1)
             self.detection_queue = Queue(maxsize=10)
             self.tracking_queue = Queue(maxsize=10)
             self.times_queue = Queue(maxsize=10)
         elif self.parallel_mode == "mp_shared_memory":
             # Configuración para memoria compartida
-            self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
+            self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16) if not self.max_fps else SharedCircularBuffer(queue_size=1, max_item_size=16)
             self.detection_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
             self.tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
             self.times_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
         else:
             # Configuración para multiprocesos estándar
-            self.frame_queue = mp.Queue(maxsize=10)
+            self.frame_queue = mp.Queue(maxsize=10) if not self.max_fps else mp.Queue(maxsize=1)
             self.detection_queue = mp.Queue(maxsize=10)
             self.tracking_queue = mp.Queue(maxsize=10)
             self.times_queue = mp.Queue(maxsize=10)
