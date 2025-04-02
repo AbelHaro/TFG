@@ -553,6 +553,10 @@ class DetectionTrackingPipeline(ABC):
     ):
         import threading
         import time
+        from concurrent.futures import ThreadPoolExecutor
+        
+        # Crear un ThreadPoolExecutor para reutilizar los threads
+        thread_pool = ThreadPoolExecutor(max_workers=8)  # Ajustar según el número de núcleos
 
         FPS_COUNT = 0
         FPS_LABEL = 0
@@ -599,13 +603,15 @@ class DetectionTrackingPipeline(ABC):
 
             msg_sended = False
 
-            # Dibuja objetos rastreados en el frame
-            for obj in tracked_objects:
+            # Función para dibujar un objeto en el frame
+            def draw_object(obj):
+                nonlocal frame, memory, colors, msg_sended, is_tcp, client_socket
+                
                 xmin, ymin, xmax, ymax, obj_id = map(int, obj[:5])
                 conf = float(obj[5])
 
                 if conf < 0.4:
-                    continue
+                    return
 
                 detected_class = memory[obj_id]["class"]
                 if detected_class.endswith("-d") and not msg_sended and is_tcp:
@@ -627,6 +633,13 @@ class DetectionTrackingPipeline(ABC):
                     (255, 255, 255),
                     2,
                 )
+
+            # Usar thread pool para dibujar objetos en paralelo
+            futures = [thread_pool.submit(draw_object, obj) for obj in tracked_objects]
+            
+            # Esperar a que todas las tareas terminen
+            for future in futures:
+                future.result()
 
             cv2.putText(
                 frame,
@@ -663,6 +676,8 @@ class DetectionTrackingPipeline(ABC):
 
         if out:
             out.release()
+            # Cerrar el thread pool al finalizar
+            thread_pool.shutdown()
 
         times_queue.put(None)
         stop_event.set()
@@ -770,7 +785,7 @@ class DetectionTrackingPipeline(ABC):
 
         # Iniciar el proceso de tegrastats
         process = subprocess.Popen(
-            ["tegrastats", "--interval", "100", "--logfile", tegra_stats_output],
+            ["tegrastats", "--interval", "10", "--logfile", tegra_stats_output],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
