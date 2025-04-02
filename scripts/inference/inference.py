@@ -86,6 +86,7 @@ def parse_arguments():
         help="FPS máximo que genera la cámara, default=None",
     )
 
+
     return parser.parse_args()
 
 
