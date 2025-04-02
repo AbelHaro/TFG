@@ -4,26 +4,34 @@ import os
 VERSION = "2025_02_24"
 DATASET_PATH = f"/TFG/datasets_labeled/{VERSION}_canicas_dataset/data.yaml"
 MODEL_BASE_PATH = f"/TFG/models/canicas/{VERSION}/"
-MODEL_BASE_PATH = f"./"
 
 MODELS = [
-    f"yolov5nu.pt",
-    #f"{VERSION}_canicas_yolo11n.pt",
+    f"{VERSION}_canicas_yolo11n.pt",
+    f"{VERSION}_canicas_yolo11s.pt",
+    f"{VERSION}_canicas_yolo11m.pt",
+    f"{VERSION}_canicas_yolo11l.pt",
 ]
 
 HARDWARE_DEVICES = [
-   # 0, 
+    0, 
     "dla:0", 
     "dla:1"
-    ]
+]
+
+BATCHES = [
+    1, 
+    # 2, 
+    4, 
+    8, 
+    # 16
+]
 
 PRECISION_CONFIG = {
-    "half": False,
-    "int8": True
+    "half": True,
+    "int8": False,
 }
 
 EXPORT_CONFIG = {
-    "batch_size": 1,
     "image_size": 640,
     "enable_nms": False,
     "enable_simplify": True
@@ -55,10 +63,10 @@ def get_hardware_suffix(device, batch_size):
     
     return suffix
 
-def export_model(model_name, device):
-    print(f"[EXPORT TO TensorRT] Exporting model {model_name} to TensorRT with hardware {device}")
+def export_model(model_name, device, batch_size=1):
+    print(f"[EXPORT TO TensorRT] Exporting model {model_name} to TensorRT with hardware {device} and batch size {batch_size}")
     
-    model = YOLO(MODEL_BASE_PATH + model_name)
+    model = YOLO(os.path.join(MODEL_BASE_PATH, model_name))
     
     model.export(
         data=DATASET_PATH,
@@ -67,25 +75,26 @@ def export_model(model_name, device):
         int8=PRECISION_CONFIG["int8"],
         device=device,
         imgsz=EXPORT_CONFIG["image_size"],
-        batch=EXPORT_CONFIG["batch_size"],
+        batch=batch_size,
         simplify=EXPORT_CONFIG["enable_simplify"],
         nms=EXPORT_CONFIG["enable_nms"]
     )
     
     precision_suffix = get_precision_suffix()
-    hardware_suffix = get_hardware_suffix(device, EXPORT_CONFIG["batch_size"])
+    hardware_suffix = get_hardware_suffix(device, batch_size)
     
-    source_path = f"{MODEL_BASE_PATH}{model_name.replace('.pt', '.engine')}"
-    target_path = f"{MODEL_BASE_PATH}{model_name.replace('.pt', '')}_{precision_suffix}_{hardware_suffix}.engine"
+    source_path = os.path.join(MODEL_BASE_PATH, model_name.replace('.pt', '.engine'))
+    target_path = os.path.join(MODEL_BASE_PATH, f"{model_name.replace('.pt', '')}_{precision_suffix}_{hardware_suffix}.engine")
     
-    os.system(f"mv {source_path} {target_path}")
+    os.rename(source_path, target_path)
 
 def main():
     validate_precision_config()
     
     for model_name in MODELS:
         for device in HARDWARE_DEVICES:
-            export_model(model_name, device)
+            for batch_size in BATCHES:
+                export_model(model_name, device, batch_size)
 
 if __name__ == "__main__":
     main()

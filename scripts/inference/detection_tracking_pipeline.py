@@ -31,6 +31,8 @@ class DetectionTrackingPipeline(ABC):
 
     # Configuración de logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+    
+    logging.getLogger().disabled = True
 
     # Configuración por defecto de SAHI
 
@@ -175,7 +177,7 @@ class DetectionTrackingPipeline(ABC):
                 t1 = cv2.getTickCount()
                 
                 times = {TIMING_FIELDS["CAPTURE"]: total_frame_time}
-                # print(f"[DEBUG] Poniendo frame a la cola", frame.shape)
+                # logging.debug(f"[DEBUG] Poniendo frame a la cola", frame.shape)
                 try:
                     frame_queue.put((frame, times, frame_count)) if not max_frames else frame_queue.put_nowait((frame, times, frame_count))
                 
@@ -316,7 +318,7 @@ class DetectionTrackingPipeline(ABC):
 
         while True:
             item = frame_queue.get()
-            # print(f"[DEBUG] Item recibido: {item}")
+            # logging.debug(f"[DEBUG] Item recibido: {item}")
             if item is None:
                 detection_queue.put(None)
                 break
@@ -398,7 +400,7 @@ class DetectionTrackingPipeline(ABC):
             )
 
             # Mostrar los resultados formateados
-            # print("Resultados formateados:", result_formatted)
+            # logging.debug("Resultados formateados:", result_formatted)
             t2_aux = cv2.getTickCount()
             # logging.debug(f"[PROGRAM - PROCESS FRAMES] Tiempo de postprocesamiento: {((t2_aux - t1_aux) / cv2.getTickFrequency()) * 1000:.2f} ms")
 
@@ -668,7 +670,7 @@ class DetectionTrackingPipeline(ABC):
 
             frame_number += 1
 
-            # print(f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado")
+            # logging.debug(f"[PROGRAM - DRAW AND WRITE] Frame {frame_number} procesado")
 
             if frame_number % 30 == 0:
                 print(
@@ -749,7 +751,7 @@ class DetectionTrackingPipeline(ABC):
         mp_stop_event.set() if mp_stop_event else None
 
 
-        print(f"[PROGRAM - WRITE TO CSV] Total time de write_to_csv: {total_time:.2f} s")
+        logging.debug(f"[PROGRAM - WRITE TO CSV] Total time de write_to_csv: {total_time:.2f} s")
         create_tegrastats_file(tegra_stats_output, hardware_usage_name, total_time)
 
         create_excel_from_csv(
@@ -762,7 +764,7 @@ class DetectionTrackingPipeline(ABC):
 
         logging.debug(f"[PROGRAM - WRITE TO CSV] Escritura de tiempos terminada")
         
-        print(f"[PROGRAM - WRITE TO CSV] Se han procesado {frame_count} frames")
+        logging.debug(f"[PROGRAM - WRITE TO CSV] Se han procesado {frame_count} frames")
 
         os._exit(0) if is_process else None
 
