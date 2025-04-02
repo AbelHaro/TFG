@@ -7,11 +7,7 @@ from lib.sahi import split_image_with_overlap
 import numpy as np
 from detection_tracking_pipeline import DEFAULT_SAHI_CONFIG
 
-# Importación de módulos propios
-import detection_tracking_pipeline_with_threads
-import detection_tracking_pipeline_with_multiprocesses
-import detection_tracking_pipeline_with_multiprocesses_shared_memory
-import detection_tracking_pipeline_with_multihardware
+from unified_pipeline import UnifiedPipeline
 
 
 def parse_arguments():
@@ -147,45 +143,38 @@ def initialize_pipeline(args):
 
     print("\n\n[PROGRAM] Opciones seleccionadas:", args, "\n\n")
 
-    pipeline_classes = {
-        "threads": detection_tracking_pipeline_with_threads.DetectionTrackingPipelineWithThreads,
-        "mp": detection_tracking_pipeline_with_multiprocesses.DetectionTrackingPipelineWithMultiprocesses,
-        "mp_shared_memory": (
-            detection_tracking_pipeline_with_multiprocesses_shared_memory.DetectionTrackingPipelineWithMultiprocessesSharedMemory
-        ),
-        "mp_hardware": detection_tracking_pipeline_with_multihardware.DetectionTrackingPipelineWithMultiHardware,
-    }
-
-    if args.parallel not in pipeline_classes:
+    if not args.parallel in ["threads", "mp", "mp_shared_memory", "mp_hardware"]:
         raise ValueError(
             "Modo de paralelización no válido. Debe ser 'threads', 'mp', 'mp_shared_memory' o 'mp_hardware'."
         )
 
-    return (
-        pipeline_classes[args.parallel](
+    # Crear una instancia del pipeline unificado
+    if args.parallel == "mp_hardware":
+        pipeline = UnifiedPipeline(
+            video_path,
+            GPU_model_path,
+            output_video_path,
+            output_times,
+            args.parallel,
+            is_tcp=args.tcp,
+            sahi=args.sahi,
+            max_fps=args.max_fps,
+            dla0_model=DLA0_model_path,
+            dla1_model=DLA1_model_path,
+        )
+    else:
+        pipeline = UnifiedPipeline(
             video_path,
             model_path,
             output_video_path,
             output_times,
             args.parallel,
-            args.tcp,
-            args.sahi,
-            args.max_fps,
+            is_tcp=args.tcp,
+            sahi=args.sahi,
+            max_fps=args.max_fps,
         )
-        if args.parallel != "mp_hardware"
-        else pipeline_classes[args.parallel](
-            video_path,
-            GPU_model_path,
-            DLA0_model_path,
-            DLA1_model_path,
-            output_video_path,
-            output_times,
-            args.parallel,
-            args.tcp,
-            args.sahi,
-            args.max_fps,
-        )
-    )
+    
+    return pipeline
 
 
 def main():
