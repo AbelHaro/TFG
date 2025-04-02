@@ -59,14 +59,24 @@ def parse_tegrastats_file(filename, total_time):
                 data[i]["mJ"] = int(d["Total_Power_mW"] * (total_time / len(data)))
     
     total_mj = 0
+    total_gpu = 0
+    total_mW = 0
+    
     for i, d in enumerate(data):
         if d["Total_Power_mW"]:
             total_mj += d["mJ"]
-
-    
-    data[0]["Total_mJ"] = total_mj
-    data[0]["Total_J"] = total_mj / 1000
-    data[0]["Total_Time_s"] = total_time    
+            
+        if d["GPU_Usage_%"]:
+            total_gpu += d["GPU_Usage_%"]
+            
+        if d["Total_Power_mW"]:
+            total_mW += d["Total_Power_mW"]
+        
+    data[0]["Total_mJ"] = round(total_mj, 2)
+    data[0]["Total_J"] = round(total_mj / 1000, 2)
+    data[0]["Total_Time_s"] = round(total_time, 2)
+    data[0]["average_mW"] = round(total_mW / len(data), 2)
+    data[0]["average_GPU_Usage_%"] = round(total_gpu / len(data), 2)
     
     return data
 
