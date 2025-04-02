@@ -658,9 +658,9 @@ class DetectionTrackingPipeline(ABC):
             out.write(frame)
             FPS_COUNT += 1
 
-            #cv2.imshow("Frame", frame)
-            #if cv2.waitKey(1) & 0xFF == ord("q"):
-            #    break
+            cv2.imshow("Frame", frame)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
 
             t2 = cv2.getTickCount()
             writing_time = (t2 - t1) / cv2.getTickFrequency()
