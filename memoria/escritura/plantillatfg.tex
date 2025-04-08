@@ -15,8 +15,15 @@
 %                                                                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[11pt,catalan,listoffigures,listoftables]{tfgetsinf}
+\documentclass[11pt,spanish,listoffigures,listoftables]{tfgetsinf}
 
+
+\usepackage{pgfplotstable} % Para leer y mostrar tablas desde CSV
+\usepackage{booktabs}       % Para mejorar el diseño de la tabla
+\usepackage{multirow}       % Para fusionar filas
+\usepackage{caption}   
+
+\usepackage{float}          % Para usar [H] en las figuras
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     CODIFICACIO DEL FITXER FONT                             %
 %                                                                             %
@@ -96,8 +103,50 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introducci\'on}
+Durante los últimos años, la inteligencia artificial ha experimentado un crecimiento sin precedentes, transformando nuestra capacidad tecnológica con herramientas revolucionarias. Este avance ha impulsado especialmente el campo de la visión artificial, permitiendo desarrollar sistemas capaces de analizar información visual en tiempo real con una precisión extraordinaria.
 
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
+% \begin{figure}
+%    \centering
+%    \begin{tikzpicture}
+%    \begin{axis}[
+%        xlabel={Semana},
+%        ylabel={Inteligencia Artificial},
+%        title={Evolución de la Inteligencia Artificial},
+%        x tick label style={rotate=45},
+%        yticklabel style={/pgf/number format/.cd, fixed, fixed zerofill, precision=0},
+%        enlarge x limits=0.1,
+%        grid=both,
+%        axis x line=bottom,
+%        axis y line=left,
+%        xtick=data,
+%        xticklabel style={/pgf/number format/assume math mode=true},
+%    ]
+%        \addplot table[
+%            col sep=comma,
+%            x expr={\texttt{\thisrow{Semana}}},  % Fuerza a tratar la fecha como texto
+%            y index=1,
+%        ]{excels/introduccion/interes_en_inteligencia_artificial.csv};
+%    \end{axis}
+%    \end{tikzpicture}
+%    \caption{Evolución de la inteligencia artificial a lo largo de las semanas}
+% \end{figure}
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{excels/introduccion/interes_en_ia.png}
+   \caption{Evolución de la inteligencia artificial a lo largo de las semanas}
+   \label{fig:interes_en_inteligencia_artificial}
+\end{figure}
+
+
+
+Este progreso ha sido posible gracias a los avances en redes neuronales convolucionales, que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con una precisión y velocidad antes inalcanzables.
+
+Para hacer frente a las exigencias computacionales de estas tecnologías, la industria ha desarrollado aceleradores hardware especializados en procesamiento de inteligencia artificial. Entre estos destacan las GPUs (Graphics Processing Unit), las TPUs (Tensor Processing Unit) y los DLA (Deep Learning Accelerator). Estos dispositivos, optimizados para operaciones de inferencia, han sido fundamentales para implementar sistemas de visión artificial capaces de procesar información visual en tiempo real, permitiendo su aplicación en entornos que requieren respuestas inmediatas.
+
+
+
+
 
 \section{Motivaci\'on}
 
@@ -168,7 +217,6 @@ Tipos de segmentación de las etapas del sistema:
    \item \textbf{Segmentación basada en hardware:} La etapa de inferencia se ejecuta en GPU, DLA0 y DLA1.
    \item \textbf{Segmentación basada en procesos con memoria compartida:} Cada etapa del sistema se ejecuta en un proceso diferente, pero comparten la memoria.
 \end{itemize}
-
     
 
 
@@ -178,6 +226,44 @@ En este capítulo se analizará la solución propuesta variando los parámetros 
 
 \section{Variación de los parámetros}
 Explicación de los parámetros que se pueden variar en la solución propuesta y su efecto en el rendimiento del sistema.
+
+------PRUEBA--------
+
+
+\begin{table}[h]
+   \centering
+   \resizebox{\textwidth}{!}{ % Ajusta el ancho al tamaño de la página
+   \pgfplotstabletypeset[
+       col sep=comma, % Definir separador de columnas (por si el CSV usa comas)
+       header=true,    % Usar la primera línea como encabezado
+       columns={Model, IoU, CPU_Inference, GPU_Inference, DLA_Inference, CPU_Power, GPU_Power, DLA_Power, CPU_Energy, GPU_Energy, DLA_Energy}, % Seleccionar columnas a mostrar
+       display columns/0/.style={column name=Model, string type}, % Formato de la columna 'Model'
+       display columns/1/.style={column name=IoU}, % Formato de la columna 'IoU'
+       display columns/2/.style={column name=CPU\_Inference, column type={|c|}}, % Estilo para columnas de inferencia
+       display columns/3/.style={column name=GPU\_Inference, column type={|c|}}, 
+       display columns/4/.style={column name=DLA\_Inference, column type={|c|}},
+       display columns/5/.style={column name=CPU\_Power, column type={|c|}}, % Estilo para columnas de potencia
+       display columns/6/.style={column name=GPU\_Power, column type={|c|}},
+       display columns/7/.style={column name=DLA\_Power, column type={|c|}},
+       display columns/8/.style={column name=CPU\_Energy, column type={|c|}}, % Estilo para columnas de energía
+       display columns/9/.style={column name=GPU\_Energy, column type={|c|}},
+       display columns/10/.style={column name=DLA\_Energy, column type={|c|}},
+       every head row/.style={before row=\toprule, after row=\midrule}, % Reglas horizontales en el encabezado
+       every last row/.style={after row=\bottomrule}, % Reglas horizontales al final
+       every column/.style={sci zerofill}, % Opcional, ajusta el formato numérico
+       empty cells with={NaN} % Reemplaza celdas vacías o con guiones por NaN
+   ]{excels/model_comparasion.csv} % Aquí pones la ruta del archivo CSV
+   }
+   \caption{Comparación de modelos en términos de inferencia, consumo de energía y potencia.}
+   \label{tab:model_comparasion}
+\end{table}
+
+
+
+------PRUEBA--------
+
+
+
 \section{Tipo de segmentación}
 En esta sección se analizará el rendimiento de la solución propuesta variando el tipo de segmentación de las etapas del sistema con gráficas y tablas.
 
@@ -185,8 +271,7 @@ En esta sección se analizará el rendimiento de la solución propuesta variando
 En esta sección se analizará el rendimiento de la solución propuesta variando la talla del modelo de detección de objetos con gráficas y tablas.
 
 \section{Precisión del modelo}
-En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas. {FP32, FP16, INT8}
-
+En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas.
 
 \section{Modo de energía y cores de la CPU}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo y el número de cores de la CPU con gráficas y tablas.
@@ -261,15 +346,15 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
 %                         LA CONFIGURACIO DEL SISTEMA                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Configuració del sistema}
+\chapter{Configuración del sistema}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Fase d'inicialització}
+\section{Fase de inicialitzación}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Identificació de dispositius}
+\section{Identificación de dispositivos}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
