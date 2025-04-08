@@ -121,16 +121,22 @@ def create_excel_from_csv(
     with open(aux_file_path + times_name, mode="r") as f:
         reader = csv.reader(f)
         times_data = list(reader)
+        
+    print(f"[CREATE EXCEL] CSV de tiempos leído correctamente desde {aux_file_path + times_name}.")
 
     fps_data = []
     with open(aux_file_path + fps_name, mode="r") as f:
         reader = csv.reader(f)
         fps_data = list(reader)
+        
+    print(f"[CREATE EXCEL] CSV de FPS leído correctamente desde {aux_file_path + fps_name}.")
 
     hardware_usage_data = []
     with open(aux_file_path + hardware_usage_name, mode="r") as f:
         reader = csv.reader(f)
         hardware_usage_data = list(reader)
+        
+    print(f"[CREATE EXCEL] CSV de uso de hardware leído correctamente desde {aux_file_path + hardware_usage_name}.")
 
     # Crear un libro de trabajo y las hojas
     wb = Workbook()

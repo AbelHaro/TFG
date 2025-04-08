@@ -2,7 +2,7 @@
 
 # This script runs the inference cases for the given model and dataset.
 
-model_size=("n")
+model_size=("n" "s" "m")
 precision=("FP16")
 hardware=("GPU" "DLA0")
 mode=("MAXN")
@@ -30,7 +30,9 @@ for size in "${model_size[@]}"; do
                         echo "Error running case: Model=${size}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}"
                         exit 1
                     fi
-                    echo "-------------------------------------------------------------------------------------------------------"
+                    echo
+                    echo
+                    echo
                 done
             done
         done
