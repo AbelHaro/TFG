@@ -32,7 +32,7 @@ class DetectionTrackingPipeline(ABC):
     # Configuración de logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
     
-    logging.getLogger().disabled = True
+    logging.getLogger().disabled = False
 
     # Configuración por defecto de SAHI
 
@@ -66,6 +66,7 @@ class DetectionTrackingPipeline(ABC):
             raise IOError(f"Error al abrir el archivo de video: {video_path}")
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         cap.release()
+        logging.debug(f"[PROGRAM - GET TOTAL FRAMES] Completado. Total frames: {total_frames}")
         return total_frames
 
     def update_memory(self, tracked_objects, memory, classes) -> None:
@@ -190,7 +191,7 @@ class DetectionTrackingPipeline(ABC):
                     time.sleep(frame_time - elapsed_time)
                     
                 frame_count += 1
-                               
+                                               
             cap.release()
             logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
             for _ in range(mh_num):
@@ -496,7 +497,7 @@ class DetectionTrackingPipeline(ABC):
             if stop_gpu and stop_dla0 and stop_dla1:
                 tracking_queue.put(None)
                 mp_stop_event.wait() if mp_stop_event else None
-                logging.debug(f"[PROGRAM - TRACKING FRAMES] Tracking de frames terminado")
+                logging.debug("[PROGRAM - TRACKING FRAMES MULTIHARDWARE] Tracking de frames con múltiple hardware terminado")
                 os._exit(0) if is_process else None
                 break
 
@@ -660,9 +661,9 @@ class DetectionTrackingPipeline(ABC):
             out.write(frame)
             FPS_COUNT += 1
 
-            cv2.imshow("Frame", frame)
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
+            #cv2.imshow("Frame", frame)
+            #if cv2.waitKey(1) & 0xFF == ord("q"):
+            #    break
 
             t2 = cv2.getTickCount()
             writing_time = (t2 - t1) / cv2.getTickFrequency()
@@ -792,9 +793,8 @@ class DetectionTrackingPipeline(ABC):
         t1_start.wait()
         tcp_event.wait() if is_tcp else None
 
-        # Iniciar el proceso de tegrastats
-        process = subprocess.Popen(
-            ["tegrastats", "--interval", "10", "--logfile", tegra_stats_output],
+        task = subprocess.Popen(
+            ["tegrastats", "--interval", "100", "--logfile", tegra_stats_output],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -803,8 +803,8 @@ class DetectionTrackingPipeline(ABC):
         logging.debug(f"[PROGRAM - HARDWARE USAGE] Iniciando tegrastats...")
 
         stop_event.wait()
-        process.terminate()
-        process.wait()
+        task.terminate()
+        task.wait()
 
         logging.debug(f"[PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.")
 

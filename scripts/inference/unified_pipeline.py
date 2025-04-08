@@ -73,10 +73,14 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             
             
     def _initialize_events(self):
-        self.stop_event = mp.Event() if self.is_process else threading.Event()
-        self.t1_start = mp.Event() if self.is_process else threading.Event()
-        self.tcp_event = mp.Event() if self.is_process else threading.Event()
-        self.mp_stop_event = mp.Event() if self.is_process else threading.Event()
+        #self.stop_event = mp.Event() if self.is_process else threading.Event()
+        #self.t1_start = mp.Event() if self.is_process else threading.Event()
+        #self.tcp_event = mp.Event() if self.is_process else threading.Event()
+        #self.mp_stop_event = mp.Event() if self.is_process else threading.Event()        
+        self.stop_event = mp.Event()
+        self.t1_start = mp.Event()
+        self.tcp_event = mp.Event()
+        self.mp_stop_event = mp.Event()
         
 
     def _get_worker_class(self) -> Type[Union[mp.Process, threading.Thread]]:
@@ -262,6 +266,8 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         # Esperar a que terminen los hilos si es necesario
         if self.parallel_mode == "threads":
             for worker in workers:
+                print(f"Waiting for {worker.name} to finish...")
                 worker.join()
+                print(f"{worker.name} finished.")
 
         print("Pipeline finished.")
