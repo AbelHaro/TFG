@@ -6,21 +6,17 @@ from check_gpu_exists import exists_gpu
 if not exists_gpu():
     exit()
 
-data_path = "/TFG/datasets_labeled/fotos_muy_juntas/val.yaml"
+VERSION = "2025_02_24"
+
+data_path = f"/TFG/datasets_labeled/{VERSION}_canicas_dataset/data.yaml"
 output_dir = "../validation_predictions"
 
 models_paths = [
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_FP16.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11s_FP16.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11m_FP16.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11l_FP16.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11x_FP16.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11n_INT8.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11s_INT8.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11m_INT8.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11l_INT8.engine",
-    "../models/canicas/2024_11_28/2024_11_28_canicas_yolo11x_INT8.engine",
+    f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n.pt",
+    f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n_INT8_GPU.engine",
+    f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n_INT8_DLA0.engine",
 ]
+
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -33,15 +29,25 @@ for model_path in models_paths:
 
     model = YOLO(model_path)
 
-    metrics = results = model.val(
+    model_name = os.path.splitext(os.path.basename(model_path))[0]
+    name = f"val_{model_name}"
+    
+    metrics = model.val(
         data=data_path,
-        batch=16,
+        batch=1,
         half=True,
-        plots=True,
+        plots=False,
         project=output_dir,
-        conf=0.4,
+        name=name,
+        conf=0.25,
+        iou=0.5,
         device=0,
-        split='test',
+        verbose=True
     )
 
-    print(metrics.box.map)
+    # Imprimir métricas detalladas
+    print("\nMétricas detalladas:")
+    print(f"mAP50: {metrics.box.map50:.4f}")
+    print(f"mAP50-95: {metrics.box.map:.4f}")
+    print(f"Precisión: {metrics.box.mp:.4f}")
+    print(f"Recall: {metrics.box.mr:.4f}")
