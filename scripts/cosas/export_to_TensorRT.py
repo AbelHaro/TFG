@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import os
 
 VERSION = "2025_02_24"
-DATASET_PATH = f"/TFG/datasets_labeled/{VERSION}_canicas_dataset/data.yaml"
+DATASET_PATH = f"/TFG/datasets_labeled/{VERSION}_canicas_dataset/export.yaml"
 MODEL_BASE_PATH = f"/TFG/models/canicas/{VERSION}/"
 
 MODELS = [
@@ -77,7 +77,7 @@ def export_model(model_name, device, batch_size=1):
         imgsz=EXPORT_CONFIG["image_size"],
         batch=batch_size,
         simplify=EXPORT_CONFIG["enable_simplify"],
-        nms=EXPORT_CONFIG["enable_nms"]
+        nms=EXPORT_CONFIG["enable_nms"],
     )
     
     precision_suffix = get_precision_suffix()
