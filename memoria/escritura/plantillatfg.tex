@@ -15,8 +15,13 @@
 %                                                                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[11pt,catalan,listoffigures,listoftables]{tfgetsinf}
+\documentclass[11pt,spanish,listoffigures,listoftables]{tfgetsinf}
 
+
+\usepackage{pgfplotstable} % Para leer y mostrar tablas desde CSV
+\usepackage{booktabs}       % Para mejorar el diseño de la tabla
+\usepackage{multirow}       % Para fusionar filas
+\usepackage{caption}   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     CODIFICACIO DEL FITXER FONT                             %
 %                                                                             %
@@ -168,7 +173,6 @@ Tipos de segmentación de las etapas del sistema:
    \item \textbf{Segmentación basada en hardware:} La etapa de inferencia se ejecuta en GPU, DLA0 y DLA1.
    \item \textbf{Segmentación basada en procesos con memoria compartida:} Cada etapa del sistema se ejecuta en un proceso diferente, pero comparten la memoria.
 \end{itemize}
-
     
 
 
@@ -178,15 +182,58 @@ En este capítulo se analizará la solución propuesta variando los parámetros 
 
 \section{Variación de los parámetros}
 Explicación de los parámetros que se pueden variar en la solución propuesta y su efecto en el rendimiento del sistema.
+
+------PRUEBA--------
+
+
+\begin{table}[h]
+   \centering
+   \resizebox{\textwidth}{!}{ % Ajusta el ancho al tamaño de la página
+   \pgfplotstabletypeset[
+       col sep=comma, % Definir separador de columnas (por si el CSV usa comas)
+       header=true,    % Usar la primera línea como encabezado
+       columns={Model, IoU, CPU_Inference, GPU_Inference, DLA_Inference, CPU_Power, GPU_Power, DLA_Power, CPU_Energy, GPU_Energy, DLA_Energy}, % Seleccionar columnas a mostrar
+       display columns/0/.style={column name=Model, string type}, % Formato de la columna 'Model'
+       display columns/1/.style={column name=IoU}, % Formato de la columna 'IoU'
+       display columns/2/.style={column name=CPU\_Inference, column type={|c|}}, % Estilo para columnas de inferencia
+       display columns/3/.style={column name=GPU\_Inference, column type={|c|}}, 
+       display columns/4/.style={column name=DLA\_Inference, column type={|c|}},
+       display columns/5/.style={column name=CPU\_Power, column type={|c|}}, % Estilo para columnas de potencia
+       display columns/6/.style={column name=GPU\_Power, column type={|c|}},
+       display columns/7/.style={column name=DLA\_Power, column type={|c|}},
+       display columns/8/.style={column name=CPU\_Energy, column type={|c|}}, % Estilo para columnas de energía
+       display columns/9/.style={column name=GPU\_Energy, column type={|c|}},
+       display columns/10/.style={column name=DLA\_Energy, column type={|c|}},
+       every head row/.style={before row=\toprule, after row=\midrule}, % Reglas horizontales en el encabezado
+       every last row/.style={after row=\bottomrule}, % Reglas horizontales al final
+       every column/.style={sci zerofill}, % Opcional, ajusta el formato numérico
+       empty cells with={NaN} % Reemplaza celdas vacías o con guiones por NaN
+   ]{excels/model_comparasion.csv} % Aquí pones la ruta del archivo CSV
+   }
+   \caption{Comparación de modelos en términos de inferencia, consumo de energía y potencia.}
+   \label{tab:model_comparasion}
+\end{table}
+
+
+
+------PRUEBA--------
+
+
+
 \section{Tipo de segmentación}
 En esta sección se analizará el rendimiento de la solución propuesta variando el tipo de segmentación de las etapas del sistema con gráficas y tablas.
 
 \section{Talla del modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la talla del modelo de detección de objetos con gráficas y tablas.
+<<<<<<< Updated upstream
 
 \section{Precisión del modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas. {FP32, FP16, INT8}
 
+=======
+\section{Precisión del modelo}
+En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas.
+>>>>>>> Stashed changes
 
 \section{Modo de energía y cores de la CPU}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo y el número de cores de la CPU con gráficas y tablas.
@@ -261,15 +308,15 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
 %                         LA CONFIGURACIO DEL SISTEMA                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Configuració del sistema}
+\chapter{Configuración del sistema}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Fase d'inicialització}
+\section{Fase de inicialitzación}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Identificació de dispositius}
+\section{Identificación de dispositivos}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
