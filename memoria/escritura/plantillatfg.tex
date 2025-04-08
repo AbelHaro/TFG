@@ -22,6 +22,8 @@
 \usepackage{booktabs}       % Para mejorar el diseño de la tabla
 \usepackage{multirow}       % Para fusionar filas
 \usepackage{caption}   
+
+\usepackage{float}          % Para usar [H] en las figuras
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     CODIFICACIO DEL FITXER FONT                             %
 %                                                                             %
@@ -101,8 +103,50 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introducci\'on}
+Durante los últimos años, la inteligencia artificial ha experimentado un crecimiento sin precedentes, transformando nuestra capacidad tecnológica con herramientas revolucionarias. Este avance ha impulsado especialmente el campo de la visión artificial, permitiendo desarrollar sistemas capaces de analizar información visual en tiempo real con una precisión extraordinaria.
 
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
+% \begin{figure}
+%    \centering
+%    \begin{tikzpicture}
+%    \begin{axis}[
+%        xlabel={Semana},
+%        ylabel={Inteligencia Artificial},
+%        title={Evolución de la Inteligencia Artificial},
+%        x tick label style={rotate=45},
+%        yticklabel style={/pgf/number format/.cd, fixed, fixed zerofill, precision=0},
+%        enlarge x limits=0.1,
+%        grid=both,
+%        axis x line=bottom,
+%        axis y line=left,
+%        xtick=data,
+%        xticklabel style={/pgf/number format/assume math mode=true},
+%    ]
+%        \addplot table[
+%            col sep=comma,
+%            x expr={\texttt{\thisrow{Semana}}},  % Fuerza a tratar la fecha como texto
+%            y index=1,
+%        ]{excels/introduccion/interes_en_inteligencia_artificial.csv};
+%    \end{axis}
+%    \end{tikzpicture}
+%    \caption{Evolución de la inteligencia artificial a lo largo de las semanas}
+% \end{figure}
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{excels/introduccion/interes_en_ia.png}
+   \caption{Evolución de la inteligencia artificial a lo largo de las semanas}
+   \label{fig:interes_en_inteligencia_artificial}
+\end{figure}
+
+
+
+Este progreso ha sido posible gracias a los avances en redes neuronales convolucionales, que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con una precisión y velocidad antes inalcanzables.
+
+Para hacer frente a las exigencias computacionales de estas tecnologías, la industria ha desarrollado aceleradores hardware especializados en procesamiento de inteligencia artificial. Entre estos destacan las GPUs (Graphics Processing Unit), las TPUs (Tensor Processing Unit) y los DLA (Deep Learning Accelerator). Estos dispositivos, optimizados para operaciones de inferencia, han sido fundamentales para implementar sistemas de visión artificial capaces de procesar información visual en tiempo real, permitiendo su aplicación en entornos que requieren respuestas inmediatas.
+
+
+
+
 
 \section{Motivaci\'on}
 
@@ -225,15 +269,9 @@ En esta sección se analizará el rendimiento de la solución propuesta variando
 
 \section{Talla del modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la talla del modelo de detección de objetos con gráficas y tablas.
-<<<<<<< Updated upstream
 
-\section{Precisión del modelo}
-En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas. {FP32, FP16, INT8}
-
-=======
 \section{Precisión del modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas.
->>>>>>> Stashed changes
 
 \section{Modo de energía y cores de la CPU}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo y el número de cores de la CPU con gráficas y tablas.
