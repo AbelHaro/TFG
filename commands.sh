@@ -30,3 +30,6 @@ sudo /opt/nvidia/jetson-io/jetson-io.py
 
 # Exportar a TensorRT
 yolo export format=engine half=True batch=4 imgsz=640 model=
+
+# Ejecutar casos desde ssh sin cerrar la sesión
+nohup docker exec -i use-gpu bash -c 'cd /TFG/scripts/inference && ./run-cases.sh 2>&1 | tee log.txt' &

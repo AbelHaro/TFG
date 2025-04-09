@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------------------------------
+Running case: Model=n, Precision=FP16, Hardware=GPU, Mode=MAXN, Parallel=threads
+python3: can't open file 'inference.py': [Errno 2] No such file or directory
+Error running case: Model=n, Precision=FP16, Hardware=GPU, Mode=MAXN, Parallel=threads
