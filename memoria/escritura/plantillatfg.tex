@@ -40,6 +40,8 @@
 
 \hypersetup{ colorlinks=true, linkcolor=black, urlcolor=cyan, }
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                        ALTRES PAQUETS I DEFINICIONS                         %
 %                                                                             %
@@ -55,10 +57,10 @@
 % titol, alumne, tutor i curs academic                                        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{???? ????????? \\
-         ?????????????? ? ?????}
+\title{Detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA}
 \author{Haro Armero, Abel}
-\tutor{?????? ???? ????????????}
+\tutor{Flich Cardo, José}
+%\tutor{López Rodríguez, Pedro Juan}
 \curs{2024-2025}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,58 +105,58 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introducci\'on}
-Durante los últimos años, la inteligencia artificial ha experimentado un crecimiento sin precedentes, transformando nuestra capacidad tecnológica con herramientas revolucionarias. Este avance ha impulsado especialmente el campo de la visión artificial, permitiendo desarrollar sistemas capaces de analizar información visual en tiempo real con una precisión extraordinaria.
+Durante los últimos años, la inteligencia artificial ha experimentado un crecimiento en popularidad sin precedentes, transformando nuestra capacidad tecnológica con herramientas revolucionarias. Este avance ha sido impulsado por la disponibilidad de grandes volúmenes de datos y el desarrollo de algoritmos avanzados, que han permitido a las máquinas aprender y adaptarse a situaciones complejas. Algunos campos destacados de aplicación incluyen el procesamiento del lenguaje natural, la visión por computador y la robótica. En particular, la visión por computador ha visto un auge significativo, con aplicaciones en áreas como la seguridad, la medicina y la automoción. Este creciente interés se refleja en la evolución del interés público en inteligencia artificial, como muestra la Figura~\ref{fig:interes_en_inteligencia_artificial}, basada en datos de Google Trends \cite{googletrends2025}.
 
-% \begin{figure}
-%    \centering
-%    \begin{tikzpicture}
-%    \begin{axis}[
-%        xlabel={Semana},
-%        ylabel={Inteligencia Artificial},
-%        title={Evolución de la Inteligencia Artificial},
-%        x tick label style={rotate=45},
-%        yticklabel style={/pgf/number format/.cd, fixed, fixed zerofill, precision=0},
-%        enlarge x limits=0.1,
-%        grid=both,
-%        axis x line=bottom,
-%        axis y line=left,
-%        xtick=data,
-%        xticklabel style={/pgf/number format/assume math mode=true},
-%    ]
-%        \addplot table[
-%            col sep=comma,
-%            x expr={\texttt{\thisrow{Semana}}},  % Fuerza a tratar la fecha como texto
-%            y index=1,
-%        ]{excels/introduccion/interes_en_inteligencia_artificial.csv};
-%    \end{axis}
-%    \end{tikzpicture}
-%    \caption{Evolución de la inteligencia artificial a lo largo de las semanas}
-% \end{figure}
+
 
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.7\textwidth]{excels/introduccion/interes_en_ia.png}
-   \caption{Evolución de la inteligencia artificial a lo largo de las semanas}
-   \label{fig:interes_en_inteligencia_artificial}
+   \caption{Evolución del interés público en inteligencia artificial según datos de Google Trends (2020-2025)}
+\label{fig:interes_en_inteligencia_artificial}
 \end{figure}
 
+Este progreso ha sido posible gracias a los avances en redes neuronales convolucionales, que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con una gran precisión y velocidad.
+
+Estos algoritmos de visión artificial requieren una potencia computacional significativa tanto para su entrenamiento como para su ejecución. Las CPUs (Unidades Centrales de Procesamiento) tradicionales resultan insuficientes para estas tareas, por lo que la industria ha desarrollado arquitecturas específicas como las GPUs (Unidades de Procesamiento Gráfico), TPUs (Unidades de Procesamiento Tensorial) y DLAs (Aceleradores de Aprendizaje Profundo). Estos componentes están optimizados para ejecutar operaciones de entrenamiento e inferencia de manera eficiente, permitiendo implementar sistemas de visión artificial capaces de procesar información visual en tiempo real. Sin embargo, estos aceleradores suelen presentar un consumo energético elevado, lo que plantea importantes retos de eficiencia y sostenibilidad.
 
 
-Este progreso ha sido posible gracias a los avances en redes neuronales convolucionales, que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con una precisión y velocidad antes inalcanzables.
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{images/introduccion/consumo_electrico_datacenters.png}
+   \caption{Proyección del consumo eléctrico de los centros de datos en el mundo}
+\label{fig:consumo_electrico_datacenters}
+\end{figure}
 
-Para hacer frente a las exigencias computacionales de estas tecnologías, la industria ha desarrollado aceleradores hardware especializados en procesamiento de inteligencia artificial. Entre estos destacan las GPUs (Graphics Processing Unit), las TPUs (Tensor Processing Unit) y los DLA (Deep Learning Accelerator). Estos dispositivos, optimizados para operaciones de inferencia, han sido fundamentales para implementar sistemas de visión artificial capaces de procesar información visual en tiempo real, permitiendo su aplicación en entornos que requieren respuestas inmediatas.
+Como se observa en la Figura~\ref{fig:consumo_electrico_datacenters}, el consumo eléctrico de los centros de datos en el mundo ha ido aumentando de forma exponencial, lo que plantea un desafío significativo para la sostenibilidad del crecimiento tecnológico \cite{challe6010117}. En el peor escenario, esta tendencia podría llevar a un incremento insostenible en la huella de carbono del sector tecnológico, mientras que en el mejor de los casos, la adopción de tecnologías eficientes podría moderar este crecimiento. Este aumento del consumo energético no solo afecta a los centros de datos, sino también a los dispositivos embebidos y móviles, donde la eficiencia energética es crucial para prolongar la vida útil de las baterías y reducir el impacto ambiental.
 
+Para enfrentar estos desafíos, se han desarrollado diversas técnicas de optimización y compresión que reducen el tamaño y la complejidad de los modelos neuronales manteniendo su rendimiento. Paralelamente, han surgido arquitecturas hardware específicamente diseñadas para la inferencia de modelos de aprendizaje profundo en entornos con restricciones energéticas. En este contexto, los dispositivos de la serie Jetson de NVIDIA destacan por ofrecer un equilibrio entre alto rendimiento en tareas de inteligencia artificial y un consumo energético contenido, ideal para aplicaciones embebidas de visión artificial.
 
-
-
+La combinación de redes neuronales convolucionales y aceleradores hardware ha permitido la creación de sistemas de visión artificial que pueden detectar y clasificar objetos en movimiento, lo que es esencial en aplicaciones como la vigilancia, la conducción autónoma y la robótica.
 
 \section{Motivaci\'on}
 
-????? ????????????? ????????????? ????????????? ????????????? ????????????? 
+Como se mencionó anteriormente, la inteligencia artificial ha revolucionado la forma en que interactuamos con la tecnología. Se ha convertido en una herramienta esencial para aplicar soluciones innovadoras en una amplia gama de campos. En particular, la visión por computador ha demostrado ser un área de gran potencial. También la existencia de dispositivos de bajo consumo, como los de la serie Jetson de NVIDIA, ha permitido llevar la inteligencia artificial a entornos de edge computing (cómputo en el borde), donde se acerca el procesamiento de datos a la fuente de información. Esto reduce la latencia y el consumo energético. Con todo esto, se abre un abanico de posibilidades para la implementación de sistemas de visión artificial en aplicaciones industriales.
+
+Centradánose en el ámbito industrial, la detección y clasificación de objetos en movimiento es crucial para optimizar procesos, mejorar la seguridad y aumentar la eficiencia. En la mayoría de entornos productivos, la detección de defectos se realiza de forma manual, lo que puede ser ineficiente y propenso a errores. La automatización de este proceso mediante sistemas de visión artificial puede reducir costos, aumentar la precisión y mejorar la calidad del producto final.
+
+
+La motivación de este trabajo radica en la necesidad de desarrollar un sistema de visión artificial capaz de detectar y clasificar objetos en movimiento en un entorno industrial, específicamente en una cinta transportadora.
+
 
 \section{Objetivos}
 
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
+El objetivo principal de este trabajo es desarrollar un sistema de visión artificial capaz de detectar y clasificar objetos en movimiento en una cinta transportadora utilizando redes neuronales convolucionales y aceleradores hardware de bajo consumo. Para lograr este objetivo, se plantean los siguientes objetivos específicos:
+
+\begin{itemize}
+   \item Realizar un estudio del estado del arte en redes neuronales convolucionales, aceleradores hardware de bajo consumo y técnicas avanzadas de optimización para visión artificial.
+   \item Desarrollar un conjunto de datos para el entrenamiento y evaluación del sistema, mediante la captura y etiquetado de imágenes de objetos en movimiento.
+   \item Diseñar, entrenar y validar un modelo de red neuronal convolucional optimizado para la detección y clasificación en tiempo real de defectos en objetos en movimiento.
+   \item Implementar un sistema completo de visión artificial que integre el modelo entrenado con los aceleradores hardware NVIDIA, enfocado en maximizar la eficiencia y minimizar la latencia.
+   \item Analizar los cuellos de botella del sistema, y aplicar técnicas específicas de optimización para mejorar el rendimiento y la eficiencia energética.
+   \item Cuantificar de manera exhaustiva el rendimiento del sistema mediante métricas precisas de exactitud (mAP, precisión, recall), latencia (FPS) y consumo energético (W, J/inferencia).
+   \item Realizar un análisis comparativo sistemático entre diferentes configuraciones de hardware, software y parámetros de optimización para identificar la combinación que ofrezca el mejor equilibrio entre precisión, velocidad y eficiencia energética.
+\end{itemize}
 
 \section{Estructura de la memoria}
 
@@ -170,7 +172,7 @@ Para hacer frente a las exigencias computacionales de estas tecnologías, la ind
 
 \chapter{Estado del arte}
 
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
+En este capítulo se realizará un estudio del estado del arte en los diferentes componentes que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
 
 \section{Redes neuronales convolucionales}
 Evolución de las redes neuronales convolucionales desde region based proposals (two stage regression) a single shot detector (one stage regression), YOLO y por último YOLO11. Hablar de las métricas de evaluación de los modelos, precisión, recall, mAP50 y mAP50-95.
@@ -180,7 +182,7 @@ Evolución de los aceleradores de procesamiento gráfico desde la GPU, hasta los
 \section{Seguimiento de objetos en tiempo real}
 Explicación de como funcionan los algoritmos de multi-object tracking (MOT) en tiempo real, filtro de Kalman hasta BYTETrack.
 
-\section{SAHI}
+\section{Slicing Aided Hyper Inference}
 Explicación de la técnica de Slicing Aided Hyper Inference, como se utiliza para mejorar la precisión de los modelos de detección de objetos y como se aplica en este trabajo.
 
 \chapter{Análisis del problema}
@@ -306,34 +308,37 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
 %                                BIBLIOGRAFIA                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{thebibliography}{10}
+\bibliographystyle{plain}      % Estilo de la bibliografía
+\bibliography{referencias} % Bibliografia
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MODEL D'ARTICLE                                                             %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bibitem{light}
-   Jennifer~S. Light.
-   \newblock When computers were women.
-   \newblock \textit{Technology and Culture}, 40:3:455--483, juliol, 1999.
+% \begin{thebibliography}{10}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MODEL DE LLIBRE                                                             %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bibitem{ifrah}
-   Georges Ifrah.
-   \newblock \textit{Historia universal de las cifras}.
-   \newblock Espasa Calpe, S.A., Madrid, sisena edició, 2008.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % MODEL D'ARTICLE                                                             %
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \bibitem{light}
+%    Jennifer~S. Light.
+%    \newblock When computers were women.
+%    \newblock \textit{Technology and Culture}, 40:3:455--483, juliol, 1999.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MODEL D'URL                                                                 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bibitem{WAR}
-   Comunicat de premsa del Departament de la Guerra, 
-   emés el 16 de febrer de 1946. 
-   \newblock Consultat a 
-   \url{http://americanhistory.si.edu/comphist/pr1.pdf}.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % MODEL DE LLIBRE                                                             %
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \bibitem{ifrah}
+%    Georges Ifrah.
+%    \newblock \textit{Historia universal de las cifras}.
+%    \newblock Espasa Calpe, S.A., Madrid, sisena edició, 2008.
 
-\end{thebibliography}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % MODEL D'URL                                                                 %
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \bibitem{WAR}
+% Comunicat de premsa del Departament de la Guerra, 
+% emés el 16 de febrer de 1946. 
+% \newblock Consultat a 
+% \url{http://americanhistory.si.edu/comphist/pr1.pdf}.
+
+% \end{thebibliography}
 \cleardoublepage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
