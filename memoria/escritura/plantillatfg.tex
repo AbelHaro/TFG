@@ -175,7 +175,79 @@ El objetivo principal de este trabajo es desarrollar un sistema de visión artif
 En este capítulo se realizará un estudio del estado del arte en los diferentes componentes que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
 
 \section{Redes neuronales convolucionales}
-Evolución de las redes neuronales convolucionales desde region based proposals (two stage regression) a single shot detector (one stage regression), YOLO y por último YOLO11. Hablar de las métricas de evaluación de los modelos, precisión, recall, mAP50 y mAP50-95.
+
+Puntos más relevantes de la evolución de las redes neuronales convolucionales y su aplicación en la detección de objetos. Se explicarán los conceptos básicos de las redes neuronales, así como los diferentes tipos de arquitecturas y técnicas utilizadas en la actualidad.
+
+\begin{enumerate}
+   \item \textbf{Fundamentos del Deep Learning}
+   \begin{enumerate}
+      \item Concepto de aprendizaje profundo
+      \item Redes neuronales artificiales básicas
+      \item Función de activación, pesos y capas
+   \end{enumerate}
+
+   \item \textbf{Redes neuronales profundas}
+   \begin{enumerate}
+      \item Arquitecturas multicapa
+      \item Desafío del desvanecimiento del gradiente
+      \item Técnicas de inicialización y normalización
+   \end{enumerate}
+
+   \item \textbf{Redes neuronales convolucionales (CNN)}
+   \begin{enumerate}
+      \item Operación de convolución y su importancia
+      \item Capas convolucionales, pooling y fully-connected
+      \item Invarianza a la traslación y extracción jerárquica de características
+   \end{enumerate}
+
+   \item \textbf{Detección de objetos: primeros enfoques}
+   \begin{enumerate}
+      \item Sliding window
+      \item Uso de características handcrafted (HOG, SIFT)
+      \item Limitaciones de los enfoques tradicionales
+   \end{enumerate}
+
+   \item \textbf{Detectores de dos etapas (two-stage)}
+   \begin{enumerate}
+      \item R-CNN: region proposals + clasificación
+      \item Fast R-CNN: mejoras compartiendo cálculos
+      \item Faster R-CNN: Region Proposal Network (RPN)
+      \item Mask R-CNN: incorporación de segmentación
+   \end{enumerate}
+
+   \item \textbf{Detectores de una etapa (one-stage)}
+   \begin{enumerate}
+      \item SSD (Single Shot MultiBox Detector)
+      \item RetinaNet y Focal Loss
+      \item Ventajas en velocidad vs. precisión
+   \end{enumerate}
+
+   \item \textbf{YOLO (You Only Look Once)}
+   \begin{enumerate}
+      \item YOLOv1: división en grid y predicción directa
+      \item YOLOv2/YOLO9000: mejoras con anchor boxes
+      \item YOLOv3: múltiples escalas y características
+      \item YOLOv4: mejoras en backbone y técnicas de aumento
+   \end{enumerate}
+
+   \item \textbf{Evolución reciente de YOLO}
+   \begin{enumerate}
+      \item YOLOv5: optimización y escalabilidad
+      \item YOLOv6/v7: avances arquitectónicos
+      \item YOLOv8: modularidad y rendimiento
+      \item YOLO11: nuevas características y optimizaciones
+   \end{enumerate}
+
+   \item \textbf{Métricas de evaluación}
+   \begin{enumerate}
+      \item Precisión y recall
+      \item IoU (Intersection over Union)
+      \item mAP50 y mAP50-95
+      \item Velocidad (FPS) y compromiso velocidad-precisión
+   \end{enumerate}
+\end{enumerate}
+
+
 \section{Aceleradores de procesamiento gráfico}
 Evolución de los aceleradores de procesamiento gráfico desde la GPU, hasta los dispositivos de bajo consumo en la serie Jetson de NVIDIA.
 
