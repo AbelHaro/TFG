@@ -14,4 +14,14 @@ Anders S.~G. Andrae and Tomas Edler.
   2025.
 \newblock Consultado el 08 abril de 2025.
 
+\bibitem{yolo11_ultralytics}
+Glenn Jocher and Jing Qiu.
+\newblock Ultralytics yolo11, 2024.
+
+\bibitem{khan2018guide}
+Salman Khan, Hossein Rahmani, Syed Afaq~Ali Shah, and Mohammed Bennamoun.
+\newblock {\em A Guide to Convolutional Neural Networks for Computer Vision}.
+\newblock Synthesis Lectures on Computer Vision. Springer Cham, 1 edition,
+  2018.
+
 \end{thebibliography}
