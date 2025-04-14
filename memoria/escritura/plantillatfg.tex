@@ -21,7 +21,8 @@
 \usepackage{pgfplotstable} % Para leer y mostrar tablas desde CSV
 \usepackage{booktabs}       % Para mejorar el diseño de la tabla
 \usepackage{multirow}       % Para fusionar filas
-\usepackage{caption}   
+\usepackage{caption}
+\usepackage{subcaption}
 
 \usepackage{float}          % Para usar [H] en las figuras
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,6 +137,8 @@ La combinación de redes neuronales convolucionales y aceleradores hardware ha p
 
 \section{Motivaci\'on}
 
+Los humamos somos capaces de ver y entender el mundo que nos rodea. Dada una imagen, podemos identificar objetos, reconocer patrones y tomar decisiones basadas en la información visual. Sin embargo, esta capacidad no es innata en las máquinas. La visión por computador es la ciencia que busca dotar a las máquinas de la capacidad de interpretar y comprender imágenes y vídeos, emulando la forma en que los humanos percibimos el entorno. 
+
 Como se mencionó anteriormente, la inteligencia artificial ha revolucionado la forma en que interactuamos con la tecnología. Se ha convertido en una herramienta esencial para aplicar soluciones innovadoras en una amplia gama de campos. En particular, la visión por computador ha demostrado ser un área de gran potencial. También la existencia de dispositivos de bajo consumo, como los de la serie Jetson de NVIDIA, ha permitido llevar la inteligencia artificial a entornos de edge computing (cómputo en el borde), donde se acerca el procesamiento de datos a la fuente de información. Esto reduce la latencia y el consumo energético. Con todo esto, se abre un abanico de posibilidades para la implementación de sistemas de visión artificial en aplicaciones industriales.
 
 Centradánose en el ámbito industrial, la detección y clasificación de objetos en movimiento es crucial para optimizar procesos, mejorar la seguridad y aumentar la eficiencia. En la mayoría de entornos productivos, la detección de defectos se realiza de forma manual, lo que puede ser ineficiente y propenso a errores. La automatización de este proceso mediante sistemas de visión artificial puede reducir costos, aumentar la precisión y mejorar la calidad del producto final.
@@ -175,8 +178,61 @@ El objetivo principal de este trabajo es desarrollar un sistema de visión artif
 En este capítulo se realizará un estudio del estado del arte en los diferentes componentes que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
 
 \section{Redes neuronales convolucionales}
+En esta sección se realizará un estudio de las redes neuronales hasta las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. Se explicarán los conceptos básicos de las redes neuronales y la evolución de las arquitecturas.
 
-Puntos más relevantes de la evolución de las redes neuronales convolucionales y su aplicación en la detección de objetos. Se explicarán los conceptos básicos de las redes neuronales, así como los diferentes tipos de arquitecturas y técnicas utilizadas en la actualidad.
+La \textit{\textbf{Inteligencia Artificial}} es un campo de estudio que busca desarrollar sistemas capaces de realizar tareas que normalmente requieren inteligencia humana, como el reconocimiento de voz, la toma de decisiones y la comprensión del lenguaje natural. Dentro de este campo, existen diversas subdisciplinas, entre las cuales destacan el \textit{\textbf{Machine Learning}} y el \textit{\textbf{Deep Learning}}.
+
+El \textit{\textbf{Machine Learning}} o aprendizaje automático es una rama de la inteligencia artificial que se centra en el desarrollo de algoritmos y modelos que permiten a las máquinas aprender de los datos y realizar predicciones o tomar decisiones sin ser programadas explícitamente. Este enfoque se basa en la idea de que las máquinas pueden identificar patrones y relaciones en grandes conjuntos de datos, lo que les permite generalizar y adaptarse a nuevas situaciones.
+
+El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprendizaje automático que utiliza redes neuronales artificiales para modelar y resolver problemas complejos. Estas redes están compuestas por múltiples capas de neuronas interconectadas, que permiten aprender representaciones jerárquicas de los datos. Además, su capacidad para generalizar a partir de ejemplos les permite abordar tareas complejas con un alto grado de precisión.
+
+Las \textit{\textbf{Convolutional Neural Networks}} (CNN) o redes neuronales convolucionales son un tipo específico de red neuronal profunda. Estas redes están diseñadas para procesar imágenes y extraer características relevantes de manera eficiente, lo que las hace especialmente adecuadas para tareas de visión por computador.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/estado_del_arte/diagrama_de_Venn_inteligencia_artificial.png}
+   \caption{Relación entre Machine Learning, Deep Learning, CNN, Computer Vision y Human Vision.}
+   \label{fig:diagrama_de_Venn_inteligencia_artificial}
+\end{figure}
+
+La Figura~\ref{fig:diagrama_de_Venn_inteligencia_artificial} ilustra la relación entre estos conceptos \cite{khan2018guide}. Las CNN son una subcategoría del Deep Learning, que a su vez es una subcategoría del Machine Learning. Además, las CNN están estrechamente relacionadas con la visión por computador, que busca emular la capacidad de los humanos para interpretar imágenes y vídeos.
+
+Las CNN se inspiran en la forma en que los humanos percibimos el mundo visual. Al igual que nuestro sistema visual, que procesa la información de manera jerárquica, las CNN utilizan capas convolucionales para extraer características de bajo nivel (como bordes y texturas) y capas más profundas para identificar patrones y objetos más complejos. Esta jerarquía de características permite a las CNN aprender representaciones ricas y abstractas de los datos visuales.
+
+La operación de convolución es fundamental en las CNN. Esta operación consiste en aplicar un filtro (o kernel) a una imagen para extraer características locales. El filtro se desliza sobre la imagen, multiplicando sus valores por los valores de la imagen en cada posición y sumando los resultados. Este proceso genera un mapa de activación que resalta las características relevantes de la imagen. 
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/estado_del_arte/operacion_convolucion.png}
+   \caption{Operación de convolución en una imagen.}
+   \label{fig:operacion_convolucion}
+\end{figure}
+
+La Figura~\ref{fig:operacion_convolucion} muestra un ejemplo de la operación de convolución. En este caso, se aplica un filtro de 3x3 a una imagen de entrada, generando un mapa de activación que resalta las características detectadas por el filtro.
+
+\begin{figure}[H]
+   \centering
+   \begin{subfigure}[b]{0.25\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{images/estado_del_arte/bus_original.jpg}
+      \caption{Imagen de un autobús.}
+      \label{fig:bus_original}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}[b]{0.7\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{images/estado_del_arte/bus_primera_capa_convolucion.png}
+      \caption{Resultado de la operación de convolución.}
+      \label{fig:bus_primera_capa_convolucion}
+   \end{subfigure}
+   \caption{Proceso de convolución aplicado a una imagen de un autobús.}
+   \label{fig:bus_convolucion}
+\end{figure}
+
+La Figura~\ref{fig:bus_convolucion} ilustra el proceso de la primera convolución del modelo yolo11n \cite{yolo11_ultralytics}. En la parte izquierda se muestra la imagen original de un autobús, mientras que en la parte derecha se presenta el resultado de aplicar la operación de convolución. En este caso, los 16 filtros de la primera capa convolucional han detectado diferentes características de la imagen, como bordes y texturas. Este proceso se repite en múltiples capas, lo que permite a la red aprender representaciones cada vez más complejas de la imagen.
+
+
+
 
 \begin{enumerate}
    \item \textbf{Fundamentos del Deep Learning}
@@ -250,6 +306,7 @@ Puntos más relevantes de la evolución de las redes neuronales convolucionales 
 
 \section{Aceleradores de procesamiento gráfico}
 Evolución de los aceleradores de procesamiento gráfico desde la GPU, hasta los dispositivos de bajo consumo en la serie Jetson de NVIDIA.
+Comentar también TensorRT y como se utiliza para optimizar los modelos en inferencias para los dispositivos de NVIDIA.
 
 \section{Seguimiento de objetos en tiempo real}
 Explicación de como funcionan los algoritmos de multi-object tracking (MOT) en tiempo real, filtro de Kalman hasta BYTETrack.
