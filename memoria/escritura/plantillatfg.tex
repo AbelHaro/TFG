@@ -177,9 +177,10 @@ El objetivo principal de este trabajo es desarrollar un sistema de visión artif
 
 En este capítulo se realizará un estudio del estado del arte en los diferentes componentes que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
 
-\section{Redes neuronales convolucionales}
+\section{Fundamentos y avances en redes neuronales para visión artificial}
 En esta sección se realizará un estudio de las redes neuronales hasta las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. Se explicarán los conceptos básicos de las redes neuronales y la evolución de las arquitecturas.
 
+\subsection{Fundamentos de la inteligencia artificial}
 La \textit{\textbf{Inteligencia Artificial}} es un campo de estudio que busca desarrollar sistemas capaces de realizar tareas que normalmente requieren inteligencia humana, como el reconocimiento de voz, la toma de decisiones y la comprensión del lenguaje natural. Dentro de este campo, existen diversas subdisciplinas, entre las cuales destacan el \textit{\textbf{Machine Learning}} y el \textit{\textbf{Deep Learning}}.
 
 El \textit{\textbf{Machine Learning}} o aprendizaje automático es una rama de la inteligencia artificial que se centra en el desarrollo de algoritmos y modelos que permiten a las máquinas aprender de los datos y realizar predicciones o tomar decisiones sin ser programadas explícitamente. Este enfoque se basa en la idea de que las máquinas pueden identificar patrones y relaciones en grandes conjuntos de datos, lo que les permite generalizar y adaptarse a nuevas situaciones.
@@ -193,6 +194,29 @@ El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprend
    \label{fig:multilayer_perceptron}
 \end{figure}
 
+\subsection{Tareas fundamentales en visión por computador}
+En el ámbito del procesamiento de imágenes mediante técnicas de deep learning, existen diversas tareas con diferentes niveles de complejidad:
+
+\begin{enumerate}
+    \item \textbf{Clasificación de imágenes}: Es la tarea más básica, donde la red neuronal asigna una etiqueta a toda la imagen. Por ejemplo, determinar si una imagen contiene un perro, gato o coche. El modelo genera un vector de probabilidades para cada clase posible.
+    
+    \item \textbf{Clasificación con localización}: Además de clasificar el objeto principal, la red también proporciona un cuadro delimitador (bounding box) que indica dónde se encuentra ese objeto en la imagen. Es útil cuando existe un único objeto de interés.
+    
+    \item \textbf{Detección de objetos}: Extiende la tarea anterior para identificar y localizar múltiples objetos en una imagen. Algoritmos como R-CNN, Fast R-CNN, YOLO o SSD permiten detectar varios objetos de diferentes clases, proporcionando para cada uno su clasificación y cuadro delimitador.
+    
+    \item \textbf{Segmentación}: Es la tarea más compleja, donde la red no solo identifica y localiza objetos, sino que también asigna una etiqueta a cada píxel de la imagen. Esto permite distinguir entre diferentes objetos y sus contornos, facilitando una comprensión más detallada de la escena.
+\end{enumerate}
+
+La Figura~\ref{fig:tareas_vision_por_computador} ilustra estas tareas fundamentales en visión por computador. Para este trabajo, nos centraremos en la tarea de detección de objetos, que es esencial para identificar y clasificar varios objetos en movimiento en un vídeo o imagen. 
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/estado_del_arte/diferentes_formas_de_detectar.png}
+   \caption{Tareas fundamentales en visión por computador.}
+   \label{fig:tareas_vision_por_computador}
+\end{figure}
+
+\subsection{Arquitectura y funcionamiento de las CNN}
 Las \textit{\textbf{Convolutional Neural Networks}} (CNN) o redes neuronales convolucionales son un tipo específico de red neuronal profunda. Estas redes están diseñadas para procesar imágenes y extraer características relevantes de manera eficiente, lo que las hace especialmente adecuadas para tareas de visión por computador.
 
 \begin{figure}[H]
@@ -238,7 +262,7 @@ La Figura~\ref{fig:operacion_convolucion} muestra un ejemplo de la operación de
 
 La Figura~\ref{fig:bus_convolucion} ilustra el proceso de la primera convolución del modelo yolo11n \cite{yolo11_ultralytics}. En la parte izquierda se muestra la imagen original de un autobús, mientras que en la parte derecha se presenta el resultado de aplicar la operación de convolución. En este caso, los 16 filtros de la primera capa convolucional han detectado diferentes características de la imagen, como bordes y texturas. Este proceso se repite en múltiples capas, lo que permite a la red aprender representaciones cada vez más complejas de la imagen.
 
-Además de las capas de convolución, las CNN suelen incluir capas de \textit{\textbf{pooling}} que permiten reducir la dimensionalidad de las características extraídas, ayudando a prevenir el sobreajuste y a mejorar la eficiencia computacional. El \textit{pooling} consiste en aplicar una operación de reducción (como el máximo o la media) a un conjunto de activaciones, lo que permite resumir la información y mantener las características más relevantes. Este proceso se ilustra en la Figura~\ref{fig:pooling}.
+Además de las capas de convolución, las CNN incluyen capas de \textit{\textbf{pooling}} que permiten reducir la dimensionalidad de las características extraídas, ayudando a prevenir el sobreajuste y a mejorar la eficiencia computacional. El \textit{pooling} consiste en aplicar una operación de reducción (como el máximo o la media) a un conjunto de activaciones, lo que permite resumir la información y mantener las características más relevantes. Este proceso se ilustra en la Figura~\ref{fig:pooling}.
 
 \begin{figure}[H]
    \centering
@@ -247,11 +271,9 @@ Además de las capas de convolución, las CNN suelen incluir capas de \textit{\t
    \label{fig:pooling}
 \end{figure}
 
-Por último, las CNN suelen incluir capas completamente conectadas (fully connected) al final de la red, que permiten realizar la clasificación final de los objetos detectados. Estas capas toman las características extraídas por las capas convolucionales y las combinan para generar una salida que representa la probabilidad de que un objeto pertenezca a una clase específica.
+Por último, las CNN incluyen capas completamente conectadas (\textit{\textbf{fully connected}}) al final de la red, que permiten realizar la clasificación final de los objetos detectados. Estas capas toman las características extraídas por las capas convolucionales y las combinan para generar una salida que representa la probabilidad de que un objeto pertenezca a una clase específica.
 
 En la figura \ref{fig:cnn} se muestra la arquitectura de LeNet-5 \cite{lecun1998gradient}, una de las primeras CNN desarrolladas. Esta red consta de varias capas convolucionales y de pooling, seguidas de capas completamente conectadas. LeNet-5 fue diseñada para la clasificación de dígitos manuscritos y sentó las bases para el desarrollo de arquitecturas más complejas y eficientes en la actualidad.
-
-
 
 \begin{figure}[H]
    \centering
@@ -260,34 +282,45 @@ En la figura \ref{fig:cnn} se muestra la arquitectura de LeNet-5 \cite{lecun1998
    \label{fig:cnn}
 \end{figure}
 
-\subsection{Tareas fundamentales en visión por computador}
+\
 
-En el ámbito del procesamiento de imágenes mediante técnicas de deep learning, existen diversas tareas con diferentes niveles de complejidad:
+\subsection{Detectores de 2 etapas}
+Las arquitecturas de detección de objetos se pueden clasificar en dos categorías principales: \textit{\textbf{detectores de dos etapas}} y \textit{\textbf{detectores de una etapa}}. Los detectores de dos etapas, como R-CNN, Fast R-CNN y Faster R-CNN, funcionan en dos fases: primero generan propuestas de regiones (region proposals) y luego clasifican estas regiones. Este enfoque permite una mayor precisión, pero a costa de un mayor tiempo de procesamiento.
 
-\begin{enumerate}
-    \item \textbf{Clasificación de imágenes}: Es la tarea más básica, donde la red neuronal asigna una etiqueta a toda la imagen. Por ejemplo, determinar si una imagen contiene un perro, gato o coche. El modelo genera un vector de probabilidades para cada clase posible.
-    
-    \item \textbf{Clasificación con localización}: Además de clasificar el objeto principal, la red también proporciona un cuadro delimitador (bounding box) que indica dónde se encuentra ese objeto en la imagen. Es útil cuando existe un único objeto de interés.
-    
-    \item \textbf{Detección de objetos}: Extiende la tarea anterior para identificar y localizar múltiples objetos en una imagen. Algoritmos como R-CNN, Fast R-CNN, YOLO o SSD permiten detectar varios objetos de diferentes clases, proporcionando para cada uno su clasificación y cuadro delimitador.
-    
-    \item \textbf{Segmentación}: Es la tarea más compleja, donde la red no solo identifica y localiza objetos, sino que también asigna una etiqueta a cada píxel de la imagen. Esto permite distinguir entre diferentes objetos y sus contornos, facilitando una comprensión más detallada de la escena.
-\end{enumerate}
-
-
-La Figura~\ref{fig:tareas_vision_por_computador} ilustra estas tareas fundamentales en visión por computador. 
-
+La primera arquitectura exitosa de detección de objetos basada en deep learning fue R-CNN (Regions with CNN features) \cite{girshick2014richfeaturehierarchiesaccurate}. Este modelo introdujo un enfoque de dos etapas que revolucionó el campo. En su primera fase, R-CNN utiliza un algoritmo de búsqueda selectiva (Selective Search) para generar aproximadamente 2,000 propuestas de regiones que podrían contener objetos. Este algoritmo de búsqueda selectiva divide la imágen en nodos y aristas, e iterativamente agrupa estas regiones en función del color, textura, tamaño y forma hasta que se obtienen las propuestas finales. En la figura \ref{fig:selective_search}\cite{explainningAI} se muestra un ejemplo de cómo funciona el algoritmo de búsqueda selectiva.
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{images/estado_del_arte/diferentes_formas_de_detectar.png}
-   \caption{Tareas fundamentales en visión por computador.}
-   \label{fig:tareas_vision_por_computador}
+   \begin{subfigure}[b]{0.45\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{images/estado_del_arte/selective_search_original.png}
+      \caption{Imagen original.}
+      \label{fig:selective_search_original}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}[b]{0.45\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{images/estado_del_arte/selective_search_result.png}
+      \caption{Resultado de búsqueda selectiva.}     
+      \label{fig:selective_search_result}
+   \end{subfigure}
+   \caption{Proceso de búsqueda selectiva aplicado a una imagen.}
+   \label{fig:selective_search}
 \end{figure}
 
+En la segunda fase, cada región propuesta es redimensionada y procesada individualmente por una CNN para extraer características de alto nivel. Estas características alimentan posteriormente a un clasificador SVM (Support Vector Machine) para determinar la categoría del objeto y a un regresor lineal para mejorar la localización del cuadro delimitador. Como se ilustra en la Figura~\ref{fig:r-cnn}, este enfoque fue innovador pero computacionalmente costoso, ya que requiere procesar cada propuesta de región de manera independiente.
 
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/estado_del_arte/R-CNN.png}
+   \caption{Arquitectura de R-CNN.}
+   \label{fig:r-cnn}
+\end{figure}
 
+\subsection{Detectores de 1 etapa}
+Los detectores de una etapa, como YOLO (You Only Look Once) y SSD (Single Shot MultiBox Detector), abordan la detección de objetos de manera diferente. En lugar de generar propuestas de regiones y clasificarlas por separado, estos modelos realizan la detección en una sola pasada a través de la red. Esto se traduce en un aumento significativo en la velocidad de procesamiento, lo que los hace ideales para aplicaciones en tiempo real.
 
+\subsection{Evolución de las arquitecturas de detección}
 \begin{enumerate}
    \item \textbf{Fundamentos del Deep Learning}
    \begin{enumerate}
@@ -356,6 +389,7 @@ La Figura~\ref{fig:tareas_vision_por_computador} ilustra estas tareas fundamenta
       \item Velocidad (FPS) y compromiso velocidad-precisión
    \end{enumerate}
 \end{enumerate}
+
 
 
 \section{Aceleradores de procesamiento gráfico}
