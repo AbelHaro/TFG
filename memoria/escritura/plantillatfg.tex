@@ -184,7 +184,14 @@ La \textit{\textbf{Inteligencia Artificial}} es un campo de estudio que busca de
 
 El \textit{\textbf{Machine Learning}} o aprendizaje automático es una rama de la inteligencia artificial que se centra en el desarrollo de algoritmos y modelos que permiten a las máquinas aprender de los datos y realizar predicciones o tomar decisiones sin ser programadas explícitamente. Este enfoque se basa en la idea de que las máquinas pueden identificar patrones y relaciones en grandes conjuntos de datos, lo que les permite generalizar y adaptarse a nuevas situaciones.
 
-El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprendizaje automático que utiliza redes neuronales artificiales para modelar y resolver problemas complejos. Estas redes están compuestas por múltiples capas de neuronas interconectadas, que permiten aprender representaciones jerárquicas de los datos. Además, su capacidad para generalizar a partir de ejemplos les permite abordar tareas complejas con un alto grado de precisión.
+El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprendizaje automático que utiliza redes neuronales artificiales con múltiples capas para modelar y resolver problemas complejos. Este enfoque permite aprender representaciones jerárquicas de los datos, donde cada capa extrae características cada vez más abstractas. Una de las arquitecturas fundamentales es el \textit{Multilayer Perceptron} (MLP) o perceptrón multicapa, que consiste en una red de neuronas artificiales organizadas en al menos tres capas: una de entrada, una o más capas ocultas y una capa de salida, como se muestra en la Figura~\ref{fig:multilayer_perceptron} \cite{khan2018guide}. En un MLP, cada neurona recibe un conjunto de entradas ponderadas por pesos, aplica una función de activación no lineal a la suma de estas entradas ponderadas, y produce una salida que se transmite a la siguiente capa. La capacidad de aprendizaje de estas redes se basa en el algoritmo de retropropagación (backpropagation), que ajusta iterativamente los pesos para minimizar el error entre las predicciones de la red y los valores reales. Esta estructura permite al Deep Learning abordar tareas complejas en visión por computador, procesamiento del lenguaje natural y otros dominios con un alto grado de precisión.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/estado_del_arte/multilayer_perceptron.png}
+   \caption{Estructura de un perceptrón multicapa (MLP).}
+   \label{fig:multilayer_perceptron}
+\end{figure}
 
 Las \textit{\textbf{Convolutional Neural Networks}} (CNN) o redes neuronales convolucionales son un tipo específico de red neuronal profunda. Estas redes están diseñadas para procesar imágenes y extraer características relevantes de manera eficiente, lo que las hace especialmente adecuadas para tareas de visión por computador.
 
@@ -230,6 +237,53 @@ La Figura~\ref{fig:operacion_convolucion} muestra un ejemplo de la operación de
 \end{figure}
 
 La Figura~\ref{fig:bus_convolucion} ilustra el proceso de la primera convolución del modelo yolo11n \cite{yolo11_ultralytics}. En la parte izquierda se muestra la imagen original de un autobús, mientras que en la parte derecha se presenta el resultado de aplicar la operación de convolución. En este caso, los 16 filtros de la primera capa convolucional han detectado diferentes características de la imagen, como bordes y texturas. Este proceso se repite en múltiples capas, lo que permite a la red aprender representaciones cada vez más complejas de la imagen.
+
+Además de las capas de convolución, las CNN suelen incluir capas de \textit{\textbf{pooling}} que permiten reducir la dimensionalidad de las características extraídas, ayudando a prevenir el sobreajuste y a mejorar la eficiencia computacional. El \textit{pooling} consiste en aplicar una operación de reducción (como el máximo o la media) a un conjunto de activaciones, lo que permite resumir la información y mantener las características más relevantes. Este proceso se ilustra en la Figura~\ref{fig:pooling}.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/estado_del_arte/max_pooling.png}
+   \caption{Operación de pooling en una imagen.}
+   \label{fig:pooling}
+\end{figure}
+
+Por último, las CNN suelen incluir capas completamente conectadas (fully connected) al final de la red, que permiten realizar la clasificación final de los objetos detectados. Estas capas toman las características extraídas por las capas convolucionales y las combinan para generar una salida que representa la probabilidad de que un objeto pertenezca a una clase específica.
+
+En la figura \ref{fig:cnn} se muestra la arquitectura de LeNet-5 \cite{lecun1998gradient}, una de las primeras CNN desarrolladas. Esta red consta de varias capas convolucionales y de pooling, seguidas de capas completamente conectadas. LeNet-5 fue diseñada para la clasificación de dígitos manuscritos y sentó las bases para el desarrollo de arquitecturas más complejas y eficientes en la actualidad.
+
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=1\textwidth]{images/estado_del_arte/lenet-5.png}
+   \caption{Arquitectura de LeNet-5.}
+   \label{fig:cnn}
+\end{figure}
+
+\subsection{Tareas fundamentales en visión por computador}
+
+En el ámbito del procesamiento de imágenes mediante técnicas de deep learning, existen diversas tareas con diferentes niveles de complejidad:
+
+\begin{enumerate}
+    \item \textbf{Clasificación de imágenes}: Es la tarea más básica, donde la red neuronal asigna una etiqueta a toda la imagen. Por ejemplo, determinar si una imagen contiene un perro, gato o coche. El modelo genera un vector de probabilidades para cada clase posible.
+    
+    \item \textbf{Clasificación con localización}: Además de clasificar el objeto principal, la red también proporciona un cuadro delimitador (bounding box) que indica dónde se encuentra ese objeto en la imagen. Es útil cuando existe un único objeto de interés.
+    
+    \item \textbf{Detección de objetos}: Extiende la tarea anterior para identificar y localizar múltiples objetos en una imagen. Algoritmos como R-CNN, Fast R-CNN, YOLO o SSD permiten detectar varios objetos de diferentes clases, proporcionando para cada uno su clasificación y cuadro delimitador.
+    
+    \item \textbf{Segmentación}: Es la tarea más compleja, donde la red no solo identifica y localiza objetos, sino que también asigna una etiqueta a cada píxel de la imagen. Esto permite distinguir entre diferentes objetos y sus contornos, facilitando una comprensión más detallada de la escena.
+\end{enumerate}
+
+
+La Figura~\ref{fig:tareas_vision_por_computador} ilustra estas tareas fundamentales en visión por computador. 
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/estado_del_arte/diferentes_formas_de_detectar.png}
+   \caption{Tareas fundamentales en visión por computador.}
+   \label{fig:tareas_vision_por_computador}
+\end{figure}
 
 
 
