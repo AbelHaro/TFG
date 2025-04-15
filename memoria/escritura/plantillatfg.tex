@@ -25,6 +25,7 @@
 \usepackage{subcaption}
 
 \usepackage{float}          % Para usar [H] en las figuras
+\usepackage{amsmath}        % Para usar \text en modo matemático
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     CODIFICACIO DEL FITXER FONT                             %
 %                                                                             %
@@ -332,90 +333,159 @@ La arquitectura de los detectores de una etapa procesa la imagen completa una ú
 
 Esta arquitectura de una etapa enfatiza la velocidad sobre la máxima precisión, haciéndola ideal para aplicaciones en tiempo real donde la latencia es crítica. Los modelos más conocidos de este tipo incluyen SSD (Single Shot MultiBox Detector)\cite{Liu_2016} y YOLO (You Only Look Once)\cite{redmon2016lookonceunifiedrealtime}, que han demostrado un equilibrio efectivo entre velocidad y precisión, permitiendo detecciones en tiempo real incluso en dispositivos con recursos limitados.
 
-Para la realización de este trabajo, se ha optado por utilizar un detector de una etapa, específicamente YOLOv11 \cite{yolo11_ultralytics}, que es una versión optimizada y mejorada de las arquitecturas YOLO anteriores. Esta elección se basa en la necesidad de un sistema eficiente y rápido para la detección de objetos en movimiento, lo que es esencial para el contexto industrial en el que se aplicará la solución.
+Para la realización de este trabajo, se ha optado por utilizar un detector de una etapa, específicamente YOLO11 \cite{yolo11_ultralytics}, que es una versión optimizada y mejorada de las arquitecturas YOLO anteriores. Esta elección se basa en la necesidad de un sistema eficiente y rápido para la detección de objetos en movimiento, lo que es esencial para el contexto industrial en el que se aplicará la solución.
+\subsection{YOLO}
 
-\subsection{YOLO (You Only Look Once)}
+YOLO (You Only Look Once) destaca como una de las arquitecturas de detección de objetos más populares y efectivas en la actualidad. Desarrollada con el objetivo principal de permitir la detección de objetos en tiempo real, YOLO ha revolucionado el campo al combinar velocidad y precisión en un único modelo mediante un enfoque unificado.
+
+A diferencia de otros detectores, YOLO procesa la imagen completa en una sola pasada, fundamentándose en un principio elegante pero potente: divide la imagen de entrada en una cuadrícula de $S \times S$ celdas, donde cada celda es responsable de predecir objetos cuyo centro cae dentro de sus límites. Para cada celda, el modelo predice $B$ cuadros delimitadores (bounding boxes), acompañados de puntuaciones de confianza que indican tanto la probabilidad de que el cuadro contenga un objeto como la precisión de la predicción. Simultáneamente, el modelo calcula probabilidades condicionales para cada posible clase, permitiendo identificar la naturaleza del objeto detectado.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/estado_del_arte/yolo_detections_example.png}
+   \caption{Ejemplo de detección de objetos utilizando YOLO.}
+   \label{fig:yolo_detections_example}
+\end{figure}
+
+Como se ilustra en la Figura~\ref{fig:yolo_detections_example}\cite{redmon2016lookonceunifiedrealtime}, YOLO modela la detección como un problema de regresión. Las predicciones del modelo se codifican como un tensor de dimensiones $S \times S \times (B * 5 + C)$, donde el factor $5$ corresponde a las coordenadas $x$, $y$, ancho, alto y la puntuación de confianza para cada cuadro delimitador, mientras que $C$ representa el número de clases posibles. Una vez generadas todas las predicciones, YOLO implementa un post-procesamiento mediante supresión de no máximos (NMS) para eliminar detecciones redundantes y conservar únicamente las más precisas. Este enfoque unificado permite que YOLO procese imágenes a velocidades significativamente mayores que los detectores de dos etapas, mientras mantiene una precisión competitiva, lo que lo hace ideal para aplicaciones en tiempo real como las que se abordan en este trabajo.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/estado_del_arte/yolo_architecture.png}
+   \caption{Arquitectura de YOLO}
+   \label{fig:yolo_architecture}
+\end{figure}
+
+En la Figura~\ref{fig:yolo_architecture} se presenta la arquitectura del modelo primigenio de YOLO \cite{redmon2016lookonceunifiedrealtime}. Esta arquitectura se basa en una red neuronal convolucional que extrae características de la imagen de entrada y las procesa a través de varias capas para generar las predicciones finales. A lo largo de los años, se han desarrollado múltiples versiones y mejoras de YOLO, cada una optimizando aspectos como la precisión, la velocidad y la capacidad de detección de objetos pequeños o densamente agrupados.
+
+Como se mencionó anteriormente, para este trabajo se ha optado por utilizar YOLO11 \cite{yolo11_ultralytics}, una versión optimizada y mejorada de las arquitecturas YOLO anteriores. Este modelo se incluye en la librería Ultralytics, que proporciona una implementación eficiente y fácil de usar de diferentes versiones de YOLO. Ultralytics ha realizado importantes contribuciones a la comunidad de la visión por computador, ofreciendo herramientas y recursos que facilitan el entrenamiento, la evaluación y la implementación de modelos YOLO en una variedad de aplicaciones.
+YOLO11 está disponible en una variedad de configuraciones (11n, 11s, 11m, 11l y 11x).
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{%
+   \begin{tabular}{l c | cc | c | c}
+      \toprule
+      Modelo & Tamaño (px) & Latencia CPU ONNX (ms) & Latencia T4 TRT10 (ms) & mAPval (50-95) & Parámetros / FLOPs (M / B) \\
+      \midrule
+      YOLO11n & 640 & 56.1 ± 0.8 & 1.5 ± 0.0 & 39.5 & 2.6 / 6.5 \\
+      YOLO11s & 640 & 90.0 ± 1.2 & 2.5 ± 0.0 & 47.0 & 9.4 / 21.5 \\
+      YOLO11m & 640 & 183.2 ± 2.0 & 4.7 ± 0.1 & 51.5 & 20.1 / 68.0 \\
+      YOLO11l & 640 & 238.6 ± 1.4 & 6.2 ± 0.1 & 53.4 & 25.3 / 86.9 \\
+      YOLO11x & 640 & 462.8 ± 6.7 & 11.3 ± 0.2 & 54.7 & 56.9 / 194.9 \\
+      \bottomrule
+   \end{tabular}
+   }
+   \caption{Análisis comparativo de las variantes de YOLO11 considerando precisión, velocidad y complejidad computacional.}
+   \label{tab:yolo11_comparison}
+\end{table}
+
+La Tabla \ref{tab:yolo11_comparison} presenta un análisis comparativo de las distintas variantes de YOLO11 evaluadas sobre el dataset COCO \cite{lin2015microsoftcococommonobjects}. Los datos revelan una clara correlación: los modelos más grandes ofrecen mayor precisión (mAP) a costa de mayor complejidad computacional y menor velocidad de procesamiento. Esta escalabilidad permite adaptar la implementación según los requisitos específicos de cada aplicación, balanceando efectivamente el rendimiento con las restricciones computacionales del sistema objetivo.
+
+\subsection{Métricas de evaluación}
 
 
+Para evaluar el rendimiento de los modelos de detección de objetos, se utilizan métricas específicas que permiten cuantificar la precisión y efectividad del sistema. Entre las métricas más comunes se encuentran:
 
+\begin{itemize}
+   \item \textbf{Precisión (Precision)}: Mide la proporción de verdaderos positivos (TP) respecto al total de predicciones positivas realizadas por el modelo. Se calcula como:
+   \[
+   \text{Precision} = \frac{TP}{TP + FP}
+   \]
+   donde $FP$ representa los falsos positivos. Una alta precisión indica que el modelo realiza pocas predicciones incorrectas.
 
+   \item \textbf{Recall}: Mide la proporción de verdaderos positivos respecto al total de objetos relevantes en la imagen. Se calcula como:
+   \[
+   \text{Recall} = \frac{TP}{TP + FN}
+   \]
+   donde $FN$ representa los falsos negativos. Un alto recall indica que el modelo es capaz de detectar la mayoría de los objetos relevantes, aunque pueda incluir algunas predicciones incorrectas.
 
+   \item \textbf{IoU (Intersection over Union)}: Mide la superposición entre el cuadro delimitador predicho y el cuadro delimitador real. Se calcula como:
+   \[
+   \text{IoU} = \frac{\text{Area de interseccion}}{\text{Area de union}}
+   \]
 
-\subsection{Evolución de las arquitecturas de detección}
-\begin{enumerate}
-   \item \textbf{Fundamentos del Deep Learning}
-   \begin{enumerate}
-      \item Concepto de aprendizaje profundo
-      \item Redes neuronales artificiales básicas
-      \item Función de activación, pesos y capas
-   \end{enumerate}
+   Una IoU alta indica que el modelo ha localizado correctamente el objeto. Generalmente, se considera que una IoU superior a 0.5 indica una detección correcta.
 
-   \item \textbf{Redes neuronales profundas}
-   \begin{enumerate}
-      \item Arquitecturas multicapa
-      \item Desafío del desvanecimiento del gradiente
-      \item Técnicas de inicialización y normalización
-   \end{enumerate}
+   \item \textbf{mAP (mean Average Precision)}: Es una métrica que combina precisión y recall, promediando la precisión a diferentes niveles de recall. Se utiliza para evaluar el rendimiento general del modelo en múltiples clases. 
+   
+   El cálculo del mAP se realiza en varios pasos: primero, para cada clase se calcula la curva PR (Precision-Recall) y se obtiene el Average Precision (AP), que representa el área bajo esta curva. Luego, el mAP se obtiene como la media de todos los AP de las diferentes clases. En detección de objetos, el mAP suele incorporar diferentes umbrales de IoU (Intersection over Union), expresándose como mAP@IoU=0.5 o mAP@IoU=0.5:0.95. Esta métrica es especialmente útil cuando las clases están desequilibradas, ya que da igual importancia a clases minoritarias y mayoritarias. Un valor de mAP cercano a 1 indica un modelo con alta precisión y recall en todas las clases.
 
-   \item \textbf{Redes neuronales convolucionales (CNN)}
-   \begin{enumerate}
-      \item Operación de convolución y su importancia
-      \item Capas convolucionales, pooling y fully-connected
-      \item Invarianza a la traslación y extracción jerárquica de características
-   \end{enumerate}
+   \item \textbf{Latencia}: Mide el tiempo que tarda el modelo en procesar una imagen y generar una predicción se mide en milisegundos (ms) y un valor bajo indica que el modelo es capaz de realizar inferencias rápidamente.
+   
+   \item \textbf{FPS (Frames Per Second)}: Mide la velocidad de procesamiento del modelo, indicando cuántas imágenes puede procesar por segundo un alto valor de FPS indica que el modelo es capaz de realizar inferencias rápidamente.
+   \item \textbf{F1 Score}: Es la media armónica entre precisión y recall, proporcionando un balance entre ambos. Se utiliza para evaluar el rendimiento del modelo en situaciones donde hay un desbalance entre clases. Se calcula como:
+   \[
+   \text{F1 Score} = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
+   \]
 
-   \item \textbf{Detección de objetos: primeros enfoques}
-   \begin{enumerate}
-      \item Sliding window
-      \item Uso de características handcrafted (HOG, SIFT)
-      \item Limitaciones de los enfoques tradicionales
-   \end{enumerate}
+   Un F1 Score alto indica que el modelo tiene un buen equilibrio entre precisión y recall, lo que es especialmente importante en aplicaciones donde tanto la detección correcta como la minimización de falsos positivos son críticas.
 
-   \item \textbf{Detectores de dos etapas (two-stage)}
-   \begin{enumerate}
-      \item R-CNN: region proposals + clasificación
-      \item Fast R-CNN: mejoras compartiendo cálculos
-      \item Faster R-CNN: Region Proposal Network (RPN)
-      \item Mask R-CNN: incorporación de segmentación
-   \end{enumerate}
-
-   \item \textbf{Detectores de una etapa (one-stage)}
-   \begin{enumerate}
-      \item SSD (Single Shot MultiBox Detector)
-      \item RetinaNet y Focal Loss
-      \item Ventajas en velocidad vs. precisión
-   \end{enumerate}
-
-   \item \textbf{YOLO (You Only Look Once)}
-   \begin{enumerate}
-      \item YOLOv1: división en grid y predicción directa
-      \item YOLOv2/YOLO9000: mejoras con anchor boxes
-      \item YOLOv3: múltiples escalas y características
-      \item YOLOv4: mejoras en backbone y técnicas de aumento
-   \end{enumerate}
-
-   \item \textbf{Evolución reciente de YOLO}
-   \begin{enumerate}
-      \item YOLOv5: optimización y escalabilidad
-      \item YOLOv6/v7: avances arquitectónicos
-      \item YOLOv8: modularidad y rendimiento
-      \item YOLO11: nuevas características y optimizaciones
-   \end{enumerate}
-
-   \item \textbf{Métricas de evaluación}
-   \begin{enumerate}
-      \item Precisión y recall
-      \item IoU (Intersection over Union)
-      \item mAP50 y mAP50-95
-      \item Velocidad (FPS) y compromiso velocidad-precisión
-   \end{enumerate}
-\end{enumerate}
-
+\end{itemize}
 
 
 \section{Aceleradores de procesamiento gráfico}
-Evolución de los aceleradores de procesamiento gráfico desde la GPU, hasta los dispositivos de bajo consumo en la serie Jetson de NVIDIA.
-Comentar también TensorRT y como se utiliza para optimizar los modelos en inferencias para los dispositivos de NVIDIA.
+
+Un aspecto fundamental para el despliegue eficiente de modelos de inteligencia artificial es el hardware utilizado para su ejecución. A continuación, se analizan los principales aspectos de los aceleradores de procesamiento gráfico y su importancia en aplicaciones de visión artificial.
+
+\subsection{Ventajas de las GPUs para modelos de IA}
+Las GPUs (Unidades de Procesamiento Gráfico) presentan ventajas significativas frente a las CPUs tradicionales para la ejecución de modelos de inteligencia artificial:
+
+\begin{itemize}
+   \item \textbf{Arquitectura de procesamiento paralelo}: Las GPUs contienen miles de núcleos más pequeños diseñados para operaciones simultáneas, mientras que las CPUs tienen menos núcleos pero más potentes.
+   
+   \item \textbf{Operaciones matriciales eficientes}: Las cargas de trabajo de IA dependen en gran medida de multiplicaciones matriciales, que las GPUs gestionan eficientemente mediante hardware especializado.
+   
+   \item \textbf{Mayor ancho de banda de memoria}: Las GPUs ofrecen un ancho de banda de memoria significativamente mayor, crucial para procesar grandes conjuntos de datos en redes neuronales.
+   
+   \item \textbf{Instrucciones especializadas}: Las GPUs modernas incluyen núcleos tensoriales específicamente diseñados para acelerar operaciones de aprendizaje profundo.
+   
+   \item \textbf{Optimización de rendimiento}: Las GPUs están optimizadas para el procesamiento por lotes en aprendizaje profundo, priorizando el rendimiento sobre la latencia.
+\end{itemize}
+
+\subsection{NVIDIA en la aceleración de IA}
+NVIDIA ha desempeñado un papel fundamental en el desarrollo de aceleradores para inteligencia artificial:
+
+\begin{itemize}
+   \item \textbf{Pionero en GPGPU}: NVIDIA lideró el movimiento de computación de propósito general en GPUs con la introducción de CUDA en 2006.
+   
+   \item \textbf{Desarrollo del ecosistema}: Creó bibliotecas de software completas (cuDNN, cuBLAS) específicamente para aprendizaje profundo.
+   
+   \item \textbf{Innovación en hardware}: Desarrolló hardware especializado como los Tensor Cores para operaciones matriciales de IA.
+   
+   \item \textbf{Estándar de la industria}: Estableció estándares de facto para hardware y software de aceleración de IA.
+\end{itemize}
+
+\subsection{Serie Jetson: Dispositivos de IA de bajo consumo}
+La serie Jetson de NVIDIA representa una familia de dispositivos específicamente diseñados para implementar IA en el borde:
+
+\begin{itemize}
+   \item \textbf{Enfoque en computación edge}: Diseñados para el despliegue de IA en el borde donde existen restricciones de energía.
+   
+   \item \textbf{Diseño System-on-Chip}: Integra núcleos de CPU ARM, núcleos de GPU NVIDIA y aceleradores especializados.
+   
+   \item \textbf{Gama de productos}: Abarca desde dispositivos de nivel básico (Jetson Nano) hasta dispositivos de alto rendimiento (Jetson AGX Orin).
+   
+   \item \textbf{Eficiencia energética}: Ofrece un rendimiento por vatio optimizado para aplicaciones embebidas.
+   
+   \item \textbf{Plataforma completa}: Proporciona hardware, pila de software y herramientas de desarrollo en un ecosistema unificado.
+\end{itemize}
+
+\subsection{TensorRT: Framework de optimización}
+TensorRT es un framework desarrollado por NVIDIA para optimizar la inferencia de modelos de aprendizaje profundo:
+
+\begin{itemize}
+   \item \textbf{Optimización de inferencia}: Específicamente diseñado para optimizar modelos entrenados para su despliegue.
+   
+   \item \textbf{Optimización de grafos}: Realiza fusión de capas, calibración de precisión y autoajuste de kernels.
+   
+   \item \textbf{Soporte de cuantización}: Permite precisión INT8/FP16 para reducir la huella de memoria y aumentar el rendimiento.
+   
+   \item \textbf{Ajuste específico para plataformas}: Selecciona automáticamente rutas de ejecución óptimas para hardware específico de NVIDIA.
+   
+   \item \textbf{Capacidades de integración}: Funciona con los principales frameworks como TensorFlow, PyTorch y ONNX.
+\end{itemize}
+
+
 
 \section{Seguimiento de objetos en tiempo real}
 Explicación de como funcionan los algoritmos de multi-object tracking (MOT) en tiempo real, filtro de Kalman hasta BYTETrack.

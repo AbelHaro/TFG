@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{challe6010117}
 Anders S.~G. Andrae and Tomas Edler.
@@ -38,6 +38,12 @@ Tushar Kumar.
 Yann LeCun, L{\'e}on Bottou, Yoshua Bengio, and Patrick Haffner.
 \newblock Gradient-based learning applied to document recognition.
 \newblock {\em Proceedings of the IEEE}, 86(11):2278--2324, 1998.
+
+\bibitem{lin2015microsoftcococommonobjects}
+Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, Ross Girshick,
+  James Hays, Pietro Perona, Deva Ramanan, C.~Lawrence Zitnick, and Piotr
+  Dollár.
+\newblock Microsoft coco: Common objects in context, 2015.
 
 \bibitem{Liu_2016}
 Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
