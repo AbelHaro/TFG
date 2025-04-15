@@ -39,4 +39,14 @@ Yann LeCun, L{\'e}on Bottou, Yoshua Bengio, and Patrick Haffner.
 \newblock Gradient-based learning applied to document recognition.
 \newblock {\em Proceedings of the IEEE}, 86(11):2278--2324, 1998.
 
+\bibitem{Liu_2016}
+Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
+  Cheng-Yang Fu, and Alexander~C. Berg.
+\newblock {\em SSD: Single Shot MultiBox Detector}, page 21–37.
+\newblock Springer International Publishing, 2016.
+
+\bibitem{redmon2016lookonceunifiedrealtime}
+Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
+\newblock You only look once: Unified, real-time object detection, 2016.
+
 \end{thebibliography}

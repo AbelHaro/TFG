@@ -60,8 +60,8 @@
 
 \title{Detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA}
 \author{Haro Armero, Abel}
-\tutor{Flich Cardo, José}
-%\tutor{López Rodríguez, Pedro Juan}
+\tutor{Flich Cardo, José \\
+López Rodríguez, Pedro Juan}
 \curs{2024-2025}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -202,7 +202,12 @@ En el ámbito del procesamiento de imágenes mediante técnicas de deep learning
     
     \item \textbf{Clasificación con localización}: Además de clasificar el objeto principal, la red también proporciona un cuadro delimitador (bounding box) que indica dónde se encuentra ese objeto en la imagen. Es útil cuando existe un único objeto de interés.
     
-    \item \textbf{Detección de objetos}: Extiende la tarea anterior para identificar y localizar múltiples objetos en una imagen. Algoritmos como R-CNN, Fast R-CNN, YOLO o SSD permiten detectar varios objetos de diferentes clases, proporcionando para cada uno su clasificación y cuadro delimitador.
+   \item \textbf{Detección de objetos}: Extiende la tarea anterior para identificar y localizar múltiples objetos en una imagen. Los algoritmos de detección se dividen principalmente en:
+      \begin{itemize}
+         \item \textit{Detectores de dos etapas}: Como R-CNN, Fast R-CNN y Faster R-CNN, primero generan propuestas de regiones que podrían contener objetos, y luego clasifican estas regiones. Son más precisos pero computacionalmente más costosos.
+         \item \textit{Detectores de una etapa}: Como YOLO (You Only Look Once) y SSD (Single Shot MultiBox Detector), que predicen las cajas delimitadoras y las clases directamente en una sola pasada. Son más rápidos aunque tradicionalmente menos precisos.
+      \end{itemize}
+      Ambos enfoques proporcionan para cada objeto detectado su clasificación y cuadro delimitador.
     
     \item \textbf{Segmentación}: Es la tarea más compleja, donde la red no solo identifica y localiza objetos, sino que también asigna una etiqueta a cada píxel de la imagen. Esto permite distinguir entre diferentes objetos y sus contornos, facilitando una comprensión más detallada de la escena.
 \end{enumerate}
@@ -267,7 +272,7 @@ Además de las capas de convolución, las CNN incluyen capas de \textit{\textbf{
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.6\textwidth]{images/estado_del_arte/max_pooling.png}
-   \caption{Operación de pooling en una imagen.}
+   \caption{Operación de max-pooling en una imagen.}
    \label{fig:pooling}
 \end{figure}
 
@@ -282,12 +287,10 @@ En la figura \ref{fig:cnn} se muestra la arquitectura de LeNet-5 \cite{lecun1998
    \label{fig:cnn}
 \end{figure}
 
-\
+\subsection{Detectores de dos etapas}
+Los detectores de dos etapas, funcionan mediante un proceso secuencial: primero generan propuestas de regiones (region proposals) que podrían contener objetos y posteriormente clasifican estas regiones. Este enfoque favorece la precisión, aunque generalmente a costa de un mayor tiempo de procesamiento.
 
-\subsection{Detectores de 2 etapas}
-Las arquitecturas de detección de objetos se pueden clasificar en dos categorías principales: \textit{\textbf{detectores de dos etapas}} y \textit{\textbf{detectores de una etapa}}. Los detectores de dos etapas, como R-CNN, Fast R-CNN y Faster R-CNN, funcionan en dos fases: primero generan propuestas de regiones (region proposals) y luego clasifican estas regiones. Este enfoque permite una mayor precisión, pero a costa de un mayor tiempo de procesamiento.
-
-La primera arquitectura exitosa de detección de objetos basada en deep learning fue R-CNN (Regions with CNN features) \cite{girshick2014richfeaturehierarchiesaccurate}. Este modelo introdujo un enfoque de dos etapas que revolucionó el campo. En su primera fase, R-CNN utiliza un algoritmo de búsqueda selectiva (Selective Search) para generar aproximadamente 2,000 propuestas de regiones que podrían contener objetos. Este algoritmo de búsqueda selectiva divide la imágen en nodos y aristas, e iterativamente agrupa estas regiones en función del color, textura, tamaño y forma hasta que se obtienen las propuestas finales. En la figura \ref{fig:selective_search}\cite{explainningAI} se muestra un ejemplo de cómo funciona el algoritmo de búsqueda selectiva.
+La primera arquitectura exitosa de detección de objetos basada en deep learning fue R-CNN (Regions with CNN features) \cite{girshick2014richfeaturehierarchiesaccurate}. Este modelo introdujo un enfoque de dos etapas que revolucionó el campo. En su primera fase, R-CNN utiliza un algoritmo de búsqueda selectiva (Selective Search) para generar aproximadamente 2,000 propuestas de regiones que podrían contener objetos. Este algoritmo de búsqueda selectiva divide la imágen en nodos y aristas, e iterativamente agrupa estas regiones en función del color, textura, tamaño y forma hasta que se obtienen las propuestas finales. En la figura \ref{fig:selective_search}\cite{explainningAI} se muestra un ejemplo del resultado del algoritmo de búsqueda selectiva.
 
 \begin{figure}[H]
    \centering
@@ -317,8 +320,26 @@ En la segunda fase, cada región propuesta es redimensionada y procesada individ
    \label{fig:r-cnn}
 \end{figure}
 
-\subsection{Detectores de 1 etapa}
-Los detectores de una etapa, como YOLO (You Only Look Once) y SSD (Single Shot MultiBox Detector), abordan la detección de objetos de manera diferente. En lugar de generar propuestas de regiones y clasificarlas por separado, estos modelos realizan la detección en una sola pasada a través de la red. Esto se traduce en un aumento significativo en la velocidad de procesamiento, lo que los hace ideales para aplicaciones en tiempo real.
+\subsection{Detectores de una etapa}
+%https://www.ultralytics.com/es/glossary/one-stage-object-detectors Explicación de los detectores de 1 etapa por Ultralytics
+%https://www.ultralytics.com/glossary/backbone Explicación de la parte de backbone en los detectores de 1 etapa por Ultralytics
+%https://www.ultralytics.com/glossary/anchor-free-detectors Explicación de los detectores anchor-free por Ultralytics
+%https://sharkyun.medium.com/computer-vision-object-detection-one-stage-vs-two-stage-b05dbff88195 Explicación simple de las diferencias entre los detectores de 2 etapas frente a los de 1 etapa
+
+En contraste con los detectores de dos etapas, los detectores de una etapa (one-stage detectors) adoptan un enfoque más directo y eficiente. Estos detectores tratan la detección como un problema de regresión, realizando la localización y clasificación de objetos simultáneamente en una sola pasada a través de la red, sin necesidad de un paso intermedio de generación de propuestas.
+
+La arquitectura de los detectores de una etapa procesa la imagen completa una única vez, típicamente mediante una red troncal o \textit{backbone} (generalmente una CNN) para la extracción de características. Estas características son posteriormente procesadas por componentes intermedios (\textit{neck}) y alimentadas a una cabeza de detección (\textit{detection head}) que predice simultáneamente las coordenadas de los cuadros delimitadores y las probabilidades de clase. 
+
+Esta arquitectura de una etapa enfatiza la velocidad sobre la máxima precisión, haciéndola ideal para aplicaciones en tiempo real donde la latencia es crítica. Los modelos más conocidos de este tipo incluyen SSD (Single Shot MultiBox Detector)\cite{Liu_2016} y YOLO (You Only Look Once)\cite{redmon2016lookonceunifiedrealtime}, que han demostrado un equilibrio efectivo entre velocidad y precisión, permitiendo detecciones en tiempo real incluso en dispositivos con recursos limitados.
+
+Para la realización de este trabajo, se ha optado por utilizar un detector de una etapa, específicamente YOLOv11 \cite{yolo11_ultralytics}, que es una versión optimizada y mejorada de las arquitecturas YOLO anteriores. Esta elección se basa en la necesidad de un sistema eficiente y rápido para la detección de objetos en movimiento, lo que es esencial para el contexto industrial en el que se aplicará la solución.
+
+\subsection{YOLO (You Only Look Once)}
+
+
+
+
+
 
 \subsection{Evolución de las arquitecturas de detección}
 \begin{enumerate}
