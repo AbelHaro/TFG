@@ -23,6 +23,10 @@ Ross Girshick, Jeff Donahue, Trevor Darrell, and Jitendra Malik.
 Glenn Jocher and Jing Qiu.
 \newblock Ultralytics yolo11, 2024.
 
+\bibitem{Jocher_Ultralytics_YOLO_2023}
+Glenn Jocher, Jing Qiu, and Ayush Chaurasia.
+\newblock {Ultralytics YOLO}, January 2023.
+
 \bibitem{khan2018guide}
 Salman Khan, Hossein Rahmani, Syed Afaq~Ali Shah, and Mohammed Bennamoun.
 \newblock {\em A Guide to Convolutional Neural Networks for Computer Vision}.
