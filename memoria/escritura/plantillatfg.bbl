@@ -59,4 +59,9 @@ Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
 Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
 \newblock You only look once: Unified, real-time object detection, 2016.
 
+\bibitem{DennardScaling}
+Liming Xiu.
+\newblock Time moore: Exploiting moore's law from the perspective of time.
+\newblock {\em IEEE Solid-State Circuits Magazine}, 11:39--55, 01 2019.
+
 \end{thebibliography}
