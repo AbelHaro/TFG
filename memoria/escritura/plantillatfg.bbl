@@ -31,6 +31,11 @@ Salman Khan, Hossein Rahmani, Syed Afaq~Ali Shah, and Mohammed Bennamoun.
 \newblock Synthesis Lectures on Computer Vision. Springer Cham, 1 edition,
   2018.
 
+\bibitem{kuhn1955hungarian}
+Harold~W. Kuhn.
+\newblock The hungarian method for the assignment problem.
+\newblock {\em Naval Research Logistics Quarterly}, 2(1-2):83--97, 1955.
+
 \bibitem{explainningAI}
 Tushar Kumar.
 \newblock R-cnn explained, 2024.
@@ -67,5 +72,11 @@ Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
 Liming Xiu.
 \newblock Time moore: Exploiting moore's law from the perspective of time.
 \newblock {\em IEEE Solid-State Circuits Magazine}, 11:39--55, 01 2019.
+
+\bibitem{zhang2022bytetrackmultiobjecttrackingassociating}
+Yifu Zhang, Peize Sun, Yi~Jiang, Dongdong Yu, Fucheng Weng, Zehuan Yuan, Ping
+  Luo, Wenyu Liu, and Xinggang Wang.
+\newblock Bytetrack: Multi-object tracking by associating every detection box,
+  2022.
 
 \end{thebibliography}
