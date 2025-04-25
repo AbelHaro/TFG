@@ -241,7 +241,7 @@ La operación de convolución es fundamental en las CNN. Esta operación consist
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.6\textwidth]{images/estado_del_arte/operacion_convolucion.png}
-   \caption{Operación de convolución en una imagen.}
+   \caption{Operación de convolución sobre los pixeles de una imagen.}
    \label{fig:operacion_convolucion}
 \end{figure}
 
@@ -266,7 +266,7 @@ La Figura~\ref{fig:operacion_convolucion} muestra un ejemplo de la operación de
    \label{fig:bus_convolucion}
 \end{figure}
 
-La Figura~\ref{fig:bus_convolucion} ilustra el proceso de la primera convolución del modelo yolo11n \cite{yolo11_ultralytics}. En la parte izquierda se muestra la imagen original de un autobús, mientras que en la parte derecha se presenta el resultado de aplicar la operación de convolución. En este caso, los 16 filtros de la primera capa convolucional han detectado diferentes características de la imagen, como bordes y texturas. Este proceso se repite en múltiples capas, lo que permite a la red aprender representaciones cada vez más complejas de la imagen.
+La Figura~\ref{fig:bus_convolucion} ilustra el proceso de la primera convolución del modelo YOLO11n \cite{yolo11_ultralytics}. En la parte izquierda se muestra la imagen original de un autobús, mientras que en la parte derecha se presenta el resultado de aplicar la operación de convolución. En este caso, los 16 filtros de la primera capa convolucional han detectado diferentes características de la imagen, como bordes y texturas. Este proceso se repite en múltiples capas, lo que permite a la red aprender representaciones cada vez más complejas de la imagen.
 
 Además de las capas de convolución, las CNN incluyen capas de \textit{\textbf{pooling}} que permiten reducir la dimensionalidad de las características extraídas, ayudando a prevenir el sobreajuste y a mejorar la eficiencia computacional. El \textit{pooling} consiste en aplicar una operación de reducción (como el máximo o la media) a un conjunto de activaciones, lo que permite resumir la información y mantener las características más relevantes. Este proceso se ilustra en la Figura~\ref{fig:pooling}.
 
@@ -516,7 +516,86 @@ El proceso de optimización con TensorRT, como se ilustra en la Figura~\ref{fig:
 
 
 \section{Seguimiento de objetos en tiempo real}
-Explicación de como funcionan los algoritmos de multi-object tracking (MOT) en tiempo real, filtro de Kalman hasta BYTETrack.
+En esta sección se presentará los conceptos básicos del seguimiento de objetos en tiempo real, se explicará el problema del seguimiento de objetos múltiples (MOT) y se presentarán los algoritmos más relevantes en este campo.
+
+\subsection{Introducción al seguimiento de objetos}
+El seguimiento de objetos es una tarea fundamental en visión por computador que consiste en localizar y seguir la trayectoria de elementos en movimiento a través de una secuencia de vídeo. A diferencia de los modelos de detección de objetos, que procesan cada fotograma de manera independiente como si fuera una imagen estática (sin importar si forma parte de una secuencia temporal o es una imagen aislada), los sistemas de Seguimiento de Objetos Múltiples (MOT) se centran en establecer la correspondencia temporal entre las detecciones. La función clave del MOT es asociar un identificador único a cada objeto detectado y mantenerlo consistentemente a lo largo de los fotogramas de la secuencia, permitiendo así reconstruir sus trayectorias y analizar su comportamiento dinámico en la escena.
+
+
+EXPLICAR EL FILTRO DE KALMAN
+
+\begin{itemize}
+   \item \textbf{Introducción al Seguimiento de Objetos Múltiples (MOT):} Definición del problema, importancia y aplicaciones principales.
+   \item \textbf{Desafíos del MOT:} Se discutirán las dificultades inherentes al seguimiento, como oclusiones, cambios de apariencia, interacciones entre objetos, entradas y salidas de la escena, y errores de detección.
+   \item \textbf{Paradigma Tracking-by-Detection:} Explicación del enfoque dominante en MOT, que consiste en detectar objetos en cada fotograma y luego asociar estas detecciones a lo largo del tiempo para formar trayectorias.
+   \item \textbf{Filtro de Kalman:} Descripción de sus fundamentos matemáticos como estimador óptimo para sistemas lineales y su aplicación para predecir la posición futura de los objetos y suavizar las trayectorias, manejando la incertidumbre en las mediciones.
+   \item \textbf{Asociación de Datos:} Técnicas para vincular las detecciones actuales con las trayectorias existentes, como el algoritmo Húngaro basado en métricas de similitud (IoU, apariencia).
+   \item \textbf{Algoritmos Clásicos:}
+      \begin{itemize}
+         \item \textbf{SORT (Simple Online and Realtime Tracking):} Enfoque basado principalmente en el Filtro de Kalman y la métrica IoU para la asociación, destacando por su simplicidad y velocidad.
+         \item \textbf{DeepSORT (Deep Simple Online and Realtime Tracking):} Extensión de SORT que incorpora características de apariencia extraídas mediante redes profundas para mejorar la robustez frente a oclusiones prolongadas.
+      \end{itemize}
+   \item \textbf{Algoritmos Modernos - BYTETrack:} Presentación de BYTETrack, que mejora la gestión de detecciones de baja confianza para manejar mejor las oclusiones y reducir la fragmentación de trayectorias, separando las detecciones de alta y baja confianza en el proceso de asociación.
+   \item \textbf{Métricas de Evaluación para MOT:} Introducción a las métricas estándar para evaluar el rendimiento de los algoritmos de seguimiento, como MOTA (Multiple Object Tracking Accuracy), MOTP (Multiple Object Tracking Precision), IDF1, HOTA (Higher Order Tracking Accuracy), entre otras.
+\end{itemize}
+
+
+\subsection{BYTETrack}
+
+BYTETrack\cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo de Seguimiento de Objetos Múltiples (MOT) que opera bajo el paradigma de seguimiento por detección. Su contribución clave es el aprovechamiento de las detecciones con baja puntuación de confianza, que otros métodos suelen descartar. En lugar de eliminarlas, BYTETrack realiza la asociación en dos etapas: primero vincula las detecciones de alta confianza con las trayectorias existentes (usando típicamente Filtro de Kalman y métricas como IoU). Posteriormente, intenta asociar las detecciones de baja confianza restantes con aquellas trayectorias que no encontraron correspondencia en la primera etapa. Esta estrategia mejora significativamente el manejo de oclusiones, donde la confianza del detector puede bajar temporalmente, y reduce la fragmentación de las trayectorias al mantener su continuidad.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.5\textwidth]{images/estado_del_arte/BYTETrack_MOTA.png}
+   \caption{Comparativa de rendimiento de BYTETrack con otros algoritmos de seguimiento.}
+   \label{fig:bytetrack_mota}
+\end{figure}
+
+La Figura \ref{fig:bytetrack_mota} presenta una comparativa de rendimiento que evidencia la superioridad de BYTETrack frente a otros algoritmos de seguimiento, según los resultados publicados en \cite{zhang2022bytetrackmultiobjecttrackingassociating}. Como se observa, BYTETrack no solo alcanza una mayor precisión, medida por la métrica MOTA (Multiple Object Tracking Accuracy), sino que también demuestra una velocidad de procesamiento superior. Estas características lo posicionan como una solución particularmente eficaz y atractiva para aplicaciones que demandan seguimiento de objetos en tiempo real.
+
+\begin{figure}[H]
+
+   \centering
+   \includegraphics[width=0.5\textwidth]{images/estado_del_arte/BYTETrack_deteccion.png}
+   \caption{Ejemplo de detección y seguimiento de objetos utilizando BYTETrack.}
+   \label{fig:bytetrack_deteccion}
+   \caption*{Fuente: \cite{zhang2022bytetrackmultiobjecttrackingassociating}}
+\end{figure}
+
+La Figura \ref{fig:bytetrack_deteccion} ilustra el proceso de BYTETrack a través de tres fotogramas consecutivos ($\tau_1$, $\tau_2$, $\tau_3$) de una secuencia de vídeo. En (a), se observan las detecciones iniciales que superan un umbral de confianza (p. ej., 0.5). La sección (b) muestra las trayectorias generadas al asociar exclusivamente las detecciones de alta confianza. Por el contrario, (c) presenta el resultado final de BYTETrack, que integra también las detecciones de baja confianza en el proceso de asociación. Esta comparación evidencia cómo la estrategia de BYTETrack permite mantener la continuidad de las trayectorias frente a desafíos como oclusiones parciales y variaciones en la confianza de las detecciones, logrando así una representación más precisa y robusta del movimiento de los objetos en el tiempo.
+
+
+El funcionamiento del algoritmo BYTETrack es el siguiente:
+
+\textbf{Input:} Una secuencia de vídeo $V$, un detector de objetos $Det$, y un umbral de confianza de detección $\tau$.
+
+\textbf{Output:} Las trayectorias $\mathcal{T}$ de los objetos detectados en el vídeo.
+
+\begin{enumerate}
+   \item \textbf{Inicialización:} Se inicializa el conjunto de trayectorias $\mathcal{T}$ como vacío.
+   \item \textbf{Procesamiento por fotograma:} Para cada fotograma $f_k$ en la secuencia de vídeo $V$:
+   { % Start a group to keep the redefinition local
+   \renewcommand{\theenumii}{\theenumi.\arabic{enumii}} % Change numbering to 1.1, 1.2, etc.
+   \renewcommand{\labelenumii}{\theenumii.} % Add trailing dot to the label
+   \begin{enumerate}
+      \item \textbf{Detección:} Se utiliza el detector $Det$ para obtener las cajas delimitadoras y sus puntuaciones de confianza para el fotograma $f_k$, resultando en un conjunto de detecciones $\mathcal{D}_k$.
+      \item \textbf{Separación de detecciones:} Se inicializan dos conjuntos vacíos: $\mathcal{D}_{high}$ para detecciones de alta confianza y $\mathcal{D}_{low}$ para detecciones de baja confianza. Se itera sobre cada detección $d$ en $\mathcal{D}_k$:
+      \begin{itemize}
+         \item Si la puntuación $d.score$ es mayor que el umbral $\tau$, la detección $d$ se añade a $\mathcal{D}_{high}$.
+         \item En caso contrario, la detección $d$ se añade a $\mathcal{D}_{low}$.
+      \end{itemize}
+      \item \textbf{Predicción de trayectorias:} Para cada trayectoria existente $t$ en $\mathcal{T}$, se predice su nueva ubicación utilizando un Filtro de Kalman.
+      \item \textbf{Primera asociación:} Se asocian las trayectorias $\mathcal{T}$ con las detecciones de alta confianza $\mathcal{D}_{high}$ utilizando el \textit{Hungarian alogorithm}\cite{kuhn1955hungarian} con la métrica de similitud IoU (Intersection over Union). Las detecciones no asociadas se guardan en $\mathcal{D}_{remain}$ y las trayectorias no asociadas en $\mathcal{T}_{remain}$.
+      \item \textbf{Segunda asociación:} Se asocian las trayectorias restantes $\mathcal{T}_{remain}$ con las detecciones de baja confianza $\mathcal{D}_{low}$ utilizando otra métrica de similitud (Similarity\#2, usualmente IoU). Las trayectorias que siguen sin asociarse se guardan en $\mathcal{T}_{re-remain}$. Solo se asocian detecciones de baja confianza a trayectorias que no pudieron ser asociadas con detecciones de alta confianza.
+      \item \textbf{Eliminación de trayectorias no asociadas:} Se eliminan de $\mathcal{T}$ las trayectorias que quedaron en $\mathcal{T}_{re-remain}$ (aquellas que no se pudieron asociar ni en la primera ni en la segunda etapa) si han permanecido sin asociar durante un número determinado de fotogramas (definido por el parámetro track\_buffer).
+      \item \textbf{Inicialización de nuevas trayectorias:} Se itera sobre las detecciones de alta confianza que no fueron asociadas ($\mathcal{D}_{remain}$). Cada una de estas detecciones se considera el inicio de una nueva trayectoria y se añade al conjunto $\mathcal{T}$.
+   \end{enumerate}
+   } % End the group
+   \item \textbf{Retorno:} Una vez procesados todos los fotogramas, se devuelve el conjunto final de trayectorias $\mathcal{T}$.
+\end{enumerate}
+
+
+
 
 \section{Slicing Aided Hyper Inference}
 Explicación de la técnica de Slicing Aided Hyper Inference, como se utiliza para mejorar la precisión de los modelos de detección de objetos y como se aplica en este trabajo.
