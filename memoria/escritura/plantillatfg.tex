@@ -28,6 +28,8 @@
 
 \usepackage{float}          % Para usar [H] en las figuras
 \usepackage{amsmath}        % Para usar \text en modo matemático
+\usepackage{tabularx}       % Para usar el entorno tabularx
+\usepackage{array}          % Para usar >{} en las columnas de la tabla
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     CODIFICACIO DEL FITXER FONT                             %
 %                                                                             %
@@ -192,7 +194,8 @@ La \textit{\textbf{Inteligencia Artificial}} es un campo de estudio que busca de
 
 El \textit{\textbf{Machine Learning}} o aprendizaje automático es una rama de la inteligencia artificial que se centra en el desarrollo de algoritmos y modelos que permiten a las máquinas aprender de los datos y realizar predicciones o tomar decisiones sin ser programadas explícitamente. Este enfoque se basa en la idea de que las máquinas pueden identificar patrones y relaciones en grandes conjuntos de datos, lo que les permite generalizar y adaptarse a nuevas situaciones.
 
-El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprendizaje automático que utiliza redes neuronales artificiales con múltiples capas para modelar y resolver problemas complejos. Este enfoque permite aprender representaciones jerárquicas de los datos, donde cada capa extrae características cada vez más abstractas. Una de las arquitecturas fundamentales es el \textit{Multilayer Perceptron} (MLP) o perceptrón multicapa, que consiste en una red de neuronas artificiales organizadas en al menos tres capas: una de entrada, una o más capas ocultas y una capa de salida, como se muestra en la Figura~\ref{fig:multilayer_perceptron} \cite{khan2018guide}. En un MLP, cada neurona recibe un conjunto de entradas ponderadas por pesos, aplica una función de activación no lineal a la suma de estas entradas ponderadas, y produce una salida que se transmite a la siguiente capa. La capacidad de aprendizaje de estas redes se basa en el algoritmo de retropropagación (backpropagation), que ajusta iterativamente los pesos para minimizar el error entre las predicciones de la red y los valores reales. Este proceso de aprendizaje sigue el paradigma de aprendizaje supervisado, donde el MLP se entrena utilizando datos previamente etiquetados que definen el \textit{ground truth}, y que típicamente se dividen en conjuntos de entrenamiento, validación y prueba para ajustar y evaluar su rendimiento. Esta estructura permite al Deep Learning abordar tareas complejas en visión por computador, procesamiento del lenguaje natural y otros dominios con un alto grado de precisión.
+El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprendizaje automático que utiliza redes neuronales artificiales con múltiples capas para modelar y resolver problemas complejos. Este enfoque permite aprender representaciones jerárquicas de los datos, donde cada capa extrae características cada vez más abstractas. Una de las arquitecturas fundamentales es el \textit{Multilayer Perceptron} (MLP) o perceptrón multicapa, que consiste en una red de neuronas artificiales organizadas en al menos tres capas: una de entrada, una o más capas ocultas y una capa de salida, como se muestra en la Figura~\ref{fig:multilayer_perceptron} \cite{khan2018guide}. En un MLP, cada neurona recibe un conjunto de entradas ponderadas por pesos, aplica una función de activación no lineal a la suma de estas entradas ponderadas, y produce una salida que se transmite a la siguiente capa. Esta estructura permite al Deep Learning abordar tareas complejas en visión por computador, procesamiento del lenguaje natural y otros dominios con un alto grado de precisión.
+
 
 \begin{figure}[H]
    \centering
@@ -202,6 +205,17 @@ El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprend
 \end{figure}
 
 \subsection{Tareas fundamentales en visión por computador}
+
+La visión por computador aborda el desafío de permitir que las máquinas interpreten y comprendan el contenido visual de imágenes y vídeos. Antes del auge del aprendizaje profundo, se empleaban descriptores de características diseñados manualmente, como el Histograma de Gradientes Orientados (HOG). HOG captura la forma local de los objetos analizando la distribución de las orientaciones de los gradientes en pequeñas regiones de la imagen (celdas y bloques). La Figura~\ref{fig:hog} muestra una visualización de las características HOG extraídas. Aunque útiles en su momento, estos algoritmos "hechos a mano" presentan limitaciones significativas. En particular, no facilitan el aprendizaje por transferencia, es decir, la reutilización de conocimiento aprendido en tareas previas. Además, la complejidad de estas características está intrínsecamente limitada por la capacidad humana para diseñarlas explícitamente. Estos inconvenientes son superados por los algoritmos de aprendizaje automático de características, como las CNN, que aprenden representaciones relevantes directamente de los datos. Por ello, las CNN han demostrado ser más efectivas en tareas complejas, logrando avances significativos en precisión y eficiencia al aprender automáticamente características a partir de grandes conjuntos de datos.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/estado_del_arte/HOG_example.png}
+   \caption{Ejemplo de HOG aplicado a una imagen.}
+   \label{fig:hog}
+\end{figure}
+
+
 En el ámbito del procesamiento de imágenes mediante técnicas de deep learning, existen diversas tareas con diferentes niveles de complejidad:
 
 \begin{enumerate}
@@ -242,19 +256,18 @@ La Figura~\ref{fig:diagrama_de_Venn_inteligencia_artificial} ilustra la relació
 
 Las CNN se inspiran en la forma en que los humanos percibimos el mundo visual. Al igual que nuestro sistema visual, que procesa la información de manera jerárquica, las CNN utilizan capas convolucionales para extraer características de bajo nivel (como bordes y texturas) y capas más profundas para identificar patrones y objetos más complejos. Esta jerarquía de características permite a las CNN aprender representaciones ricas y abstractas de los datos visuales.
 
-Estas redes se componen de varias capas, cada una de las cuales realiza operaciones específicas en los datos de entrada. Las capas más comunes en una CNN son las capas convolucionales, las capas de pooling y las capas completamente conectadas, que se explicarán con más detalle a continuación.
+Estas redes se componen de varias capas, cada una de las cuales realiza operaciones específicas en los datos de entrada. Las capas más comunes y técnicas asociadas en una CNN, que se describen a continuación, son las capas convolucionales, las capas de activación, las capas de pooling, la normalización por lotes y las capas completamente conectadas
 
-Las capas convolucionales utilizan la operación de convolución para extraer características. La operación de convolución es fundamental en las CNN. Esta operación consiste en aplicar un filtro (o kernel) a una imagen para extraer características locales. El filtro se desliza sobre la imagen, multiplicando sus valores por los valores de la imagen en cada posición y sumando los resultados. Este proceso genera un mapa de activación que resalta las características relevantes de la imagen.
+Las \textbf{capas convolucionales} utilizan la operación de convolución para extraer características. Esta operación es fundamental en las CNN y consiste en aplicar un filtro (o kernel) a una imagen para extraer características locales. El filtro se desliza sobre la imagen, multiplicando sus valores por los valores de la imagen en cada posición y sumando los resultados. Este proceso genera un mapa de activación que resalta las características relevantes de la imagen.  
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=1\textwidth]{images/estado_del_arte/operacion_convolucion.png}
+   \includegraphics[width=0.7\textwidth]{images/estado_del_arte/operacion_convolucion.png}
    \caption{Operación de convolución sobre los pixeles de una imagen.}
    \label{fig:operacion_convolucion}
 \end{figure}
 
 La Figura~\ref{fig:operacion_convolucion}\cite{khan2018guide} ilustra la operación de una capa de convolución. En este ejemplo, se aplica un filtro de $2 \times 2$ (mostrado en verde) a un mapa de características de entrada de $6 \times 6$ (incluyendo un relleno de ceros de 1) con un paso (stride) de 2. El filtro se desliza sobre la entrada, y en cada paso, se realiza una multiplicación elemento a elemento entre el filtro y la región correspondiente de la entrada. La suma de estos productos genera un valor en el mapa de características de salida (mostrado en azul).
-
 
 \begin{figure}[H]
    \centering
@@ -277,14 +290,16 @@ La Figura~\ref{fig:operacion_convolucion}\cite{khan2018guide} ilustra la operaci
 
 La Figura~\ref{fig:bus_convolucion} ilustra el proceso de la primera convolución del modelo YOLO11n \cite{yolo11_ultralytics}. En la parte izquierda se muestra la imagen original de un autobús, mientras que en la parte derecha se presenta el resultado de aplicar la operación de convolución. En este caso, los 16 filtros de la primera capa convolucional han detectado diferentes características de la imagen, como bordes y texturas. Este proceso se repite en múltiples capas, lo que permite a la red aprender representaciones cada vez más complejas de la imagen.
 
-Además de las capas convolucionales, las CNN incorporan capas de \textit{\textbf{pooling}} (o submuestreo). Estas capas desempeñan un papel crucial en la reducción progresiva de la dimensión espacial (ancho y alto) de los mapas de características, lo que conlleva varios beneficios importantes. En primer lugar, disminuyen la cantidad de parámetros y la carga computacional de la red, haciendo el modelo más eficiente. En segundo lugar, ayudan a controlar el sobreajuste (\textit{overfitting}) al reducir la complejidad del modelo. El sobreajuste ocurre cuando un modelo aprende los datos de entrenamiento demasiado bien, incluyendo el ruido y los detalles específicos, lo que resulta en un bajo rendimiento con datos nuevos o no vistos. Finalmente, proporcionan un cierto grado de invarianza a pequeñas traslaciones y distorsiones en la imagen de entrada, ya que resumen la información de una región local.
+Las \textbf{capas de activación}, especialmente la ReLU (Rectified Linear Unit), son fundamentales para introducir no-linealidad en el modelo. La función ReLU transforma cada valor negativo en cero mientras mantiene los valores positivos sin cambios, lo que ayuda a mitigar el problema del desvanecimiento del gradiente y acelera el proceso de entrenamiento. La función ReLU se define como:
+\begin{equation}
+   f(x) = \begin{cases}
+      0 & \text{si } x < 0 \\
+      x & \text{si } x \geq 0
+   \end{cases}
+\end{equation}
+Estas capas se aplican típicamente después de cada capa convolucional y completamente conectada.
 
-El funcionamiento del \textit{pooling} implica deslizar una ventana (generalmente de tamaño $2 \times 2$ o $3 \times 3$) sobre el mapa de características de entrada con un cierto paso (\textit{stride}, a menudo igual al tamaño de la ventana para evitar solapamientos). En cada posición de la ventana, se aplica una operación de agregación para obtener un único valor de salida. Las operaciones de pooling más comunes son:
-\begin{itemize}
-   \item \textbf{Max-Pooling:} Selecciona el valor máximo dentro de la ventana. Es eficaz para capturar las características más prominentes. La Figura~\ref{fig:pooling} ilustra esta operación.
-   \item \textbf{Average-Pooling:} Calcula el valor promedio de los elementos dentro de la ventana. Tiende a suavizar las características.
-\end{itemize}
-El resultado es un mapa de características de menor tamaño pero que conserva la información esencial extraída por las capas convolucionales anteriores.
+Las CNN incorporan \textbf{capas de pooling} (o submuestreo). Estas capas desempeñan un papel crucial en la reducción progresiva de la dimensión espacial (ancho y alto) de los mapas de características, lo que conlleva varios beneficios importantes: disminuyen la cantidad de parámetros y la carga computacional, ayudan a controlar el sobreajuste (\textit{overfitting}) al reducir la complejidad del modelo, y proporcionan un cierto grado de invarianza a pequeñas traslaciones y distorsiones. El funcionamiento del pooling implica deslizar una ventana sobre el mapa de características de entrada y aplicar una operación de agregación. Las operaciones más comunes son Max-Pooling, que selecciona el valor máximo dentro de la ventana (eficaz para capturar las características más prominentes, como se ilustra en la Figura~\ref{fig:pooling}), y Average-Pooling, que calcula el valor promedio (tiende a suavizar las características). El resultado es un mapa de características de menor tamaño pero que conserva la información esencial.
 
 \begin{figure}[H]
    \centering
@@ -293,57 +308,47 @@ El resultado es un mapa de características de menor tamaño pero que conserva l
    \label{fig:pooling}
 \end{figure}
 
-
-Por último, las CNN incluyen capas completamente conectadas (\textit{\textbf{fully connected}}) al final de la red, que permiten realizar la clasificación final de los objetos detectados. Estas capas toman las características extraídas por las capas convolucionales y las combinan para generar una salida que representa la probabilidad de que un objeto pertenezca a una clase específica.
-
-Además de estas capas principales, las CNN modernas incorporan otros tipos de capas que mejoran significativamente su rendimiento. Las capas de activación, especialmente la ReLU (Rectified Linear Unit), son fundamentales para introducir no-linealidad en el modelo. La función ReLU transforma cada valor negativo en cero mientras mantiene los valores positivos sin cambios, lo que ayuda a mitigar el problema del desvanecimiento del gradiente y acelera el proceso de entrenamiento.
-
-La función ReLU se define como:
-\begin{equation}
-   f(x) = \begin{cases}
-      0 & \text{si } x < 0 \\
-      x & \text{si } x \geq 0
-   \end{cases}
-\end{equation}
-
-Estas capas se aplican típicamente después de cada capa convolucional y completamente conectada.
-
-La \textbf{Normalización por Lotes}, comúnmente conocida como \textit{Batch Normalization} (BN), constituye una técnica fundamental en el entrenamiento de redes neuronales profundas, diseñada primordialmente para mitigar el problema del \textit{cambio interno de covariables} (\textit{internal covariate shift}). Este fenómeno se refiere a la alteración continua de la distribución estadística de las activaciones de las capas intermedias a medida que los parámetros de las capas precedentes se actualizan durante el proceso de entrenamiento. Dicha inestabilidad en las distribuciones de entrada obliga a las capas subsiguientes a readaptarse constantemente, lo que puede ralentizar la convergencia del modelo y aumentar la dificultad del entrenamiento.
-
-El entrenamiento de redes neuronales profundas se realiza habitualmente procesando los datos en subconjuntos denominados \textbf{mini-lotes} (\textit{mini-batches}), en lugar de procesar el conjunto de datos completo o ejemplos individuales. Esta estrategia equilibra la eficiencia computacional con la introducción de cierta estocasticidad en la estimación del gradiente. Batch Normalization opera precisamente a nivel de estos mini-lotes. Para un mini-lote dado $\mathcal{B} = \{x_1, \dots, x_m\}$, BN calcula inicialmente la media empírica ($\mu_{\mathcal{B}}$) y la varianza empírica ($\sigma^2_{\mathcal{B}}$) de las activaciones dentro de dicho mini-lote:
+La \textbf{Normalización por Lotes} (\textit{Batch Normalization}, BN) es una técnica fundamental para mitigar el problema del \textit{cambio interno de covariables} (\textit{internal covariate shift}), que es la alteración de la distribución de las activaciones intermedias durante el entrenamiento. BN opera a nivel de mini-lotes $\mathcal{B} = \{x_1, \dots, x_m\}$, calculando la media $\mu_{\mathcal{B}}$ y la varianza $\sigma^2_{\mathcal{B}}$:
 \begin{align}
    \mu_{\mathcal{B}} &= \frac{1}{m} \sum_{i=1}^{m} x_i \\
    \sigma^2_{\mathcal{B}} &= \frac{1}{m} \sum_{i=1}^{m} (x_i - \mu_{\mathcal{B}})^2
 \end{align}
-Posteriormente, cada activación $x_i$ del mini-lote es estandarizada utilizando estas estadísticas:
+Luego, normaliza cada activación $x_i$:
 \begin{equation}
    \hat{x}_i = \frac{x_i - \mu_{\mathcal{B}}}{\sqrt{\sigma^2_{\mathcal{B}} + \epsilon}}
 \end{equation}
-donde $\epsilon$ es una pequeña constante positiva (p. ej., $10^{-5}$) añadida para garantizar la estabilidad numérica, previniendo la división por cero en caso de varianza nula. Esta normalización asegura que las activaciones transformadas $\hat{x}_i$ posean, dentro del mini-lote, una media aproximadamente nula y una varianza unitaria.
-
-No obstante, imponer rígidamente esta distribución normalizada podría restringir la capacidad expresiva de la red. Para contrarrestar esta limitación, BN introduce dos parámetros afines, $\gamma$ (escala) y $\beta$ (desplazamiento), que son aprendidos durante el entrenamiento junto con los pesos de la red. Estos parámetros permiten a la red realizar una transformación afín sobre las activaciones normalizadas:
+donde $\epsilon$ es una constante pequeña para estabilidad numérica. Para preservar la capacidad expresiva, BN introduce parámetros aprendibles $\gamma$ (escala) y $\beta$ (desplazamiento) para realizar una transformación afín:
 \begin{equation}
    y_i = \gamma \hat{x}_i + \beta
 \end{equation}
-Mediante $\gamma$ y $\beta$, la red puede aprender la escala y el desplazamiento óptimos para las activaciones de cada capa, recuperando potencialmente la representación original si fuera necesario y preservando así la capacidad representacional del modelo. La salida $y_i$ es entonces la que se propaga a la siguiente operación, usualmente una función de activación no lineal.
+La salida $y_i$ se propaga a la siguiente operación. BN estabiliza y acelera el entrenamiento, permite tasas de aprendizaje más altas y tiene un efecto regularizador que ayuda a prevenir el sobreajuste. Se inserta típicamente después de capas convolucionales o totalmente conectadas, antes de la activación.
 
-La incorporación de Batch Normalization conlleva beneficios sustanciales para el proceso de entrenamiento. Al estabilizar la distribución de las entradas a las capas, reduce efectivamente el cambio interno de covariables, lo que facilita un entrenamiento más rápido y estable. Esta estabilidad permite, a su vez, el uso de tasas de aprendizaje más elevadas sin riesgo de divergencia, acelerando la convergencia del modelo. Adicionalmente, BN ejerce un efecto regularizador. El cálculo de la media y la varianza sobre mini-lotes introduce una forma de ruido estocástico en el entrenamiento, ya que estas estadísticas varían entre mini-lotes. Este ruido inherente ayuda a prevenir el sobreajuste (\textit{overfitting}). Convencionalmente, las capas de Batch Normalization se insertan después de las capas convolucionales o totalmente conectadas, pero antes de la aplicación de la función de activación no lineal (como ReLU).
+En el final de la red, se utilizan \textbf{capas completamente conectadas} (\textit{fully connected}). Estas capas toman las características de alto nivel extraídas por las capas anteriores y las combinan para realizar la tarea final, como la clasificación de objetos. Cada neurona en una capa completamente conectada está conectada a todas las neuronas de la capa anterior. En la salida final, se utiliza una función de activación como Softmax para convertir las salidas en probabilidades de clase. La función Softmax se define como:
 
-El mecanismo central de Dropout consiste en desactivar (poner a cero) aleatoriamente un subconjunto de neuronas (unidades) en una capa durante cada iteración de entrenamiento (paso hacia adelante y hacia atrás). Cada neurona tiene una probabilidad $p$ (el \textit{dropout rate}, un hiperparámetro típicamente entre 0.2 y 0.5) de ser temporalmente eliminada de la red, junto con todas sus conexiones entrantes y salientes. Esta desactivación se realiza de forma independiente para cada neurona y para cada ejemplo de entrenamiento o mini-lote.
+\begin{equation}
+   \sigma(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}
+\end{equation}
+donde $z = (z_1, \dots, z_K)$ es el vector de salidas de la capa anterior para $K$ clases. La función Softmax transforma este vector en un vector de probabilidades $\sigma(z) = (\sigma(z_1), \dots, \sigma(z_K))$, donde cada componente $\sigma(z_i)$ se calcula como se muestra. El resultado es un vector de tamaño $K$ donde cada elemento está en el rango (0, 1) y la suma de todos los elementos es igual a 1 ($\sum_{j=1}^{K} \sigma(z_j) = 1$). Esto permite interpretar la salida como una distribución de probabilidad sobre las $K$ posibles clases.
 
-Al desactivar neuronas aleatoriamente, Dropout impide que las neuronas co-adapten excesivamente sus características, es decir, que dependan demasiado de la presencia de otras neuronas específicas para funcionar correctamente. En cambio, obliga a cada neurona a aprender características que sean útiles por sí mismas o en combinación con diferentes subconjuntos aleatorios de otras neuronas. Esto fomenta el aprendizaje de representaciones más robustas y distribuidas, mejorando la capacidad de generalización del modelo.
-
-Dropout se aplica solo durante la fase de entrenamiento. Durante la inferencia (evaluación o predicción), todas las neuronas están activas, pero sus salidas se escalan multiplicando por $1 - p$ para compensar el hecho de que, durante el entrenamiento, solo una fracción de ellas estaba activa. Esto asegura que la salida esperada del modelo durante la inferencia sea comparable a la salida promedio durante el entrenamiento.
-
-
-En la figura \ref{fig:cnn} se muestra la arquitectura de LeNet-5 \cite{lecun1998gradient}, una de las primeras CNN desarrolladas. Esta red consta de varias capas convolucionales y de pooling, seguidas de capas completamente conectadas. LeNet-5 fue diseñada para la clasificación de dígitos manuscritos y sentó las bases para el desarrollo de arquitecturas más complejas y eficientes en la actualidad.
+En la Figura~\ref{fig:cnn_example}\cite{devbreachCNN} se muestra un ejemplo de una red neuronal convolucional (CNN) simple. Esta red incluye capas convolucionales para la extracción de características, capas de activación para introducir no linealidad, capas de pooling para reducir la dimensionalidad y capas completamente conectadas para realizar la clasificación final. La combinación de estas capas permite a las CNN aprender representaciones jerárquicas y complejas de los datos visuales, lo que las convierte en una herramienta poderosa para tareas de visión por computador.
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=1\textwidth]{images/estado_del_arte/lenet-5.png}
-   \caption{Arquitectura de LeNet-5.}
-   \label{fig:cnn}
+   \includegraphics[width=0.9\textwidth]{images/estado_del_arte/cnn_example.png}
+   \caption{Ejemplo de una CNN simple.}
+   \label{fig:cnn_example}
 \end{figure}
+
+
+Tras comprender la arquitectura interna de las CNN, el siguiente paso es el entrenamiento. Se basa fundamentalmente en el uso de un conjunto de datos etiquetado. Este conjunto contiene una colección de imágenes junto con sus correspondientes etiquetas o anotaciones, que representan la verdad fundamental (\textit{ground truth}). Este conjunto de datos es la base sobre la cual la red aprende a identificar patrones y a realizar predicciones. Durante la fase de entrenamiento, la CNN pasa por un proceso iterativo en el que ajusta sus parámetros internos, específicamente los pesos que conectan sus neuronas y los sesgos aplicados a ellas. Este ajuste es dirigido por un algoritmo de optimización; el Descenso de Gradiente Estocástico (SGD) y sus variantes, como Adam o RMSprop, son opciones comunes para esta tarea. El objetivo principal del algoritmo de optimización es minimizar una función de pérdida predefinida. Esta función de pérdida mide la discrepancia o el error entre las predicciones generadas por la red y las etiquetas reales proporcionadas en los datos de entrenamiento. Típicamente, todo el conjunto de datos de entrenamiento se procesa varias veces en ciclos conocidos como épocas. Este refinamiento iterativo continúa hasta que el rendimiento de la red, evaluado en un conjunto de datos de validación separado (que no se utiliza para el entrenamiento directo), alcanza un nivel satisfactorio. Esto indica que el modelo ha aprendido representaciones significativas y es capaz de generalizar a datos no vistos previamente.
+
+Además, el entrenamiento de las CNN a menudo incorpora técnicas de regularización cruciales, diseñadas para prevenir el sobreajuste (\textit{overfitting}) y mejorar la capacidad del modelo para generalizar a datos nuevos y no vistos. Dos métodos de regularización ampliamente adoptados son el \textit{dropout} y la normalización por lotes (\textit{batch normalization}). El \textit{dropout} funciona desactivando aleatoriamente un cierto porcentaje de neuronas durante cada iteración de entrenamiento. Esto evita que las neuronas individuales se vuelvan excesivamente especializadas o codependientes, obligando a la red a aprender representaciones de características más distribuidas y robustas, que son menos sensibles a la presencia o ausencia de neuronas específicas. 
+
+En escenarios prácticos, desarrollar y entrenar una CNN desde cero puede ser computacionalmente costoso y requerir grandes cantidades de datos etiquetados. Por lo tanto, una estrategia común y muy eficaz consiste en aprovechar modelos preentrenados. Arquitecturas como VGG16, ResNet50 y MobileNetV2, que han sido entrenadas previamente en conjuntos de datos de referencia masivos como ImageNet (que contiene millones de imágenes en miles de categorías) o COCO (centrado en la detección y segmentación de objetos), sirven como puntos de partida potentes. Estos modelos ya han aprendido características jerárquicas ricas a partir de datos visuales diversos. Mediante una técnica conocida como \textit{transfer learning} o aprendizaje por transferencia, estos modelos preentrenados pueden adaptarse eficientemente a tareas nuevas y específicas, incluso con conjuntos de datos personalizados más pequeños. El aprendizaje por transferencia generalmente implica tomar las capas de extracción de características del modelo preentrenado (la base convolucional) y ajustarlas (\textit{fine-tuning}) o añadir nuevas capas de clasificación adaptadas a la tarea objetivo. Este enfoque acelera significativamente el proceso de entrenamiento para la nueva tarea y, a menudo, conduce a un mejor rendimiento en comparación con el entrenamiento desde cero, ya que transfiere eficazmente el conocimiento visual general adquirido durante el entrenamiento inicial a gran escala.
+
+
+
+
 
 \subsection{Detectores de dos etapas}
 Los detectores de dos etapas, funcionan mediante un proceso secuencial: primero generan propuestas de regiones (region proposals) que podrían contener objetos y posteriormente clasifican estas regiones. Este enfoque favorece la precisión, aunque generalmente a costa de un mayor tiempo de procesamiento.
@@ -419,13 +424,13 @@ En este proyecto, se ha seleccionado YOLO11 \cite{yolo11_ultralytics}, que repre
    \resizebox{\textwidth}{!}{%
    \begin{tabular}{l c | cc | c | c}
       \toprule
-      Modelo & Tamaño (px) & Latencia CPU ONNX (ms) & Latencia T4 TRT10 (ms) & mAPval (50-95) & Parámetros / FLOPs (M / B) \\
+      Modelo & Tamaño (px) & Latencia CPU ONNX (ms) & Latencia T4 TRT10 (ms) & mAPval (50-95) & Parámetros (M)\\
       \midrule
-      YOLO11n & 640 & 56.1 ± 0.8 & 1.5 ± 0.0 & 39.5 & 2.6 / 6.5 \\
-      YOLO11s & 640 & 90.0 ± 1.2 & 2.5 ± 0.0 & 47.0 & 9.4 / 21.5 \\
-      YOLO11m & 640 & 183.2 ± 2.0 & 4.7 ± 0.1 & 51.5 & 20.1 / 68.0 \\
-      YOLO11l & 640 & 238.6 ± 1.4 & 6.2 ± 0.1 & 53.4 & 25.3 / 86.9 \\
-      YOLO11x & 640 & 462.8 ± 6.7 & 11.3 ± 0.2 & 54.7 & 56.9 / 194.9 \\
+      YOLO11n & 640 & 56.1 ± 0.8 & 1.5 ± 0.0 & 39.5 & 2.6 \\
+      YOLO11s & 640 & 90.0 ± 1.2 & 2.5 ± 0.0 & 47.0 & 9.4 \\
+      YOLO11m & 640 & 183.2 ± 2.0 & 4.7 ± 0.1 & 51.5 & 20.1 \\
+      YOLO11l & 640 & 238.6 ± 1.4 & 6.2 ± 0.1 & 53.4 & 25.3 \\
+      YOLO11x & 640 & 462.8 ± 6.7 & 11.3 ± 0.2 & 54.7 & 56.9 \\
       \bottomrule
    \end{tabular}
    }
@@ -871,6 +876,9 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
 %                         LA CONFIGURACIO DEL SISTEMA                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+
 \chapter{Configuración del sistema}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
@@ -888,11 +896,37 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\chapter{??? ???????????? ????}
+\chapter{Objetivos de Desarrollo Sostenible}
 
-????? ????????????? ????????????? ????????????? ????????????? ????????????? 
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}X|c|c|c|c|}\hline
+   \textbf{Objetivos de Desarrollo Sostenible} & \textbf{Alto} & \textbf{Medio} & \textbf{Bajo} & \textbf{No procede} \\ \hline
+   ODS 1.  \textbf{Fin de la pobreza.}                            & & & & X \\ \hline
+   ODS 2.  \textbf{Hambre cero.}                                  & & X & & \\ \hline
+   ODS 3.  \textbf{Salud y bienestar.}                            & & & & X\\ \hline
+   ODS 4.  \textbf{Educaci\'on de calidad.}                       & & & & X \\ \hline
+   ODS 5.  \textbf{Igualdad de g\'enero.}                         & & & & X \\ \hline
+   ODS 6.  \textbf{Agua limpia y saneamiento.}                    & & & & X \\ \hline
+   ODS 7.  \textbf{Energ\'{\i}a asequible y no contaminante.}     & & & & X\\ \hline
+   ODS 8.  \textbf{Trabajo decente y crecimiento econ\'omico.}    & X & & & \\ \hline
+   ODS 9.  \textbf{Industria, innovaci\'on e infraestructuras.}   & X & & & \\ \hline
+   ODS 10. \textbf{Reducci\'on de las desigualdades.}             & & & & X\\ \hline
+   ODS 11. \textbf{Ciudades y comunidades sostenibles.}           & & & & X\\ \hline
+   ODS 12. \textbf{Producci\'on y consumo responsables.}          & X & & & \\ \hline
+   ODS 13. \textbf{Acci\'on por el clima.}                        & & & X & \\ \hline
+   ODS 14. \textbf{Vida submarina.}                               & & & & X \\ \hline
+   ODS 15. \textbf{Vida de ecosistemas terrestres.}               & & & & X\\ \hline
+   ODS 16. \textbf{Paz, justicia e instituciones s\'olidas.}      & & & & X\\ \hline
+   ODS 17. \textbf{Alianzas para lograr objetivos.}               & & & & X\\ \hline
+   \end{tabularx}
 
 
+   \section*{Justificación de los Objetivos de Desarrollo Sostenible}
+
+   \textbf{ODS-8. Trabajo decente y crecimiento económico:} Este proyecto contribuye directamente al crecimiento económico sostenible mediante la automatización inteligente de procesos de control de calidad. La implementación de sistemas de detección de defectos basados en IA permite reducir costes operativos, minimizar desperdicios y optimizar la cadena de producción, lo que se traduce en mayor productividad y competitividad empresarial. Se alinea específicamente con la meta 8.2 de la ONU: «Lograr niveles más elevados de productividad económica mediante la diversificación, la modernización tecnológica y la innovación», al incorporar tecnologías avanzadas de procesamiento de imágenes y aprendizaje automático en entornos industriales tradicionales.
+
+   \textbf{ODS-9. Industria, innovación e infraestructura:} El desarrollo de sistemas inteligentes para la detección de defectos representa una clara apuesta por la innovación industrial. Este proyecto no solo implementa tecnologías emergentes como la IA en procesos productivos, sino que además optimiza su rendimiento mediante el uso eficiente de hardware especializado como GPUs, algoritmos de seguimiento multi-objeto y técnicas de paralelización. Esto responde directamente a la meta 9.4 de la ONU: «Modernizar la infraestructura y reconvertir las industrias para que sean sostenibles, utilizando los recursos con mayor eficacia y promoviendo la adopción de tecnologías y procesos industriales limpios y ambientalmente racionales», al permitir mejoras significativas en eficiencia energética y uso de recursos mediante sistemas de inspección automatizados.
+
+   \textbf{ODS-12. Producción y consumo responsables:} La implementación de sistemas de detección temprana de defectos contribuye sustancialmente a la producción responsable mediante: 1) la reducción del descarte de productos y materias primas al identificar problemas en etapas iniciales del proceso productivo, 2) la optimización del consumo energético al evitar el procesamiento completo de productos defectuosos, y 3) la mejora de la calidad final que aumenta la vida útil de los productos. Estas aportaciones se vinculan directamente con la meta 12.5 de la ONU: «De aquí a 2030, reducir considerablemente la generación de desechos mediante actividades de prevención, reducción, reciclado y reutilización», ya que el sistema desarrollado actúa preventivamente evitando la generación de residuos industriales y facilitando la reutilización de materiales recuperados.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              FI DEL DOCUMENT                                %
