@@ -25,6 +25,14 @@ Glenn Jocher and Jing Qiu.
 Glenn Jocher, Jing Qiu, and Ayush Chaurasia.
 \newblock {Ultralytics YOLO}, January 2023.
 
+\bibitem{devbreachCNN}
+Swapna Kategaru.
+\newblock Convolution neural network in deep learning.
+\newblock
+  \url{https://developersbreach.com/convolution-neural-network-deep-learning/},
+  2025.
+\newblock Accedido el 26 de abril de 2025.
+
 \bibitem{khan2018guide}
 Salman Khan, Hossein Rahmani, Syed Afaq~Ali Shah, and Mohammed Bennamoun.
 \newblock {\em A Guide to Convolutional Neural Networks for Computer Vision}.
@@ -40,11 +48,6 @@ Harold~W. Kuhn.
 Tushar Kumar.
 \newblock R-cnn explained, 2024.
 \newblock Accedido: 14 de abril de 2025.
-
-\bibitem{lecun1998gradient}
-Yann LeCun, L{\'e}on Bottou, Yoshua Bengio, and Patrick Haffner.
-\newblock Gradient-based learning applied to document recognition.
-\newblock {\em Proceedings of the IEEE}, 86(11):2278--2324, 1998.
 
 \bibitem{lin2015microsoftcococommonobjects}
 Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, Ross Girshick,
