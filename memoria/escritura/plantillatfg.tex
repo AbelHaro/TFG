@@ -242,16 +242,19 @@ La Figura~\ref{fig:diagrama_de_Venn_inteligencia_artificial} ilustra la relació
 
 Las CNN se inspiran en la forma en que los humanos percibimos el mundo visual. Al igual que nuestro sistema visual, que procesa la información de manera jerárquica, las CNN utilizan capas convolucionales para extraer características de bajo nivel (como bordes y texturas) y capas más profundas para identificar patrones y objetos más complejos. Esta jerarquía de características permite a las CNN aprender representaciones ricas y abstractas de los datos visuales.
 
-La operación de convolución es fundamental en las CNN. Esta operación consiste en aplicar un filtro (o kernel) a una imagen para extraer características locales. El filtro se desliza sobre la imagen, multiplicando sus valores por los valores de la imagen en cada posición y sumando los resultados. Este proceso genera un mapa de activación que resalta las características relevantes de la imagen. 
+Estas redes se componen de varias capas, cada una de las cuales realiza operaciones específicas en los datos de entrada. Las capas más comunes en una CNN son las capas convolucionales, las capas de pooling y las capas completamente conectadas, que se explicarán con más detalle a continuación.
+
+Las capas convolucionales utilizan la operación de convolución para extraer características. La operación de convolución es fundamental en las CNN. Esta operación consiste en aplicar un filtro (o kernel) a una imagen para extraer características locales. El filtro se desliza sobre la imagen, multiplicando sus valores por los valores de la imagen en cada posición y sumando los resultados. Este proceso genera un mapa de activación que resalta las características relevantes de la imagen.
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.6\textwidth]{images/estado_del_arte/operacion_convolucion.png}
+   \includegraphics[width=1\textwidth]{images/estado_del_arte/operacion_convolucion.png}
    \caption{Operación de convolución sobre los pixeles de una imagen.}
    \label{fig:operacion_convolucion}
 \end{figure}
 
-La Figura~\ref{fig:operacion_convolucion} muestra un ejemplo de la operación de convolución. En este caso, se aplica un filtro de 3x3 a una imagen de entrada, generando un mapa de activación que resalta las características detectadas por el filtro.
+La Figura~\ref{fig:operacion_convolucion}\cite{khan2018guide} ilustra la operación de una capa de convolución. En este ejemplo, se aplica un filtro de $2 \times 2$ (mostrado en verde) a un mapa de características de entrada de $6 \times 6$ (incluyendo un relleno de ceros de 1) con un paso (stride) de 2. El filtro se desliza sobre la entrada, y en cada paso, se realiza una multiplicación elemento a elemento entre el filtro y la región correspondiente de la entrada. La suma de estos productos genera un valor en el mapa de características de salida (mostrado en azul).
+
 
 \begin{figure}[H]
    \centering
@@ -274,16 +277,64 @@ La Figura~\ref{fig:operacion_convolucion} muestra un ejemplo de la operación de
 
 La Figura~\ref{fig:bus_convolucion} ilustra el proceso de la primera convolución del modelo YOLO11n \cite{yolo11_ultralytics}. En la parte izquierda se muestra la imagen original de un autobús, mientras que en la parte derecha se presenta el resultado de aplicar la operación de convolución. En este caso, los 16 filtros de la primera capa convolucional han detectado diferentes características de la imagen, como bordes y texturas. Este proceso se repite en múltiples capas, lo que permite a la red aprender representaciones cada vez más complejas de la imagen.
 
-Además de las capas de convolución, las CNN incluyen capas de \textit{\textbf{pooling}} que permiten reducir la dimensionalidad de las características extraídas, ayudando a prevenir el sobreajuste y a mejorar la eficiencia computacional. El \textit{pooling} consiste en aplicar una operación de reducción (como el máximo o la media) a un conjunto de activaciones, lo que permite resumir la información y mantener las características más relevantes. Este proceso se ilustra en la Figura~\ref{fig:pooling}.
+Además de las capas convolucionales, las CNN incorporan capas de \textit{\textbf{pooling}} (o submuestreo). Estas capas desempeñan un papel crucial en la reducción progresiva de la dimensión espacial (ancho y alto) de los mapas de características, lo que conlleva varios beneficios importantes. En primer lugar, disminuyen la cantidad de parámetros y la carga computacional de la red, haciendo el modelo más eficiente. En segundo lugar, ayudan a controlar el sobreajuste (\textit{overfitting}) al reducir la complejidad del modelo. El sobreajuste ocurre cuando un modelo aprende los datos de entrenamiento demasiado bien, incluyendo el ruido y los detalles específicos, lo que resulta en un bajo rendimiento con datos nuevos o no vistos. Finalmente, proporcionan un cierto grado de invarianza a pequeñas traslaciones y distorsiones en la imagen de entrada, ya que resumen la información de una región local.
+
+El funcionamiento del \textit{pooling} implica deslizar una ventana (generalmente de tamaño $2 \times 2$ o $3 \times 3$) sobre el mapa de características de entrada con un cierto paso (\textit{stride}, a menudo igual al tamaño de la ventana para evitar solapamientos). En cada posición de la ventana, se aplica una operación de agregación para obtener un único valor de salida. Las operaciones de pooling más comunes son:
+\begin{itemize}
+   \item \textbf{Max-Pooling:} Selecciona el valor máximo dentro de la ventana. Es eficaz para capturar las características más prominentes. La Figura~\ref{fig:pooling} ilustra esta operación.
+   \item \textbf{Average-Pooling:} Calcula el valor promedio de los elementos dentro de la ventana. Tiende a suavizar las características.
+\end{itemize}
+El resultado es un mapa de características de menor tamaño pero que conserva la información esencial extraída por las capas convolucionales anteriores.
 
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.6\textwidth]{images/estado_del_arte/max_pooling.png}
-   \caption{Operación de max-pooling en una imagen.}
+   \caption{Ejemplo de operación de max-pooling con una ventana de $2 \times 2$ y un paso de 2. Se selecciona el valor máximo de cada región de color.}
    \label{fig:pooling}
 \end{figure}
 
+
 Por último, las CNN incluyen capas completamente conectadas (\textit{\textbf{fully connected}}) al final de la red, que permiten realizar la clasificación final de los objetos detectados. Estas capas toman las características extraídas por las capas convolucionales y las combinan para generar una salida que representa la probabilidad de que un objeto pertenezca a una clase específica.
+
+Además de estas capas principales, las CNN modernas incorporan otros tipos de capas que mejoran significativamente su rendimiento. Las capas de activación, especialmente la ReLU (Rectified Linear Unit), son fundamentales para introducir no-linealidad en el modelo. La función ReLU transforma cada valor negativo en cero mientras mantiene los valores positivos sin cambios, lo que ayuda a mitigar el problema del desvanecimiento del gradiente y acelera el proceso de entrenamiento.
+
+La función ReLU se define como:
+\begin{equation}
+   f(x) = \begin{cases}
+      0 & \text{si } x < 0 \\
+      x & \text{si } x \geq 0
+   \end{cases}
+\end{equation}
+
+Estas capas se aplican típicamente después de cada capa convolucional y completamente conectada.
+
+La \textbf{Normalización por Lotes}, comúnmente conocida como \textit{Batch Normalization} (BN), constituye una técnica fundamental en el entrenamiento de redes neuronales profundas, diseñada primordialmente para mitigar el problema del \textit{cambio interno de covariables} (\textit{internal covariate shift}). Este fenómeno se refiere a la alteración continua de la distribución estadística de las activaciones de las capas intermedias a medida que los parámetros de las capas precedentes se actualizan durante el proceso de entrenamiento. Dicha inestabilidad en las distribuciones de entrada obliga a las capas subsiguientes a readaptarse constantemente, lo que puede ralentizar la convergencia del modelo y aumentar la dificultad del entrenamiento.
+
+El entrenamiento de redes neuronales profundas se realiza habitualmente procesando los datos en subconjuntos denominados \textbf{mini-lotes} (\textit{mini-batches}), en lugar de procesar el conjunto de datos completo o ejemplos individuales. Esta estrategia equilibra la eficiencia computacional con la introducción de cierta estocasticidad en la estimación del gradiente. Batch Normalization opera precisamente a nivel de estos mini-lotes. Para un mini-lote dado $\mathcal{B} = \{x_1, \dots, x_m\}$, BN calcula inicialmente la media empírica ($\mu_{\mathcal{B}}$) y la varianza empírica ($\sigma^2_{\mathcal{B}}$) de las activaciones dentro de dicho mini-lote:
+\begin{align}
+   \mu_{\mathcal{B}} &= \frac{1}{m} \sum_{i=1}^{m} x_i \\
+   \sigma^2_{\mathcal{B}} &= \frac{1}{m} \sum_{i=1}^{m} (x_i - \mu_{\mathcal{B}})^2
+\end{align}
+Posteriormente, cada activación $x_i$ del mini-lote es estandarizada utilizando estas estadísticas:
+\begin{equation}
+   \hat{x}_i = \frac{x_i - \mu_{\mathcal{B}}}{\sqrt{\sigma^2_{\mathcal{B}} + \epsilon}}
+\end{equation}
+donde $\epsilon$ es una pequeña constante positiva (p. ej., $10^{-5}$) añadida para garantizar la estabilidad numérica, previniendo la división por cero en caso de varianza nula. Esta normalización asegura que las activaciones transformadas $\hat{x}_i$ posean, dentro del mini-lote, una media aproximadamente nula y una varianza unitaria.
+
+No obstante, imponer rígidamente esta distribución normalizada podría restringir la capacidad expresiva de la red. Para contrarrestar esta limitación, BN introduce dos parámetros afines, $\gamma$ (escala) y $\beta$ (desplazamiento), que son aprendidos durante el entrenamiento junto con los pesos de la red. Estos parámetros permiten a la red realizar una transformación afín sobre las activaciones normalizadas:
+\begin{equation}
+   y_i = \gamma \hat{x}_i + \beta
+\end{equation}
+Mediante $\gamma$ y $\beta$, la red puede aprender la escala y el desplazamiento óptimos para las activaciones de cada capa, recuperando potencialmente la representación original si fuera necesario y preservando así la capacidad representacional del modelo. La salida $y_i$ es entonces la que se propaga a la siguiente operación, usualmente una función de activación no lineal.
+
+La incorporación de Batch Normalization conlleva beneficios sustanciales para el proceso de entrenamiento. Al estabilizar la distribución de las entradas a las capas, reduce efectivamente el cambio interno de covariables, lo que facilita un entrenamiento más rápido y estable. Esta estabilidad permite, a su vez, el uso de tasas de aprendizaje más elevadas sin riesgo de divergencia, acelerando la convergencia del modelo. Adicionalmente, BN ejerce un efecto regularizador. El cálculo de la media y la varianza sobre mini-lotes introduce una forma de ruido estocástico en el entrenamiento, ya que estas estadísticas varían entre mini-lotes. Este ruido inherente ayuda a prevenir el sobreajuste (\textit{overfitting}). Convencionalmente, las capas de Batch Normalization se insertan después de las capas convolucionales o totalmente conectadas, pero antes de la aplicación de la función de activación no lineal (como ReLU).
+
+El mecanismo central de Dropout consiste en desactivar (poner a cero) aleatoriamente un subconjunto de neuronas (unidades) en una capa durante cada iteración de entrenamiento (paso hacia adelante y hacia atrás). Cada neurona tiene una probabilidad $p$ (el \textit{dropout rate}, un hiperparámetro típicamente entre 0.2 y 0.5) de ser temporalmente eliminada de la red, junto con todas sus conexiones entrantes y salientes. Esta desactivación se realiza de forma independiente para cada neurona y para cada ejemplo de entrenamiento o mini-lote.
+
+Al desactivar neuronas aleatoriamente, Dropout impide que las neuronas co-adapten excesivamente sus características, es decir, que dependan demasiado de la presencia de otras neuronas específicas para funcionar correctamente. En cambio, obliga a cada neurona a aprender características que sean útiles por sí mismas o en combinación con diferentes subconjuntos aleatorios de otras neuronas. Esto fomenta el aprendizaje de representaciones más robustas y distribuidas, mejorando la capacidad de generalización del modelo.
+
+Dropout se aplica solo durante la fase de entrenamiento. Durante la inferencia (evaluación o predicción), todas las neuronas están activas, pero sus salidas se escalan multiplicando por $1 - p$ para compensar el hecho de que, durante el entrenamiento, solo una fracción de ellas estaba activa. Esto asegura que la salida esperada del modelo durante la inferencia sea comparable a la salida promedio durante el entrenamiento.
+
 
 En la figura \ref{fig:cnn} se muestra la arquitectura de LeNet-5 \cite{lecun1998gradient}, una de las primeras CNN desarrolladas. Esta red consta de varias capas convolucionales y de pooling, seguidas de capas completamente conectadas. LeNet-5 fue diseñada para la clasificación de dígitos manuscritos y sentó las bases para el desarrollo de arquitecturas más complejas y eficientes en la actualidad.
 
@@ -572,25 +623,27 @@ En conjunto, el filtro de Kalman realiza un ciclo continuo de predicción y corr
 
 
 
-\begin{itemize}
-   \item \textbf{Introducción al Seguimiento de Objetos Múltiples (MOT):} Definición del problema, importancia y aplicaciones principales.
-   \item \textbf{Desafíos del MOT:} Se discutirán las dificultades inherentes al seguimiento, como oclusiones, cambios de apariencia, interacciones entre objetos, entradas y salidas de la escena, y errores de detección.
-   \item \textbf{Paradigma Tracking-by-Detection:} Explicación del enfoque dominante en MOT, que consiste en detectar objetos en cada fotograma y luego asociar estas detecciones a lo largo del tiempo para formar trayectorias.
-   \item \textbf{Filtro de Kalman:} Descripción de sus fundamentos matemáticos como estimador óptimo para sistemas lineales y su aplicación para predecir la posición futura de los objetos y suavizar las trayectorias, manejando la incertidumbre en las mediciones.
-   \item \textbf{Asociación de Datos:} Técnicas para vincular las detecciones actuales con las trayectorias existentes, como el algoritmo Húngaro basado en métricas de similitud (IoU, apariencia).
-   \item \textbf{Algoritmos Clásicos:}
-      \begin{itemize}
-         \item \textbf{SORT (Simple Online and Realtime Tracking):} Enfoque basado principalmente en el Filtro de Kalman y la métrica IoU para la asociación, destacando por su simplicidad y velocidad.
-         \item \textbf{DeepSORT (Deep Simple Online and Realtime Tracking):} Extensión de SORT que incorpora características de apariencia extraídas mediante redes profundas para mejorar la robustez frente a oclusiones prolongadas.
-      \end{itemize}
-   \item \textbf{Algoritmos Modernos - BYTETrack:} Presentación de BYTETrack, que mejora la gestión de detecciones de baja confianza para manejar mejor las oclusiones y reducir la fragmentación de trayectorias, separando las detecciones de alta y baja confianza en el proceso de asociación.
-   \item \textbf{Métricas de Evaluación para MOT:} Introducción a las métricas estándar para evaluar el rendimiento de los algoritmos de seguimiento, como MOTA (Multiple Object Tracking Accuracy), MOTP (Multiple Object Tracking Precision), IDF1, HOTA (Higher Order Tracking Accuracy), entre otras.
-\end{itemize}
+% \begin{itemize}
+%    \item \textbf{Introducción al Seguimiento de Objetos Múltiples (MOT):} Definición del problema, importancia y aplicaciones principales.
+%    \item \textbf{Desafíos del MOT:} Se discutirán las dificultades inherentes al seguimiento, como oclusiones, cambios de apariencia, interacciones entre objetos, entradas y salidas de la escena, y errores de detección.
+%    \item \textbf{Paradigma Tracking-by-Detection:} Explicación del enfoque dominante en MOT, que consiste en detectar objetos en cada fotograma y luego asociar estas detecciones a lo largo del tiempo para formar trayectorias.
+%    \item \textbf{Filtro de Kalman:} Descripción de sus fundamentos matemáticos como estimador óptimo para sistemas lineales y su aplicación para predecir la posición futura de los objetos y suavizar las trayectorias, manejando la incertidumbre en las mediciones.
+%    \item \textbf{Asociación de Datos:} Técnicas para vincular las detecciones actuales con las trayectorias existentes, como el algoritmo Húngaro basado en métricas de similitud (IoU, apariencia).
+%    \item \textbf{Algoritmos Clásicos:}
+%       \begin{itemize}
+%          \item \textbf{SORT (Simple Online and Realtime Tracking):} Enfoque basado principalmente en el Filtro de Kalman y la métrica IoU para la asociación, destacando por su simplicidad y velocidad.
+%          \item \textbf{DeepSORT (Deep Simple Online and Realtime Tracking):} Extensión de SORT que incorpora características de apariencia extraídas mediante redes profundas para mejorar la robustez frente a oclusiones prolongadas.
+%       \end{itemize}
+%    \item \textbf{Algoritmos Modernos - BYTETrack:} Presentación de BYTETrack, que mejora la gestión de detecciones de baja confianza para manejar mejor las oclusiones y reducir la fragmentación de trayectorias, separando las detecciones de alta y baja confianza en el proceso de asociación.
+%    \item \textbf{Métricas de Evaluación para MOT:} Introducción a las métricas estándar para evaluar el rendimiento de los algoritmos de seguimiento, como MOTA (Multiple Object Tracking Accuracy), MOTP (Multiple Object Tracking Precision), IDF1, HOTA (Higher Order Tracking Accuracy), entre otras.
+% \end{itemize}
 
 
 \subsection{BYTETrack}
 
-BYTETrack\cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo de Seguimiento de Objetos Múltiples (MOT) que opera bajo el paradigma de seguimiento por detección. Su contribución clave es el aprovechamiento de las detecciones con baja puntuación de confianza, que otros métodos suelen descartar. En lugar de eliminarlas, BYTETrack realiza la asociación en dos etapas: primero vincula las detecciones de alta confianza con las trayectorias existentes (usando típicamente Filtro de Kalman y métricas como IoU). Posteriormente, intenta asociar las detecciones de baja confianza restantes con aquellas trayectorias que no encontraron correspondencia en la primera etapa. Esta estrategia mejora significativamente el manejo de oclusiones, donde la confianza del detector puede bajar temporalmente, y reduce la fragmentación de las trayectorias al mantener su continuidad.
+BYTETrack \cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo avanzado de Seguimiento de Objetos Múltiples (MOT) que se inscribe dentro del paradigma de seguimiento por detección (\textit{tracking-by-detection}). Este paradigma consiste en detectar objetos en cada fotograma de forma independiente y luego asociar estas detecciones a lo largo del tiempo para construir trayectorias coherentes. La innovación fundamental de BYTETrack reside en su novedoso método de asociación de datos, denominado BYTE, que aborda explícitamente un problema común en MOT: el manejo de detecciones con baja puntuación de confianza.
+
+Mientras que la mayoría de los algoritmos de seguimiento descartan las detecciones por debajo de un cierto umbral de confianza para evitar la introducción de falsos positivos, BYTETrack reconoce que estas detecciones de baja confianza a menudo corresponden a objetos reales que están parcialmente ocluidos o cuya apariencia ha cambiado temporalmente. Descartarlas puede llevar a la pérdida de trayectorias y a una menor precisión general del seguimiento. Esta estrategia de asociación en dos pasos permite a BYTETrack recuperar objetos reales incluso cuando la confianza del detector disminuye debido a oclusiones o desenfoque, manteniendo la continuidad de las trayectorias. Al separar claramente las detecciones de alta y baja confianza y utilizarlas de manera diferenciada en el proceso de asociación, BYTETrack logra una notable mejora en la robustez del seguimiento, reduce significativamente la fragmentación de las trayectorias (medida por métricas como IDF1) y maneja eficazmente las variaciones en la calidad de las detecciones, todo ello manteniendo una alta eficiencia computacional.
 
 \begin{figure}[H]
    \centering
