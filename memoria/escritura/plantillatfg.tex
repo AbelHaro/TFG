@@ -24,6 +24,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
+\usepackage[acronym]{glossaries} % Para crear un glosario
+
 \usepackage{float}          % Para usar [H] en las figuras
 \usepackage{amsmath}        % Para usar \text en modo matemático
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,6 +43,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \hypersetup{ colorlinks=true, linkcolor=black, urlcolor=cyan, }
+
+
+\newacronym{ai}{AI}{Artificial Intelligence}
 
 
 
@@ -109,6 +114,7 @@ López Rodríguez, Pedro Juan}
 \chapter{Introducci\'on}
 Durante los últimos años, la inteligencia artificial ha experimentado un crecimiento en popularidad sin precedentes, transformando nuestra capacidad tecnológica con herramientas revolucionarias. Este avance ha sido impulsado por la disponibilidad de grandes volúmenes de datos, el desarrollo de algoritmos avanzados y las mejoras significativas en el hardware de procesamiento, que han permitido a las máquinas aprender y adaptarse a situaciones complejas. Algunos campos destacados de aplicación incluyen el procesamiento del lenguaje natural, la visión por computador y la robótica. En particular, la visión por computador ha visto un auge significativo, con aplicaciones en áreas como la seguridad, la medicina y la automoción. Esta creciente popularidad por el mundo de la inteligencia artificial se refleja en la evolución del interés público en ella, como muestra la Figura~\ref{fig:interes_en_inteligencia_artificial}.
 
+Esto es un texto de prueba \gls{ai} y luego se vuelve a repetir \gls{ai}.
 
 
 \begin{figure}[H]
@@ -519,10 +525,52 @@ El proceso de optimización con TensorRT, como se ilustra en la Figura~\ref{fig:
 En esta sección se presentará los conceptos básicos del seguimiento de objetos en tiempo real, se explicará el problema del seguimiento de objetos múltiples (MOT) y se presentarán los algoritmos más relevantes en este campo.
 
 \subsection{Introducción al seguimiento de objetos}
-El seguimiento de objetos es una tarea fundamental en visión por computador que consiste en localizar y seguir la trayectoria de elementos en movimiento a través de una secuencia de vídeo. A diferencia de los modelos de detección de objetos, que procesan cada fotograma de manera independiente como si fuera una imagen estática (sin importar si forma parte de una secuencia temporal o es una imagen aislada), los sistemas de Seguimiento de Objetos Múltiples (MOT) se centran en establecer la correspondencia temporal entre las detecciones. La función clave del MOT es asociar un identificador único a cada objeto detectado y mantenerlo consistentemente a lo largo de los fotogramas de la secuencia, permitiendo así reconstruir sus trayectorias y analizar su comportamiento dinámico en la escena.
+El seguimiento de objetos es un proceso que complementa la salida de los modelos de detección. Mientras que un modelo de detección opera sobre cada fotograma de forma independiente, identificando y localizando objetos como si fueran imágenes estáticas, el Seguimiento de Objetos Múltiples (MOT) actúa sobre estas detecciones para establecer una correspondencia temporal. La función esencial del MOT es asignar un identificador único a cada objeto detectado en un fotograma y mantener dicho identificador de manera consistente a lo largo de la secuencia de vídeo. Esto permite reconstruir las trayectorias de los objetos y analizar su comportamiento dinámico en la escena.
+
+Para realizar este seguimiento, el MOT se basa en la información temporal y espacial de las detecciones. Utiliza técnicas de predicción y asociación para determinar la continuidad de los objetos a lo largo del tiempo, teniendo en cuenta factores como la posición, velocidad y apariencia de los objetos. El algoritmo utilizado para el seguimiento puede variar en complejidad, desde enfoques simples que utilizan filtros de Kalman para predecir la posición futura de un objeto, hasta métodos más avanzados que incorporan redes neuronales profundas para aprender características de apariencia y mejorar la robustez del seguimiento.
 
 
-EXPLICAR EL FILTRO DE KALMAN
+El filtro de Kalman es un algoritmo de estimación recursivo fundamental en el seguimiento de objetos. Funciona como un estimador óptimo para sistemas dinámicos lineales, permitiendo predecir el estado futuro de un objeto (como su posición y velocidad) a partir de una serie de mediciones ruidosas o incompletas a lo largo del tiempo. Su proceso se basa en dos etapas cíclicas:
+\begin{itemize}
+   \item \textbf{Predicción:} Utiliza un modelo dinámico del movimiento esperado del objeto para estimar su estado en el siguiente instante de tiempo.
+   \item \textbf{Actualización:} Incorpora la nueva medición (detección) obtenida en ese instante para corregir la predicción inicial, ponderando la información del modelo y la medición según su incertidumbre asociada.
+\end{itemize}
+Este ciclo permite al filtro refinar continuamente la estimación del estado del objeto, suavizar las trayectorias y manejar eficazmente el ruido inherente a las mediciones del detector. Es una herramienta clave para mantener la identidad de los objetos entre fotogramas, especialmente cuando las detecciones son intermitentes o imprecisas.
+
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/estado_del_arte/filtro_de_kalman.png}
+   \caption{Diagrama de flujo del filtro de Kalman.}
+   \label{fig:filtro_de_kalman}
+\end{figure}
+
+La Figura ~\ref{fig:filtro_de_kalman} representa el funcionamiento de un filtro de Kalman, un algoritmo muy utilizado para estimar el estado de un sistema dinámico en presencia de ruido e incertidumbre. A continuación se explica cada bloque:
+
+\begin{itemize}
+   \item \textbf{INPUTS: Parámetro medido}
+   Este bloque representa las mediciones que se obtienen del sistema. Estas mediciones contienen errores (ruido), por lo que no se usan directamente, sino que se pasan al filtro para su procesamiento.
+
+   \item \textbf{INPUTS: Estado inicial}
+   Proporciona una estimación inicial del estado del sistema y su incertidumbre asociada. Esta información se utiliza para arrancar el filtro de Kalman.
+
+   \item \textbf{ACTUALIZAR}
+   Este es uno de los dos pasos principales del filtro de Kalman. Combina la predicción previa con la medición actual para actualizar la estimación del estado del sistema y ajusta la incertidumbre de esa estimación.
+
+   \item \textbf{PREDECIR}
+   El otro paso clave del filtro utiliza el modelo del sistema para predecir el siguiente estado y su incertidumbre, basándose en la estimación anterior y considerando el retardo de una unidad.
+
+   \item \textbf{Retardo de unidad (\(n \rightarrow n{-}1\))}
+   Este bloque representa el almacenamiento del estado estimado en el instante anterior para ser utilizado en la siguiente predicción.
+
+   \item \textbf{OUTPUTS: Estimación del estado del sistema}
+   Este es el resultado final del filtro: una estimación refinada del estado actual del sistema, que es más precisa que la simple medición directa.
+\end{itemize}
+
+En conjunto, el filtro de Kalman realiza un ciclo continuo de predicción y corrección, usando tanto el modelo del sistema como las mediciones reales, para obtener una estimación óptima del estado.
+
+
 
 \begin{itemize}
    \item \textbf{Introducción al Seguimiento de Objetos Múltiples (MOT):} Definición del problema, importancia y aplicaciones principales.
@@ -563,6 +611,7 @@ La Figura \ref{fig:bytetrack_mota} presenta una comparativa de rendimiento que e
 \end{figure}
 
 La Figura \ref{fig:bytetrack_deteccion} ilustra el proceso de BYTETrack a través de tres fotogramas consecutivos ($\tau_1$, $\tau_2$, $\tau_3$) de una secuencia de vídeo. En (a), se observan las detecciones iniciales que superan un umbral de confianza (p. ej., 0.5). La sección (b) muestra las trayectorias generadas al asociar exclusivamente las detecciones de alta confianza. Por el contrario, (c) presenta el resultado final de BYTETrack, que integra también las detecciones de baja confianza en el proceso de asociación. Esta comparación evidencia cómo la estrategia de BYTETrack permite mantener la continuidad de las trayectorias frente a desafíos como oclusiones parciales y variaciones en la confianza de las detecciones, logrando así una representación más precisa y robusta del movimiento de los objetos en el tiempo.
+
 
 
 El funcionamiento del algoritmo BYTETrack es el siguiente:
@@ -722,6 +771,9 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                BIBLIOGRAFIA                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\printglossaries
+
 
 \bibliographystyle{plain}      % Estilo de la bibliografía
 \bibliography{referencias} % Bibliografia
