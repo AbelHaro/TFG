@@ -657,7 +657,7 @@ En conjunto, el filtro de Kalman realiza un ciclo continuo de predicción y corr
 % \end{itemize}
 
 
-\subsection{BYTETrack}
+\subsection{BYTETrack}\label{sec:bytetrack}
 
 BYTETrack \cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo avanzado de Seguimiento de Objetos Múltiples (MOT) que se inscribe dentro del paradigma de seguimiento por detección (\textit{tracking-by-detection}). Este paradigma consiste en detectar objetos en cada fotograma de forma independiente y luego asociar estas detecciones a lo largo del tiempo para construir trayectorias coherentes. La innovación fundamental de BYTETrack reside en su novedoso método de asociación de datos, denominado BYTE, que aborda explícitamente un problema común en MOT: el manejo de detecciones con baja puntuación de confianza.
 
@@ -720,32 +720,99 @@ El funcionamiento del algoritmo BYTETrack es el siguiente:
 \section{Slicing Aided Hyper Inference}
 Explicación de la técnica de Slicing Aided Hyper Inference, como se utiliza para mejorar la precisión de los modelos de detección de objetos y como se aplica en este trabajo.
 
-\chapter{Análisis del problema}
 
-????? ????????????? ????????????? ????????????? ????????????? ????????????? 
+
 
 \chapter{Diseño e implementación de la solución}
-En este capítulo se explicará la solución propuesta, como se ha diseñado y como se ha implementado.
+
+???????????????????????????????????????????????????????
+
+\section{Análisis del problema}
+
+El desafío central abordado en este trabajo consiste en el desarrollo y la implementación de un sistema de visión artificial capaz de realizar el seguimiento de múltiples objetos en movimiento en tiempo real. Este sistema se fundamenta en la utilización de la plataforma de hardware NVIDIA Jetson, reconocida por su capacidad para ejecutar tareas de inteligencia artificial de manera eficiente en términos energéticos y computacionales. La tarea principal del sistema es procesar una secuencia de vídeo, identificar los objetos presentes en cada fotograma mediante un modelo de detección de objetos basado en redes neuronales profundas, y posteriormente, aplicar un algoritmo de seguimiento para mantener la identidad de cada objeto a lo largo del tiempo, reconstruyendo así sus trayectorias.
+
+Un requisito fundamental y crítico para la viabilidad del sistema es su capacidad para operar en tiempo real. Esto impone una restricción estricta sobre la velocidad de procesamiento: el tiempo total necesario para analizar un fotograma individual, incluyendo tanto la detección como el seguimiento de los objetos, debe ser inferior al intervalo de tiempo que transcurre entre fotogramas consecutivos en la secuencia de vídeo. Por ejemplo, para un vídeo a 30 fotogramas por segundo, el procesamiento completo de cada fotograma debe completarse en menos de 33.3 milisegundos. Cumplir con esta exigencia es particularmente desafiante dadas las limitaciones inherentes de los dispositivos embebidos como los de la serie Jetson, que, aunque potentes, disponen de recursos computacionales y memoria significativamente menores en comparación con sistemas de escritorio o servidores.
+
+Dada la dificultad de acceder a un entorno industrial real para llevar a cabo las pruebas experimentales —como podría ser una línea de producción activa en una fábrica de conservas, una planta de ensamblaje de componentes electrónicos o una instalación de procesamiento de alimentos—, se optó por utilizar un entorno simulado controlado. Este entorno sustituye los objetos industriales por elementos más manejables y disponibles, específicamente, canicas de diversos colores. Estas canicas, al moverse sobre una superficie o cinta transportadora improvisada, simulan el flujo de objetos que se encontraría en una línea de producción. La utilización de este entorno simulado ofrece ventajas significativas para la fase de desarrollo y evaluación: permite realizar pruebas de manera sistemática y repetible, facilita la variación controlada de parámetros (como la velocidad de los objetos, la iluminación o la densidad de objetos) y posibilita la obtención de datos cuantitativos precisos sobre el rendimiento del sistema en diferentes condiciones. Aunque este entorno simplifica la complejidad del mundo real, los resultados y las conclusiones obtenidas proporcionan una base sólida y pueden ser extrapolados, con las debidas consideraciones, para predecir el comportamiento y la eficacia del sistema en escenarios industriales auténticos.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/diseno_e_implementacion/ejemplo_canicas.png}
+   \caption{Ejemplo de entorno simulado con canicas.}
+   \label{fig:entorno_simulado}
+\end{figure}
+
+Para las pruebas experimentales, se configuró un entorno simulado como el ilustrado en la Figura \ref{fig:entorno_simulado}. Este entorno utiliza canicas de cuatro colores distintos (blanco, negro, azul y verde). Con el objetivo de simular la detección de anomalías, se consideraron tanto canicas sin defectos como canicas con defectos para cada uno de los colores. Esta distinción duplica el número total de clases que el sistema debe identificar, alcanzando un total de ocho categorías (cuatro colores sin defecto y cuatro colores con defecto).
 
 \section{Descripción del sistema}
 
-Descripción del sistema de visión artificial propuesto, como se ha diseñado y como se ha implementado.
+El sistema está organizado como una serie de etapas de procesamiento secuenciales que trabajan de forma coordinada para lograr la detección y seguimiento de objetos en tiempo real. Como se muestra en la Figura~\ref{fig:sistema_propuesto}, el sistema recibe como entrada imágenes de una cámara y consta de cuatro componentes principales: un módulo de captura de imágenes que obtiene los fotogramas del vídeo, un módulo de inferencia que ejecuta el modelo de detección de objetos YOLO11, un módulo de seguimiento que implementa el algoritmo BYTETrack para mantener la identidad de los objetos detectados, y un módulo de escritura que gestiona los diferentes tipos de salida del sistema.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/diseno_e_implementacion/figura_TFG_v2.png}
+   \caption{Figura del sistema propuesto}
+   \label{fig:sistema_propuesto}
+\end{figure}
+
+Los resultados del sistema pueden utilizarse de diversas formas, monitorización en tiempo real a través de visualización de las detecciones, generación de alertas basadas en reglas predefinidas, interacción con sistemas de control automatizado para realizar acciones específicas, y almacenamiento de datos para su posterior análisis y extracción de métricas que permitan optimizar procesos industriales.
+
+La arquitectura del sistema se ha diseñado estratégicamente para maximizar el rendimiento computacional y la eficiencia en el uso de recursos, asegurando una operación coordinada entre sus componentes modulares. Los datos fluyen secuencialmente a través de las distintas etapas, permitiendo un procesamiento continuo y eficaz de la información visual. Esta estructura modular intrínseca no solo simplifica el mantenimiento y las futuras actualizaciones, sino que también dota al sistema de una gran flexibilidad para adaptarse a diferentes requisitos operativos y escenarios de despliegue. Aunque optimizado específicamente para la plataforma NVIDIA Jetson, su diseño modular facilita su potencial portabilidad a otras plataformas hardware de NVIDIA, como GPUs de escritorio o servidores de alto rendimiento, siempre que se cumplan los prerrequisitos de hardware y software.
+
 
 \section{Diseño de las etapas del sistema}
 
-Descripción de las etapas del sistema, como se han diseñado y como se han implementado.
+??????????????????????????????????
 
-Etapas del sistema:
+\subsection{Captura de imágenes}
+
+La etapa de captura de imágenes es la responsable de adquirir los fotogramas del flujo de vídeo en tiempo real. Sus funciones abarcan la configuración y el control de la cámara, la adquisición de las imágenes y su posible preprocesamiento inicial antes de ser transferidas al módulo de inferencia. Para la implementación de este módulo se ha empleado la biblioteca OpenCV, la cual ofrece una interfaz robusta y eficiente para la interacción con dispositivos de captura y el procesamiento básico de imágenes. La cámara se configura para operar a una resolución y tasa de fotogramas adecuadas a los requisitos de la aplicación. El preprocesamiento puede incluir diversas operaciones, tales como la conversión a escala de grises, la normalización de píxeles o el redimensionamiento, adaptándose a las especificaciones del modelo de detección de objetos utilizado. En el sistema desarrollado, se empleó una cámara de alta definición capaz de alcanzar una resolución máxima de 1920x1080 píxeles y una tasa de 30 fps. Si bien se experimentó con diversas configuraciones de resolución y tasa de fotogramas según las necesidades de cada prueba, la configuración estándar para la mayoría de los experimentos fue de 640x640 píxeles a 30 fps. Esta etapa se ejecuta íntegramente en la CPU.
+
+\subsection{Inferencia}
+La etapa de inferencia constituye el núcleo computacional del sistema, siendo responsable de ejecutar el modelo de detección de objetos preentrenado sobre cada fotograma adquirido por la etapa de captura. Para esta tarea crucial, se ha seleccionado el modelo YOLO11, una variante optimizada dentro de la familia YOLO, reconocida por su equilibrio entre velocidad y precisión en tareas de detección en tiempo real. La implementación se apoya en el framework de Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, una biblioteca de alto nivel que simplifica significativamente el ciclo de vida de los modelos YOLO, desde el entrenamiento hasta el despliegue y la inferencia, ofreciendo una interfaz robusta y eficiente.
+
+El proceso de inferencia comienza con la adquisición de un fotograma de vídeo, que se convierte en un tensor adecuado para la entrada del modelo. Este tensor es una representación numérica de la imagen, donde cada píxel se traduce en un valor que el modelo puede procesar. La transformación del fotograma a tensor incluye operaciones como la normalización y el redimensionamiento, asegurando que los datos estén en el formato correcto para el modelo YOLO11.
+
+La ejecución de la inferencia propiamente dicha implica cargar el modelo YOLO11 (potencialmente optimizado mediante NVIDIA TensorRT para maximizar el rendimiento en la plataforma Jetson) y pasarle el tensor de entrada. Aprovechando la aceleración por hardware (GPU y/o DLAs disponibles en los módulos Jetson), el modelo procesa la imagen y genera un conjunto de predicciones. Estas predicciones iniciales suelen ser numerosas y requieren un postprocesamiento para refinar los resultados. Este postprocesamiento, a menudo gestionado internamente por el framework Ultralytics o aplicado explícitamente, incluye la aplicación de un umbral de confianza para descartar detecciones poco fiables y la ejecución del algoritmo de Supresión de No Máximos (NMS) para eliminar cajas delimitadoras redundantes que correspondan al mismo objeto.
+
+El resultado final de la etapa de inferencia, que se transfiere a la etapa de seguimiento, es una lista estructurada de las detecciones finales para el fotograma actual. Cada detección en esta lista contiene información esencial: las coordenadas de la caja delimitadora que localiza al objeto (comúnmente en formato (x, y, w, h), donde (x, y) representan las coordenadas del centro de la caja, y (w, h) su anchura y altura), una puntuación de confianza que cuantifica la fiabilidad de la detección, y la etiqueta de la clase predicha para el objeto (p. ej., 'canica\_azul', 'canica\_verde\_defecto'). La eficiencia y rapidez de esta etapa son críticas para mantener la capacidad de procesamiento en tiempo real del sistema global.
+
+\subsection{Seguimiento}
+La etapa de seguimiento es la encargada de mantener la identidad de los objetos detectados a lo largo del tiempo, asegurando que cada objeto en el flujo de vídeo conserve su etiqueta y trayectoria a pesar de las variaciones en su posición, apariencia o posibles oclusiones. Para lograr esto, se ha utilizado la implementación del algoritmo BYTETrack en el framework de Ultralytics\cite{Jocher_Ultralytics_YOLO_2023}, que se basa en un enfoque de seguimiento por detección explicado en la subsección~\ref{sec:bytetrack}. Este algoritmo se encarga de asociar las detecciones generadas por la etapa de inferencia con las trayectorias existentes, utilizando tanto las detecciones de alta confianza como las de baja confianza para mejorar la robustez del seguimiento.
+
+Para la configuración del algoritmo BYTETrack existen varios parámetros ajustables que permiten optimizar su rendimiento según las características específicas del entorno y los objetos a seguir. Estos parámetros son:
 \begin{itemize}
-   \item \textbf{Captura de imágenes:} Descripción de la etapa de captura de imágenes, como se ha diseñado y como se ha implementado.
-   \item \textbf{Inferencia:} Descripción de la etapa de inferencia, como se ha diseñado y como se ha implementado.
-   \item \textbf{Seguimiento:} Descripción de la etapa de seguimiento, como se ha diseñado y como se ha implementado.
-   \item \textbf{Escritura de resultados:} Descripción de la etapa de escritura de resultados, como se ha diseñado y como se ha implementado.
+   \item \texttt{track\_high\_thresh}: Umbral de confianza para considerar una detección como de alta confianza (valor típico: 0.6). Las detecciones por encima de este umbral se utilizan en la primera etapa de asociación.
+   \item \texttt{track\_low\_thresh}: Umbral de confianza para considerar una detección como de baja confianza (valor típico: 0.15). Las detecciones que se encuentren entre este umbral y \texttt{track\_high\_thresh} se utilizan en la segunda etapa de asociación para recuperar objetos ocluidos.
+   \item \texttt{new\_track\_thresh}: Umbral de confianza mínimo para iniciar una nueva trayectoria a partir de una detección de alta confianza no asociada (valor típico: 0.6). Debe ser al menos tan alto como \texttt{track\_high\_thresh}.
+   \item \texttt{track\_buffer}: Número máximo de fotogramas que una trayectoria puede permanecer sin asociar antes de ser eliminada. Define la "edad" máxima de una pista perdida. Un valor típico es 30 fotogramas.
+   \item \texttt{match\_thresh}: Umbral de IoU (Intersection over Union) para la asociación entre las predicciones del Filtro de Kalman y las detecciones (valor típico: 0.8). Si la IoU es mayor que este umbral, se considera una coincidencia potencial.
 \end{itemize}
+
+Este algoritmo se basa en un ciclo continuo de predicción y corrección, donde el Filtro de Kalman se utiliza para predecir la posición futura de los objetos y suavizar las trayectorias, manejando la incertidumbre en las mediciones. La asociación de detecciones y trayectorias se realiza mediante un algoritmo de asignación, como el algoritmo Húngaro, que busca minimizar el costo total de la asociación entre las detecciones y las trayectorias existentes. Se ejecuta íntegramente en la CPU debido a la implementación del algoritmo en la biblioteca de Ultralytics.
+
+Tras aplicar la asociación de detecciones y trayectorias, el algoritmo ofrece como salida una lista con el identificador único de cada objeto, su clase, la puntuación de confianza y las coordenadas de la caja delimitadora. Esta información es fundamental para la siguiente etapa del sistema.
+
+\subsection{Escritura de resultados}
+
+La etapa de escritura de resultados es responsable de gestionar la salida del sistema, que puede adoptar diversas formas según los requisitos específicos de la aplicación. Esta etapa se encarga de presentar los resultados de manera comprensible y útil, permitiendo su interpretación y análisis posterior. Las principales funciones de esta etapa incluyen la visualización de los resultados en tiempo real, la generación de alertas basadas en reglas predefinidas y el almacenamiento de datos para su posterior análisis. También se encarga de los posibles conexiones a sistemas de control automatizado, permitiendo la interacción con otros sistemas o dispositivos.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.5\textwidth]{images/diseno_e_implementacion/ejemplo_canicas_resultado.png}
+   \caption{Ejemplo de salida del sistema.}
+   \label{fig:resultado_sistema}
+\end{figure}
+
+La Figura \ref{fig:resultado_sistema} muestra un ejemplo de la salida del sistema, donde se visualizan las detecciones y trayectorias de los objetos en el flujo de vídeo. Cada objeto detectado está representado por una caja delimitadora que incluye su etiqueta de clase y un identificador único. Esta representación gráfica permite una rápida identificación y seguimiento de los objetos en movimiento, facilitando la monitorización en tiempo real del sistema.
 
 \section{Segmentación de las etapas del sistema}
 
-Tipos de segmentación de las etapas del sistema:
+Tras la implementación de las etapas del sistema, se ha considerado la posibilidad de segmentar el sistema en diferentes etapas para mejorar el rendimiento y la eficiencia del procesamiento. La segmentación permite distribuir la carga de trabajo entre diferentes unidades de procesamiento, optimizando así el uso de los recursos disponibles en la plataforma NVIDIA Jetson.
+
+La segmentación de las etapas del sistema se puede realizar de varias maneras, dependiendo de los requisitos específicos de la aplicación y de los recursos disponibles. A continuación, se describen las diferentes opciones de segmentación que se han considerado.
+
+
 
 \begin{itemize}
    \item \textbf{No segmentada:} Secuencial
@@ -755,7 +822,74 @@ Tipos de segmentación de las etapas del sistema:
    \item \textbf{Segmentación basada en procesos con memoria compartida:} Cada etapa del sistema se ejecuta en un proceso diferente, pero comparten la memoria.
 \end{itemize}
     
+\subsection{Secuencial}
 
+La primera y mas trivial opción es la ejecución secuencial de las etapas del sistema. En este enfoque, cada etapa se ejecuta de forma consecutiva, donde la salida de una etapa se convierte en la entrada de la siguiente. Este método es el más sencillo de implementar y no requiere una configuración adicional para la comunicación entre etapas. Sin embargo, presenta limitaciones significativas en términos de rendimiento y eficiencia, ya que no aprovecha al máximo los recursos disponibles en la plataforma NVIDIA Jetson. Si se hace la analogía con un procesador, este enfoque se asemeja a un procesador no segmentado.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=1\textwidth]{images/diseno_e_implementacion/secuencial.png}
+   \caption{Diagrama de flujo del sistema sin segmentar.}
+   \label{fig:secuencial}
+\end{figure}
+
+La Figura \ref{fig:secuencial} ilustra el flujo de datos en un sistema secuencial. En este diagrama, cada etapa del sistema se ejecuta de forma lineal, donde la salida de una etapa se convierte en la entrada de la siguiente. Este enfoque es fácil de entender y de implementar, pero no aprovecha al máximo los recursos disponibles en la plataforma NVIDIA Jetson.
+
+\subsection{Segmentación basada en hilos}
+
+La segunda opción es la segmentación del sistema en diferentes hilos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un hilo (\textit{thread}) independiente. Los hilos operan dentro del mismo proceso, compartiendo el mismo espacio de memoria. La comunicación y transferencia de datos (fotogramas, detecciones) entre estas etapas/hilos se gestiona mediante colas de mensajes (\textit{Queue}), que aseguran una transferencia eficiente y segura entre hilos (\textit{thread-safe}).
+
+En Python, un hilo es una unidad básica de ejecución. Sin embargo, al trabajar con hilos en Python, es crucial entender el impacto del GIL (Global Interpreter Lock). El GIL es un mecanismo de bloqueo mutuo (mutex) que protege el acceso al intérprete de Python. Su función principal es permitir que solo un hilo ejecute código de bytes Python (\textit{Python bytecode}) a la vez dentro de un único proceso, incluso si el sistema dispone de múltiples núcleos de CPU. Es decir, en Python, debido al GIL, dos hilos de un mismo proceso no pueden ejecutar código Python de manera simultánea en núcleos de CPU diferentes. Esta restricción se implementó originalmente para simplificar la gestión de memoria (específicamente, el conteo de referencias) y prevenir condiciones de carrera en el acceso a objetos Python.
+
+La principal consecuencia del GIL es que impide el verdadero paralelismo para tareas que son intensivas en CPU (\textit{CPU-bound}) y están escritas puramente en Python. Aunque se creen múltiples hilos, solo uno podrá ejecutar código Python en un instante dado. En aplicaciones con muchos hilos compitiendo por la CPU, el GIL puede incluso introducir sobrecarga y contención, llevando a un rendimiento inferior al de una ejecución secuencial.
+
+No obstante, el GIL no bloquea la ejecución en todas las circunstancias. Se libera automáticamente durante operaciones que no ejecutan código Python directamente, como:
+\begin{itemize}
+   \item Operaciones de entrada/salida (E/S): Lectura/escritura de archivos, operaciones de red, interacción con dispositivos como cámaras.
+   \item Llamadas a código nativo compilado: Cuando se utilizan bibliotecas como NumPy, SciPy, o las bibliotecas específicas para la ejecución en GPU (como las de CUDA/TensorRT), que realizan el cómputo fuera del intérprete Python.
+   \item Llamadas explícitas de espera: Como `time.sleep()`.
+\end{itemize}
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.3\textwidth]{images/diseno_e_implementacion/segmentacion_hilos.png}
+   \caption{Diagrama de flujo del sistema segmentado en hilos.}
+   \label{fig:hilos}
+
+\end{figure}
+
+La Figura~\ref{fig:hilos} ilustra este enfoque, donde cada etapa opera en su propio hilo y se comunica mediante colas.
+
+Considerando estas características, la segmentación basada en hilos puede ser beneficiosa para nuestro sistema. La etapa de captura de imágenes es intensiva en E/S. La etapa de inferencia, especialmente cuando se ejecuta en la GPU o DLA utilizando bibliotecas optimizadas como TensorRT, realiza la mayor parte de su trabajo en código nativo, liberando el GIL. La etapa de escritura también implica operaciones de E/S. Durante los momentos en que estas etapas liberan el GIL, otros hilos (como el de seguimiento, si es CPU-bound y está escrito en Python) pueden progresar.
+
+Aunque más complejo de implementar que el enfoque secuencial debido a la necesidad de sincronización y comunicación entre hilos, este modelo permite una mejor utilización de los recursos y mejora la capacidad de respuesta y el rendimiento general del sistema al solapar operaciones de E/S y cómputo intensivo (en GPU/DLA) con otras tareas.
+
+\subsection{Segmentación basada en procesos}
+
+La tercera opción es la segmentación del sistema en diferentes procesos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un proceso independiente. La comunicación y transferencia de datos entre estas etapas/procesos se gestiona mediante colas de mensajes (\textit{Queue}), que aseguran una transferencia eficiente y segura entre procesos (\textit{process-safe}).
+
+La principal ventaja de este enfoque es que cada etapa del sistema se ejecuta en su propio proceso independiente, lo que permite un mejor aprovechamiento de los recursos disponibles en la plataforma NVIDIA Jetson. Además, al estar cada etapa en su propio proceso, se evita el problema del GIL (Global Interpreter Lock) presente en Python, lo que permite una ejecución más eficiente y con un paralelismo real entre las etapas del sistema. Esto es especialmente beneficioso en sistemas con múltiples núcleos de CPU, donde cada proceso puede ejecutarse en un núcleo diferente, maximizando así el rendimiento del sistema.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.3\textwidth]{images/diseno_e_implementacion/segmentacion_procesos.png}
+   \caption{Diagrama de flujo del sistema segmentado en procesos.}
+   \label{fig:procesos}
+\end{figure}
+
+La Figura~\ref{fig:procesos} ilustra este enfoque, donde cada etapa opera en su propio proceso y se comunica mediante colas.
+
+Sin embargo, este enfoque también presenta desventajas. La comunicación entre procesos es más costosa en términos de tiempo y recursos que la comunicación entre hilos dentro de un mismo proceso. Además, la gestión de memoria y el intercambio de datos entre procesos pueden ser más complejos, lo que puede aumentar la dificultad de implementación y mantenimiento del sistema.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=1\textwidth]{images/diseno_e_implementacion/segmentacion.png}
+   \caption{Diagrama de flujo del sistema segmentado.}
+   \label{fig:segmentacion}
+\end{figure}
+
+La Figura \ref{fig:segmentacion} ilustra el flujo de datos en un sistema segmentado. En este diagrama, cada etapa del sistema se ejecuta en un proceso independiente, donde la salida de una etapa se convierte en la entrada de la siguiente. Siguiendo la analogía con un procesador, este enfoque se asemeja a un procesador segmentado, donde cada etapa del sistema se ejecuta en su propio núcleo de CPU. La diferencia con un procesador es que el procesador está gobernado por un reloj donde el ciclo de reloj viene determinado por la etapa más lenta, mientras que en este sistema cada etapa se ejecuta de manera asíncrona a su propio ritmo, esperando en las colas de recepción cuando estas están vacías.
 
 \chapter{Análisis de la solución}
 
