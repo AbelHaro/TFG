@@ -6,3 +6,5 @@
 
 + [ ] Escribir el análisis del problema
 + [ ] Escribir la implementación de la solución
++ [ ] Explicar que son los DLA en conceptos previos
++ [ ] Explicar que son las colas

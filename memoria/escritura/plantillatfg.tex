@@ -811,20 +811,10 @@ La Figura \ref{fig:resultado_sistema} muestra un ejemplo de la salida del sistem
 Tras la implementación de las etapas del sistema, se ha considerado la posibilidad de segmentar el sistema en diferentes etapas para mejorar el rendimiento y la eficiencia del procesamiento. La segmentación permite distribuir la carga de trabajo entre diferentes unidades de procesamiento, optimizando así el uso de los recursos disponibles en la plataforma NVIDIA Jetson.
 
 La segmentación de las etapas del sistema se puede realizar de varias maneras, dependiendo de los requisitos específicos de la aplicación y de los recursos disponibles. A continuación, se describen las diferentes opciones de segmentación que se han considerado.
-
-
-
-\begin{itemize}
-   \item \textbf{No segmentada:} Secuencial
-   \item \textbf{Segmentación basada en hilos:} Cada etapa del sistema se ejecuta en un hilo diferente.
-   \item \textbf{Segmentación basada en procesos:} Cada etapa del sistema se ejecuta en un proceso diferente.
-   \item \textbf{Segmentación basada en hardware:} La etapa de inferencia se ejecuta en GPU, DLA0 y DLA1.
-   \item \textbf{Segmentación basada en procesos con memoria compartida:} Cada etapa del sistema se ejecuta en un proceso diferente, pero comparten la memoria.
-\end{itemize}
     
 \subsection{Secuencial}
 
-La primera y mas trivial opción es la ejecución secuencial de las etapas del sistema. En este enfoque, cada etapa se ejecuta de forma consecutiva, donde la salida de una etapa se convierte en la entrada de la siguiente. Este método es el más sencillo de implementar y no requiere una configuración adicional para la comunicación entre etapas. Sin embargo, presenta limitaciones significativas en términos de rendimiento y eficiencia, ya que no aprovecha al máximo los recursos disponibles en la plataforma NVIDIA Jetson. Si se hace la analogía con un procesador, este enfoque se asemeja a un procesador no segmentado.
+La primera y mas trivial opción es la ejecución secuencial de las etapas del sistema. En este enfoque, cada etapa se ejecuta de forma consecutiva, donde la salida de una etapa se convierte en la entrada de la siguiente. Este método es el más sencillo de implementar y no requiere una configuración adicional para la comunicación entre etapas. Sin embargo, presenta limitaciones significativas en términos de rendimiento y eficiencia, ya que no aprovecha al máximo los recursos disponibles. Si se hace la analogía con un procesador, este enfoque se asemeja a un procesador no segmentado.
 
 \begin{figure}[H]
    \centering
@@ -833,7 +823,7 @@ La primera y mas trivial opción es la ejecución secuencial de las etapas del s
    \label{fig:secuencial}
 \end{figure}
 
-La Figura \ref{fig:secuencial} ilustra el flujo de datos en un sistema secuencial. En este diagrama, cada etapa del sistema se ejecuta de forma lineal, donde la salida de una etapa se convierte en la entrada de la siguiente. Este enfoque es fácil de entender y de implementar, pero no aprovecha al máximo los recursos disponibles en la plataforma NVIDIA Jetson.
+La Figura \ref{fig:secuencial} ilustra el flujo de datos en un sistema secuencial. En este diagrama, cada etapa del sistema se ejecuta de forma lineal, donde la salida de una etapa se convierte en la entrada de la siguiente. Este enfoque es fácil de entender y de implementar, pero no aprovecha al máximo los recursos disponibles.
 
 \subsection{Segmentación basada en hilos}
 
@@ -869,7 +859,7 @@ Aunque más complejo de implementar que el enfoque secuencial debido a la necesi
 
 La tercera opción es la segmentación del sistema en diferentes procesos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un proceso independiente. La comunicación y transferencia de datos entre estas etapas/procesos se gestiona mediante colas de mensajes (\textit{Queue}), que aseguran una transferencia eficiente y segura entre procesos (\textit{process-safe}).
 
-La principal ventaja de este enfoque es que cada etapa del sistema se ejecuta en su propio proceso independiente, lo que permite un mejor aprovechamiento de los recursos disponibles en la plataforma NVIDIA Jetson. Además, al estar cada etapa en su propio proceso, se evita el problema del GIL (Global Interpreter Lock) presente en Python, lo que permite una ejecución más eficiente y con un paralelismo real entre las etapas del sistema. Esto es especialmente beneficioso en sistemas con múltiples núcleos de CPU, donde cada proceso puede ejecutarse en un núcleo diferente, maximizando así el rendimiento del sistema.
+La principal ventaja de este enfoque es que cada etapa del sistema se ejecuta en su propio proceso independiente, lo que permite un mejor aprovechamiento de los recursos disponibles. Además, al estar cada etapa en su propio proceso, se evita el problema del GIL (Global Interpreter Lock) presente en Python, lo que permite una ejecución más eficiente y con un paralelismo real entre las etapas del sistema. Esto es especialmente beneficioso en sistemas con múltiples núcleos de CPU, donde cada proceso puede ejecutarse en un núcleo diferente, maximizando así el rendimiento del sistema.
 
 \begin{figure}[H]
    \centering
@@ -890,6 +880,38 @@ Sin embargo, este enfoque también presenta desventajas. La comunicación entre 
 \end{figure}
 
 La Figura \ref{fig:segmentacion} ilustra el flujo de datos en un sistema segmentado. En este diagrama, cada etapa del sistema se ejecuta en un proceso independiente, donde la salida de una etapa se convierte en la entrada de la siguiente. Siguiendo la analogía con un procesador, este enfoque se asemeja a un procesador segmentado, donde cada etapa del sistema se ejecuta en su propio núcleo de CPU. La diferencia con un procesador es que el procesador está gobernado por un reloj donde el ciclo de reloj viene determinado por la etapa más lenta, mientras que en este sistema cada etapa se ejecuta de manera asíncrona a su propio ritmo, esperando en las colas de recepción cuando estas están vacías.
+
+\subsection{Segmentación basada en hardware}
+La cuarta opción es la segmentación del sistema en diferentes unidades de procesamiento. En este enfoque, la etapa de inferencia, que generalmente constituye la etapa crítica y el cuello de botella del sistema, se descarga a la GPU, DLA0 o DLA1, mientras que las etapas de captura, seguimiento y escritura se ejecutan en la CPU. Este enfoque busca aprovechar al máximo los recursos de hardware especializados disponibles, utilizando la GPU y las DLAs para acelerar significativamente el procesamiento intensivo de la inferencia. Para gestionar el flujo asíncrono, a cada fotograma se le asigna un número identificativo único al ser capturado, permitiendo mantener el orden y la correspondencia a través de las distintas etapas. Los fotogramas se procesan en la GPU o DLA según la disponibilidad de estos recursos. La segmentación se implementa mediante procesos independientes para evitar el problema del GIL (Global Interpreter Lock) presente en Python, y la comunicación y transferencia de datos (fotogramas numerados y resultados de inferencia) entre estos procesos se gestiona mediante colas de mensajes (\textit{Queue}), que aseguran una transferencia eficiente y segura (\textit{process-safe}).
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/diseno_e_implementacion/segmentacion_multihardware.png}
+   \caption{Diagrama de flujo del sistema segmentado en diferentes unidades de procesamiento.}
+   \label{fig:segmentacion_multihardware}
+\end{figure}
+
+La Figura \ref{fig:segmentacion_multihardware} ilustra este enfoque, donde la etapa de inferencia se ejecuta en la GPU o DLA, y estas etapas se comunican con la siguiente etapa (seguimiento) mediante colas de mensajes. Este enfoque permite un procesamiento más eficiente y rápido, aprovechando al máximo los recursos de hardware disponibles.
+
+
+\subsection{Segmentación basada en procesos con memoria compartida}
+
+La quinta y última opción es la segmentación del sistema en diferentes procesos, pero con la adición de memoria compartida. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un proceso independiente, pero comparten una zona de memoria común para las colas de mensajes. Esto permite obtener los beneficios de la segmentación en procesos, como la independencia y el aprovechamiento de múltiples núcleos de CPU, al tiempo que se mantienen los beneficios de la segmentación en hilos, como la eficiencia en la comunicación y transferencia de datos entre etapas. 
+
+Para llevar a cabo esta alternativa, se mejora la comunicación entre procesos empleando memoria compartida. Se ha utilizado la librería \texttt{multiprocessing.shared\_memory} de Python y mediante ella se ha creado una capa de abstracción: un buffer circular. Este buffer opera sobre la memoria compartida subyacente, actuando como una cola de capacidad fija donde los elementos se añaden y extraen secuencialmente, con un comportamiento de envoltura al llegar a los extremos. Con el fin de asegurar la coherencia de los datos y prevenir condiciones de carrera durante el acceso concurrente desde distintos procesos, esta abstracción integra el uso de mecanismos de sincronización como bloqueos (\textit{locks}) y variables de condición (\textit{condition variables}). Estos mecanismos controlan el acceso: un proceso que intente añadir datos a un buffer lleno se bloqueará hasta que se libere espacio, y un proceso que intente leer de un buffer vacío esperará hasta que haya datos. Esta estrategia abstracta sobre la memoria compartida posibilita una comunicación inter-proceso eficaz y segura, simplificando la gestión de la transferencia de datos y disminuyendo la sobrecarga.
+
+La configuración de cada buffer circular requiere especificar su capacidad (número de elementos), el tamaño de memoria asignado a cada elemento y un nombre único para identificar la región de memoria compartida. El comportamiento de bloqueo inherente cuando el buffer está lleno o vacío garantiza que ningún dato (en este caso, fotograma) se pierda, asegurando que todas las entradas sean eventualmente procesadas por la etapa correspondiente.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.4\textwidth]{images/diseno_e_implementacion/buffer_circular.png}
+   \caption{Ejemplo de buffer circular.}
+   \label{fig:buffer_circular}
+\end{figure}
+
+En la Figura \ref{fig:buffer_circular} se ilustra un ejemplo de buffer circular. En este ejemplo, hay un buffer circular de tamaño \texttt{queue\_size}, con un tamaño de elemento de \texttt{element\_size}. El buffer tiene dos índices, uno para la escritura (tail) y otro para la lectura (head). Además, mantiene un contador (\texttt{count}) que indica el número de elementos actualmente almacenados en el buffer. Este contador se incrementa con cada operación de escritura exitosa y se decrementa con cada operación de lectura exitosa, sirviendo para determinar si el buffer está lleno o vacío. Cuando el índice de escritura alcanza el final del buffer, vuelve al principio. De manera similar, cuando el índice de lectura alcanza el final del buffer, también vuelve al principio. Esto permite que el buffer funcione como una cola circular, donde los datos se escriben y leen de manera continua sin necesidad de mover los datos en la memoria.
+
+Un desafío clave de este enfoque es la necesidad de definir estáticamente el tamaño de cada buffer circular. Una asignación excesiva resulta en un desperdicio de memoria, mientras que una capacidad insuficiente puede causar bloqueos frecuentes, limitando el rendimiento general del sistema. Para abordar esto, se llevaron a cabo pruebas empíricas exhaustivas para determinar los requisitos de tamaño óptimos para cada cola de comunicación entre las distintas etapas del sistema, buscando un equilibrio entre la eficiencia de memoria y la fluidez del procesamiento.
 
 \chapter{Análisis de la solución}
 
