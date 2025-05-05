@@ -4,7 +4,11 @@
 + [X] Añadir a las tareas fundamentales de la visión por computador las técnicas tradicionales
 + [X] Añadir los ODS al anexo
 
-+ [ ] Escribir el análisis del problema
-+ [ ] Escribir la implementación de la solución
-+ [ ] Explicar que son los DLA en conceptos previos
++ [X] Escribir el análisis del problema
++ [X] Escribir la implementación de la solución
++ [x] Explicar que son los DLA en conceptos previos
++ [x] Explicar más la arquitectura de las Jetson
 + [ ] Explicar que son las colas
++ [ ] Explicar como se guardan los datos en memoria pickle
++ [ ] Explicar donde se guardan los datos en memoria cuando no se usa memoria compartida
++ [ ] Buscar como hacer validación de un video con métricas de tracking
