@@ -8,7 +8,9 @@
 + [X] Escribir la implementación de la solución
 + [x] Explicar que son los DLA en conceptos previos
 + [x] Explicar más la arquitectura de las Jetson
-+ [ ] Explicar que son las colas
-+ [ ] Explicar como se guardan los datos en memoria pickle
-+ [ ] Explicar donde se guardan los datos en memoria cuando no se usa memoria compartida
++ [x] Explicar que son las colas
++ [X] Explicar como se guardan los datos en memoria pickle
++ [x] Explicar donde se guardan los datos en memoria cuando no se usa memoria compartida
++ [ ] Reordenar exlicacion de como funciona la cola?
 + [ ] Buscar como hacer validación de un video con métricas de tracking
++ [ ] Datos de entrenamiento
