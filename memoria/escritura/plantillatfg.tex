@@ -713,10 +713,9 @@ La Figura \ref{fig:bytetrack_mota} presenta una comparativa de rendimiento que e
    \includegraphics[width=0.5\textwidth]{images/estado_del_arte/BYTETrack_deteccion.png}
    \caption{Ejemplo de detección y seguimiento de objetos utilizando BYTETrack.}
    \label{fig:bytetrack_deteccion}
-   \caption*{Fuente: \cite{zhang2022bytetrackmultiobjecttrackingassociating}}
 \end{figure}
 
-La Figura \ref{fig:bytetrack_deteccion} ilustra el proceso de BYTETrack a través de tres fotogramas consecutivos ($\tau_1$, $\tau_2$, $\tau_3$) de una secuencia de vídeo. En (a), se observan las detecciones iniciales que superan un umbral de confianza (p. ej., 0.5). La sección (b) muestra las trayectorias generadas al asociar exclusivamente las detecciones de alta confianza. Por el contrario, (c) presenta el resultado final de BYTETrack, que integra también las detecciones de baja confianza en el proceso de asociación. Esta comparación evidencia cómo la estrategia de BYTETrack permite mantener la continuidad de las trayectorias frente a desafíos como oclusiones parciales y variaciones en la confianza de las detecciones, logrando así una representación más precisa y robusta del movimiento de los objetos en el tiempo.
+La Figura \ref{fig:bytetrack_deteccion}\cite{zhang2022bytetrackmultiobjecttrackingassociating} ilustra el proceso de BYTETrack a través de tres fotogramas consecutivos ($\tau_1$, $\tau_2$, $\tau_3$) de una secuencia de vídeo. En (a), se observan las detecciones iniciales que superan un umbral de confianza (p. ej., 0.5). La sección (b) muestra las trayectorias generadas al asociar exclusivamente las detecciones de alta confianza. Por el contrario, (c) presenta el resultado final de BYTETrack, que integra también las detecciones de baja confianza en el proceso de asociación. Esta comparación evidencia cómo la estrategia de BYTETrack permite mantener la continuidad de las trayectorias frente a desafíos como oclusiones parciales y variaciones en la confianza de las detecciones, logrando así una representación más precisa y robusta del movimiento de los objetos en el tiempo.
 
 
 
@@ -867,9 +866,9 @@ La Figura \ref{fig:resultado_sistema} muestra un ejemplo de la salida del sistem
 
 \section{Segmentación de las etapas del sistema}
 
-Tras la implementación de las etapas del sistema, se ha considerado la posibilidad de segmentar el sistema en diferentes etapas para mejorar el rendimiento y la eficiencia del procesamiento. La segmentación permite distribuir la carga de trabajo entre diferentes unidades de procesamiento, optimizando así el uso de los recursos disponibles en la plataforma NVIDIA Jetson.
+Tras la implementación de las etapas del sistema, se ha considerado la posibilidad de segmentar el sistema mediante estas etapas para mejorar el rendimiento y la eficiencia del procesamiento. La segmentación permite distribuir la carga de trabajo entre diferentes unidades de procesamiento, optimizando así el uso de los recursos disponibles en la plataforma.
 
-La segmentación de las etapas del sistema se puede realizar de varias maneras, dependiendo de los requisitos específicos de la aplicación y de los recursos disponibles. A continuación, se describen las diferentes opciones de segmentación que se han considerado.
+La segmentación de las etapas del sistema se puede realizar de varias maneras, dependiendo de los requisitos específicos de la aplicación y de los recursos disponibles. A continuación, se describen las diferentes opciones de segmentación que se han consideradom, implementado y evaluado en el sistema propuesto.
     
 \subsection{Secuencial}
 
@@ -915,7 +914,7 @@ Considerando estas características, la segmentación basada en hilos puede ser 
 
 Aunque más complejo de implementar que el enfoque secuencial debido a la necesidad de sincronización y comunicación entre hilos, este modelo permite una mejor utilización de los recursos y mejora la capacidad de respuesta y el rendimiento general del sistema al solapar operaciones de E/S y cómputo intensivo (en GPU/DLA) con otras tareas.
 
-\subsection{Segmentación basada en procesos}
+\subsection{Segmentación basada en procesos} \label{sub:segmentacion_procesos}
 
 La tercera opción es la segmentación del sistema en diferentes procesos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un proceso independiente. La comunicación y transferencia de datos entre estas etapas/procesos se gestiona mediante colas de mensajes (\textit{Queue}). Estas colas provienen del módulo `multiprocessing` de la librería estándar de Python y comparten la misma interfaz que las colas estándar del módulo `queue`, lo que asegura una transferencia eficiente y segura entre procesos (\textit{process-safe}).
 
@@ -966,7 +965,7 @@ La Figura \ref{fig:segmentacion_multihardware} ilustra cómo la etapa de inferen
 \subsection{Segmentación basada en procesos con memoria compartida}
 
 
-La quinta opción de segmentación también emplea procesos independientes, pero busca optimizar la comunicación entre ellos utilizando memoria compartida como alternativa a las colas estándar del módulo \texttt{multiprocessing}. La transferencia de grandes volúmenes de datos, como los fotogramas de vídeo, puede volverse ineficiente con \texttt{multiprocessing.Queue} debido a la sobrecarga asociada a la serialización (pickling) y deserialización de objetos, así como a la posible copia de datos entre los espacios de memoria de los procesos a través de mecanismos subyacentes como pipes.
+La quinta opción de segmentación emplea procesos independientes como en \ref{sub:segmentacion_procesos}, pero busca optimizar la comunicación entre ellos utilizando memoria compartida como alternativa a las colas estándar del módulo \texttt{multiprocessing}. La transferencia de grandes volúmenes de datos, como los fotogramas de vídeo, puede volverse ineficiente con \texttt{multiprocessing.Queue} debido a la sobrecarga asociada a la serialización (pickling) y deserialización de objetos, así como a la posible copia de datos entre los espacios de memoria de los procesos a través de mecanismos subyacentes como pipes.
 
 Para superar estas limitaciones, la biblioteca \texttt{multiprocessing.shared\_memory} de Python permite a múltiples procesos acceder directamente a la misma región de memoria. Un proceso crea un bloque de memoria compartida, y otros procesos pueden \textit{adjuntarse} a él usando su nombre único. Ambos pueden leer y escribir directamente en el buffer de memoria (\texttt{shm.buf}). Este acceso directo elimina los pasos de serialización/deserialización y las copias intermedias, resultando en una latencia mucho menor y un mayor ancho de banda, lo cual es especialmente beneficioso para datos grandes y estructurados como imágenes o arrays NumPy.
 
@@ -974,16 +973,16 @@ Sin embargo, la gestión directa de la memoria compartida requiere una implement
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.4\textwidth]{images/diseno_e_implementacion/buffer_circular.png}
+   \includegraphics[width=0.6\textwidth]{images/diseno_e_implementacion/buffer_circular.png}
    \caption{Ejemplo de buffer circular.}
    \label{fig:buffer_circular}
 \end{figure}
 
-Dado que múltiples procesos acceden concurrentemente a la misma memoria a través del buffer circular, es crucial garantizar la coherencia de los datos y prevenir condiciones de carrera. A diferencia de \texttt{multiprocessing.Queue}, que gestiona la sincronización internamente, \texttt{shared\_memory} no la proporciona automáticamente. Por lo tanto, el buffer circular implementado integra mecanismos de sincronización explícitos, como bloqueos (\texttt{Lock}) y variables de condición (\texttt{Semaphore}) del módulo \texttt{multiprocessing}. Estos controlan el acceso: un proceso productor que intente añadir datos a un buffer lleno se bloqueará hasta que un consumidor libere espacio, y viceversa, un consumidor que intente leer de un buffer vacío esperará. Este comportamiento asegura que no se pierdan datos y que las operaciones se realicen de forma segura (\textit{thread-safe} y \textit{process-safe}).
+Dado que múltiples procesos acceden concurrentemente a la misma memoria a través del buffer circular, es crucial garantizar la coherencia de los datos y prevenir condiciones de carrera. A diferencia de \texttt{multiprocessing.Queue}, que gestiona la sincronización internamente, \texttt{shared\_memory} no la proporciona automáticamente. Por lo tanto, el buffer circular implementado integra mecanismos de sincronización explícitos, como bloqueos (\texttt{Lock}) y variables de condición (\texttt{Semaphore}) del módulo \texttt{multiprocessing}. Estos controlan el acceso: un proceso productor que intente añadir datos a un buffer lleno se bloqueará hasta que un consumidor libere espacio, y viceversa, un consumidor que intente leer de un buffer vacío esperará. Este comportamiento asegura que no se pierdan datos y que las operaciones se realicen de forma segura.
 
 La configuración de cada buffer circular requiere definir estáticamente su capacidad, el tamaño de memoria para cada elemento y un nombre único para la región de memoria compartida. Una limitación clave es la necesidad de preasignar la memoria. Una asignación incorrecta (demasiado grande o demasiado pequeña) puede llevar a desperdicio de recursos o a bloqueos frecuentes que limiten el rendimiento. Por ello, se requiere una calibración experimental para determinar los tamaños óptimos de buffer para cada enlace entre etapas, buscando el equilibrio entre uso eficiente de memoria y fluidez en el procesamiento. Además, el programador debe gestionar manualmente el ciclo de vida del bloque de memoria compartida (creación, cierre con \texttt{close()} y liberación final con \texttt{unlink()}).
 
-En resumen, la segmentación basada en procesos con memoria compartida y un buffer circular ofrece un rendimiento potencialmente superior al de \texttt{multiprocessing.Queue} para la transferencia de grandes bloques de datos como fotogramas de vídeo, al evitar la sobrecarga de serialización y copia. Sin embargo, esta eficiencia conlleva una mayor complejidad de implementación, requiriendo una gestión manual cuidadosa de la memoria y la sincronización explícita.
+En resumen, la segmentación basada en procesos con memoria compartida y un buffer circular busca ofrecer un rendimiento superior para la transferencia de grandes bloques de datos como fotogramas de vídeo, aunque esto implicaría una mayor complejidad en la implementación y gestión de la memoria.
 
 
 \chapter{Análisis de la solución}
