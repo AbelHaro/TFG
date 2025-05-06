@@ -127,7 +127,7 @@ def initialize_pipeline(args):
         if args.sahi:
             video_path = f"../../datasets_labeled/videos/test/test_altura_1080x1080.mp4"
         else:
-            video_path = f"../../datasets_labeled/videos/test/test_640x640_2400fps.mp4"
+            video_path = f"../../datasets_labeled/videos/test/muchas_canicas.mp4"
     else:
         video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
 
