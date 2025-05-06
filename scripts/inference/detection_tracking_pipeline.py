@@ -137,10 +137,10 @@ class DetectionTrackingPipeline(ABC):
                 raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
             cap = cv2.VideoCapture(video_path)
-            # cap = cv2.VideoCapture('/dev/video0')
-            # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-            # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-            # cap.set(cv2.CAP_PROP_FPS, 30)
+            #cap = cv2.VideoCapture('/dev/video0')
+            #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+            #cap.set(cv2.CAP_PROP_FPS, 30)
             
             first_time = True
 
@@ -572,6 +572,8 @@ class DetectionTrackingPipeline(ABC):
         first_time = True
 
         frame_number = 0
+        
+        sended_id = {}
 
         # Función para resetear FPS cada segundo
         def reset_fps():
@@ -622,24 +624,28 @@ class DetectionTrackingPipeline(ABC):
                     return
 
                 detected_class = memory[obj_id]["class"]
-                if detected_class.endswith("-d") and not msg_sended and is_tcp:
+                if detected_class.endswith("-d") and not msg_sended and is_tcp and not sended_id.get(obj_id):
+                    sended_id[obj_id] = True
                     threading.Thread(
                         target=handle_send,
                         args=(client_socket, "DETECTED_DEFECT"),
                         daemon=True,
                     ).start()
                     msg_sended = True
+                    
+                    logging.debug(f"[PROGRAM - DRAW AND WRITE] Enviando mensaje TCP para ID {obj_id}")
+                    
                 color = colors.get(detected_class, (255, 255, 255))
                 cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
                 text = f"ID:{obj_id} {detected_class} {conf:.2f}"
                 cv2.putText(
-                    frame,
-                    text,
-                    (xmin, ymin - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (255, 255, 255),
-                    2,
+                   frame,
+                   text,
+                   (xmin, ymin - 10),
+                   cv2.FONT_HERSHEY_SIMPLEX,
+                   0.5,
+                   (255, 255, 255),
+                   2,
                 )
 
             # Usar thread pool para dibujar objetos en paralelo
