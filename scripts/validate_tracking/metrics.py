@@ -55,54 +55,58 @@ def match_detections(
     detections: List[np.ndarray], ground_truths: List[np.ndarray], iou_threshold: float = 0.5
 ) -> Tuple[List[Tuple[int, int]], List[int], List[int]]:
     """
-    Empareja detecciones con ground truths usando IoU máximo con un umbral mínimo de 0.5.
+    Empareja detecciones con ground truths usando el algoritmo Húngaro basado en IoU.
     Retorna las parejas coincidentes y los índices no emparejados.
     """
     if len(detections) == 0 or len(ground_truths) == 0:
         print("No hay detecciones o ground truths disponibles.")
-
         return [], list(range(len(detections))), list(range(len(ground_truths)))
 
-    matches = []
-    matched_gts = set()
-    unmatched_dets = list(range(len(detections)))
-    unmatched_gts = list(range(len(ground_truths)))
+    # Crear matriz de costos basada en IoU
+    cost_matrix = np.full((len(detections), len(ground_truths)), 1000.0)  # Alto costo por defecto
+    valid_assignments = False
 
-    # Para cada detección, encuentra el ground truth con el mayor IoU
+    # Calcular matriz de IoU y actualizar costos
     for i, det in enumerate(detections):
-        max_iou = iou_threshold
-        best_match = -1
-
         for j, gt in enumerate(ground_truths):
-            if j in matched_gts:
-                continue
-
             try:
                 iou = calculate_iou(det, gt)
-                if iou > max_iou:
-                    max_iou = iou
-                    best_match = j
+                if iou >= iou_threshold:
+                    cost_matrix[i, j] = 1 - iou  # Costo bajo para buenos matches
+                    valid_assignments = True
             except Exception as e:
                 print(f"Error calculando IoU: {e}")
                 print(f"Detección: {det}")
                 print(f"Ground truth: {gt}")
 
-        # Si encontramos una coincidencia válida
-        if best_match != -1:
-            print(
-                f"Coincidencia encontrada: Detección {i} con GT {best_match} (IoU: {max_iou:.2f})"
-            )
-            matches.append((i, best_match))
-            matched_gts.add(best_match)
-            unmatched_dets.remove(i)
-            unmatched_gts.remove(best_match)
+    if not valid_assignments:
+        return [], list(range(len(detections))), list(range(len(ground_truths)))
 
-    if len(matches) == 0:
-        print("No se encontraron coincidencias.")
-    else:
-        print(f"Se encontraron {len(matches)} coincidencias.")
+    from scipy.optimize import linear_sum_assignment
 
-    return matches, unmatched_dets, unmatched_gts
+    try:
+        # Aplicar algoritmo Húngaro
+        det_indices, gt_indices = linear_sum_assignment(cost_matrix)
+
+        matches = []
+        unmatched_dets = list(range(len(detections)))
+        unmatched_gts = list(range(len(ground_truths)))
+
+        # Filtrar coincidencias válidas (costo < 1000.0)
+        for det_idx, gt_idx in zip(det_indices, gt_indices):
+            if cost_matrix[det_idx, gt_idx] < 1000.0:  # Solo incluir matches válidos
+                matches.append((det_idx, gt_idx))
+                if det_idx in unmatched_dets:
+                    unmatched_dets.remove(det_idx)
+                if gt_idx in unmatched_gts:
+                    unmatched_gts.remove(gt_idx)
+
+        print(f"Se encontraron {len(matches)} coincidencias usando el algoritmo Húngaro.")
+        return matches, unmatched_dets, unmatched_gts
+
+    except Exception as e:
+        print(f"Error en el algoritmo Húngaro: {e}")
+        return [], list(range(len(detections))), list(range(len(ground_truths)))
 
 
 class TrackingMetrics:
