@@ -194,14 +194,20 @@ while video.isOpened():
     metrics.update(frame_count, detection_tuples, gt_tuples)
 
     # Calcular métricas actuales
-    current_metrics = metrics.compute()
+    current_idf1, current_hota = metrics.compute()
 
     # Añadir métricas al frame
     metrics_text = [
-        f"IDF1: {current_metrics.idf1:.3f}",
-        f"IDP: {current_metrics.idp:.3f}",
-        f"IDR: {current_metrics.idr:.3f}",
-        f"IDTP/IDFP/IDFN: {current_metrics.idtp}/{current_metrics.idfp}/{current_metrics.idfn}",
+        # IDF1 metrics
+        f"IDF1: {current_idf1.idf1:.3f}",
+        f"IDP: {current_idf1.idp:.3f}",
+        f"IDR: {current_idf1.idr:.3f}",
+        f"IDTP/IDFP/IDFN: {current_idf1.idtp}/{current_idf1.idfp}/{current_idf1.idfn}",
+        # HOTA metrics
+        f"HOTA: {current_hota.hota:.3f}",
+        f"DetA: {current_hota.deta:.3f}",
+        f"AssA: {current_hota.assa:.3f}",
+        f"TP/FP/FN: {current_hota.tp}/{current_hota.fp}/{current_hota.fn}",
     ]
 
     for i, text in enumerate(metrics_text):
@@ -224,22 +230,37 @@ print("Ground truth and results videos saved.")
 print("Frame processing completed.")
 
 # Calcular y mostrar métricas finales
-final_metrics = metrics.compute()
+final_idf1, final_hota = metrics.compute()
+
 print("\nMétricas IDF1 finales:")
-print(f"IDF1: {final_metrics.idf1:.3f}")
-print(f"IDP: {final_metrics.idp:.3f}")
-print(f"IDR: {final_metrics.idr:.3f}")
-print(f"IDTP/IDFP/IDFN: {final_metrics.idtp}/{final_metrics.idfp}/{final_metrics.idfn}")
+print(f"IDF1: {final_idf1.idf1:.3f}")
+print(f"IDP: {final_idf1.idp:.3f}")
+print(f"IDR: {final_idf1.idr:.3f}")
+print(f"IDTP/IDFP/IDFN: {final_idf1.idtp}/{final_idf1.idfp}/{final_idf1.idfn}")
+
+print("\nMétricas HOTA finales:")
+print(f"HOTA: {final_hota.hota:.3f}")
+print(f"DetA: {final_hota.deta:.3f}")
+print(f"AssA: {final_hota.assa:.3f}")
+print(f"TP/FP/FN: {final_hota.tp}/{final_hota.fp}/{final_hota.fn}")
 
 # Guardar métricas en archivo
 results_file = "./results/metrics.txt"
 os.makedirs(os.path.dirname(results_file), exist_ok=True)
 with open(results_file, "w") as f:
+    # Guardar métricas IDF1
     f.write("Métricas IDF1:\n")
-    f.write(f"IDF1: {final_metrics.idf1:.3f}\n")
-    f.write(f"IDP: {final_metrics.idp:.3f}\n")
-    f.write(f"IDR: {final_metrics.idr:.3f}\n")
-    f.write(f"IDTP/IDFP/IDFN: {final_metrics.idtp}/{final_metrics.idfp}/{final_metrics.idfn}\n")
+    f.write(f"IDF1: {final_idf1.idf1:.3f}\n")
+    f.write(f"IDP: {final_idf1.idp:.3f}\n")
+    f.write(f"IDR: {final_idf1.idr:.3f}\n")
+    f.write(f"IDTP/IDFP/IDFN: {final_idf1.idtp}/{final_idf1.idfp}/{final_idf1.idfn}\n\n")
+
+    # Guardar métricas HOTA
+    f.write("Métricas HOTA:\n")
+    f.write(f"HOTA: {final_hota.hota:.3f}\n")
+    f.write(f"DetA: {final_hota.deta:.3f}\n")
+    f.write(f"AssA: {final_hota.assa:.3f}\n")
+    f.write(f"TP/FP/FN: {final_hota.tp}/{final_hota.fp}/{final_hota.fn}\n")
 
 video.release()
 cv2.destroyAllWindows()
