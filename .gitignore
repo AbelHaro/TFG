@@ -22,3 +22,7 @@
 /scripts/slices
 /scripts/validation_predictions
 
+/scripts/validate_tracking/labels
+/scripts/validate_tracking/*.mp4
+
+
