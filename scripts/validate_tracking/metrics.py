@@ -23,6 +23,15 @@ class HOTAMetrics:
     fn: int  # False Negatives
 
 
+@dataclass
+class MOTAMetrics:
+    mota: float
+    fp: int
+    fn: int
+    idsw: int  # Identity Switches
+    gt_total: int  # Total ground truth objects
+
+
 def calculate_iou(box1: np.ndarray, box2: np.ndarray) -> float:
     """Calcula la Intersección sobre Unión (IoU) entre dos cajas delimitadoras."""
     x1 = max(box1[0], box2[0])
@@ -58,10 +67,6 @@ def match_detections(
     matched_gts = set()
     unmatched_dets = list(range(len(detections)))
     unmatched_gts = list(range(len(ground_truths)))
-
-    print(f"Detecciones: {len(detections)}, Ground truths: {len(ground_truths)}")
-    print(f"Detecciones: {detections}")
-    print(f"Ground truths: {ground_truths}")
 
     # Para cada detección, encuentra el ground truth con el mayor IoU
     for i, det in enumerate(detections):
@@ -115,6 +120,13 @@ class TrackingMetrics:
         self.hota_fns = {alpha: 0 for alpha in self.alpha_range}
         self.association_scores = {alpha: [] for alpha in self.alpha_range}
 
+        # MOTA metrics
+        self.mota_fp = 0  # Total False Positives for MOTA
+        self.mota_fn = 0  # Total False Negatives for MOTA
+        self.mota_idsw = 0  # Total Identity Switches
+        self.gt_total = 0  # Total ground truth objects
+        self.prev_matches = {}  # Previous frame matches {gt_id: track_id}
+
     def update(
         self,
         frame_id: int,
@@ -133,6 +145,9 @@ class TrackingMetrics:
         """
         det_boxes = [d[1] for d in detections]
         gt_boxes = [g[1] for g in ground_truths]
+
+        # Actualizar total de ground truths para MOTA
+        self.gt_total += len(ground_truths)
 
         # Actualizar métricas IDF1
         matches, unmatched_dets, unmatched_gts = match_detections(
@@ -158,6 +173,26 @@ class TrackingMetrics:
         # Actualizar False Positives y Negatives para IDF1
         self.total_idfp += len(unmatched_dets)
         self.total_idfn += len(unmatched_gts)
+
+        # Actualizar métricas MOTA
+        current_matches = {}
+
+        # Actualizar False Positives y False Negatives para MOTA
+        self.mota_fp += len(unmatched_dets)  # Detecciones sin match son FP
+        self.mota_fn += len(unmatched_gts)  # Ground truths sin match son FN
+
+        # Detectar cambios de identidad para MOTA
+        for det_idx, gt_idx in matches:
+            det_track_id = detections[det_idx][0]
+            gt_id = ground_truths[gt_idx][0]
+            current_matches[gt_id] = det_track_id
+
+            # Verificar si hubo un cambio de identidad con respecto al frame anterior
+            if gt_id in self.prev_matches and self.prev_matches[gt_id] != det_track_id:
+                self.mota_idsw += 1
+
+        # Actualizar matches previos para el siguiente frame
+        self.prev_matches = current_matches
 
         # Actualizar métricas HOTA para cada umbral alpha
         for alpha in self.alpha_range:
@@ -195,8 +230,8 @@ class TrackingMetrics:
                 self.hota_fps[alpha] += len(det_boxes)
                 self.hota_fns[alpha] += len(gt_boxes)
 
-    def compute(self) -> Tuple[IDF1Metrics, HOTAMetrics]:
-        """Calcula las métricas IDF1 y HOTA finales."""
+    def compute(self) -> Tuple[IDF1Metrics, HOTAMetrics, MOTAMetrics]:
+        """Calcula las métricas IDF1, HOTA y MOTA finales."""
         # Calcular IDF1
         idtp = self.total_idtp
         idfp = self.total_idfp
@@ -242,7 +277,11 @@ class TrackingMetrics:
         final_fp = self.hota_fps[mid_alpha]
         final_fn = self.hota_fns[mid_alpha]
 
+        # Calcular MOTA
+        mota = 1 - (self.mota_fn + self.mota_fp + self.mota_idsw) / max(self.gt_total, 1)
+
         return (
             IDF1Metrics(idf1, idp, idr, idtp, idfp, idfn),
             HOTAMetrics(final_hota, final_deta, final_assa, final_tp, final_fp, final_fn),
+            MOTAMetrics(mota, self.mota_fp, self.mota_fn, self.mota_idsw, self.gt_total),
         )

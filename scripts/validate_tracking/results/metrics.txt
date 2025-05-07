@@ -9,3 +9,9 @@ HOTA: 0.727
 DetA: 0.715
 AssA: 0.827
 TP/FP/FN: 2359/188/223
+
+Métricas MOTA:
+MOTA: 0.840
+IDSW: 1
+FP/FN: 188/223
+GT total: 2582
