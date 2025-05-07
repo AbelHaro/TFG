@@ -13,6 +13,16 @@ class IDF1Metrics:
     idfn: int  # ID False Negatives
 
 
+@dataclass
+class HOTAMetrics:
+    hota: float
+    deta: float  # Detection Accuracy
+    assa: float  # Association Accuracy
+    tp: int  # True Positives
+    fp: int  # False Positives
+    fn: int  # False Negatives
+
+
 def calculate_iou(box1: np.ndarray, box2: np.ndarray) -> float:
     """Calcula la Intersección sobre Unión (IoU) entre dos cajas delimitadoras."""
     x1 = max(box1[0], box2[0])
@@ -92,10 +102,18 @@ def match_detections(
 
 class TrackingMetrics:
     def __init__(self):
+        # IDF1 metrics
         self.total_idtp = 0  # Total ID True Positives
         self.total_idfp = 0  # Total ID False Positives
         self.total_idfn = 0  # Total ID False Negatives
         self.track_history = {}  # Historial de tracks {track_id: {frame_id: ground_truth_id}}
+
+        # HOTA metrics
+        self.alpha_range = np.arange(0.05, 1.0, 0.05)  # 19 valores de α de 0.05 a 0.95
+        self.hota_tps = {alpha: 0 for alpha in self.alpha_range}
+        self.hota_fps = {alpha: 0 for alpha in self.alpha_range}
+        self.hota_fns = {alpha: 0 for alpha in self.alpha_range}
+        self.association_scores = {alpha: [] for alpha in self.alpha_range}
 
     def update(
         self,
@@ -116,11 +134,12 @@ class TrackingMetrics:
         det_boxes = [d[1] for d in detections]
         gt_boxes = [g[1] for g in ground_truths]
 
+        # Actualizar métricas IDF1
         matches, unmatched_dets, unmatched_gts = match_detections(
             det_boxes, gt_boxes, iou_threshold
         )
 
-        # Actualizar True Positives
+        # Actualizar True Positives para IDF1
         for det_idx, gt_idx in matches:
             det_track_id = detections[det_idx][0]
             gt_id = ground_truths[gt_idx][0]
@@ -136,14 +155,49 @@ class TrackingMetrics:
 
             self.track_history[det_track_id][frame_id] = gt_id
 
-        # Actualizar False Positives
+        # Actualizar False Positives y Negatives para IDF1
         self.total_idfp += len(unmatched_dets)
-
-        # Actualizar False Negatives
         self.total_idfn += len(unmatched_gts)
 
-    def compute(self) -> IDF1Metrics:
-        """Calcula las métricas IDF1 finales."""
+        # Actualizar métricas HOTA para cada umbral alpha
+        for alpha in self.alpha_range:
+            # Para cada alpha, realizar matching usando ese umbral
+            alpha_matches = []
+            for i, det in enumerate(det_boxes):
+                for j, gt in enumerate(gt_boxes):
+                    iou = calculate_iou(det, gt)
+                    if iou >= alpha:
+                        alpha_matches.append((i, j, iou))
+
+            if alpha_matches:
+                # Ordenar matches por IoU descendente
+                alpha_matches.sort(key=lambda x: x[2], reverse=True)
+                matched_dets = set()
+                matched_gts = set()
+                final_matches = []
+
+                # Greedy matching basado en IoU
+                for det_idx, gt_idx, iou_score in alpha_matches:
+                    if det_idx not in matched_dets and gt_idx not in matched_gts:
+                        final_matches.append((det_idx, gt_idx, iou_score))
+                        matched_dets.add(det_idx)
+                        matched_gts.add(gt_idx)
+
+                # Actualizar conteos para este alpha
+                self.hota_tps[alpha] += len(final_matches)
+                self.hota_fps[alpha] += len(det_boxes) - len(matched_dets)
+                self.hota_fns[alpha] += len(gt_boxes) - len(matched_gts)
+
+                # Actualizar scores de asociación
+                for _, _, iou in final_matches:
+                    self.association_scores[alpha].append(iou)
+            else:
+                self.hota_fps[alpha] += len(det_boxes)
+                self.hota_fns[alpha] += len(gt_boxes)
+
+    def compute(self) -> Tuple[IDF1Metrics, HOTAMetrics]:
+        """Calcula las métricas IDF1 y HOTA finales."""
+        # Calcular IDF1
         idtp = self.total_idtp
         idfp = self.total_idfp
         idfn = self.total_idfn
@@ -152,4 +206,43 @@ class TrackingMetrics:
         idr = idtp / (idtp + idfn) if idtp + idfn > 0 else 0
         idf1 = 2 * idtp / (2 * idtp + idfp + idfn) if 2 * idtp + idfp + idfn > 0 else 0
 
-        return IDF1Metrics(idf1, idp, idr, idtp, idfp, idfn)
+        # Calcular HOTA
+        hota_scores = []
+        deta_scores = []
+        assa_scores = []
+
+        for alpha in self.alpha_range:
+            tp = self.hota_tps[alpha]
+            fp = self.hota_fps[alpha]
+            fn = self.hota_fns[alpha]
+
+            # Detection Accuracy (DetA)
+            deta = tp / (tp + fp + fn) if (tp + fp + fn) > 0 else 0
+            deta_scores.append(deta)
+
+            # Association Accuracy (AssA)
+            if tp > 0 and len(self.association_scores[alpha]) > 0:
+                assa = np.mean(self.association_scores[alpha])
+            else:
+                assa = 0
+            assa_scores.append(assa)
+
+            # HOTA score para este alpha
+            hota = np.sqrt(deta * assa) if deta > 0 and assa > 0 else 0
+            hota_scores.append(hota)
+
+        # Promediar los scores sobre todos los alphas
+        final_hota = np.mean(hota_scores)
+        final_deta = np.mean(deta_scores)
+        final_assa = np.mean(assa_scores)
+
+        # Usar los valores del alpha medio (0.5) para los conteos
+        mid_alpha = 0.5
+        final_tp = self.hota_tps[mid_alpha]
+        final_fp = self.hota_fps[mid_alpha]
+        final_fn = self.hota_fns[mid_alpha]
+
+        return (
+            IDF1Metrics(idf1, idp, idr, idtp, idfp, idfn),
+            HOTAMetrics(final_hota, final_deta, final_assa, final_tp, final_fp, final_fn),
+        )
