@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Cuando encuentres una palabra en inglés:
+Primero, verifica si existe un acrónimo definido para esa palabra
+Si existe un acrónimo, usa \gls{acronimo}
+Si no existe un acrónimo, usa \textit{palabra_ingles}
