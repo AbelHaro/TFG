@@ -12,5 +12,6 @@
 + [X] Explicar como se guardan los datos en memoria pickle
 + [x] Explicar donde se guardan los datos en memoria cuando no se usa memoria compartida
 + [ ] Reordenar exlicacion de como funciona la cola?
-+ [ ] Buscar como hacer validación de un video con métricas de tracking
++ [X] Buscar como hacer validación de un video con métricas de tracking
 + [ ] Datos de entrenamiento
++ [ ] Ejecuciones

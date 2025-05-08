@@ -467,8 +467,7 @@ En este proyecto, se ha seleccionado YOLO11 \cite{yolo11_ultralytics}, que repre
 
 La Tabla \ref{tab:yolo11_comparison} presenta un análisis comparativo de las distintas variantes de YOLO11 evaluadas sobre el dataset COCO \cite{lin2015microsoftcococommonobjects}. Los datos revelan una clara correlación: los modelos más grandes ofrecen mayor precisión (mAP) a costa de mayor complejidad computacional y menor velocidad de procesamiento. Esta escalabilidad permite adaptar la implementación según los requisitos específicos de cada aplicación, balanceando efectivamente el rendimiento con las restricciones computacionales del sistema objetivo.
 
-\subsection{Métricas de evaluación}
-
+\subsection{Métricas de evaluación de modelos de detección de objetos}
 
 Para evaluar el rendimiento de los modelos de detección de objetos, se utilizan métricas específicas que permiten cuantificar la precisión y efectividad del sistema. Entre las métricas más comunes se encuentran:
 
@@ -750,6 +749,48 @@ El funcionamiento del algoritmo BYTETrack es el siguiente:
 
 
 Con todo esto, BYTETrack logra un seguimiento robusto y preciso de múltiples objetos en movimiento, incluso en condiciones desafiantes como oclusiones parciales y cambios de apariencia. Su enfoque innovador para manejar detecciones de baja confianza lo distingue de otros algoritmos de seguimiento y lo convierte en una opción atractiva para aplicaciones en tiempo real.
+
+
+\subsection{Métricas de evaluación en MOT}
+
+Las métricas de evaluación son fundamentales para medir el rendimiento de los algoritmos de seguimiento de objetos múltiples (MOT). Estas métricas permiten cuantificar la precisión y la robustez del seguimiento, facilitando la comparación entre diferentes enfoques y configuraciones. A continuación se presentan las métricas más relevantes en este campo:
+
+\begin{itemize}
+   \item \textbf{MOTA (Multiple Object Tracking Accuracy):} Es una de las métricas más consolidadas y ampliamente utilizadas para evaluar el rendimiento general de un algoritmo MOT. MOTA agrega tres tipos de errores principales que pueden ocurrir durante el seguimiento:
+   \begin{itemize}
+      \item Falsos Negativos (FN): Objetos reales presentes en la escena que el seguidor no detecta o no sigue.
+      \item Falsos Positivos (FP): Detecciones o trayectorias generadas por el seguidor que no corresponden a ningún objeto real.
+      \item Cambios de Identidad (IDSW - IDentity SWitches): Ocurren cuando un objeto que ya está siendo seguido se le asigna incorrectamente un nuevo identificador, o cuando se intercambian los identificadores entre dos objetos seguidos.
+   \end{itemize}
+   La fórmula es:
+   \[
+   MOTA = 1 - \frac{\sum_{t} (FN_t + FP_t + IDSW_t)}{\sum_{t} GT_t}
+   \]
+   donde \(FN_t\), \(FP_t\), e \(IDSW_t\) son el número de falsos negativos, falsos positivos y cambios de identidad en el fotograma \(t\), respectivamente. \(GT_t\) es el número total de objetos reales (ground truth) en el fotograma \(t\). El sumatorio se realiza sobre todos los fotogramas de la secuencia.
+   Un valor de MOTA más alto indica un mejor rendimiento, con un máximo teórico de 1 (o 100\%). Sin embargo, MOTA puede ser negativo si el número de errores supera el número de objetos reales. Aunque es una métrica integral, tiende a dar más peso a la precisión de la detección que a la consistencia de la identidad a largo plazo.
+
+   \item \textbf{IDF1 (ID F1 Score):} Esta métrica se centra específicamente en la capacidad del seguidor para mantener correctamente la identidad de los objetos a lo largo del tiempo. Es la media armónica de la Precisión de ID (IDP) y el Recall de ID (IDR).
+   \begin{itemize}
+      \item IDP (ID Precision): Proporción de detecciones correctamente asignadas a una trayectoria (ID) respecto al total de detecciones asignadas.
+      \item IDR (ID Recall): Proporción de objetos reales correctamente identificados y seguidos a lo largo de su trayectoria respecto al total de objetos reales.
+   \end{itemize}
+   La fórmula es:
+   \[
+   IDF1 = \frac{2 \cdot IDTP}{2 \cdot IDTP + IDFP + IDFN}
+   \]
+   donde \(IDTP\) (ID True Positives) son los verdaderos positivos en términos de asignación de identidad correcta a lo largo de las trayectorias, \(IDFP\) (ID False Positives) son las asignaciones de identidad incorrectas, y \(IDFN\) (ID False Negatives) son las identidades de objetos reales que no fueron correctamente mantenidas. Un valor de IDF1 más alto (hasta 1 o 100\%) indica una mejor consistencia en el seguimiento de la identidad. Es particularmente útil para evaluar el rendimiento en escenarios con oclusiones prolongadas o interacciones complejas entre objetos.
+
+   \item \textbf{HOTA (Higher Order Tracking Accuracy):} Es una métrica más reciente diseñada para proporcionar una evaluación más equilibrada y completa del rendimiento del MOT. HOTA descompone explícitamente el rendimiento en precisión de detección, precisión de asociación y precisión de localización. Se calcula como la media geométrica de la Precisión de Detección (DetA) y la Precisión de Asociación (AssA), donde cada una de estas componentes considera la precisión de localización (IoU).
+   \[
+   HOTA = \sqrt{DetA \cdot AssA}
+   \]
+   \begin{itemize}
+      \item DetA (Detection Accuracy): Mide qué tan bien se detectan los objetos, promediado sobre diferentes umbrales de IoU.
+      \item AssA (Association Accuracy): Mide qué tan bien se asocian las detecciones correctas para formar trayectorias consistentes, también promediado sobre umbrales de IoU.
+   \end{itemize}
+   HOTA varía entre 0 y 1 (o 0\% y 100\%), donde valores más altos indican un mejor rendimiento. Se considera que HOTA ofrece una visión más matizada que MOTA, ya que penaliza de forma más equilibrada los diferentes tipos de errores y es sensible a la calidad de la localización.
+
+\end{itemize}
 
 % \section{Slicing Aided Hyper Inference}
 % Explicación de la técnica de Slicing Aided Hyper Inference, como se utiliza para mejorar la precisión de los modelos de detección de objetos y como se aplica en este trabajo.
