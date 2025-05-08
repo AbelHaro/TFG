@@ -15,3 +15,4 @@
 + [X] Buscar como hacer validación de un video con métricas de tracking
 + [ ] Datos de entrenamiento
 + [ ] Ejecuciones
+
