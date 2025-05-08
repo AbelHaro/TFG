@@ -32,6 +32,13 @@ class MOTAMetrics:
     gt_total: int  # Total ground truth objects
 
 
+@dataclass
+class MOTPMetrics:
+    motp: float  # Multiple Object Tracking Precision
+    total_distance: float  # Sum of distances for all correct matches
+    total_matches: int  # Total number of correct matches
+
+
 def calculate_iou(box1: np.ndarray, box2: np.ndarray) -> float:
     """Calcula la Intersección sobre Unión (IoU) entre dos cajas delimitadoras."""
     x1 = max(box1[0], box2[0])
@@ -131,6 +138,10 @@ class TrackingMetrics:
         self.gt_total = 0  # Total ground truth objects
         self.prev_matches = {}  # Previous frame matches {gt_id: track_id}
 
+        # MOTP metrics
+        self.total_distance = 0.0  # Sum of distances for all correct matches
+        self.total_matches = 0  # Total number of correct matches
+
     def update(
         self,
         frame_id: int,
@@ -153,15 +164,21 @@ class TrackingMetrics:
         # Actualizar total de ground truths para MOTA
         self.gt_total += len(ground_truths)
 
-        # Actualizar métricas IDF1
+        # Actualizar métricas IDF1 y MOTP
         matches, unmatched_dets, unmatched_gts = match_detections(
             det_boxes, gt_boxes, iou_threshold
         )
 
-        # Actualizar True Positives para IDF1
+        # Actualizar True Positives para IDF1 y MOTP
         for det_idx, gt_idx in matches:
             det_track_id = detections[det_idx][0]
             gt_id = ground_truths[gt_idx][0]
+
+            # Calcular distancia para MOTP (1 - IoU)
+            iou = calculate_iou(det_boxes[det_idx], gt_boxes[gt_idx])
+            distance = 1 - iou
+            self.total_distance += distance
+            self.total_matches += 1
 
             if det_track_id not in self.track_history:
                 self.track_history[det_track_id] = {}
@@ -234,8 +251,8 @@ class TrackingMetrics:
                 self.hota_fps[alpha] += len(det_boxes)
                 self.hota_fns[alpha] += len(gt_boxes)
 
-    def compute(self) -> Tuple[IDF1Metrics, HOTAMetrics, MOTAMetrics]:
-        """Calcula las métricas IDF1, HOTA y MOTA finales."""
+    def compute(self) -> Tuple[IDF1Metrics, HOTAMetrics, MOTAMetrics, MOTPMetrics]:
+        """Calcula las métricas IDF1, HOTA, MOTA y MOTP finales."""
         # Calcular IDF1
         idtp = self.total_idtp
         idfp = self.total_idfp
@@ -284,8 +301,12 @@ class TrackingMetrics:
         # Calcular MOTA
         mota = 1 - (self.mota_fn + self.mota_fp + self.mota_idsw) / max(self.gt_total, 1)
 
+        # Calcular MOTP
+        motp = self.total_distance / max(self.total_matches, 1)
+
         return (
             IDF1Metrics(idf1, idp, idr, idtp, idfp, idfn),
             HOTAMetrics(final_hota, final_deta, final_assa, final_tp, final_fp, final_fn),
             MOTAMetrics(mota, self.mota_fp, self.mota_fn, self.mota_idsw, self.gt_total),
+            MOTPMetrics(motp, self.total_distance, self.total_matches),
         )

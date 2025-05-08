@@ -4,7 +4,7 @@ import numpy as np
 from argparse import Namespace
 from tracker_wrapper import TrackerWrapper
 from ultralytics import YOLO
-from metrics import TrackingMetrics, IDF1Metrics, HOTAMetrics, MOTAMetrics
+from metrics import TrackingMetrics, IDF1Metrics, HOTAMetrics, MOTAMetrics, MOTPMetrics
 
 CLASSES = {
     0: "negra",
@@ -256,7 +256,7 @@ while video.isOpened():
     metrics.update(frame_count, detection_tuples, gt_tuples)
 
     # Calcular métricas actuales
-    current_idf1, current_hota, current_mota = metrics.compute()
+    current_idf1, current_hota, current_mota, current_motp = metrics.compute()
 
     # Añadir métricas al frame
     metrics_text = [
@@ -272,6 +272,8 @@ while video.isOpened():
         f"MOTA: {current_mota.mota:.3f}",
         f"IDSW: {current_mota.idsw}",
         f"FP/FN: {current_mota.fp}/{current_mota.fn}",
+        # MOTP metrics
+        f"MOTP: {current_motp.motp:.3f}",
     ]
 
     for i, text in enumerate(metrics_text):
@@ -310,7 +312,7 @@ print("Ground truth and results videos saved.")
 print("Frame processing completed.")
 
 # Calcular y mostrar métricas finales
-final_idf1, final_hota, final_mota = metrics.compute()
+final_idf1, final_hota, final_mota, final_motp = metrics.compute()
 
 print("\nMétricas IDF1 finales:")
 print(f"IDF1: {final_idf1.idf1:.3f}")
@@ -329,6 +331,11 @@ print(f"MOTA: {final_mota.mota:.3f}")
 print(f"IDSW: {final_mota.idsw}")
 print(f"FP/FN: {final_mota.fp}/{final_mota.fn}")
 print(f"GT total: {final_mota.gt_total}")
+
+print("\nMétricas MOTP finales:")
+print(f"MOTP: {final_motp.motp:.3f}")
+print(f"Total distance: {final_motp.total_distance:.3f}")
+print(f"Total matches: {final_motp.total_matches}")
 
 # Guardar métricas en archivo
 results_file = "./results/metrics.txt"
@@ -353,7 +360,13 @@ with open(results_file, "w") as f:
     f.write(f"MOTA: {final_mota.mota:.3f}\n")
     f.write(f"IDSW: {final_mota.idsw}\n")
     f.write(f"FP/FN: {final_mota.fp}/{final_mota.fn}\n")
-    f.write(f"GT total: {final_mota.gt_total}\n")
+    f.write(f"GT total: {final_mota.gt_total}\n\n")
+
+    # Guardar métricas MOTP
+    f.write("Métricas MOTP:\n")
+    f.write(f"MOTP: {final_motp.motp:.3f}\n")
+    f.write(f"Total distance: {final_motp.total_distance:.3f}\n")
+    f.write(f"Total matches: {final_motp.total_matches}\n")
 
 video.release()
 cv2.destroyAllWindows()
