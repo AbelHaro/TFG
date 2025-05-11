@@ -757,32 +757,44 @@ Con todo esto, BYTETrack logra un seguimiento robusto y preciso de múltiples ob
 
 \subsection{Métricas de evaluación en MOT}
 
-Las métricas de evaluación son fundamentales para medir el rendimiento de los algoritmos de seguimiento de objetos múltiples (MOT). Estas métricas permiten cuantificar la precisión y la robustez del seguimiento, facilitando la comparación entre diferentes enfoques y configuraciones. A continuación se presentan las métricas más relevantes en este campo:
+Las métricas de evaluación son fundamentales para medir el rendimiento de los algoritmos de seguimiento de objetos múltiples (MOT). Estas métricas permiten cuantificar la precisión y la robustez del seguimiento, facilitando la comparación entre diferentes enfoques y configuraciones.
+
+En el contexto de MOT, los errores pueden clasificarse en tres categorías principales:
+
+\begin{itemize}
+   \item \textbf{Errores de detección:} Ocurren cuando el sistema predice detecciones que no existen en la verdad de referencia, o cuando falla en predecir detecciones que sí están presentes en la verdad fundamental. Estos corresponden a los Falsos Positivos (FP) y Falsos Negativos (FN) respectivamente.
+   
+   \item \textbf{Errores de asociación:} Se producen cuando el sistema asigna el mismo ID de predicción (prID) a dos detecciones que tienen diferentes IDs en la verdad de referencia (gtID), o cuando asigna diferentes prIDs a dos detecciones que deberían tener el mismo gtID. El caso más común es el Cambio de Identidad (IDSW - IDentity SWitch).
+   
+   \item \textbf{Errores de localización:} Ocurren cuando las detecciones predichas (prDets) no están perfectamente alineadas espacialmente con las detecciones de la verdad de referencia (gtDets). La calidad de esta alineación se mide típicamente con la métrica IoU (Intersection over Union).
+\end{itemize}
+
+A continuación se presentan las métricas más relevantes en este campo, que cuantifican estos errores de diversas maneras:
 
 \begin{itemize}
    \item \textbf{MOTA (Multiple Object Tracking Accuracy):} Es una de las métricas más consolidadas y ampliamente utilizadas para evaluar el rendimiento general de un algoritmo MOT. MOTA agrega tres tipos de errores principales que pueden ocurrir durante el seguimiento:
    \begin{itemize}
-      \item Falsos Negativos (FN): Objetos reales presentes en la escena que el seguidor no detecta o no sigue.
-      \item Falsos Positivos (FP): Detecciones o trayectorias generadas por el seguidor que no corresponden a ningún objeto real.
-      \item Cambios de Identidad (IDSW - IDentity SWitches): Ocurren cuando un objeto que ya está siendo seguido se le asigna incorrectamente un nuevo identificador, o cuando se intercambian los identificadores entre dos objetos seguidos.
+     \item Falsos Negativos (FN): Objetos reales presentes en la escena que el algoritmo de seguimiento no detecta o no sigue.
+     \item Falsos Positivos (FP): Detecciones o trayectorias generadas por el algoritmo de seguimiento que no corresponden a ningún objeto real.
+     \item Cambios de Identidad (IDSW - IDentity SWitches): Ocurren cuando un objeto que ya está siendo seguido se le asigna incorrectamente un nuevo identificador, o cuando se intercambian los identificadores entre dos objetos seguidos.
    \end{itemize}
    La fórmula es:
    \[
    MOTA = 1 - \frac{\sum_{t} (FN_t + FP_t + IDSW_t)}{\sum_{t} GT_t}
    \]
-   donde \(FN_t\), \(FP_t\), e \(IDSW_t\) son el número de falsos negativos, falsos positivos y cambios de identidad en el fotograma \(t\), respectivamente. \(GT_t\) es el número total de objetos reales (ground truth) en el fotograma \(t\). El sumatorio se realiza sobre todos los fotogramas de la secuencia.
+   donde \(FN_t\), \(FP_t\), e \(IDSW_t\) son el número de falsos negativos, falsos positivos y cambios de identidad en el fotograma \(t\), respectivamente. \(GT_t\) es el número total de objetos reales (verdad de referencia) en el fotograma \(t\). El sumatorio se realiza sobre todos los fotogramas de la secuencia.
    Un valor de MOTA más alto indica un mejor rendimiento, con un máximo teórico de 1 (o 100\%). Sin embargo, MOTA puede ser negativo si el número de errores supera el número de objetos reales. Aunque es una métrica integral, tiende a dar más peso a la precisión de la detección que a la consistencia de la identidad a largo plazo.
 
-   \item \textbf{MOTP (Multiple Object Tracking Precision):} Esta métrica evalúa la precisión de la localización de los objetos a lo largo del tiempo. Se calcula como la media de las distancias entre las cajas delimitadoras predichas y las cajas delimitadoras reales (ground truth) para todas las asociaciones correctas. Matemáticamente, se expresa como:
+   \item \textbf{MOTP (Multiple Object Tracking Precision):} Esta métrica evalúa la precisión de la localización de los objetos a lo largo del tiempo. Se calcula como la media de las distancias entre las cajas delimitadoras predichas y las cajas delimitadoras reales (verdad de referencia) para todas las asociaciones correctas. Matemáticamente, se expresa como:
    \[
    MOTP = \frac{\sum_{t,i} d_{t,i}}{\sum_{t} c_t}
    \]
-   donde $d_{t,i}$ es la distancia (generalmente IoU) entre la predicción y la ground truth para el objeto $i$ en el fotograma $t$, y $c_t$ es el número total de asociaciones correctas en el fotograma $t$. Un valor de MOTP más alto indica una mayor precisión en la localización de los objetos. A diferencia de MOTA, MOTP no penaliza los errores de identidad, sino que se centra exclusivamente en qué tan precisas son las localizaciones de los objetos cuando se asocian correctamente.
+   donde $d_{t,i}$ es la distancia (generalmente IoU) entre la predicción y la verdad de referencia para el objeto $i$ en el fotograma $t$, y $c_t$ es el número total de asociaciones correctas en el fotograma $t$. Un valor de MOTP más alto indica una mayor precisión en la localización de los objetos. A diferencia de MOTA, MOTP no penaliza los errores de identidad, sino que se centra exclusivamente en qué tan precisas son las localizaciones de los objetos cuando se asocian correctamente.
 
-   \item \textbf{IDF1 (ID F1 Score):} Esta métrica se centra específicamente en la capacidad del seguidor para mantener correctamente la identidad de los objetos a lo largo del tiempo. Es la media armónica de la Precisión de ID (IDP) y el Recall de ID (IDR).
+   \item \textbf{IDF1 (ID F1 Score):} Esta métrica se centra específicamente en la capacidad del algoritmo de seguimiento para mantener correctamente la identidad de los objetos a lo largo del tiempo. Es la media armónica de la Precisión de ID (IDP) y el Recall de ID (IDR).
    \begin{itemize}
-      \item IDP (ID Precision): Proporción de detecciones correctamente asignadas a una trayectoria (ID) respecto al total de detecciones asignadas.
-      \item IDR (ID Recall): Proporción de objetos reales correctamente identificados y seguidos a lo largo de su trayectoria respecto al total de objetos reales.
+     \item IDP (ID Precision): Proporción de detecciones correctamente asignadas a una trayectoria (ID) respecto al total de detecciones asignadas.
+     \item IDR (ID Recall): Proporción de objetos reales correctamente identificados y seguidos a lo largo de su trayectoria respecto al total de objetos reales.
    \end{itemize}
    La fórmula es:
    \[
@@ -795,10 +807,11 @@ Las métricas de evaluación son fundamentales para medir el rendimiento de los 
    HOTA = \sqrt{DetA \cdot AssA}
    \]
    \begin{itemize}
-      \item DetA (Detection Accuracy): Mide qué tan bien se detectan los objetos, promediado sobre diferentes umbrales de IoU.
-      \item AssA (Association Accuracy): Mide qué tan bien se asocian las detecciones correctas para formar trayectorias consistentes, también promediado sobre umbrales de IoU.
+     \item DetA (Detection Accuracy): Mide qué tan bien se detectan los objetos, promediado sobre diferentes umbrales de IoU.
+     \item AssA (Association Accuracy): Mide qué tan bien se asocian las detecciones correctas para formar trayectorias consistentes, también promediado sobre umbrales de IoU.
    \end{itemize}
    HOTA varía entre 0 y 1 (o 0\% y 100\%), donde valores más altos indican un mejor rendimiento. Se considera que HOTA ofrece una visión más matizada que MOTA, ya que penaliza de forma más equilibrada los diferentes tipos de errores y es sensible a la calidad de la localización.
+
 
 \end{itemize}
 
