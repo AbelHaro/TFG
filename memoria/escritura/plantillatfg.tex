@@ -1121,11 +1121,36 @@ En resumen, la segmentación basada en procesos con memoria compartida y un buff
 
 En este capítulo se analizará la solución propuesta variando los parámetros posibles
 
-\section{Variación de los parámetros}
-Explicación de los parámetros que se pueden variar en la solución propuesta y su efecto en el rendimiento del sistema.
+\section{Metodología de evaluación y métricas de rendimiento}
 
-------PRUEBA--------
+Tras el desarrollo de la solución propuesta, se procede a analizar su rendimiento. La evaluación se basa en un vídeo de prueba de 80 segundos (2400 fotogramas) que muestra un flujo de canicas, grabado a 640x640 píxeles y 30 fotogramas por segundo (fps). Este vídeo sirve como entrada estándar para el sistema, permitiendo medir diversas métricas de rendimiento según la configuración.
 
+Se han empleado dos enfoques para las pruebas:
+\begin{enumerate}
+   \item \textbf{Simulación de entrada en tiempo real:} Los fotogramas del vídeo se suministran al sistema a una tasa fija de 30 fps (un fotograma cada 33.3 ms), emulando la entrada de una cámara. Si el sistema no logra procesar un fotograma dentro de este intervalo, dicho fotograma se descarta. Esta metodología permite cuantificar la capacidad del sistema para operar en tiempo real, midiendo el número de fotogramas procesados y perdidos.
+   \item \textbf{Ejecución a máxima capacidad:} Los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
+\end{enumerate}
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/analisis_de_la_solucion/variación_de_objetos_en_el_vídeo.png}
+   \caption{Número de objetos en el vídeo de prueba.}
+   \label{fig:variacion_objetos}
+\end{figure}
+
+La Figura \ref{fig:variacion_objetos} muestra la variación del número de objetos en el vídeo de prueba. Esta variación es importante para evaluar el rendimiento del sistema, ya que un mayor número de objetos puede aumentar la carga computacional y afectar el tiempo de procesamiento.
+
+Como métricas de rendimiento, se han considerado las siguientes:
+\begin{itemize}
+   \item \textbf{Tasa de fotogramas por segundo (FPS):} Número de fotogramas procesados por segundo. Esta métrica es fundamental para evaluar la capacidad del sistema para operar en tiempo real.
+   \item \textbf{Tasa de fotogramas perdidos (LFPS):} Número de fotogramas perdidos por segundo. Esta métrica indica la capacidad del sistema para mantener el ritmo con la entrada de fotogramas.
+   \item \textbf{Potencia consumida (W):} Mide la potencia eléctrica instantánea consumida por el sistema durante la ejecución. Es crucial para evaluar la eficiencia energética.
+   \item \textbf{Energía consumida (J):} Representa la energía total consumida por el sistema para procesar la secuencia completa. Se calcula integrando la potencia a lo largo del tiempo de ejecución. Esta métrica ofrece una visión global de la eficiencia energética.
+   \item \textbf{Fotogramas por vatio (Frames/W):} Indica cuántos fotogramas se procesan por cada vatio de potencia consumido. Esta métrica es útil para evaluar la eficiencia del sistema en términos de rendimiento por unidad de energía.
+   \item \textbf{Speedup:} Compara la mejora en la velocidad de procesamiento. Se calcula como el cociente entre el tiempo de ejecución de la configuración de referencia (la más lenta) y el tiempo de la configuración evaluada. Un valor mayor a 1 indica una ejecución más rápida.
+
+
+\end{itemize}
 
 \begin{table}[h]
    \centering
