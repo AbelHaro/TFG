@@ -78,14 +78,13 @@ def parse_arguments():
         type=bool,
         help="Usar el modo de procesamiento sahi, default=False",
     )
-    
+
     parser.add_argument(
         "--max_fps",
         default=None,
         type=int,
         help="FPS máximo que genera la cámara, default=None",
     )
-
 
     return parser.parse_args()
 
@@ -127,9 +126,9 @@ def initialize_pipeline(args):
         if args.sahi:
             video_path = f"../../datasets_labeled/videos/test/test_altura_1080x1080.mp4"
         else:
-            video_path = f"../../datasets_labeled/videos/test/muchas_canicas.mp4"
+            video_path = f"../../datasets_labeled/videos/contar_objetos_variable_2min.mp4"
     else:
-        video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
+        video_path = f"../../datasets_labeled/videos/contar_objetos_variable_2min.mp4"
 
     output_dir = "../../inference_predictions/custom_tracker"
 
@@ -140,7 +139,8 @@ def initialize_pipeline(args):
         f"{args.parallel}_{model_name}_{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}.mp4",
     )
     sahi_prefix = f"sahi_batch{batch_size}_" if args.sahi else ""
-    output_times = f"{model_name}_{sahi_prefix}{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}"
+    fps_prefix = f"_{args.max_fps}fps" if args.max_fps else "maxfps"
+    output_times = f"{model_name}_{sahi_prefix}{args.precision}_{args.hardware}_{args.num_objects}_objects_{mode}{fps_prefix}"
 
     print("\n\n[PROGRAM] Opciones seleccionadas:", args, "\n\n")
 
@@ -174,7 +174,7 @@ def initialize_pipeline(args):
             sahi=args.sahi,
             max_fps=args.max_fps,
         )
-    
+
     return pipeline
 
 
