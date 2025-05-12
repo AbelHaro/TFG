@@ -509,6 +509,8 @@ Para evaluar el rendimiento de los modelos de detección de objetos, se utilizan
 
    Un F1 Score alto indica que el modelo tiene un buen equilibrio entre precisión y recall, lo que es especialmente importante en aplicaciones donde tanto la detección correcta como la minimización de falsos positivos son críticas.
 
+   \item \textbf{Loss (Pérdida)}: Es una medida de la discrepancia entre las predicciones del modelo y las etiquetas reales. Durante el entrenamiento, el objetivo es minimizar esta pérdida. Existen diferentes tipos de funciones de pérdida, como la pérdida de clasificación (Cross-Entropy Loss) y la pérdida de localización (Smooth L1 Loss), que se combinan para evaluar el rendimiento del modelo.
+
 \end{itemize}
 
 
@@ -902,7 +904,34 @@ Para el entrenamiento del modelo se han seleccionado los siguientes hiperparáme
 
 
 
+Los resultados del entrenamiento se han evaluado utilizando el conjunto de validación, y se han registrado métricas como la precisión (precision), la recuperación (recall) y el mAP (mean Average Precision). Estas métricas son fundamentales para entender el rendimiento del modelo y su capacidad para generalizar a nuevos datos.
 
+\begin{table}[H]
+   \centering
+   \begin{tabular}{l | c | c | c | c | c}
+      \toprule
+      Modelo & Tiempo (h) & Precisión & Recall & mAP50 & mAP50-95 \\
+      \midrule
+      YOLO11n & 0.140 & 0.950 & 0.882 & 0.939 & 0.761 \\
+      YOLO11s & 0.192 & 0.941 & 0.936 & 0.963 & 0.796 \\
+      YOLO11m & 0.377 & 0.941 & 0.936 & 0.963 & 0.796 \\
+      YOLO11l & 0.485 & 0.954 & 0.947 & 0.967 & 0.801 \\
+      \bottomrule
+   \end{tabular}
+   \caption{Comparativa del rendimiento de modelos YOLO11 con métricas de entrenamiento y evaluación.}
+   \label{tab:yolo11_metrics}
+\end{table}
+
+La Tabla \ref{tab:yolo11_metrics} resume los resultados del entrenamiento. Se observa una tendencia general: a medida que aumenta la complejidad del modelo (desde YOLO11n hasta YOLO11l), tanto la precisión como el recall experimentan una mejora. Esto sugiere que los modelos de mayor tamaño poseen una capacidad superior para aprender representaciones de características más ricas y discriminativas, resultando en una detección de objetos más efectiva. No obstante, esta mejora en el rendimiento se acompaña de un incremento en el tiempo de entrenamiento, evidenciando el inherente compromiso entre la capacidad del modelo y la eficiencia computacional del proceso de aprendizaje.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{excels/entrenamiento/loss_plot.png}
+   \caption{Curvas de pérdida de entrenamiento y validación para las diferentes tallas de YOLO11.}
+   \label{fig:loss_curves}
+\end{figure}
+
+La Figura \ref{fig:loss_curves} presenta las curvas de pérdida (loss) durante el entrenamiento y la validación para las distintas variantes de YOLO11. Estas gráficas ilustran la progresiva disminución de la función de pérdida a lo largo de las épocas, un indicador clave de que el modelo está aprendiendo eficazmente a generalizar a partir de los datos de entrenamiento para la tarea de detección de objetos. Es notable que la pérdida de validación también sigue una tendencia descendente, lo que sugiere una buena generalización y la ausencia de un sobreajuste significativo a los datos de entrenamiento. Se aprecia un descenso pronunciado de la pérdida en las épocas iniciales, indicativo de una rápida asimilación de patrones por parte del modelo. Conforme avanza el entrenamiento, la tasa de reducción de la pérdida disminuye gradualmente hasta alcanzar una meseta, un comportamiento característico en el entrenamiento de modelos de aprendizaje profundo que señala la convergencia del modelo hacia un mínimo local de la función de pérdida, donde las mejoras adicionales se vuelven marginales.
 
 
 
