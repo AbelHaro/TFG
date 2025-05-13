@@ -17,6 +17,6 @@ FP/FN: 219/250
 GT total: 2582
 
 Métricas MOTP:
-MOTP: 0.196
-Total distance: 456.037
+MOTP: 0.804
+Total distance: 1875.963
 Total matches: 2332
