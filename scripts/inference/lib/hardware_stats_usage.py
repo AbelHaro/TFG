@@ -51,33 +51,48 @@ def parse_tegrastats_file(filename, total_time):
         for line in file:
             if "CPU" in line and "mW" in line:  # Filtrar líneas relevantes
                 data.append(process_tegrastats_line(line))
-                    
+
     for i, d in enumerate(data):
         # Convertir los valores de frecuencia a MHz
-        
-            if d["Total_Power_mW"]:
-                data[i]["mJ"] = int(d["Total_Power_mW"] * (total_time / len(data)))
-    
+
+        if d["Total_Power_mW"]:
+            data[i]["mJ"] = int(d["Total_Power_mW"] * (total_time / len(data)))
+
     total_mj = 0
     total_gpu = 0
     total_mW = 0
-    
+    total_cpu_usage = 0
+    cpu_quantities = 0
+
+    if data:
+        for key in data[0].keys():
+            if key.startswith("CPU_Core_") and key.endswith("Usage_%"):
+                cpu_quantities += 1
+
+    print(f"[HARDWARE STATS USAGE] CPU Quantities: {cpu_quantities}")
+
     for i, d in enumerate(data):
         if d["Total_Power_mW"]:
             total_mj += d["mJ"]
-            
+
         if d["GPU_Usage_%"]:
             total_gpu += d["GPU_Usage_%"]
-            
+
         if d["Total_Power_mW"]:
             total_mW += d["Total_Power_mW"]
-        
+
+        for j in range(1, cpu_quantities + 1):
+            cpu_key = f"CPU_Core_{j}_Usage_%"
+            if cpu_key in d and d[cpu_key]:
+                total_cpu_usage += d[cpu_key]
+
     data[0]["Total_mJ"] = round(total_mj, 2)
     data[0]["Total_J"] = round(total_mj / 1000, 2)
     data[0]["Total_Time_s"] = round(total_time, 2)
     data[0]["average_mW"] = round(total_mW / len(data), 2)
     data[0]["average_GPU_Usage_%"] = round(total_gpu / len(data), 2)
-    
+    data[0]["average_CPU_Usage_%"] = round(total_cpu_usage / (len(data) * cpu_quantities), 2)
+
     return data
 
 

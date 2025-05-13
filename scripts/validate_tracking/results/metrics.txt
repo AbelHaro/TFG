@@ -15,3 +15,8 @@ MOTA: 0.818
 IDSW: 0
 FP/FN: 219/250
 GT total: 2582
+
+Métricas MOTP:
+MOTP: 0.196
+Total distance: 456.037
+Total matches: 2332
