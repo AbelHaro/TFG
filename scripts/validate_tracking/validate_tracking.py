@@ -334,8 +334,9 @@ print(f"GT total: {final_mota.gt_total}")
 
 print("\nMétricas MOTP finales:")
 print(f"MOTP: {final_motp.motp:.3f}")
-print(f"Total distance: {final_motp.total_distance:.3f}")
+print(f"Total IoU: {final_motp.total_iou:.3f}")
 print(f"Total matches: {final_motp.total_matches}")
+
 
 # Guardar métricas en archivo
 results_file = "./results/metrics.txt"
@@ -365,7 +366,7 @@ with open(results_file, "w") as f:
     # Guardar métricas MOTP
     f.write("Métricas MOTP:\n")
     f.write(f"MOTP: {final_motp.motp:.3f}\n")
-    f.write(f"Total distance: {final_motp.total_distance:.3f}\n")
+    f.write(f"Total distance: {final_motp.total_iou:.3f}\n")
     f.write(f"Total matches: {final_motp.total_matches}\n")
 
 video.release()
