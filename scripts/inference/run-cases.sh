@@ -2,12 +2,12 @@
 
 # This script runs the inference cases for the given model and dataset.
 
-model_size=("n")
+model_size=("n" "s" "m" "l")
 precision=("FP16")
 hardware=("GPU")
 mode=("MAXN")
-parallel=("threads" "mp" "mp_shared_memory" "mp_hardware")
-max_fps=infinite
+parallel=("mp_shared_memory")
+max_fps=30
 
 # Loop through all combinations
 for size in "${model_size[@]}"; do
@@ -23,7 +23,7 @@ for size in "${model_size[@]}"; do
                         --hardware $hw \
                         --mode $m \
                         --parallel $par \
-                        #--max_fps $max_fps
+                        --max_fps $max_fps
 
                     # Check if the command was successful
                     if [ $? -ne 0 ]; then
