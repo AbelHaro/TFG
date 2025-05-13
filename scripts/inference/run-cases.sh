@@ -7,7 +7,7 @@ precision=("FP16")
 hardware=("GPU")
 mode=("MAXN")
 parallel=("mp_shared_memory")
-max_fps=30
+max_fps=(30 "infinite")
 
 # Loop through all combinations
 for size in "${model_size[@]}"; do
@@ -15,24 +15,32 @@ for size in "${model_size[@]}"; do
         for hw in "${hardware[@]}"; do
             for m in "${mode[@]}"; do
                 for par in "${parallel[@]}"; do
-                    echo "-------------------------------------------------------------------------------------------------------"
-                    echo "Running case: Model=${size}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${max_fps}"
-                    python3 inference.py \
-                        --model_size $size \
-                        --precision $prec \
-                        --hardware $hw \
-                        --mode $m \
-                        --parallel $par \
-                        --max_fps $max_fps
+                    for fps in "${max_fps[@]}"; do
+                        echo "-------------------------------------------------------------------------------------------------------"
+                        echo "Running case: Model=${size}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${fps}"
+                        command="python3 inference.py \
+                            --model_size $size \
+                            --precision $prec \
+                            --hardware $hw \
+                            --mode $m \
+                            --parallel $par"
 
-                    # Check if the command was successful
-                    if [ $? -ne 0 ]; then
-                        echo "Error running case: Model=${size}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${max_fps}"
-                        exit 1
-                    fi
-                    echo
-                    echo
-                    echo
+                        # Add max_fps only if it's not "infinite"
+                        if [ "$fps" != "infinite" ]; then
+                            command="$command --max_fps $fps"
+                        fi
+
+                        eval $command
+
+                        # Check if the command was successful
+                        if [ $? -ne 0 ]; then
+                            echo "Error running case: Model=${size}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${fps}"
+                            exit 1
+                        fi
+                        echo
+                        echo
+                        echo
+                    done
                 done
             done
         done
