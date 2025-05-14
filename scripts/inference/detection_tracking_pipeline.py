@@ -153,9 +153,9 @@ class DetectionTrackingPipeline(ABC):
             frame_count = 0
 
             import time
-            t1_start.wait()
             frame_time = 1 / max_frames if max_frames else None
 
+            t1_start.wait()
             while cap.isOpened() and not stop_event.is_set():
                 loop_start_time = time.time()
                 
@@ -175,7 +175,6 @@ class DetectionTrackingPipeline(ABC):
                     
                 t2 = cv2.getTickCount()
                 total_frame_time = (t2 - t1) / cv2.getTickFrequency()
-                t1 = cv2.getTickCount()
                 
                 times = {TIMING_FIELDS["CAPTURE"]: total_frame_time}
                 # logging.debug(f"[DEBUG] Poniendo frame a la cola", frame.shape)
@@ -185,6 +184,7 @@ class DetectionTrackingPipeline(ABC):
                 except Exception as e:
                     pass
                     
+                t1 = cv2.getTickCount()
                 
                 elapsed_time = time.time() - loop_start_time
                 if max_frames and elapsed_time < frame_time:
