@@ -1196,6 +1196,8 @@ Por el contrario, la etapa de seguimiento (línea verde), que se ejecuta en la C
 
 Finalmente, la etapa de escritura (línea roja), también dependiente de la CPU, muestra un ligero incremento en su tiempo de ejecución a medida que aumenta el número de objetos. Esto es esperable, ya que debe procesar y registrar la información de un mayor número de detecciones y trayectorias. Sin embargo, su impacto en el rendimiento general parece ser menor en comparación con la etapa de seguimiento bajo las condiciones probadas.
 
+Ahora vamos a analizar el rendimiento del sistema con una simulación de entrada en tiempo real. En este caso, el sistema debe procesar cada fotograma en un tiempo máximo de 33.3 ms (30 fps). Si no logra hacerlo, el fotograma se descarta. Esta metodología permite evaluar la capacidad del sistema para operar en tiempo real y medir la tasa de fotogramas perdidos (LFPS).
+
 
 
 
