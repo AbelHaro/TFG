@@ -8,6 +8,7 @@ import threading
 import logging
 from typing import Union, List, Type, Any
 
+
 class UnifiedPipeline(DetectionTrackingPipeline):
     """Pipeline unificado que soporta diferentes estrategias de paralelización."""
 
@@ -43,45 +44,52 @@ class UnifiedPipeline(DetectionTrackingPipeline):
 
     def _initialize_queues(self):
         """Inicializa las colas según el modo de paralelización."""
+        queue_size = 1 if self.max_fps else 10
+
         if self.parallel_mode == "mp_hardware":
             # Configuración para múltiple hardware
-            self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16) if not self.max_fps else SharedCircularBuffer(queue_size=1, max_item_size=16)
-            self.detection_queue_GPU = SharedCircularBuffer(queue_size=1, max_item_size=16)
-            self.detection_queue_DLA0 = SharedCircularBuffer(queue_size=1, max_item_size=16)
-            self.detection_queue_DLA1 = SharedCircularBuffer(queue_size=1, max_item_size=16)
-            self.tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
-            self.times_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
+
+            self.frame_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
+            self.detection_queue_GPU = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
+            self.detection_queue_DLA0 = SharedCircularBuffer(
+                queue_size=queue_size, max_item_size=16
+            )
+            self.detection_queue_DLA1 = SharedCircularBuffer(
+                queue_size=queue_size, max_item_size=16
+            )
+            self.tracking_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
+            self.times_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
             self.mh_num = 3  # GPU + 2 DLA
         elif self.parallel_mode == "threads":
             # Configuración para hilos
-            self.frame_queue = Queue(maxsize=10) if  not self.max_fps else Queue(maxsize=1)
-            self.detection_queue = Queue(maxsize=10)
-            self.tracking_queue = Queue(maxsize=10)
-            self.times_queue = Queue(maxsize=10)
+            self.frame_queue = Queue(maxsize=queue_size)
+            self.detection_queue = Queue(maxsize=queue_size)
+            self.tracking_queue = Queue(maxsize=queue_size)
+            self.times_queue = Queue(maxsize=queue_size)
         elif self.parallel_mode == "mp_shared_memory":
             # Configuración para memoria compartida
-            self.frame_queue = SharedCircularBuffer(queue_size=10, max_item_size=16) if not self.max_fps else SharedCircularBuffer(queue_size=1, max_item_size=16)
-            self.detection_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
-            self.tracking_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
-            self.times_queue = SharedCircularBuffer(queue_size=10, max_item_size=16)
+            self.frame_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
+            self.detection_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
+            self.tracking_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
+            self.times_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
         else:
             # Configuración para multiprocesos estándar
-            self.frame_queue = mp.Queue(maxsize=10) if not self.max_fps else mp.Queue(maxsize=1)
-            self.detection_queue = mp.Queue(maxsize=10)
-            self.tracking_queue = mp.Queue(maxsize=10)
-            self.times_queue = mp.Queue(maxsize=10)
-            
-            
+            self.frame_queue = (
+                mp.Queue(maxsize=queue_size) if not self.max_fps else mp.Queue(maxsize=1)
+            )
+            self.detection_queue = mp.Queue(maxsize=queue_size)
+            self.tracking_queue = mp.Queue(maxsize=queue_size)
+            self.times_queue = mp.Queue(maxsize=queue_size)
+
     def _initialize_events(self):
-        #self.stop_event = mp.Event() if self.is_process else threading.Event()
-        #self.t1_start = mp.Event() if self.is_process else threading.Event()
-        #self.tcp_event = mp.Event() if self.is_process else threading.Event()
-        #self.mp_stop_event = mp.Event() if self.is_process else threading.Event()        
+        # self.stop_event = mp.Event() if self.is_process else threading.Event()
+        # self.t1_start = mp.Event() if self.is_process else threading.Event()
+        # self.tcp_event = mp.Event() if self.is_process else threading.Event()
+        # self.mp_stop_event = mp.Event() if self.is_process else threading.Event()
         self.stop_event = mp.Event()
         self.t1_start = mp.Event()
         self.tcp_event = mp.Event()
         self.mp_stop_event = mp.Event()
-        
 
     def _get_worker_class(self) -> Type[Union[mp.Process, threading.Thread]]:
         """Retorna la clase de worker según el modo de paralelización."""
@@ -133,7 +141,7 @@ class UnifiedPipeline(DetectionTrackingPipeline):
                             ),
                         )
                     )
-            
+
             # Worker específico para tracking multihardware
             workers.append(
                 Worker(
@@ -163,7 +171,7 @@ class UnifiedPipeline(DetectionTrackingPipeline):
                     ),
                 )
             )
-            
+
             # Worker estándar para tracking
             workers.append(
                 Worker(
@@ -178,47 +186,49 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             )
 
         # Workers comunes para todos los modos
-        workers.extend([
-            Worker(
-                target=self.draw_and_write_frames,
-                args=(
-                    self.tracking_queue,
-                    self.times_queue,
-                    self.output_video_path,
-                    self.CLASSES,
-                    self.memory,
-                    self.COLORS,
-                    self.stop_event,
-                    self.tcp_event,
-                    self.is_tcp,
-                    self.mp_stop_event,
-                    self.is_process,
+        workers.extend(
+            [
+                Worker(
+                    target=self.draw_and_write_frames,
+                    args=(
+                        self.tracking_queue,
+                        self.times_queue,
+                        self.output_video_path,
+                        self.CLASSES,
+                        self.memory,
+                        self.COLORS,
+                        self.stop_event,
+                        self.tcp_event,
+                        self.is_tcp,
+                        self.mp_stop_event,
+                        self.is_process,
+                    ),
                 ),
-            ),
-            Worker(
-                target=self.write_to_csv,
-                args=(
-                    self.times_queue,
-                    self.output_times,
-                    self.parallel_mode,
-                    self.t1_start,
-                    self.stop_event,
-                    self.mp_stop_event,
-                    self.is_process,
+                Worker(
+                    target=self.write_to_csv,
+                    args=(
+                        self.times_queue,
+                        self.output_times,
+                        self.parallel_mode,
+                        self.t1_start,
+                        self.stop_event,
+                        self.mp_stop_event,
+                        self.is_process,
+                    ),
                 ),
-            ),
-            Worker(
-                target=self.hardware_usage,
-                args=(
-                    self.parallel_mode,
-                    self.stop_event,
-                    self.t1_start,
-                    self.tcp_event,
-                    self.is_tcp,
-                    self.is_process,
+                Worker(
+                    target=self.hardware_usage,
+                    args=(
+                        self.parallel_mode,
+                        self.stop_event,
+                        self.t1_start,
+                        self.tcp_event,
+                        self.is_tcp,
+                        self.is_process,
+                    ),
                 ),
-            ),
-        ])
+            ]
+        )
         return workers
 
     def _cleanup(self):
@@ -226,16 +236,18 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         # Limpiar las colas según el modo
         if self.parallel_mode in ["mp_shared_memory", "mp_hardware"]:
             queues = [self.frame_queue, self.tracking_queue, self.times_queue]
-            
+
             if self.parallel_mode == "mp_hardware":
-                queues.extend([
-                    self.detection_queue_GPU,
-                    self.detection_queue_DLA0,
-                    self.detection_queue_DLA1,
-                ])
+                queues.extend(
+                    [
+                        self.detection_queue_GPU,
+                        self.detection_queue_DLA0,
+                        self.detection_queue_DLA1,
+                    ]
+                )
             else:
                 queues.append(self.detection_queue)
-                
+
             for queue in queues:
                 queue.close()
                 queue.unlink()
@@ -244,21 +256,21 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         """Ejecuta el pipeline unificado."""
         # Crear e iniciar workers
         workers = self._create_workers()
-        
+
         for worker in workers:
             worker.start()
-            
+
         self.t1_start.wait()
 
         t1 = cv2.getTickCount()
         # Esperar a que termine el pipeline
         self.stop_event.wait()
 
+        # Calcular estadísticas finales
+        t2 = cv2.getTickCount()
         # Limpiar recursos
         self._cleanup()
 
-        # Calcular estadísticas finales
-        t2 = cv2.getTickCount()
         time = (t2 - t1) / cv2.getTickFrequency()
         self.total_frames = self.get_total_frames(self.video_path)
         print(f"Total time: {time:.2f} s, FPS: {self.total_frames / time:.2f}")

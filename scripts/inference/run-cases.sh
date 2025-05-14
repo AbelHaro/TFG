@@ -7,7 +7,7 @@ precision=("FP16")
 hardware=("GPU")
 mode=("MAXN")
 parallel=("mp_shared_memory")
-max_fps=("30" "infinite")
+max_fps=("30")
 num_objects=("40" "88" "variable")
 
 # Loop through all combinations
