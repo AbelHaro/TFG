@@ -18,7 +18,7 @@ def parse_arguments():
         "--num_objects",
         default="libre",
         type=str,
-        choices=["libre", "0", "18", "40", "48", "60", "70", "88", "176"],
+        choices=["libre", "variable", "0", "18", "40", "48", "60", "70", "88", "176"],
         help="Número de objetos a contar, default=libre",
     )
 
@@ -128,7 +128,7 @@ def initialize_pipeline(args):
         else:
             video_path = f"../../datasets_labeled/videos/contar_objetos_variable_2min.mp4"
     else:
-        video_path = f"../../datasets_labeled/videos/contar_objetos_variable_2min.mp4"
+        video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
 
     output_dir = "../../inference_predictions/custom_tracker"
 
