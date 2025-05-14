@@ -152,9 +152,6 @@ The work includes a comprehensive analysis of the system's performance under var
 \chapter{Introducci\'on}
 Durante los últimos años, la inteligencia artificial ha experimentado un crecimiento en popularidad sin precedentes, transformando nuestra capacidad tecnológica con herramientas revolucionarias. Este avance ha sido impulsado por la disponibilidad de grandes volúmenes de datos, el desarrollo de algoritmos avanzados y las mejoras significativas en el hardware de procesamiento, que han permitido a las máquinas aprender y adaptarse a situaciones complejas. Algunos campos destacados de aplicación incluyen el procesamiento del lenguaje natural, la visión por computador y la robótica. En particular, la visión por computador ha visto un auge significativo, con aplicaciones en áreas como la seguridad, la medicina y la automoción. Esta creciente popularidad por el mundo de la inteligencia artificial se refleja en la evolución del interés público en ella, como muestra la Figura~\ref{fig:interes_en_inteligencia_artificial}.
 
-Esto es un texto de prueba \gls{ai} y luego se vuelve a repetir \gls{ai}.
-
-
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.7\textwidth]{excels/introduccion/interes_en_ia.png}
@@ -180,7 +177,7 @@ Para enfrentar estos desafíos, se han desarrollado diversas técnicas de optimi
 
 La combinación de redes neuronales convolucionales y aceleradores hardware ha permitido la creación de sistemas de visión artificial que pueden detectar y clasificar objetos en movimiento, lo que es esencial en aplicaciones como la vigilancia, la conducción autónoma y la robótica.
 
-\section{Motivaci\'on}
+\section{Motivaci\'on} \label{sec:motivacion}
 
 Los humamos somos capaces de ver y entender el mundo que nos rodea. Dada una imagen, podemos identificar objetos, reconocer patrones y tomar decisiones basadas en la información visual. Sin embargo, esta capacidad no es innata en las máquinas. La visión por computador es la ciencia que busca dotar a las máquinas de la capacidad de interpretar y comprender imágenes y vídeos, emulando la forma en que los humanos percibimos el entorno. 
 
@@ -192,7 +189,7 @@ Centradánose en el ámbito industrial, la detección y clasificación de objeto
 La motivación de este trabajo radica en la necesidad de desarrollar un sistema de visión artificial capaz de detectar y clasificar objetos en movimiento en un entorno industrial, específicamente en una cinta transportadora.
 
 
-\section{Objetivos}
+\section{Objetivos} \label{sec:objetivos}
 
 El objetivo principal de este trabajo es desarrollar un sistema de visión artificial capaz de detectar y clasificar objetos en movimiento en una cinta transportadora utilizando redes neuronales convolucionales y aceleradores hardware de bajo consumo. Para lograr este objetivo, se plantean los siguientes objetivos específicos:
 
@@ -206,7 +203,7 @@ El objetivo principal de este trabajo es desarrollar un sistema de visión artif
    \item Realizar un análisis comparativo sistemático entre diferentes configuraciones de hardware, software y parámetros de optimización para identificar la combinación que ofrezca el mejor equilibrio entre precisión, velocidad y eficiencia energética.
 \end{itemize}
 
-\section{Estructura de la memoria}
+\section{Estructura de la memoria}  \label{sec:estructura_memoria}
 
 ????? ????????????? ????????????? ????????????? ????????????? ????????????? 
 
@@ -222,10 +219,10 @@ El objetivo principal de este trabajo es desarrollar un sistema de visión artif
 
 En este capítulo se explicará los conceptos previos que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán los fundamentos en Inteligencia Artificial centrándose en las redes neuronales convolucionales, desde sus bases hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
 
-\section{Fundamentos y avances en redes neuronales para visión artificial}
+\section{Fundamentos y avances en redes neuronales para visión artificial} \label{sec:fundamentos_avances}
 En esta sección se realizará un estudio de las redes neuronales profundas hasta las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. Se explicarán los conceptos básicos de las redes neuronales y la evolución de las arquitecturas.
 
-\subsection{Fundamentos de la inteligencia artificial}
+\subsection{Fundamentos de la inteligencia artificial} \label{sec:fundamentos_inteligencia_artificial}
 La \textit{\textbf{Inteligencia Artificial}} es un campo de estudio que busca desarrollar sistemas capaces de realizar tareas que normalmente requieren inteligencia humana, como el reconocimiento de voz, la toma de decisiones y la comprensión del lenguaje natural. Dentro de este campo, existen diversas subdisciplinas, entre las cuales destacan el \textit{\textbf{Machine Learning}} y el \textit{\textbf{Deep Learning}}.
 
 El \textit{\textbf{Machine Learning}} o aprendizaje automático es una rama de la inteligencia artificial que se centra en el desarrollo de algoritmos y modelos que permiten a las máquinas aprender de los datos y realizar predicciones o tomar decisiones sin ser programadas explícitamente. Este enfoque se basa en la idea de que las máquinas pueden identificar patrones y relaciones en grandes conjuntos de datos, lo que les permite generalizar y adaptarse a nuevas situaciones.
@@ -240,7 +237,7 @@ El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprend
    \label{fig:multilayer_perceptron}
 \end{figure}
 
-\subsection{Tareas fundamentales en visión por computador}
+\subsection{Tareas fundamentales en visión por computador} \label{sec:tareas_fundamentales_vision_por_computador}
 
 La visión por computador aborda el desafío de permitir que las máquinas interpreten y comprendan el contenido visual de imágenes y vídeos. Antes del auge del aprendizaje profundo, se empleaban descriptores de características diseñados manualmente, como el \gls{hog}. \gls{hog} captura la forma local de los objetos analizando la distribución de las orientaciones de los gradientes en pequeñas regiones de la imagen (celdas y bloques). La Figura~\ref{fig:hog} muestra una visualización de las características HOG extraídas. Aunque útiles en su momento, estos algoritmos "hechos a mano" presentan limitaciones significativas. En particular, no facilitan el aprendizaje por transferencia, es decir, la reutilización de conocimiento aprendido en tareas previas. Además, la complejidad de estas características está intrínsecamente limitada por la capacidad humana para diseñarlas explícitamente. Estos inconvenientes son superados por los algoritmos de aprendizaje automático de características, como las CNN, que aprenden representaciones relevantes directamente de los datos. Por ello, las CNN han demostrado ser más efectivas en tareas complejas, logrando avances significativos en precisión y eficiencia al aprender automáticamente características a partir de grandes conjuntos de datos.
 
@@ -278,7 +275,7 @@ La Figura~\ref{fig:tareas_vision_por_computador} ilustra estas tareas fundamenta
    \label{fig:tareas_vision_por_computador}
 \end{figure}
 
-\subsection{Arquitectura y funcionamiento de las CNN}
+\subsection{Arquitectura y funcionamiento de las CNN} \label{sec:arquitectura_cnn}
 Las \gls{cnn} o redes neuronales convolucionales son un tipo específico de red neuronal profunda. Estas redes están diseñadas para procesar imágenes y extraer características relevantes de manera eficiente, lo que las hace especialmente adecuadas para tareas de visión por computador.
 
 \begin{figure}[H]
@@ -400,7 +397,7 @@ Este enfoque acelera significativamente el proceso de entrenamiento para la nuev
 
 
 
-\subsection{Detectores de dos etapas}
+\subsection{Detectores de dos etapas} \label{sec:two_stage_detectors}
 Los detectores de dos etapas, funcionan mediante un proceso secuencial: primero generan propuestas de regiones (region proposals) que podrían contener objetos y posteriormente clasifican estas regiones. Este enfoque favorece la precisión, aunque generalmente a costa de un mayor tiempo de procesamiento.
 
 La primera arquitectura exitosa de detección de objetos basada en deep learning fue R-CNN (Regions with CNN features) \cite{girshick2014richfeaturehierarchiesaccurate}. Este modelo introdujo un enfoque de dos etapas que revolucionó el campo. En su primera fase, R-CNN utiliza un algoritmo de búsqueda selectiva (Selective Search) para generar aproximadamente 2,000 propuestas de regiones que podrían contener objetos. Este algoritmo de búsqueda selectiva divide la imágen en nodos y aristas, e iterativamente agrupa estas regiones en función del color, textura, tamaño y forma hasta que se obtienen las propuestas finales. En la figura \ref{fig:selective_search}\cite{explainningAI} se muestra un ejemplo del resultado del algoritmo de búsqueda selectiva.
@@ -471,7 +468,7 @@ En la Figura~\ref{fig:yolo_architecture} se presenta la arquitectura del modelo 
 En este proyecto, se ha seleccionado YOLO11 \cite{yolo11_ultralytics}, que representa una mejora y optimización sobre las arquitecturas YOLO precedentes. Dicho modelo forma parte de la librería Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, la cual ofrece una implementación eficaz y sencilla de diversas variantes de YOLO. Las aportaciones de Ultralytics a la comunidad de visión artificial son notables, ya que sus herramientas y recursos agilizan el ciclo de vida (entrenamiento, evaluación, implementación) de los modelos YOLO en múltiples contextos. YOLO11 se ofrece en diversas configuraciones (11n, 11s, 11m, 11l y 11x).
 
 
-\subsection{Métricas de evaluación de modelos de detección de objetos}
+\subsection{Métricas de evaluación de modelos de detección de objetos} \label{sec:metricas_evaluacion}
 
 Para evaluar el rendimiento de los modelos de detección de objetos, se utilizan métricas específicas que permiten cuantificar la precisión y efectividad del sistema. Entre las métricas más comunes se encuentran:
 
@@ -514,10 +511,10 @@ Para evaluar el rendimiento de los modelos de detección de objetos, se utilizan
 \end{itemize}
 
 
-\section{Aceleradores de procesamiento gráfico}
+\section{Aceleradores de procesamiento gráfico} \label{sec:hardware}
 Un aspecto fundamental para el despliegue eficiente de modelos de inteligencia artificial es el hardware utilizado para su ejecución. A continuación, se analizan los principales aspectos de los aceleradores de procesamiento gráfico y su importancia en aplicaciones de visión artificial.
 
-\subsection{Limitaciones del hardware tradicional}
+\subsection{Limitaciones del hardware tradicional} \label{sec:limitaciones_hardware}
 
 La Dennard Scaling, formulada por Robert Dennard en 1974, establecía que a medida que los transistores se reducían de tamaño, su consumo de energía por unidad de área se mantenía constante. Esto significaba que, al reducir el tamaño de los transistores a la mitad, su área se reducía a un cuarto, pero su consumo de energía por unidad de área permanecía igual. Como resultado, el consumo total de energía se reducía a la mitad, permitiendo aumentar la frecuencia de reloj y el número de transistores sin incrementar significativamente el consumo total de energía. Este principio fue fundamental para el avance exponencial en el rendimiento de los procesadores durante décadas. Sin embargo, a partir de 2005, la Dennard Scaling dejó de cumplirse debido a varios factores físicos fundamentales. A escalas nanométricas, los efectos cuánticos y las fugas de corriente se volvieron significativos, impidiendo que el consumo de energía por unidad de área se mantuviera constante.
 
@@ -534,7 +531,7 @@ En la Figura~\ref{fig:dennard_scaling}\cite{DennardScaling} se ilustra clarament
 
 El punto de inflexión en 2005, marcado como \textit{Dennard Scaling Fails in Here}, marca el momento en que la industria tuvo que cambiar radicalmente su estrategia. La frecuencia de reloj se estancó en torno a los 3-4 GHz, el rendimiento por núcleo comenzó a crecer más lentamente, y como respuesta, se adoptaron dos estrategias principales: el aumento del número de núcleos y la estabilización del consumo de potencia alrededor de los 100W. Este fenómeno ha llevado a la industria a buscar alternativas como las arquitecturas de dominio específico para continuar mejorando el rendimiento de los sistemas computacionales.
 
-\subsection{Arquitectura y funcionamiento de las GPUs}
+\subsection{Arquitectura y funcionamiento de las GPUs} \label{sec:arquitectura_gpus}
 
 Frente a las limitaciones de las CPUs, han surgido arquitecturas de dominio específico diseñadas para optimizar el rendimiento en tareas concretas. Entre ellas destacan las \gls{fpga} (Field Programmable Gate Arrays), los \gls{asic} (Application-Specific Integrated Circuits) y las \gls{gpu} (Graphics Processing Units). A diferencia de las CPUs de propósito general, estas arquitecturas sacrifican versatilidad para lograr una eficiencia superior en operaciones específicas como el procesamiento gráfico, la inteligencia artificial o el procesamiento de señales.
 
@@ -562,7 +559,7 @@ Dada la complejidad de esta programación a bajo nivel, NVIDIA ha desarrollado u
 En el frente del hardware, la compañía ha impulsado continuamente la innovación con el desarrollo de componentes especializados como los Tensor Cores, introducidos en la arquitectura Volta. Estos núcleos están diseñados específicamente para acelerar las operaciones matriciales intensivas (como multiplicaciones de matrices mixtas) que son omnipresentes en el entrenamiento e inferencia de modelos de IA. Como resultado de estas continuas innovaciones en hardware y la creación de un ecosistema de software integral, NVIDIA ha logrado establecer estándares de facto para la aceleración de IA, consolidándose como la plataforma preferida en una amplia gama de entornos, desde grandes centros de datos hasta sistemas embebidos con recursos limitados.
 
 
-\subsection{Serie Jetson: Dispositivos de IA de bajo consumo}
+\subsection{Serie Jetson: Dispositivos de IA de bajo consumo} \label{sec:jetson}
 La serie Jetson de NVIDIA constituye una familia de módulos computacionales diseñados específicamente para habilitar la inteligencia artificial y el aprendizaje profundo en dispositivos de borde (edge devices). Estos sistemas compactos y de bajo consumo son fundamentales para aplicaciones que requieren procesamiento local de datos con alta capacidad de cómputo.
 
 El enfoque principal de la serie Jetson es la computación en el borde (edge computing), un paradigma que acerca el procesamiento de datos y la inteligencia artificial a la fuente donde se generan. Esto resulta crucial en aplicaciones donde la latencia, el ancho de banda limitado o la privacidad son factores críticos, ya que evita la necesidad de enviar grandes volúmenes de datos a la nube para su análisis. Los dispositivos Jetson están optimizados para operar bajo restricciones significativas de energía, tamaño y coste, características típicas de los entornos embebidos y de borde.
@@ -599,7 +596,7 @@ La tabla \ref{tab:jetson_comparison}\cite{nvidia_jetson_modules} presenta una co
    \label{fig:jetson_modules}
 \end{figure}
 
-\subsection{TensorRT}
+\subsection{TensorRT} \label{sec:tensorrt}
 NVIDIA TensorRT es un kit de desarrollo de software (SDK) integral diseñado específicamente para la optimización de modelos de aprendizaje profundo y la consecución de una inferencia de muy alto rendimiento en la amplia gama de hardware de NVIDIA, desde centros de datos hasta sistemas embebidos como la serie Jetson. Actúa como un potente compilador y motor de ejecución en tiempo real que transforma modelos previamente entrenados en versiones altamente eficientes, optimizadas para el despliegue en producción.
 
 El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de entrenamiento (como TensorFlow o PyTorch), que priorizan la flexibilidad y la facilidad de desarrollo, y los requisitos estrictos de las aplicaciones de inferencia en el mundo real, que demandan baja latencia, alto rendimiento (throughput) y eficiencia energética. Para lograr esto, TensorRT aplica una serie de optimizaciones sofisticadas durante una fase de compilación offline:
@@ -630,10 +627,10 @@ TensorRT se integra de forma nativa con los principales frameworks de aprendizaj
 
 
 
-\section{Seguimiento de objetos en tiempo real}
+\section{Seguimiento de objetos en tiempo real} \label{sec:mot}
 En esta sección se presentará los conceptos básicos del seguimiento de objetos en tiempo real, se explicará el problema del seguimiento de objetos múltiples (MOT) y se presentarán los algoritmos más relevantes en este campo.
 
-\subsection{Introducción al seguimiento de objetos}
+\subsection{Introducción al seguimiento de objetos} \label{sec:introduccion_seguimiento_objetos}
 El seguimiento de objetos es un proceso que complementa la salida de los modelos de detección. Mientras que un modelo de detección opera sobre cada fotograma de forma independiente, identificando y localizando objetos como si fueran imágenes estáticas, el \gls{mot} actúa sobre estas detecciones para establecer una correspondencia temporal. La función esencial del \gls{mot} es asignar un identificador único a cada objeto detectado en un fotograma y mantener dicho identificador de manera consistente a lo largo de la secuencia de vídeo. Esto permite reconstruir las trayectorias de los objetos y analizar su comportamiento dinámico en la escena.
 
 Para realizar este seguimiento, el \gls{mot} se basa en la información temporal y espacial de las detecciones. Utiliza técnicas de predicción y asociación para determinar la continuidad de los objetos a lo largo del tiempo, teniendo en cuenta factores como la posición, velocidad y apariencia de los objetos. El algoritmo utilizado para el seguimiento puede variar en complejidad, desde enfoques simples que utilizan filtros de Kalman para predecir la posición futura de un objeto, hasta métodos más avanzados que incorporan redes neuronales profundas para aprender características de apariencia y mejorar la robustez del seguimiento.
@@ -757,7 +754,7 @@ El funcionamiento del algoritmo BYTETrack es el siguiente:
 Con todo esto, BYTETrack logra un seguimiento robusto y preciso de múltiples objetos en movimiento, incluso en condiciones desafiantes como oclusiones parciales y cambios de apariencia. Su enfoque innovador para manejar detecciones de baja confianza lo distingue de otros algoritmos de seguimiento y lo convierte en una opción atractiva para aplicaciones en tiempo real.
 
 
-\subsection{Métricas de evaluación en MOT}
+\subsection{Métricas de evaluación en MOT} \label{sec:metricas_mot}
 
 Las métricas de evaluación son fundamentales para medir el rendimiento de los algoritmos de seguimiento de objetos múltiples (MOT). Estas métricas permiten cuantificar la precisión y la robustez del seguimiento, facilitando la comparación entre diferentes enfoques y configuraciones.
 
@@ -781,16 +778,16 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
      \item Cambios de Identidad (IDSW - IDentity SWitches): Ocurren cuando un objeto que ya está siendo seguido se le asigna incorrectamente un nuevo identificador, o cuando se intercambian los identificadores entre dos objetos seguidos.
    \end{itemize}
    La fórmula es:
-   \[
+   \begin{equation}
    MOTA = 1 - \frac{\sum_{t} (FN_t + FP_t + IDSW_t)}{\sum_{t} GT_t}
-   \]
+   \end{equation}
    donde \(FN_t\), \(FP_t\), e \(IDSW_t\) son el número de falsos negativos, falsos positivos y cambios de identidad en el fotograma \(t\), respectivamente. \(GT_t\) es el número total de objetos reales (verdad de referencia) en el fotograma \(t\). El sumatorio se realiza sobre todos los fotogramas de la secuencia.
    Un valor de MOTA más alto indica un mejor rendimiento, con un máximo teórico de 1 (o 100\%). Sin embargo, MOTA puede ser negativo si el número de errores supera el número de objetos reales. Aunque es una métrica integral, tiende a dar más peso a la precisión de la detección que a la consistencia de la identidad a largo plazo.
 
    \item \textbf{MOTP (Multiple Object Tracking Precision):} Esta métrica evalúa la precisión de la localización de los objetos a lo largo del tiempo. Se calcula como la media de las distancias entre las cajas delimitadoras predichas y las cajas delimitadoras reales (verdad de referencia) para todas las asociaciones correctas. Matemáticamente, se expresa como:
-   \[
+   \begin{equation}
    MOTP = \frac{\sum_{t,i} d_{t,i}}{\sum_{t} c_t}
-   \]
+   \end{equation}
    donde $d_{t,i}$ es la distancia (generalmente IoU) entre la predicción y la verdad de referencia para el objeto $i$ en el fotograma $t$, y $c_t$ es el número total de asociaciones correctas en el fotograma $t$. Un valor de MOTP más alto indica una mayor precisión en la localización de los objetos. A diferencia de MOTA, MOTP no penaliza los errores de identidad, sino que se centra exclusivamente en qué tan precisas son las localizaciones de los objetos cuando se asocian correctamente.
 
    \item \textbf{IDF1 (ID F1 Score):} Esta métrica se centra específicamente en la capacidad del algoritmo de seguimiento para mantener correctamente la identidad de los objetos a lo largo del tiempo. Es la media armónica de la Precisión de ID (IDP) y el Recall de ID (IDR).
@@ -799,15 +796,15 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
      \item IDR (ID Recall): Proporción de objetos reales correctamente identificados y seguidos a lo largo de su trayectoria respecto al total de objetos reales.
    \end{itemize}
    La fórmula es:
-   \[
+   \begin{equation}
    IDF1 = \frac{2 \cdot IDTP}{2 \cdot IDTP + IDFP + IDFN}
-   \]
+   \end{equation}
    donde \(IDTP\) (ID True Positives) son los verdaderos positivos en términos de asignación de identidad correcta a lo largo de las trayectorias, \(IDFP\) (ID False Positives) son las asignaciones de identidad incorrectas, y \(IDFN\) (ID False Negatives) son las identidades de objetos reales que no fueron correctamente mantenidas. Un valor de IDF1 más alto (hasta 1 o 100\%) indica una mejor consistencia en el seguimiento de la identidad. Es particularmente útil para evaluar el rendimiento en escenarios con oclusiones prolongadas o interacciones complejas entre objetos.
 
    \item \textbf{HOTA (Higher Order Tracking Accuracy):} Es una métrica más reciente diseñada para proporcionar una evaluación más equilibrada y completa del rendimiento del MOT. HOTA descompone explícitamente el rendimiento en precisión de detección, precisión de asociación y precisión de localización. Se calcula como la media geométrica de la Precisión de Detección (DetA) y la Precisión de Asociación (AssA), donde cada una de estas componentes considera la precisión de localización (IoU).
-   \[
+   \begin{equation}
    HOTA = \sqrt{DetA \cdot AssA}
-   \]
+   \end{equation}
    \begin{itemize}
      \item DetA (Detection Accuracy): Mide qué tan bien se detectan los objetos, promediado sobre diferentes umbrales de IoU.
      \item AssA (Association Accuracy): Mide qué tan bien se asocian las detecciones correctas para formar trayectorias consistentes, también promediado sobre umbrales de IoU.
@@ -823,9 +820,9 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
 
 
 
-\chapter{Diseño e implementación de la solución}
+\chapter{Diseño e implementación de la solución} \label{chap:diseno_e_implementacion}
 
-\section{Análisis del problema}
+\section{Análisis del problema} \label{sec:analisis_problema}
 
 El desafío central abordado en este trabajo consiste en el desarrollo y la implementación de un sistema de visión artificial capaz de realizar el seguimiento de múltiples objetos en movimiento en tiempo real y poder detectar sus posibles defectos. Este sistema se fundamenta en la utilización de la plataforma de hardware NVIDIA Jetson, reconocida por su capacidad para ejecutar tareas de inteligencia artificial de manera eficiente en términos energéticos y computacionales. La tarea principal del sistema es procesar una secuencia de vídeo, identificar los objetos presentes en cada fotograma mediante un modelo de detección de objetos basado en redes neuronales profundas, y posteriormente, aplicar un algoritmo de seguimiento para mantener la identidad de cada objeto a lo largo del tiempo, reconstruyendo así sus trayectorias.
 
@@ -843,7 +840,7 @@ Dada la dificultad de acceder a un entorno industrial real para llevar a cabo la
 Para las pruebas experimentales, se configuró un entorno simulado como el ilustrado en la Figura \ref{fig:entorno_simulado}. Este entorno utiliza canicas de cuatro colores distintos (blanco, negro, azul y verde). Con el objetivo de simular la detección de anomalías, se consideraron tanto canicas sin defectos como canicas con defectos para cada uno de los colores. Como defecto, se añadió una mancha de un color diferente al de la canica, presentando diversas formas. Esta distinción duplica el número total de clases que el sistema debe identificar, alcanzando un total de ocho categorías (cuatro colores sin defecto y cuatro colores con defecto).
 
 
-\section{Entrenamiento del modelo}
+\section{Entrenamiento del modelo} \label{sec:entrenamiento_modelo}
 
 La selección y el entrenamiento del modelo de detección de objetos constituyen una fase crítica en el desarrollo del sistema propuesto, ya que de ello dependen directamente la precisión y la robustez del sistema final.
 Tras un análisis comparativo, se optó por los detectores de una etapa frente a los de dos etapas, dada su superior eficiencia para aplicaciones que exigen procesamiento en tiempo real. Dentro de esta categoría, se seleccionó la familia de modelos YOLO. Esta elección se fundamenta en su reconocido equilibrio entre velocidad de inferencia y precisión, así como en la disponibilidad de un robusto ecosistema de herramientas que facilitan tanto el entrenamiento como el despliegue. Alternativas como SSD, si bien competentes, no ofrecían el mismo conjunto de ventajas en términos de comunidad de soporte y facilidad de integración para los fines de este proyecto.
@@ -935,7 +932,7 @@ La Figura \ref{fig:loss_curves} presenta las curvas de pérdida (loss) durante e
 
 
 
-\section{Descripción del sistema}
+\section{Descripción del sistema} \label{sec:descripcion_sistema}
 
 El sistema está organizado como una serie de etapas de procesamiento secuenciales que trabajan de forma coordinada para lograr la detección y seguimiento de objetos en tiempo real. Como se muestra en la Figura~\ref{fig:sistema_propuesto}, el sistema recibe como entrada imágenes de una cámara y consta de cuatro componentes principales: un módulo de captura de imágenes que obtiene los fotogramas del vídeo, un módulo de inferencia que ejecuta el modelo de detección de objetos, un módulo de seguimiento que implementa el algoritmo BYTETrack para mantener la identidad de los objetos detectados, y un módulo de escritura que gestiona la salida del sistema.
 \begin{figure}[H]
@@ -950,15 +947,15 @@ Los resultados del sistema pueden utilizarse de diversas formas, monitorización
 La arquitectura del sistema se ha diseñado estratégicamente para maximizar el rendimiento computacional y la eficiencia en el uso de recursos, asegurando una operación coordinada entre sus componentes modulares. Los datos fluyen secuencialmente a través de las distintas etapas, permitiendo un procesamiento continuo y eficaz de la información visual. Esta estructura modular intrínseca no solo simplifica el mantenimiento y las futuras actualizaciones, sino que también dota al sistema de una gran flexibilidad para adaptarse a diferentes requisitos operativos y escenarios de despliegue. Aunque optimizado específicamente para la plataforma NVIDIA Jetson, su diseño modular facilita su potencial portabilidad a otras plataformas hardware de NVIDIA, como GPUs de escritorio o servidores de alto rendimiento, siempre que se cumplan los prerrequisitos de hardware y software.
 
 
-\section{Diseño de las etapas del sistema}
-
+\section{Diseño de las etapas del sistema} \label{sec:diseno_etapas}
+ 
 El sistema propuesto se compone de cuatro etapas principales, cada una de las cuales desempeña un papel crucial en el procesamiento y análisis de las imágenes capturadas. A continuación, se describen en detalle cada una de estas etapas.
 
-\subsection{Captura de imágenes}
+\subsection{Captura de imágenes} \label{sec:captura_imagenes}
 
 La etapa de captura de imágenes es la responsable de adquirir los fotogramas del flujo de vídeo en tiempo real. Sus funciones abarcan la configuración y el control de la cámara, la adquisición de las imágenes y su posible preprocesamiento inicial antes de ser transferidas al módulo de inferencia. Para la implementación de este módulo se ha empleado la biblioteca OpenCV, la cual ofrece una interfaz robusta y eficiente para la interacción con dispositivos de captura y el procesamiento básico de imágenes. La cámara se configura para operar a una resolución y tasa de fotogramas adecuadas a los requisitos de la aplicación. El preprocesamiento puede incluir diversas operaciones, tales como la conversión a escala de grises, la normalización de píxeles o el redimensionamiento, adaptándose a las especificaciones del modelo de detección de objetos utilizado. En el sistema desarrollado, se empleó una cámara de alta definición capaz de alcanzar una resolución máxima de 1920x1080 píxeles y una tasa de 30 fps. Si bien se experimentó con diversas configuraciones de resolución y tasa de fotogramas según las necesidades de cada prueba, la configuración estándar para la mayoría de los experimentos fue de 640x640 píxeles a 30 fps. Esta etapa se ejecuta íntegramente en la CPU.
 
-\subsection{Inferencia}
+\subsection{Inferencia} \label{sec:inferencia}
 La etapa de inferencia constituye el núcleo computacional del sistema, siendo responsable de ejecutar el modelo de detección de objetos preentrenado sobre cada fotograma adquirido por la etapa de captura. Para esta tarea crucial, se ha seleccionado el modelo \gls{yolo}11, una variante optimizada dentro de la familia \gls{yolo}, reconocida por su equilibrio entre velocidad y precisión en tareas de detección en tiempo real. La implementación se apoya en el framework de Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, una biblioteca de alto nivel que simplifica significativamente el ciclo de vida de los modelos YOLO, desde el entrenamiento hasta el despliegue y la inferencia, ofreciendo una interfaz robusta y eficiente.
 
 El proceso de inferencia comienza con la adquisición de un fotograma de vídeo, que se convierte en un tensor adecuado para la entrada del modelo. Este tensor es una representación numérica de la imagen, donde cada píxel se traduce en un valor que el modelo puede procesar. La transformación del fotograma a tensor incluye operaciones como la normalización y el redimensionamiento, asegurando que los datos estén en el formato correcto para el modelo YOLO11.
@@ -967,7 +964,7 @@ La ejecución de la inferencia propiamente dicha implica cargar el modelo \gls{y
 
 El resultado final de la etapa de inferencia, que se transfiere a la etapa de seguimiento, es una lista estructurada de las detecciones finales para el fotograma actual. Cada detección en esta lista contiene información esencial: las coordenadas de la caja delimitadora que localiza al objeto (comúnmente en formato (x, y, w, h), donde (x, y) representan las coordenadas del centro de la caja, y (w, h) su anchura y altura), una puntuación de confianza que cuantifica la fiabilidad de la detección, y la etiqueta de la clase predicha para el objeto (p. ej., 'canica\_azul', 'canica\_verde\_defecto'). La eficiencia y rapidez de esta etapa son críticas para mantener la capacidad de procesamiento en tiempo real del sistema global.
 
-\subsection{Seguimiento}
+\subsection{Seguimiento} \label{sec:seguimiento}
 La etapa de seguimiento es la encargada de mantener la identidad de los objetos detectados a lo largo del tiempo, asegurando que cada objeto en el flujo de vídeo conserve su etiqueta y trayectoria a pesar de las variaciones en su posición, apariencia o posibles oclusiones. Para lograr esto, se ha utilizado la implementación del algoritmo BYTETrack en el framework de Ultralytics\cite{Jocher_Ultralytics_YOLO_2023}, que se basa en un enfoque de seguimiento por detección explicado en la subsección~\ref{sec:bytetrack}. Este algoritmo se encarga de asociar las detecciones generadas por la etapa de inferencia con las trayectorias existentes, utilizando tanto las detecciones de alta confianza como las de baja confianza para mejorar la robustez del seguimiento.
 
 Para la configuración del algoritmo BYTETrack existen varios parámetros ajustables que permiten optimizar su rendimiento según las características específicas del entorno y los objetos a seguir. Estos parámetros son:
@@ -983,7 +980,7 @@ Este algoritmo se basa en un ciclo continuo de predicción y corrección, donde 
 
 Tras aplicar la asociación de detecciones y trayectorias, el algoritmo ofrece como salida una lista con el identificador único de cada objeto, su clase, la puntuación de confianza y las coordenadas de la caja delimitadora. Esta información es fundamental para la siguiente etapa del sistema.
 
-\subsection{Escritura de resultados}
+\subsection{Escritura de resultados} \label{sec:escritura_resultados}
 
 La etapa de escritura de resultados es responsable de gestionar la salida del sistema, que puede adoptar diversas formas según los requisitos específicos de la aplicación. Esta etapa se encarga de presentar los resultados de manera comprensible y útil, permitiendo su interpretación y análisis posterior. Las principales funciones de esta etapa incluyen la visualización de los resultados en tiempo real, la generación de alertas basadas en reglas predefinidas y el almacenamiento de datos para su posterior análisis. También se encarga de los posibles conexiones a sistemas de control automatizado, permitiendo la interacción con otros sistemas o dispositivos.
 
@@ -996,13 +993,13 @@ La etapa de escritura de resultados es responsable de gestionar la salida del si
 
 La Figura \ref{fig:resultado_sistema} muestra un ejemplo de la salida del sistema, donde se visualizan las detecciones y trayectorias de los objetos en el flujo de vídeo. Cada objeto detectado está representado por una caja delimitadora que incluye su etiqueta de clase y un identificador único. Esta representación gráfica permite una rápida identificación y seguimiento de los objetos en movimiento, facilitando la monitorización en tiempo real del sistema.
 
-\section{Segmentación de las etapas del sistema}
+\section{Segmentación de las etapas del sistema} \label{sec:segmentacion_etapas}
 
 Tras la implementación de las etapas del sistema, se ha considerado la posibilidad de segmentar el sistema mediante estas etapas para mejorar el rendimiento y la eficiencia del procesamiento. La segmentación permite distribuir la carga de trabajo entre diferentes unidades de procesamiento, optimizando así el uso de los recursos disponibles en la plataforma.
 
 La segmentación de las etapas del sistema se puede realizar de varias maneras, dependiendo de los requisitos específicos de la aplicación y de los recursos disponibles. A continuación, se describen las diferentes opciones de segmentación que se han consideradom, implementado y evaluado en el sistema propuesto.
     
-\subsection{Secuencial}
+\subsection{Secuencial} \label{sub:secuencial}
 
 La primera y mas trivial opción es la ejecución secuencial de las etapas del sistema. En este enfoque, cada etapa se ejecuta de forma consecutiva, donde la salida de una etapa se convierte en la entrada de la siguiente. Este método es el más sencillo de implementar y no requiere una configuración adicional para la comunicación entre etapas. Sin embargo, presenta limitaciones significativas en términos de rendimiento y eficiencia, ya que no aprovecha al máximo los recursos disponibles. Si se hace la analogía con un procesador, este enfoque se asemeja a un procesador no segmentado.
 
@@ -1015,7 +1012,7 @@ La primera y mas trivial opción es la ejecución secuencial de las etapas del s
 
 La Figura \ref{fig:secuencial} ilustra el flujo de datos en un sistema secuencial. En este diagrama, cada etapa del sistema se ejecuta de forma lineal, donde la salida de una etapa se convierte en la entrada de la siguiente. Este enfoque es fácil de entender y de implementar, pero no aprovecha al máximo los recursos disponibles.
 
-\subsection{Segmentación basada en hilos}
+\subsection{Segmentación basada en hilos} \label{sub:segmentacion_hilos}
 
 La segunda opción es la segmentación del sistema en diferentes hilos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un hilo (\textit{thread}) independiente. A diferencia del enfoque secuencial donde cada etapa debe esperar a que la anterior finalice, la segmentación por hilos permite que las etapas operen de forma concurrente, solapando sus ejecuciones. Esto puede mejorar significativamente el rendimiento (throughput) y reducir la latencia, ya que mientras una etapa espera por una operación (p. ej., E/S de la cámara), otra etapa puede estar procesando datos (p. ej., inferencia en GPU o seguimiento en CPU). Los hilos operan dentro del mismo proceso, compartiendo el mismo espacio de memoria. La comunicación y transferencia de datos (fotogramas, detecciones) entre estas etapas/hilos se gestiona mediante colas de mensajes (\textit{Queue}) de la librería estándar de Python, que aseguran una transferencia eficiente y segura entre hilos (\textit{thread-safe}).
 
@@ -1079,7 +1076,7 @@ Cada etapa del sistema (captura, inferencia, seguimiento, escritura) tiene una d
 Esta asincronía, gestionada mediante colas, permite un mayor rendimiento (throughput) en comparación con el modelo estrictamente secuencial (Figura \ref{fig:secuencial}), donde cada etapa debe esperar a que la anterior finalice completamente. No obstante, si una etapa es significativamente más lenta que las demás, puede convertirse en un cuello de botella, haciendo que las colas anteriores se llenen y las posteriores permanezcan vacías, limitando el rendimiento general del sistema al ritmo de la etapa más lenta.
 
 
-\subsection{Segmentación basada en hardware}
+\subsection{Segmentación basada en hardware} \label{sub:segmentacion_hardware}
 La cuarta opción es la segmentación basada en hardware. Aprovechando la arquitectura heterogénea de la plataforma NVIDIA Jetson, esta opción de segmentación distribuye las tareas entre las diferentes unidades de procesamiento disponibles. La etapa de inferencia, supuestamente la más exigente computacionalmente, se descarga específicamente a los aceleradores de hardware: la GPU o uno de los Deep Learning Accelerators (DLA0, DLA1) si están presentes en el módulo Jetson. Las demás etapas (captura, seguimiento y escritura) permanecen asignadas a la CPU.
 
 Este enfoque permite una ejecución paralela real, donde la CPU gestiona el flujo de datos y la lógica de seguimiento mientras la GPU y/o las DLAs procesan simultáneamente los fotogramas para la detección de objetos. Para manejar los resultados que llegan de forma asíncrona desde estos aceleradores, a cada fotograma capturado se le asigna un identificador único. Esto garantiza que las detecciones se asocien correctamente con el fotograma original antes de pasar a la etapa de seguimiento, preservando así el orden temporal de la secuencia. La comunicación entre los procesos que se ejecutan en la CPU y aquellos que gestionan la inferencia en los aceleradores se realiza mediante las colas inter-proceso seguras (\textit{process-safe queues}) descritas anteriormente.
@@ -1094,7 +1091,7 @@ Este enfoque permite una ejecución paralela real, donde la CPU gestiona el fluj
 La Figura \ref{fig:segmentacion_multihardware} ilustra cómo la etapa de inferencia puede ejecutarse en paralelo en la GPU o DLA, comunicándose con la etapa de seguimiento (en CPU) a través de colas. Esta distribución optimiza el uso de los recursos especializados, acelerando significativamente el rendimiento general del sistema.
 
 
-\subsection{Segmentación basada en procesos con memoria compartida}
+\subsection{Segmentación basada en procesos con memoria compartida} \label{sub:segmentacion_memoria_compartida}
 
 
 La quinta opción de segmentación emplea procesos independientes como en \ref{sub:segmentacion_procesos}, pero busca optimizar la comunicación entre ellos utilizando memoria compartida como alternativa a las colas estándar del módulo \texttt{multiprocessing}. La transferencia de grandes volúmenes de datos, como los fotogramas de vídeo, puede volverse ineficiente con \texttt{multiprocessing.Queue} debido a la sobrecarga asociada a la serialización (\textit{pickling}) y deserialización de objetos, así como a la posible copia de datos entre los espacios de memoria de los procesos a través de mecanismos subyacentes como pipes.
@@ -1121,7 +1118,7 @@ En resumen, la segmentación basada en procesos con memoria compartida y un buff
 
 En este capítulo se analizará la solución propuesta variando los parámetros posibles
 
-\section{Metodología de evaluación y métricas de rendimiento}
+\section{Metodología de evaluación y métricas de rendimiento} \label{sec:metodologia}
 
 Tras el desarrollo de la solución propuesta, se procede a analizar su rendimiento. La evaluación se basa en un vídeo de prueba de 80 segundos (2400 fotogramas) que muestra un flujo de canicas, grabado a 640x640 píxeles y 30 fotogramas por segundo (fps). Este vídeo sirve como entrada estándar para el sistema, permitiendo medir diversas métricas de rendimiento según la configuración.
 
@@ -1133,20 +1130,49 @@ Se han empleado dos enfoques para las pruebas:
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.6\textwidth]{images/analisis_de_la_solucion/variación_de_objetos_en_el_vídeo.png}
+   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/variación_de_objetos_en_el_vídeo.png}
    \caption{Número de objetos en el vídeo de prueba.}
    \label{fig:variacion_objetos}
 \end{figure}
 
-La Figura \ref{fig:variacion_objetos} muestra la variación del número de objetos en el vídeo de prueba. Esta variación es importante para evaluar el rendimiento del sistema, ya que un mayor número de objetos puede aumentar la carga computacional y afectar el tiempo de procesamiento.
+La Figura \ref{fig:variacion_objetos} ilustra la fluctuación en el conteo de objetos a lo largo del vídeo de prueba. Esta variación es un factor clave en la evaluación del rendimiento del sistema, ya que una mayor densidad de objetos puede incrementar la carga computacional y, por ende, influir en el tiempo de procesamiento.
+
+Para comprender a fondo el impacto de esta variación, es esencial analizar cómo afecta a cada etapa dentro de la arquitectura segmentada del sistema (descrita en la sección \ref{sec:segmentacion_etapas}).
+
+La etapa de captura permanece inalterada por el número de objetos debido a sus dimensiones de fotograma fijas y a su tasa de captura constante. De manera similar, la etapa de inferencia, procesada por la GPU o DLA, mantiene un rendimiento estable, ya que su tarea principal es el procesamiento de imágenes, independientemente del conteo de objetos. Por el contrario, la etapa de seguimiento, que está limitada por la CPU y directamente influenciada por el número de objetos, experimenta variaciones en el tiempo de procesamiento proporcionales al conteo de objetos. Un mayor número de objetos aumenta la complejidad del algoritmo de seguimiento, lo que podría crear un cuello de botella. Por último, la etapa de escritura, también basada en la CPU, podría verse afectada por el volumen de datos generados en las etapas anteriores.
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/tiempos_etapa.png}
+\caption{Ejecución temporal de las etapas del sistema durante el vídeo de prueba. (Segmentación por procesos con memoria compartida, YOLO11n (TensorRT FP16, GPU, MAXN)).}
+   \label{fig:tiempos_etapa}
+\end{figure}
+
+
+La Figura \ref{fig:tiempos_etapa} presenta el tiempo de ejecución de cada etapa del sistema a lo largo del vídeo de prueba. Se observa que la etapa de captura se mantiene constante, mientras que la etapa de inferencia puede mostrar un ligero aumento en el tiempo de procesamiento a medida que aumenta el número de objetos. La etapa de seguimiento presenta un aumento significativo en su tiempo de ejecución. Esto indica que el algoritmo de seguimiento se ve afectado por la cantidad de objetos presentes, lo que puede limitar el rendimiento del sistema en situaciones con alta densidad de objetos. También se observa que las gráfica \ref{fig:variacion_objetos} y \ref{fig:tiempos_etapa} son inversamente proporcionales, lo que indica que a mayor número de objetos, menor es el tiempo de ejecución de la etapa de inferencia. Esto se debe a que el algoritmo de inferencia se optimiza para procesar múltiples objetos en paralelo, lo que reduce su tiempo de ejecución total.
+
+En resumen, el rendimiento global del sistema emerge como una sinergia compleja entre estas etapas interconectadas, donde la eficiencia de cada una modula el comportamiento del conjunto.
 
 Como métricas de rendimiento, se han considerado las siguientes:
 \begin{itemize}
    \item \textbf{Tasa de fotogramas por segundo (FPS):} Número de fotogramas procesados por segundo. Esta métrica es fundamental para evaluar la capacidad del sistema para operar en tiempo real.
    \item \textbf{Tasa de fotogramas perdidos (LFPS):} Número de fotogramas perdidos por segundo. Esta métrica indica la capacidad del sistema para mantener el ritmo con la entrada de fotogramas.
-   \item \textbf{Potencia consumida (W):} Mide la potencia eléctrica instantánea consumida por el sistema durante la ejecución. Es crucial para evaluar la eficiencia energética.
+   \item \textbf{Potencia consumida media (W):} Potencia media consumida por el sistema durante la ejecución. Se calcula como el promedio de la potencia medida en vatios a lo largo del tiempo de ejecución. Esta métrica es crucial para evaluar la eficiencia energética del sistema.
    \item \textbf{Energía consumida (J):} Representa la energía total consumida por el sistema para procesar la secuencia completa. Se calcula integrando la potencia a lo largo del tiempo de ejecución. Esta métrica ofrece una visión global de la eficiencia energética.
-   \item \textbf{Fotogramas por vatio (Frames/W):} Indica cuántos fotogramas se procesan por cada vatio de potencia consumido. Esta métrica es útil para evaluar la eficiencia del sistema en términos de rendimiento por unidad de energía.
+   \item \textbf{Fotogramas por vatio (Frames/W):} Indica cuántos fotogramas se procesan por cada vatio de potencia consumido. Esta métrica es útil para evaluar la eficiencia del sistema en términos de rendimiento por unidad de energía. Se calcula de la siguiente manera:
+   \begin{equation}
+      \text{FPS/W} = \frac{\text{Frames procesados}}{\text{Potencia (W)} \cdot \text{Tiempo (s)}}
+   \end{equation}
+   donde
+   \begin{equation}
+      \text{Energía consumida (J)} = \text{Potencia (W)} \cdot \text{Tiempo (s)}
+   \end{equation}
+   por lo tanto
+   \begin{equation}
+      \text{FPS/W} = \frac{\text{Frames procesados}}{\text{Energía consumida (J)}}
+   \end{equation}
+   
    \item \textbf{Speedup:} Compara la mejora en la velocidad de procesamiento. Se calcula como el cociente entre el tiempo de ejecución de la configuración de referencia (la más lenta) y el tiempo de la configuración evaluada. Un valor mayor a 1 indica una ejecución más rápida.
 
 
@@ -1186,27 +1212,42 @@ Como métricas de rendimiento, se han considerado las siguientes:
 
 
 
-\section{Tipo de segmentación}
-En esta sección se analizará el rendimiento de la solución propuesta variando el tipo de segmentación de las etapas del sistema con gráficas y tablas.
+\section{Tipo de segmentación} \label{sub:analisis_segmentacion}
+Como se ha comentado en la sección \ref{sec:segmentacion_etapas}, el sistema se puede segmentar de diferentes maneras. En esta sección se analizará el rendimiento de la solución propuesta variando el tipo de segmentación.
 
-\section{Talla del modelo}
+Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco tipos de segmentación:
+\begin{enumerate}
+   \item Segmentación secuencial (subsección \ref{sub:secuencial}): Cada etapa del sistema se ejecuta de forma consecutiva.
+   \item Segmentación por hilos (subsección \ref{sub:segmentacion_hilos}): Cada etapa del sistema se ejecuta en un hilo independiente.
+   \item Segmentación por procesos (subsección \ref{sub:segmentacion_procesos}): Cada etapa del sistema se ejecuta en un proceso independiente.
+   \item Segmentación por hardware (subsección \ref{sub:segmentacion_hardware}): La etapa de inferencia se descarga a los aceleradores de hardware (GPU o DLA).
+   \item Segmentación por procesos con memoria compartida (subsección \ref{sub:segmentacion_memoria_compartida}): Cada etapa del sistema se ejecuta en un proceso independiente y se comunica mediante memoria compartida.
+\end{enumerate}
+
+
+
+
+
+\section{Talla del modelo} \label{sub:talla_modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la talla del modelo de detección de objetos con gráficas y tablas.
 
-\section{Precisión del modelo}
+\section{Precisión del modelo} \label{sub:precision_modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas.
 
-\section{Modo de energía y cores de la CPU}
+\section{Modo de energía y cores de la CPU} \label{sub:modo_energia}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo y el número de cores de la CPU con gráficas y tablas.
 
-\section{Tamaño de la imagen}
+\section{Tamaño de la imagen} \label{sub:talla_imagen}
 En esta sección se analizará el rendimiento de la solución propuesta variando el tamaño de la imagen de entrada del modelo con la técnica de Slicing Aided Hyper Inference (SAHI) con gráficas y tablas.
-
-\chapter{Prueba de concepto}
+ 
+\chapter{Prueba de concepto} \label{ch:prueba_concepto}
 Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
 
-\section{Construcción del entorno}
+\section{Construcción del entorno} \label{sub:construccion_entorno}
+En esta sección se describirá la construcción del entorno de producción, incluyendo la configuración de la cinta transportadora y otros componentes necesarios.
 
-\section{Instalación del entorno}
+\section{Instalación del entorno} \label{sub:instalacion_entorno}
+En esta sección se detallará la instalación del entorno de producción, incluyendo la instalación de software y la configuración de hardware.
 
 
 
@@ -1220,9 +1261,9 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
 %                                 CONCLUSIONS                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Conclusiones}
+\chapter{Conclusiones} \label{chap:conclusiones}
 
-????? ????????????? ????????????? ????????????? ????????????? ????????????? 
+????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                BIBLIOGRAFIA                                 %
@@ -1277,15 +1318,15 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
 
 
 
-\chapter{Configuración del sistema}
+\chapter{Configuración del sistema} \label{ch:configuracion_sistema}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Fase de inicialitzación}
+\section{Fase de inicialización} \label{sec:fase_inicializacion}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Identificación de dispositivos}
+\section{Identificación de dispositivos} \label{sec:identificacion_dispositivos}
 
 ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
@@ -1318,7 +1359,7 @@ Aqui se explicará la implementación de la solución propuesta en el entorno de
    \end{tabularx}
 
 
-   \section*{Justificación de los Objetivos de Desarrollo Sostenible}
+   \section*{Justificación de los Objetivos de Desarrollo Sostenible} \label{sec:justificacion_ods}
 
    \textbf{ODS-8. Trabajo decente y crecimiento económico:} Este proyecto contribuye directamente al crecimiento económico sostenible mediante la automatización inteligente de procesos de control de calidad. La implementación de sistemas de detección de defectos basados en IA permite reducir costes operativos, minimizar desperdicios y optimizar la cadena de producción, lo que se traduce en mayor productividad y competitividad empresarial. Se alinea específicamente con la meta 8.2 de la ONU: «Lograr niveles más elevados de productividad económica mediante la diversificación, la modernización tecnológica y la innovación», al incorporar tecnologías avanzadas de procesamiento de imágenes y aprendizaje automático en entornos industriales tradicionales.
 
