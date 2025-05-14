@@ -15,5 +15,6 @@
 + [X] Buscar como hacer validación de un video con métricas de tracking
 + [X] Datos de entrenamiento
 + [ ] Ejecuciones segmentacion
++ [ ] Arregla tiempo de ejecución cuando hay limite de fps
 
 
