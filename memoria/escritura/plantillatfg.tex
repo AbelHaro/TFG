@@ -1130,38 +1130,47 @@ Se han empleado dos enfoques para las pruebas:
 
 Como métricas de rendimiento, se han considerado las siguientes:
 \begin{itemize}
-   \item \textbf{Tasa de fotogramas por segundo (FPS):} Número de fotogramas procesados por segundo. Esta métrica es fundamental para evaluar la capacidad del sistema para operar en tiempo real.
-   \item \textbf{Tasa de fotogramas perdidos (LFPS):} Número de fotogramas perdidos por segundo. Esta métrica indica la capacidad del sistema para mantener el ritmo con la entrada de fotogramas.
-   \item \textbf{Potencia consumida media (W):} Potencia media consumida por el sistema durante la ejecución. Se calcula como el promedio de la potencia medida en vatios a lo largo del tiempo de ejecución. Esta métrica es crucial para evaluar la eficiencia energética del sistema.
-   \item \textbf{Energía consumida (J):} Representa la energía total consumida por el sistema para procesar la secuencia completa. Se calcula integrando la potencia a lo largo del tiempo de ejecución. Esta métrica ofrece una visión global de la eficiencia energética.
-   \item \textbf{Fotogramas por vatio (Frames/W):} Indica cuántos fotogramas se procesan por cada vatio de potencia consumido. Esta métrica es útil para evaluar la eficiencia del sistema en términos de rendimiento por unidad de energía. Se calcula de la siguiente manera:
-   \begin{equation}
-      \text{FPS/W} = \frac{\text{Frames procesados}}{\text{Potencia (W)} \cdot \text{Tiempo (s)}}
-   \end{equation}
-   donde
-   \begin{equation}
-      \text{Energía consumida (J)} = \text{Potencia (W)} \cdot \text{Tiempo (s)}
-   \end{equation}
-   por lo tanto
-   \begin{equation}
-      \text{FPS/W} = \frac{\text{Frames procesados}}{\text{Energía consumida (J)}}
-   \end{equation}
-   
-   \item \textbf{Speedup:} Compara la mejora en la velocidad de procesamiento. Se calcula como el cociente entre el tiempo de ejecución de la configuración de referencia (la más lenta) y el tiempo de la configuración evaluada. Un valor mayor a 1 indica una ejecución más rápida.
+   \item \textbf{Tasa de fotogramas por segundo (FPS):} Número de fotogramas completamente procesados por segundo. Esta métrica es fundamental para evaluar la capacidad del sistema para operar en tiempo real, ya que cuantifica directamente su velocidad de procesamiento. Un valor mayor o igual a 30 FPS generalmente indica que el sistema puede funcionar en tiempo real para vídeos estándar.
+
+      \item \textbf{Tasa de fotogramas perdidos (LFPS):} Número de fotogramas descartados por segundo debido a la incapacidad del sistema para procesarlos dentro del intervalo temporal requerido. Esta métrica refleja la robustez del sistema bajo restricciones de tiempo real y su eficacia para mantener sincronización con la fuente de entrada. Un valor cercano a cero indica un rendimiento óptimo.
+
+      \item \textbf{Potencia consumida media (W):} Potencia eléctrica media requerida por el sistema durante la ejecución, medida en vatios. Se obtiene promediando las lecturas de potencia instantánea registradas por las herramientas de monitorización hardware. Esta métrica es crucial para evaluar la viabilidad del sistema en entornos con restricciones energéticas, especialmente en aplicaciones embebidas o de borde.
+
+      \item \textbf{Energía consumida (J):} Cantidad total de energía eléctrica utilizada por el sistema para procesar la secuencia completa, medida en julios. Se calcula integrando la potencia instantánea a lo largo del tiempo de ejecución. Esta métrica proporciona una perspectiva integral de la eficiencia energética y es fundamental para estimar costes operativos y requisitos de refrigeración en implementaciones a largo plazo.
+
+      \item \textbf{Fotogramas por vatio (Frames/W):} Métrica compuesta que indica la eficiencia energética del procesamiento, cuantificando cuántos fotogramas se procesan por cada vatio de potencia consumida. Permite comparar directamente configuraciones con diferentes compromisos entre velocidad y consumo. Se calcula mediante la siguiente relación:
+      \begin{equation}
+         \text{FPS/W} = \frac{\text{Frames procesados}}{\text{Potencia (W)} \cdot \text{Tiempo (s)}}
+      \end{equation}
+      donde
+      \begin{equation}
+         \text{Energía consumida (J)} = \text{Potencia (W)} \cdot \text{Tiempo (s)}
+      \end{equation}
+      por lo tanto
+      \begin{equation}
+         \text{FPS/W} = \frac{\text{Frames procesados}}{\text{Energía consumida (J)}}
+      \end{equation}
+      
+      \item \textbf{Speedup:} Factor de aceleración que cuantifica la mejora relativa en velocidad de procesamiento. Se calcula como el cociente entre el tiempo de ejecución de la configuración de referencia (generalmente la más lenta) y el tiempo de la configuración evaluada. Un valor de 2.0 indicaría que la configuración actual es exactamente dos veces más rápida que la referencia. Esta métrica permite evaluar objetivamente los beneficios de optimizaciones específicas.
+
+      \item \textbf{GPU Average Utilization:} Porcentaje medio de utilización de los recursos de la GPU durante el tiempo de ejecución. Este valor, obtenido mediante las herramientas de monitorización de NVIDIA, representa qué fracción de la capacidad computacional total de la GPU se aprovecha efectivamente. Una utilización cercana al 100\% sugiere un aprovechamiento óptimo del hardware, mientras que valores bajos podrían indicar cuellos de botella en otras partes del sistema o ineficiencias en la implementación.
+      
+      \item \textbf{CPU Average Utilization:} Porcentaje medio de utilización de los núcleos de la CPU durante el tiempo de ejecución. Esta métrica es la media aritmética de todos los núcleos disponibles (entre 1 y 12, dependiendo de la configuración específica de la plataforma Jetson) y lo promedia. Permite identificar si las etapas del sistema que se ejecutan en CPU están equilibradas respecto a las que utilizan aceleradores hardware, y detectar posibles desbalances en la carga de trabajo entre las diferentes unidades de procesamiento.
+
 \end{itemize}
+
 
 Para obtener estas métricas, se han utilizado herramientas de medición de potencia y energía, como el comando \texttt{tegrastats} de NVIDIA, que proporciona información sobre el consumo de energía y la carga de la CPU/GPU/DLA. Esta herramienta permite monitorizar el rendimiento del sistema en tiempo real, proporcionando datos precisos sobre el uso de recursos y el consumo energético.
 
 \section{Cantidad de objetos} \label{sec:cantidad_objetos}
 La cantidad de objetos presentes en el flujo de vídeo es un factor determinante en la evaluación del rendimiento del sistema, ya que influye directamente en la carga computacional de la etapa de seguimiento y escritura. Para analizar esta influencia de manera sistemática, se han realizado pruebas utilizando tres vídeos de prueba distintos, cada uno diseñado para representar un escenario de carga diferente:
 \begin{enumerate}
-   \item \textbf{Carga baja y constante:} Un vídeo que mantiene una cantidad constante media de 43 objetos en cada fotograma. Este escenario permite evaluar el rendimiento base del sistema bajo una carga predecible y reducida.
-   \item \textbf{Carga alta y constante:} Un vídeo que presenta una cantidad constante media de 84 objetos por fotograma. Este escenario somete al sistema a una carga significativamente mayor, permitiendo identificar posibles cuellos de botella bajo condiciones de alta densidad de objetos.
-   \item \textbf{Carga variable:} Un vídeo donde la cantidad de objetos fluctúa dinámicamente a lo largo de su duración, variando entre 0 y un máximo de 180 objetos. Este escenario simula condiciones más realistas y complejas, donde el sistema debe adaptarse a cambios abruptos en la carga de trabajo.
+   \item \textbf{Vídeo 1: Carga baja y constante:} Un vídeo que mantiene una cantidad constante media de 43 objetos en cada fotograma. Este escenario permite evaluar el rendimiento base del sistema bajo una carga predecible y reducida.
+   \item \textbf{Vídeo 2: Carga alta y constante:} Un vídeo que presenta una cantidad constante media de 84 objetos por fotograma. Este escenario somete al sistema a una carga significativamente mayor, permitiendo identificar posibles cuellos de botella bajo condiciones de alta densidad de objetos.
+   \item \textbf{Vídeo 3: Carga variable:} Un vídeo donde la cantidad de objetos fluctúa dinámicamente a lo largo de su duración, variando entre un mínimo de 0 y un máximo de 180 objetos. Este escenario simula condiciones más realistas y complejas, donde el sistema debe adaptarse a cambios abruptos en la carga de trabajo.
 \end{enumerate}
 Todos los vídeos de prueba se grabaron con una resolución de 640x640 píxeles y a una tasa de 30 fotogramas por segundo (fps), sirviendo como entrada estándar para el sistema, lo que asegura la consistencia en las condiciones de captura.
-
-Para el resto de la configuración del sistema durante estas pruebas específicas sobre la cantidad de objetos, se ha empleado la segmentación por procesos con memoria compartida. El modelo de detección de objetos utilizado fue YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU. Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). Esta configuración se seleccionó con el objetivo de maximizar el rendimiento del sistema y evaluar su capacidad de respuesta y robustez bajo condiciones exigentes impuestas por la variación en la densidad de objetos. Las pruebas presentadas en esta sección se realizaron siguiendo la metodología de ejecución a máxima capacidad descrita en la sección \ref{sec:metodologia}.
+Para el resto de la configuración del sistema durante estas pruebas específicas sobre la cantidad de objetos, se ha empleado la segmentación por procesos con memoria compartida. El modelo de detección de objetos utilizado fue YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU. Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). Esta configuración se seleccionó con el objetivo de maximizar el rendimiento del sistema y evaluar su capacidad de respuesta y robustez bajo condiciones exigentes impuestas por la variación en la densidad de objetos. Las pruebas que se presentan a continuación se realizaron siguiendo la metodología de ejecución a máxima capacidad descrita en la sección \ref{sec:metodologia}, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
 
 \begin{figure}[H]
    \centering
@@ -1192,11 +1201,69 @@ Para comprender a fondo el impacto de esta variación en la cantidad de objetos,
 
 Se observa que la etapa de captura (línea azul) se mantiene constante, ya que sus operaciones (adquisición de fotogramas) no dependen del contenido de la imagen. De manera similar, la etapa de inferencia (línea roja), ejecutada en la GPU, muestra un tiempo de procesamiento relativamente estable. Aunque podría esperarse una ligera variación, el modelo YOLO procesa la imagen completa y su carga principal no escala linealmente con el número de objetos detectados una vez que la imagen está en la GPU.
 
-Por el contrario, la etapa de seguimiento (línea verde), que se ejecuta en la CPU, muestra una clara correlación entre su tiempo de ejecución y la cantidad de objetos. A medida que aumenta el número de objetos (como se ve en la curva de carga variable de la Figura \ref{fig:3_videos}), el tiempo que tarda la etapa de seguimiento también aumenta significativamente. Esto se debe a que el algoritmo BYTETrack debe gestionar más trayectorias, realizar más comparaciones para la asociación de datos y actualizar más filtros de Kalman. Este comportamiento indica que la etapa de seguimiento puede convertirse en un cuello de botella cuando la densidad de objetos es alta.
+Por el contrario, la etapa de seguimiento (línea amarilla), que se ejecuta en la CPU, muestra una clara correlación entre su tiempo de ejecución y la cantidad de objetos. A medida que aumenta el número de objetos (como se ve en la curva de carga variable de la Figura \ref{fig:3_videos}), el tiempo que tarda la etapa de seguimiento también aumenta significativamente. Esto se debe a que el algoritmo BYTETrack debe gestionar más trayectorias, realizar más comparaciones para la asociación de datos y actualizar más filtros de Kalman. Este comportamiento indica que la etapa de seguimiento puede convertirse en un cuello de botella cuando la densidad de objetos es alta.
 
-Finalmente, la etapa de escritura (línea roja), también dependiente de la CPU, muestra un ligero incremento en su tiempo de ejecución a medida que aumenta el número de objetos. Esto es esperable, ya que debe procesar y registrar la información de un mayor número de detecciones y trayectorias. Sin embargo, su impacto en el rendimiento general parece ser menor en comparación con la etapa de seguimiento bajo las condiciones probadas.
+Finalmente, la etapa de escritura (línea verde), también dependiente de la CPU, muestra un ligero incremento en su tiempo de ejecución a medida que aumenta el número de objetos. Esto es esperable, ya que debe procesar y registrar la información de un mayor número de detecciones y trayectorias. Sin embargo, su impacto en el rendimiento general parece ser menor en comparación con la etapa de seguimiento bajo las condiciones probadas.
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/tiempos_etapa_video1.png}
+   \caption{Ejecución temporal de las etapas del sistema durante el vídeo de prueba con carga baja y constante.}
+   \label{fig:tiempos_etapa_video1}
+\end{figure}
+
+Por otro lado, la Figura \ref{fig:tiempos_etapa_video1} muestra el tiempo de ejecución de cada etapa del sistema a lo largo del vídeo de prueba con carga baja y constante. 
+
+En este caso, la etapa de seguimiento (línea amarilla) presenta un tiempo de ejecución mucho más bajo y constante, ya que el número de objetos es significativamente menor. Esto sugiere que el sistema puede manejar eficientemente la carga baja sin experimentar cuellos de botella. 
+
+También se observa que la etapa de escritura (línea verde) sigue un patrón similar, con tiempos de ejecución bajos y constantes. 
+
+La etapa de captura (línea azul) y la etapa de inferencia (línea roja) mantienen un rendimiento estable, similar al observado en el vídeo de carga variable, lo que indica que su rendimiento no se ve afectado por la cantidad de objetos presentes.
+
+
 
 Ahora vamos a analizar el rendimiento del sistema con una simulación de entrada en tiempo real. En este caso, el sistema debe procesar cada fotograma en un tiempo máximo de 33.3 ms (30 fps). Si no logra hacerlo, el fotograma se descarta. Esta metodología permite evaluar la capacidad del sistema para operar en tiempo real y medir la tasa de fotogramas perdidos (LFPS).
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{ % Ajusta al ancho de página
+   \pgfplotstabletypeset[
+       col sep=comma,
+       header=true,
+       columns={cantidad_objetos,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W,avg_GPU,avg_CPU},
+       display columns/0/.style={column name=Cant.\ Objetos, column type={c}, string type},
+       display columns/1/.style={column name=Frames Procesados, column type={c}},
+       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}},
+       display columns/3/.style={column name=FPS, column type={c}},
+       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=Potencia (W), column type={c}},
+       display columns/6/.style={column name=Energía (J), column type={c}},
+       display columns/7/.style={column name=Frames/W, column type={c}},
+       display columns/8/.style={column name=GPU Avg., column type={c}},
+       display columns/9/.style={column name=CPU Avg, column type={c}},
+       every head row/.style={before row=\toprule, after row=\midrule},
+       every last row/.style={after row=\bottomrule},
+       empty cells with={NaN}
+   ]{excels/inferencia/cantidad_objetos/30_fps/datos.csv}
+   }
+   \caption{Resultados del experimento con distintas cantidades de objetos.}
+   \label{tab:experimento_objetos}
+\end{table}
+
+Los datos de la Tabla \ref{tab:experimento_objetos} revelan que el sistema logra procesar una cantidad considerable de fotogramas en tiempo real bajo distintas condiciones de carga. Sin embargo, la Figura \ref{fig:fps_vs_object_count} muestra una relación más compleja: cuando la cantidad de objetos excede el umbral de 100, el rendimiento del sistema disminuye notablemente, llegando a generar tasas de fotogramas perdidos (LFPS) de hasta 10 frames por segundo en estos segmentos de alta densidad. Esta observación pone de manifiesto que las métricas promedio pueden resultar engañosas, ya que tienden a ocultar intervalos críticos de bajo rendimiento durante los picos de carga, precisamente cuando el sistema sería más necesario en aplicaciones industriales reales.
+
+\begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/variable_fps_vs_object_count/fps_vs_object_count.png}
+   \caption{FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable.}
+   \label{fig:fps_vs_object_count}
+\end{figure}
+
+El análisis de la Tabla \ref{tab:experimento_objetos} también refleja una clara correlación inversa entre la cantidad de objetos y la eficiencia energética del sistema, expresada en fotogramas por vatio (Frames/W). A mayor densidad de objetos, menor es esta eficiencia, lo que indica que el sistema requiere proporcionalmente más energía para procesar escenas complejas. Este comportamiento se alinea con la expectativa de que una mayor carga de trabajo implica un incremento en el consumo de recursos computacionales y energéticos. Esta tendencia se confirma al examinar los niveles de utilización de hardware: el aumento en la cantidad de objetos se corresponde directamente con una mayor utilización media de CPU y, en menor medida, de GPU, evidenciando el incremento gradual en la demanda de recursos del sistema conforme crece la complejidad de la escena analizada.
+
+
+
 
 
 
