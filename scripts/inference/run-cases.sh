@@ -7,8 +7,8 @@ precision=("FP16")
 hardware=("GPU")
 mode=("MAXN")
 parallel=("mp_shared_memory")
-max_fps=("30")
-num_objects=("40" "88" "variable")
+max_fps=("30" "infinite")
+num_objects=("176")
 
 # Loop through all combinations
 for size in "${model_size[@]}"; do
