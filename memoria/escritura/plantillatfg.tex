@@ -89,7 +89,7 @@
 % titol, alumne, tutor i curs academic                                        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{Detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA}
+\title{Detección de defectos en objects en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA}
 \author{Haro Armero, Abel}
 \tutor{Flich Cardo, José \\
 López Rodríguez, Pedro Juan}
@@ -125,7 +125,7 @@ El treball inclou una anàlisi exhaustiva del rendiment del sistema sota diverse
 \end{abstract}
 
 \begin{abstract}[spanish]
-Este trabajo de fin de grado aborda el desafío de la detección automática de defectos en objetos que se desplazan en entornos industriales, como líneas de producción. Se presenta el diseño y la implementación de un sistema completo de visión artificial basado en técnicas de aprendizaje profundo.
+Este trabajo de fin de grado aborda el desafío de la detección automática de defectos en objetos que se desplazan en entornos industriales, como líneas de producción. Se presenta el diseño y la implementación de un sistema completo de visión artificial basado en tècniques de aprendizaje profundo.
 
 El núcleo del sistema es un modelo de red neuronal convolucional (CNN), específicamente una variante optimizada de la arquitectura YOLO, entrenado para identificar y localizar con precisión diversos tipos de defectos en tiempo real. Para hacer frente a las restricciones computacionales y energéticas propias de los sistemas embebidos, el modelo se ha implementado sobre aceleradores hardware de bajo consumo de la serie NVIDIA Jetson. Se han aplicado técnicas avanzadas de optimización, incluyendo la conversión a TensorRT y la exploración de diferentes precisiones numéricas, para maximizar la velocidad de inferencia (FPS) y minimizar el consumo energético (Watts) sin comprometer significativamente la precisión de la detección (mAP).
 
@@ -161,7 +161,7 @@ Durante los últimos años, la inteligencia artificial ha experimentado un creci
 
 El progreso en visión por computador ha sido posible gracias a los avances en redes neuronales convolucionales, que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con una gran precisión y velocidad.
 
-Estos algoritmos de visión artificial requieren una potencia computacional significativa tanto para su entrenamiento como para su ejecución. Las CPUs (Unidades Centrales de Procesamiento) tradicionales resultan insuficientes para estas tareas, por lo que la industria ha desarrollado arquitecturas específicas como las GPUs (Unidades de Procesamiento Gráfico), TPUs (Unidades de Procesamiento Tensorial) y DLAs (Aceleradores de Aprendizaje Profundo). Estos componentes están optimizados para ejecutar operaciones de entrenamiento e inferencia de manera eficiente, permitiendo implementar sistemas de visión artificial capaces de procesar información visual en tiempo real. Sin embargo, estos aceleradores suelen presentar un consumo energético elevado, lo que plantea importantes retos de eficiencia y sostenibilidad.
+Estos algoritmos de visión artificial requieren una potencia computacional significativa tanto para su entrenamiento como para su ejecución. Las CPUs (Unidades Centrales de Procesamiento) tradicionales resultan insuficientes para estas tareas, por lo que la industria ha desarrollado arquitecturas específicas como las GPUs (Unidades de Procesamiento Gráfico), TPUs (Unidades de Procesamiento Tensorial) y DLAs (Aceleradores de Aprendizaje Profundo). Estos componentes están optimizados para ejecutar operaciones de entrenamiento e inferencia de manera eficiente, permitiendo implementar sistemas de visión artificial capaces de procesar información visual en tiempo real. Sin embargo, estos aceleradores suelen presentar un consumo energético elevado, lo que plantea importants retos de eficiència i sostenibilitat.
 
 
 \begin{figure}[H]
@@ -171,11 +171,11 @@ Estos algoritmos de visión artificial requieren una potencia computacional sign
 \label{fig:consumo_electrico_datacenters}
 \end{figure}
 
-Como se observa en la Figura~\ref{fig:consumo_electrico_datacenters}, el consumo eléctrico de los centros de datos en el mundo ha ido aumentando de forma exponencial, lo que plantea un desafío significativo para la sostenibilidad del crecimiento tecnológico \cite{challe6010117}. En el peor escenario, esta tendencia podría llevar a un incremento insostenible en la huella de carbono del sector tecnológico, mientras que en el mejor de los casos, la adopción de tecnologías eficientes podría moderar el crecimiento. Este aumento del consumo energético no solo afecta a los centros de datos, sino también a los dispositivos embebidos y móviles, donde la eficiencia energética es crucial para prolongar la vida útil de las baterías y reducir el impacto ambiental.
+Como se observa en la Figura~\ref{fig:consumo_electrico_datacenters}, el consumo eléctrico de los centros de datos en el mundo ha ido aumentando de forma exponencial, lo que plantea un desafío significativo para la sostenibilidad del crecimiento tecnológico \cite{challe6010117}. En el peor escenario, esta tendencia podría llevar a un incremento insostenible en la huella de carbono del sector tecnológico, mientras que en el mejor de los casos, la adopción de tecnologías eficientes podría moderar el crecimiento. Este aumento del consumo energético no solo afecta a los centros de datos, sino también a los dispositivos embebids i mòbils, on l'eficiència energètica és crucial per allargar la vida útil de les bateries i reduir l'impacte ambiental.
 
-Para enfrentar estos desafíos, se han desarrollado diversas técnicas de optimización y compresión que reducen el tamaño y la complejidad de los modelos neuronales manteniendo su rendimiento. Paralelamente, han surgido arquitecturas hardware específicamente diseñadas para la inferencia de modelos de aprendizaje profundo en entornos con restricciones energéticas. En este contexto, los dispositivos de la serie Jetson de NVIDIA destacan por ofrecer un equilibrio entre alto rendimiento en tareas de inteligencia artificial y un consumo energético contenido, ideal para aplicaciones embebidas de visión artificial.
+Per afrontar aquests reptes, s'han desenvolupat diverses tècniques d'optimització i compressió que redueixen la mida i la complexitat dels models neuronals mantenint el seu rendiment. Paral·lelament, han sorgit arquitectures hardware dissenyades específicament per a la inferència de models d'aprenentatge profund en entorns amb restriccions energètiques. En aquest context, els dispositius de la sèrie Jetson de NVIDIA destaquen per oferir un equilibri entre alt rendiment en tasques d'intel·ligència artificial i un consum energètic contingut, ideal per a aplicacions embebides de visió artificial.
 
-La combinación de redes neuronales convolucionales y aceleradores hardware ha permitido la creación de sistemas de visión artificial que pueden detectar y clasificar objetos en movimiento, lo que es esencial en aplicaciones como la vigilancia, la conducción autónoma y la robótica.
+La combinació de xarxes neuronals convolucionals i acceleradors hardware ha permès la creació de sistemes de visió artificial que poden detectar i classificar objectes en moviment, cosa que és essencial en aplicacions com la vigilància, la conducció autònoma i la robòtica.
 
 \section{Motivaci\'on} \label{sec:motivacion}
 
@@ -1247,7 +1247,7 @@ Ahora vamos a analizar el rendimiento del sistema con una simulación de entrada
        display columns/6/.style={column name=Energía (J), column type={c}},
        display columns/7/.style={column name=Frames/W, column type={c}},
        display columns/8/.style={column name=GPU Avg., column type={c}},
-       display columns/9/.style={column name=CPU Avg, column type={c}},
+       display columns/9/.style={column name=CPU Avg., column type={c}},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
@@ -1313,8 +1313,37 @@ Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco t
    \item Segmentación por procesos con memoria compartida (subsección \ref{sub:segmentacion_memoria_compartida}): Cada etapa del sistema se ejecuta en un proceso independiente y se comunica mediante memoria compartida.
 \end{enumerate}
 
+Para evaluar el rendimiento de cada tipo de segmentación, se han realizado pruebas utilizando el vídeo de 84 objetos (carga alta y constante) como entrada estándar. Este vídeo presenta una carga computacional significativa, lo que permite observar las diferencias de rendimiento entre los distintos tipos de segmentación. Para todas las pruebas se ha utilizado el modelo de detección de objetos YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU. Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). 
 
 
+Primero se va analizar el rendimiento de cada tipo de segmentación utilizando la metodología de ejecución a máxima capacidad, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{ % Ajusta al ancho de página
+   \pgfplotstabletypeset[
+       col sep=comma,
+       header=true,
+       columns={cantidad_objetos,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W,speedup,avg_GPU,avg_CPU},
+       display columns/0/.style={column name=Cant.\ Objetos, column type={c}, string type},
+       display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=Potencia (W), column type={c}},
+       display columns/6/.style={column name=Energía (J), column type={c}},
+       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name=Speedup, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name=GPU Avg., column type={c}},
+       display columns/9/.style={column name=CPU Avg., column type={c}},
+       every head row/.style={before row=\toprule, after row=\midrule},
+       every last row/.style={after row=\bottomrule},
+       empty cells with={NaN}
+   ]{excels/inferencia/modo_segmentacion/datos/max_fps.csv}
+   }
+   \caption{Resultados del experimento con distintas cantidades de objetos.}
+   \label{tab:experimento_segmentacion_max_fps}
+\end{table}
 
 
 \section{Talla del modelo} \label{sub:talla_modelo}
