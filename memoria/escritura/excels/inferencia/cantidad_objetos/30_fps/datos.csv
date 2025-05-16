@@ -1,4 +1,0 @@
-cantidad_objetos,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W,avg_GPU,avg_CPU
-43,2398,80.46,29.80,0.02,14.662,1179.45,2.03,16.61,27.92
-84,2383,80.52,29.60,0.21,15.965,1285.37,1.85,16.73,37.61
-variable,2208,80.64,27.38,2.38,14.795,1192.73,2.00,15.05,30.7
