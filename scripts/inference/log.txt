@@ -1,229 +1,0 @@
--------------------------------------------------------------------------------------------------------
-Running case: Model=n, Precision=FP16, Hardware=GPU, Mode=MAXN, Parallel=threads
-Creating new Ultralytics Settings v0.0.6 file ✅ 
-View Ultralytics Settings with 'yolo settings' or at '/root/.config/Ultralytics/settings.json'
-Update Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/quickstart/#ultralytics-settings.
-[31m[1mrequirements:[0m Ultralytics requirement ['lap>=0.5.12'] not found, attempting AutoUpdate...
-WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
-Collecting lap>=0.5.12
-  Downloading lap-0.5.12-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (6.2 kB)
-Requirement already satisfied: numpy>=1.21.6 in /usr/local/lib/python3.8/dist-packages (from lap>=0.5.12) (1.23.5)
-Downloading lap-0.5.12-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (1.7 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 71.9 MB/s eta 0:00:00
-Installing collected packages: lap
-Successfully installed lap-0.5.12
-
-[31m[1mrequirements:[0m AutoUpdate success ✅ 2.4s, installed 1 package: ['lap>=0.5.12']
-[31m[1mrequirements:[0m ⚠️ [1mRestart runtime or rerun command for updates to take effect[0m
-
-[PROGRAM] Número de CPU: 8
-
-
-[PROGRAM] Opciones seleccionadas: Namespace(hardware='GPU', max_fps=30, mode='MAXN', model_size='n', num_objects='libre', parallel='threads', precision='FP16', sahi=False, tcp=False, version='2025_02_24') 
-
-
-2025-04-08 09:53:26,712 - DEBUG - [PROGRAM - CAPTURE FRAMES] Iniciando captura de frames
-WARNING ⚠️ 'source' is missing. Using 'source=/ultralytics/ultralytics/assets'.
-Loading ../../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_GPU.engine for TensorRT inference...
-[04/08/2025-09:53:27] [TRT] [I] Loaded engine size: 6 MiB
-[04/08/2025-09:53:29] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +348, GPU +344, now: CPU 701, GPU 7548 (MiB)
-[04/08/2025-09:53:29] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in engine deserialization: CPU +0, GPU +5, now: CPU 0, GPU 5 (MiB)
-[04/08/2025-09:53:29] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +0, GPU +0, now: CPU 695, GPU 7548 (MiB)
-[04/08/2025-09:53:29] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in IExecutionContext creation: CPU +0, GPU +8, now: CPU 0, GPU 13 (MiB)
-[CREATE EXCEL] Archivo /TFG/excels/threads/aux_files/times_aux.csv creado o sobrescrito con cabeceras de tiempos.
-[CREATE EXCEL] Archivo /TFG/excels/threads/aux_files/fps_aux.csv creado o sobrescrito con cabeceras de tiempos.
-
-image 1/2 /ultralytics/ultralytics/assets/bus.jpg: 640x640 1 negra, 1 azul, 4 azul-ds, 5.6ms
-image 2/2 /ultralytics/ultralytics/assets/zidane.jpg: 640x640 2 blancas, 5.6ms
-Speed: 7.0ms preprocess, 5.6ms inference, 5.6ms postprocess per image at shape (1, 3, 640, 640)
-2025-04-08 09:53:38,149 - DEBUG - [PROGRAM - HARDWARE USAGE] Iniciando tegrastats...
-[PROGRAM - DRAW AND WRITE] Frame 30 procesado[PROGRAM - DRAW AND WRITE] Frame 60 procesado[PROGRAM - DRAW AND WRITE] Frame 90 procesado[PROGRAM - DRAW AND WRITE] Frame 120 procesado[PROGRAM - DRAW AND WRITE] Frame 150 procesado[PROGRAM - DRAW AND WRITE] Frame 180 procesado[PROGRAM - DRAW AND WRITE] Frame 210 procesado[PROGRAM - DRAW AND WRITE] Frame 240 procesado[PROGRAM - DRAW AND WRITE] Frame 270 procesado[PROGRAM - DRAW AND WRITE] Frame 300 procesado[PROGRAM - DRAW AND WRITE] Frame 330 procesado[PROGRAM - DRAW AND WRITE] Frame 360 procesado[PROGRAM - DRAW AND WRITE] Frame 390 procesado[PROGRAM - DRAW AND WRITE] Frame 420 procesado[PROGRAM - DRAW AND WRITE] Frame 450 procesado[PROGRAM - DRAW AND WRITE] Frame 480 procesado[PROGRAM - DRAW AND WRITE] Frame 510 procesado[PROGRAM - DRAW AND WRITE] Frame 540 procesado[PROGRAM - DRAW AND WRITE] Frame 570 procesado[PROGRAM - DRAW AND WRITE] Frame 600 procesado[PROGRAM - DRAW AND WRITE] Frame 630 procesado[PROGRAM - DRAW AND WRITE] Frame 660 procesado[PROGRAM - DRAW AND WRITE] Frame 690 procesado[PROGRAM - DRAW AND WRITE] Frame 720 procesado[PROGRAM - DRAW AND WRITE] Frame 750 procesado[PROGRAM - DRAW AND WRITE] Frame 780 procesado[PROGRAM - DRAW AND WRITE] Frame 810 procesado[PROGRAM - DRAW AND WRITE] Frame 840 procesado[PROGRAM - DRAW AND WRITE] Frame 870 procesado[PROGRAM - DRAW AND WRITE] Frame 900 procesado[PROGRAM - DRAW AND WRITE] Frame 930 procesado[PROGRAM - DRAW AND WRITE] Frame 960 procesado[PROGRAM - DRAW AND WRITE] Frame 990 procesado[PROGRAM - DRAW AND WRITE] Frame 1020 procesado[PROGRAM - DRAW AND WRITE] Frame 1050 procesado[PROGRAM - DRAW AND WRITE] Frame 1080 procesado[PROGRAM - DRAW AND WRITE] Frame 1110 procesado[PROGRAM - DRAW AND WRITE] Frame 1140 procesado[PROGRAM - DRAW AND WRITE] Frame 1170 procesado[PROGRAM - DRAW AND WRITE] Frame 1200 procesado[PROGRAM - DRAW AND WRITE] Frame 1230 procesado[PROGRAM - DRAW AND WRITE] Frame 1260 procesado[PROGRAM - DRAW AND WRITE] Frame 1290 procesado[PROGRAM - DRAW AND WRITE] Frame 1320 procesado[PROGRAM - DRAW AND WRITE] Frame 1350 procesado[PROGRAM - DRAW AND WRITE] Frame 1380 procesado[PROGRAM - DRAW AND WRITE] Frame 1410 procesado[PROGRAM - DRAW AND WRITE] Frame 1440 procesado[PROGRAM - DRAW AND WRITE] Frame 1470 procesado[PROGRAM - DRAW AND WRITE] Frame 1500 procesado[PROGRAM - DRAW AND WRITE] Frame 1530 procesado[PROGRAM - DRAW AND WRITE] Frame 1560 procesado[PROGRAM - DRAW AND WRITE] Frame 1590 procesado[PROGRAM - DRAW AND WRITE] Frame 1620 procesado[PROGRAM - DRAW AND WRITE] Frame 1650 procesado[PROGRAM - DRAW AND WRITE] Frame 1680 procesado[PROGRAM - DRAW AND WRITE] Frame 1710 procesado[PROGRAM - DRAW AND WRITE] Frame 1740 procesado[PROGRAM - DRAW AND WRITE] Frame 1770 procesado[PROGRAM - DRAW AND WRITE] Frame 1800 procesado[PROGRAM - DRAW AND WRITE] Frame 1830 procesado[PROGRAM - DRAW AND WRITE] Frame 1860 procesado[PROGRAM - DRAW AND WRITE] Frame 1890 procesado[PROGRAM - DRAW AND WRITE] Frame 1920 procesado[PROGRAM - DRAW AND WRITE] Frame 1950 procesado[PROGRAM - DRAW AND WRITE] Frame 1980 procesado[PROGRAM - DRAW AND WRITE] Frame 2010 procesado[PROGRAM - DRAW AND WRITE] Frame 2040 procesado[PROGRAM - DRAW AND WRITE] Frame 2070 procesado[PROGRAM - DRAW AND WRITE] Frame 2100 procesado[PROGRAM - DRAW AND WRITE] Frame 2130 procesado[PROGRAM - DRAW AND WRITE] Frame 2160 procesado[PROGRAM - DRAW AND WRITE] Frame 2190 procesado[PROGRAM - DRAW AND WRITE] Frame 2220 procesado[PROGRAM - DRAW AND WRITE] Frame 2250 procesado[PROGRAM - DRAW AND WRITE] Frame 2280 procesado[PROGRAM - DRAW AND WRITE] Frame 2310 procesado[PROGRAM - DRAW AND WRITE] Frame 2340 procesado[PROGRAM - DRAW AND WRITE] Frame 2370 procesado[PROGRAM - DRAW AND WRITE] Frame 2400 procesado2025-04-08 09:54:58,460 - DEBUG - [PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola
-2025-04-08 09:54:58,460 - DEBUG - [PROGRAM - CAPTURE FRAMES] Se han procesado 2400 frames
-2025-04-08 09:54:58,463 - DEBUG - [PROGRAM - CAPTURE FRAMES] Captura de frames terminada
-2025-04-08 09:54:58,470 - DEBUG - [PROGRAM - WRITE TO CSV] Total time de write_to_csv: 80.39 s
-[HARDWARE STATS USAGE] Procesando archivo /TFG/excels/threads/aux_files/hardware_usage.txt...
-2025-04-08 09:54:58,471 - DEBUG - [PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.
-2025-04-08 09:54:58,471 - DEBUG - [PROGRAM - TRACKING FRAMES] Tracking de frames terminado
-2025-04-08 09:54:58,473 - DEBUG - [PROGRAM - DRAW AND WRITE] Escritura de frames terminada
-2025-04-08 09:54:58,522 - DEBUG - [PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado
-2025-04-08 09:54:58,528 - DEBUG - [PROGRAM - GET TOTAL FRAMES] Completado. Total frames: 2400
-Total time: 80.39 s, FPS: 29.85
-Waiting for Thread-2 to finish...
-Thread-2 finished.
-Waiting for Thread-3 to finish...
-Thread-3 finished.
-Waiting for Thread-4 to finish...
-Thread-4 finished.
-Waiting for Thread-5 to finish...
-Thread-5 finished.
-Waiting for Thread-6 to finish...
-[HARDWARE STATS USAGE] Datos procesados guardados en /TFG/excels/threads/aux_files/hardware_usage_aux.csv
-[HARDWARE STATS USAGE] Proceso completado
-[CREATE EXCEL] Creando Excel a partir de times_aux.csv y fps_aux.csv...
-[CREATE EXCEL] CSV de tiempos leído correctamente desde /TFG/excels/threads/aux_files/times_aux.csv.
-[CREATE EXCEL] CSV de FPS leído correctamente desde /TFG/excels/threads/aux_files/fps_aux.csv.
-[CREATE EXCEL] CSV de uso de hardware leído correctamente desde /TFG/excels/threads/aux_files/hardware_usage_aux.csv.
-[CREATE EXCEL] Borrando el excel anterior en /TFG/excels/threads/threads_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx...
-[CREATE EXCEL] Excel anterior borrado exitosamente en /TFG/excels/threads/threads_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-[CREATE EXCEL] Guardando Excel en /TFG/excels/threads/threads_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx...
-[CREATE EXCEL] Excel guardado exitosamente en /TFG/excels/threads/threads_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-Excel generado exitosamente en /TFG/excels/threads/threads_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-2025-04-08 09:55:00,997 - DEBUG - [PROGRAM - WRITE TO CSV] Escritura de tiempos terminada
-2025-04-08 09:55:00,997 - DEBUG - [PROGRAM - WRITE TO CSV] Se han procesado 2400 frames
-Thread-6 finished.
-Waiting for Thread-7 to finish...
-Thread-7 finished.
-Pipeline finished.
-
-
-
--------------------------------------------------------------------------------------------------------
-Running case: Model=n, Precision=FP16, Hardware=GPU, Mode=MAXN, Parallel=mp
-[PROGRAM] Número de CPU: 8
-
-
-[PROGRAM] Opciones seleccionadas: Namespace(hardware='GPU', max_fps=30, mode='MAXN', model_size='n', num_objects='libre', parallel='mp', precision='FP16', sahi=False, tcp=False, version='2025_02_24') 
-
-
-WARNING ⚠️ 'source' is missing. Using 'source=/ultralytics/ultralytics/assets'.
-Loading ../../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_GPU.engine for TensorRT inference...
-2025-04-08 09:55:20,962 - DEBUG - [PROGRAM - CAPTURE FRAMES] Iniciando captura de frames
-[04/08/2025-09:55:21] [TRT] [I] Loaded engine size: 6 MiB
-[CREATE EXCEL] Archivo /TFG/excels/mp/aux_files/times_aux.csv creado o sobrescrito con cabeceras de tiempos.
-[CREATE EXCEL] Archivo /TFG/excels/mp/aux_files/fps_aux.csv creado o sobrescrito con cabeceras de tiempos.
-[04/08/2025-09:55:23] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +342, GPU +337, now: CPU 687, GPU 8601 (MiB)
-[04/08/2025-09:55:23] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in engine deserialization: CPU +0, GPU +5, now: CPU 0, GPU 5 (MiB)
-[04/08/2025-09:55:23] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +0, GPU +0, now: CPU 681, GPU 8601 (MiB)
-[04/08/2025-09:55:23] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in IExecutionContext creation: CPU +0, GPU +8, now: CPU 0, GPU 13 (MiB)
-
-image 1/2 /ultralytics/ultralytics/assets/bus.jpg: 640x640 1 negra, 1 azul, 4 azul-ds, 5.7ms
-image 2/2 /ultralytics/ultralytics/assets/zidane.jpg: 640x640 2 blancas, 5.6ms
-Speed: 6.1ms preprocess, 5.6ms inference, 5.1ms postprocess per image at shape (1, 3, 640, 640)
-2025-04-08 09:55:31,908 - DEBUG - [PROGRAM - HARDWARE USAGE] Iniciando tegrastats...
-[PROGRAM - DRAW AND WRITE] Frame 30 procesado[PROGRAM - DRAW AND WRITE] Frame 60 procesado[PROGRAM - DRAW AND WRITE] Frame 90 procesado[PROGRAM - DRAW AND WRITE] Frame 120 procesado[PROGRAM - DRAW AND WRITE] Frame 150 procesado[PROGRAM - DRAW AND WRITE] Frame 180 procesado[PROGRAM - DRAW AND WRITE] Frame 210 procesado[PROGRAM - DRAW AND WRITE] Frame 240 procesado[PROGRAM - DRAW AND WRITE] Frame 270 procesado[PROGRAM - DRAW AND WRITE] Frame 300 procesado[PROGRAM - DRAW AND WRITE] Frame 330 procesado[PROGRAM - DRAW AND WRITE] Frame 360 procesado[PROGRAM - DRAW AND WRITE] Frame 390 procesado[PROGRAM - DRAW AND WRITE] Frame 420 procesado[PROGRAM - DRAW AND WRITE] Frame 450 procesado[PROGRAM - DRAW AND WRITE] Frame 480 procesado[PROGRAM - DRAW AND WRITE] Frame 510 procesado[PROGRAM - DRAW AND WRITE] Frame 540 procesado[PROGRAM - DRAW AND WRITE] Frame 570 procesado[PROGRAM - DRAW AND WRITE] Frame 600 procesado[PROGRAM - DRAW AND WRITE] Frame 630 procesado[PROGRAM - DRAW AND WRITE] Frame 660 procesado[PROGRAM - DRAW AND WRITE] Frame 690 procesado[PROGRAM - DRAW AND WRITE] Frame 720 procesado[PROGRAM - DRAW AND WRITE] Frame 750 procesado[PROGRAM - DRAW AND WRITE] Frame 780 procesado[PROGRAM - DRAW AND WRITE] Frame 810 procesado[PROGRAM - DRAW AND WRITE] Frame 840 procesado[PROGRAM - DRAW AND WRITE] Frame 870 procesado[PROGRAM - DRAW AND WRITE] Frame 900 procesado[PROGRAM - DRAW AND WRITE] Frame 930 procesado[PROGRAM - DRAW AND WRITE] Frame 960 procesado[PROGRAM - DRAW AND WRITE] Frame 990 procesado[PROGRAM - DRAW AND WRITE] Frame 1020 procesado[PROGRAM - DRAW AND WRITE] Frame 1050 procesado[PROGRAM - DRAW AND WRITE] Frame 1080 procesado[PROGRAM - DRAW AND WRITE] Frame 1110 procesado[PROGRAM - DRAW AND WRITE] Frame 1140 procesado[PROGRAM - DRAW AND WRITE] Frame 1170 procesado[PROGRAM - DRAW AND WRITE] Frame 1200 procesado[PROGRAM - DRAW AND WRITE] Frame 1230 procesado[PROGRAM - DRAW AND WRITE] Frame 1260 procesado[PROGRAM - DRAW AND WRITE] Frame 1290 procesado[PROGRAM - DRAW AND WRITE] Frame 1320 procesado[PROGRAM - DRAW AND WRITE] Frame 1350 procesado[PROGRAM - DRAW AND WRITE] Frame 1380 procesado[PROGRAM - DRAW AND WRITE] Frame 1410 procesado[PROGRAM - DRAW AND WRITE] Frame 1440 procesado[PROGRAM - DRAW AND WRITE] Frame 1470 procesado[PROGRAM - DRAW AND WRITE] Frame 1500 procesado[PROGRAM - DRAW AND WRITE] Frame 1530 procesado[PROGRAM - DRAW AND WRITE] Frame 1560 procesado[PROGRAM - DRAW AND WRITE] Frame 1590 procesado[PROGRAM - DRAW AND WRITE] Frame 1620 procesado[PROGRAM - DRAW AND WRITE] Frame 1650 procesado[PROGRAM - DRAW AND WRITE] Frame 1680 procesado[PROGRAM - DRAW AND WRITE] Frame 1710 procesado[PROGRAM - DRAW AND WRITE] Frame 1740 procesado[PROGRAM - DRAW AND WRITE] Frame 1770 procesado[PROGRAM - DRAW AND WRITE] Frame 1800 procesado[PROGRAM - DRAW AND WRITE] Frame 1830 procesado[PROGRAM - DRAW AND WRITE] Frame 1860 procesado[PROGRAM - DRAW AND WRITE] Frame 1890 procesado[PROGRAM - DRAW AND WRITE] Frame 1920 procesado[PROGRAM - DRAW AND WRITE] Frame 1950 procesado[PROGRAM - DRAW AND WRITE] Frame 1980 procesado[PROGRAM - DRAW AND WRITE] Frame 2010 procesado[PROGRAM - DRAW AND WRITE] Frame 2040 procesado[PROGRAM - DRAW AND WRITE] Frame 2070 procesado[PROGRAM - DRAW AND WRITE] Frame 2100 procesado[PROGRAM - DRAW AND WRITE] Frame 2130 procesado[PROGRAM - DRAW AND WRITE] Frame 2160 procesado[PROGRAM - DRAW AND WRITE] Frame 2190 procesado[PROGRAM - DRAW AND WRITE] Frame 2220 procesado[PROGRAM - DRAW AND WRITE] Frame 2250 procesado[PROGRAM - DRAW AND WRITE] Frame 2280 procesado[PROGRAM - DRAW AND WRITE] Frame 2310 procesado[PROGRAM - DRAW AND WRITE] Frame 2340 procesado[PROGRAM - DRAW AND WRITE] Frame 2370 procesado2025-04-08 09:56:52,310 - DEBUG - [PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola
-2025-04-08 09:56:52,311 - DEBUG - [PROGRAM - CAPTURE FRAMES] Se han procesado 2400 frames
-2025-04-08 09:56:52,313 - DEBUG - [PROGRAM - CAPTURE FRAMES] Captura de frames terminada
-[PROGRAM - DRAW AND WRITE] Frame 2400 procesado2025-04-08 09:56:52,339 - DEBUG - [PROGRAM - WRITE TO CSV] Total time de write_to_csv: 80.45 s
-2025-04-08 09:56:52,339 - DEBUG - [PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.
-[HARDWARE STATS USAGE] Procesando archivo /TFG/excels/mp/aux_files/hardware_usage.txt...
-2025-04-08 09:56:52,339 - DEBUG - [PROGRAM - TRACKING FRAMES] Tracking de frames terminado
-2025-04-08 09:56:52,340 - DEBUG - [PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado
-2025-04-08 09:56:52,340 - DEBUG - [PROGRAM - DRAW AND WRITE] Escritura de frames terminada
-2025-04-08 09:56:52,368 - DEBUG - [PROGRAM - GET TOTAL FRAMES] Completado. Total frames: 2400
-Total time: 80.45 s, FPS: 29.83
-Pipeline finished.
-[HARDWARE STATS USAGE] Datos procesados guardados en /TFG/excels/mp/aux_files/hardware_usage_aux.csv
-[HARDWARE STATS USAGE] Proceso completado
-[CREATE EXCEL] Creando Excel a partir de times_aux.csv y fps_aux.csv...
-[CREATE EXCEL] CSV de tiempos leído correctamente desde /TFG/excels/mp/aux_files/times_aux.csv.
-[CREATE EXCEL] CSV de FPS leído correctamente desde /TFG/excels/mp/aux_files/fps_aux.csv.
-[CREATE EXCEL] CSV de uso de hardware leído correctamente desde /TFG/excels/mp/aux_files/hardware_usage_aux.csv.
-[CREATE EXCEL] Borrando el excel anterior en /TFG/excels/mp/mp_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx...
-[CREATE EXCEL] Excel anterior borrado exitosamente en /TFG/excels/mp/mp_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-[CREATE EXCEL] Guardando Excel en /TFG/excels/mp/mp_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx...
-[CREATE EXCEL] Excel guardado exitosamente en /TFG/excels/mp/mp_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-Excel generado exitosamente en /TFG/excels/mp/mp_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-2025-04-08 09:56:54,660 - DEBUG - [PROGRAM - WRITE TO CSV] Escritura de tiempos terminada
-2025-04-08 09:56:54,661 - DEBUG - [PROGRAM - WRITE TO CSV] Se han procesado 2400 frames
-
-
-
--------------------------------------------------------------------------------------------------------
-Running case: Model=n, Precision=FP16, Hardware=GPU, Mode=MAXN, Parallel=mp_shared_memory
-[PROGRAM] Número de CPU: 8
-
-
-[PROGRAM] Opciones seleccionadas: Namespace(hardware='GPU', max_fps=30, mode='MAXN', model_size='n', num_objects='libre', parallel='mp_shared_memory', precision='FP16', sahi=False, tcp=False, version='2025_02_24') 
-
-
-WARNING ⚠️ 'source' is missing. Using 'source=/ultralytics/ultralytics/assets'.
-Loading ../../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_GPU.engine for TensorRT inference...
-2025-04-08 09:57:13,438 - DEBUG - [PROGRAM - CAPTURE FRAMES] Iniciando captura de frames
-[04/08/2025-09:57:14] [TRT] [I] Loaded engine size: 6 MiB
-[CREATE EXCEL] Archivo /TFG/excels/mp_shared_memory/aux_files/times_aux.csv creado o sobrescrito con cabeceras de tiempos.
-[CREATE EXCEL] Archivo /TFG/excels/mp_shared_memory/aux_files/fps_aux.csv creado o sobrescrito con cabeceras de tiempos.
-[04/08/2025-09:57:15] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +342, GPU +337, now: CPU 687, GPU 8587 (MiB)
-[04/08/2025-09:57:15] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in engine deserialization: CPU +0, GPU +5, now: CPU 0, GPU 5 (MiB)
-[04/08/2025-09:57:15] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +0, GPU +0, now: CPU 681, GPU 8587 (MiB)
-[04/08/2025-09:57:15] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in IExecutionContext creation: CPU +0, GPU +8, now: CPU 0, GPU 13 (MiB)
-
-image 1/2 /ultralytics/ultralytics/assets/bus.jpg: 640x640 1 negra, 1 azul, 4 azul-ds, 5.6ms
-image 2/2 /ultralytics/ultralytics/assets/zidane.jpg: 640x640 2 blancas, 5.5ms
-Speed: 6.8ms preprocess, 5.6ms inference, 5.0ms postprocess per image at shape (1, 3, 640, 640)
-2025-04-08 09:57:24,131 - DEBUG - [PROGRAM - HARDWARE USAGE] Iniciando tegrastats...
-[PROGRAM - DRAW AND WRITE] Frame 30 procesado[PROGRAM - DRAW AND WRITE] Frame 60 procesado[PROGRAM - DRAW AND WRITE] Frame 90 procesado[PROGRAM - DRAW AND WRITE] Frame 120 procesado[PROGRAM - DRAW AND WRITE] Frame 150 procesado[PROGRAM - DRAW AND WRITE] Frame 180 procesado[PROGRAM - DRAW AND WRITE] Frame 210 procesado[PROGRAM - DRAW AND WRITE] Frame 240 procesado[PROGRAM - DRAW AND WRITE] Frame 270 procesado[PROGRAM - DRAW AND WRITE] Frame 300 procesado[PROGRAM - DRAW AND WRITE] Frame 330 procesado[PROGRAM - DRAW AND WRITE] Frame 360 procesado[PROGRAM - DRAW AND WRITE] Frame 390 procesado[PROGRAM - DRAW AND WRITE] Frame 420 procesado[PROGRAM - DRAW AND WRITE] Frame 450 procesado[PROGRAM - DRAW AND WRITE] Frame 480 procesado[PROGRAM - DRAW AND WRITE] Frame 510 procesado[PROGRAM - DRAW AND WRITE] Frame 540 procesado[PROGRAM - DRAW AND WRITE] Frame 570 procesado[PROGRAM - DRAW AND WRITE] Frame 600 procesado[PROGRAM - DRAW AND WRITE] Frame 630 procesado[PROGRAM - DRAW AND WRITE] Frame 660 procesado[PROGRAM - DRAW AND WRITE] Frame 690 procesado[PROGRAM - DRAW AND WRITE] Frame 720 procesado[PROGRAM - DRAW AND WRITE] Frame 750 procesado[PROGRAM - DRAW AND WRITE] Frame 780 procesado[PROGRAM - DRAW AND WRITE] Frame 810 procesado[PROGRAM - DRAW AND WRITE] Frame 840 procesado[PROGRAM - DRAW AND WRITE] Frame 870 procesado[PROGRAM - DRAW AND WRITE] Frame 900 procesado[PROGRAM - DRAW AND WRITE] Frame 930 procesado[PROGRAM - DRAW AND WRITE] Frame 960 procesado[PROGRAM - DRAW AND WRITE] Frame 990 procesado[PROGRAM - DRAW AND WRITE] Frame 1020 procesado[PROGRAM - DRAW AND WRITE] Frame 1050 procesado[PROGRAM - DRAW AND WRITE] Frame 1080 procesado[PROGRAM - DRAW AND WRITE] Frame 1110 procesado[PROGRAM - DRAW AND WRITE] Frame 1140 procesado[PROGRAM - DRAW AND WRITE] Frame 1170 procesado[PROGRAM - DRAW AND WRITE] Frame 1200 procesado[PROGRAM - DRAW AND WRITE] Frame 1230 procesado[PROGRAM - DRAW AND WRITE] Frame 1260 procesado[PROGRAM - DRAW AND WRITE] Frame 1290 procesado[PROGRAM - DRAW AND WRITE] Frame 1320 procesado[PROGRAM - DRAW AND WRITE] Frame 1350 procesado[PROGRAM - DRAW AND WRITE] Frame 1380 procesado[PROGRAM - DRAW AND WRITE] Frame 1410 procesado[PROGRAM - DRAW AND WRITE] Frame 1440 procesado[PROGRAM - DRAW AND WRITE] Frame 1470 procesado[PROGRAM - DRAW AND WRITE] Frame 1500 procesado[PROGRAM - DRAW AND WRITE] Frame 1530 procesado[PROGRAM - DRAW AND WRITE] Frame 1560 procesado[PROGRAM - DRAW AND WRITE] Frame 1590 procesado[PROGRAM - DRAW AND WRITE] Frame 1620 procesado[PROGRAM - DRAW AND WRITE] Frame 1650 procesado[PROGRAM - DRAW AND WRITE] Frame 1680 procesado[PROGRAM - DRAW AND WRITE] Frame 1710 procesado[PROGRAM - DRAW AND WRITE] Frame 1740 procesado[PROGRAM - DRAW AND WRITE] Frame 1770 procesado[PROGRAM - DRAW AND WRITE] Frame 1800 procesado[PROGRAM - DRAW AND WRITE] Frame 1830 procesado[PROGRAM - DRAW AND WRITE] Frame 1860 procesado[PROGRAM - DRAW AND WRITE] Frame 1890 procesado[PROGRAM - DRAW AND WRITE] Frame 1920 procesado[PROGRAM - DRAW AND WRITE] Frame 1950 procesado[PROGRAM - DRAW AND WRITE] Frame 1980 procesado[PROGRAM - DRAW AND WRITE] Frame 2010 procesado[PROGRAM - DRAW AND WRITE] Frame 2040 procesado[PROGRAM - DRAW AND WRITE] Frame 2070 procesado[PROGRAM - DRAW AND WRITE] Frame 2100 procesado[PROGRAM - DRAW AND WRITE] Frame 2130 procesado[PROGRAM - DRAW AND WRITE] Frame 2160 procesado[PROGRAM - DRAW AND WRITE] Frame 2190 procesado[PROGRAM - DRAW AND WRITE] Frame 2220 procesado[PROGRAM - DRAW AND WRITE] Frame 2250 procesado[PROGRAM - DRAW AND WRITE] Frame 2280 procesado[PROGRAM - DRAW AND WRITE] Frame 2310 procesado[PROGRAM - DRAW AND WRITE] Frame 2340 procesado[PROGRAM - DRAW AND WRITE] Frame 2370 procesado2025-04-08 09:58:44,521 - DEBUG - [PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola
-2025-04-08 09:58:44,521 - DEBUG - [PROGRAM - CAPTURE FRAMES] Se han procesado 2400 frames
-2025-04-08 09:58:44,523 - DEBUG - [PROGRAM - CAPTURE FRAMES] Captura de frames terminada
-2025-04-08 09:58:44,542 - DEBUG - [PROGRAM - HARDWARE USAGE] Proceso tegrastats detenido.
-2025-04-08 09:58:44,544 - DEBUG - [PROGRAM - WRITE TO CSV] Total time de write_to_csv: 80.43 s
-2025-04-08 09:58:44,544 - DEBUG - [PROGRAM - PROCESS FRAMES] Procesamiento de frames terminado
-2025-04-08 09:58:44,544 - DEBUG - [PROGRAM - DRAW AND WRITE] Escritura de frames terminada
-[HARDWARE STATS USAGE] Procesando archivo /TFG/excels/mp_shared_memory/aux_files/hardware_usage.txt...
-2025-04-08 09:58:44,548 - DEBUG - [PROGRAM - TRACKING FRAMES] Tracking de frames terminado
-2025-04-08 09:58:44,574 - DEBUG - [PROGRAM - GET TOTAL FRAMES] Completado. Total frames: 2400
-Total time: 80.43 s, FPS: 29.84
-Pipeline finished.
-[HARDWARE STATS USAGE] Datos procesados guardados en /TFG/excels/mp_shared_memory/aux_files/hardware_usage_aux.csv
-[HARDWARE STATS USAGE] Proceso completado
-[CREATE EXCEL] Creando Excel a partir de times_aux.csv y fps_aux.csv...
-[CREATE EXCEL] CSV de tiempos leído correctamente desde /TFG/excels/mp_shared_memory/aux_files/times_aux.csv.
-[CREATE EXCEL] CSV de FPS leído correctamente desde /TFG/excels/mp_shared_memory/aux_files/fps_aux.csv.
-[CREATE EXCEL] CSV de uso de hardware leído correctamente desde /TFG/excels/mp_shared_memory/aux_files/hardware_usage_aux.csv.
-[CREATE EXCEL] Borrando el excel anterior en /TFG/excels/mp_shared_memory/mp_shared_memory_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx...
-[CREATE EXCEL] Excel anterior borrado exitosamente en /TFG/excels/mp_shared_memory/mp_shared_memory_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-[CREATE EXCEL] Guardando Excel en /TFG/excels/mp_shared_memory/mp_shared_memory_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx...
-[CREATE EXCEL] Excel guardado exitosamente en /TFG/excels/mp_shared_memory/mp_shared_memory_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-Excel generado exitosamente en /TFG/excels/mp_shared_memory/mp_shared_memory_yolo11n_FP16_GPU_libre_objects_MAXN_8CORE_2min.xlsx.
-2025-04-08 09:58:46,830 - DEBUG - [PROGRAM - WRITE TO CSV] Escritura de tiempos terminada
-2025-04-08 09:58:46,831 - DEBUG - [PROGRAM - WRITE TO CSV] Se han procesado 2395 frames
-
-
-
--------------------------------------------------------------------------------------------------------
-Running case: Model=n, Precision=FP16, Hardware=GPU, Mode=MAXN, Parallel=mp_hardware
-[PROGRAM] Número de CPU: 8
-
-
-[PROGRAM] Opciones seleccionadas: Namespace(hardware='GPU', max_fps=30, mode='MAXN', model_size='n', num_objects='libre', parallel='mp_hardware', precision='FP16', sahi=False, tcp=False, version='2025_02_24') 
-
-
-2025-04-08 09:59:06,181 - DEBUG - [PROGRAM - CAPTURE FRAMES] Iniciando captura de frames
-WARNING ⚠️ 'source' is missing. Using 'source=/ultralytics/ultralytics/assets'.
-WARNING ⚠️ 'source' is missing. Using 'source=/ultralytics/ultralytics/assets'.
-Loading ../../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_DLA1.engine for TensorRT inference...
-Loading ../../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_DLA0.engine for TensorRT inference...
-WARNING ⚠️ 'source' is missing. Using 'source=/ultralytics/ultralytics/assets'.
-Loading ../../models/canicas/2025_02_24/2025_02_24_canicas_yolo11n_FP16_GPU.engine for TensorRT inference...
-[04/08/2025-09:59:07] [TRT] [I] Loaded engine size: 7 MiB
-[04/08/2025-09:59:07] [TRT] [I] Loaded engine size: 7 MiB
-[04/08/2025-09:59:07] [TRT] [I] Loaded engine size: 6 MiB
-[CREATE EXCEL] Archivo /TFG/excels/mp_hardware/aux_files/times_aux.csv creado o sobrescrito con cabeceras de tiempos.
-[CREATE EXCEL] Archivo /TFG/excels/mp_hardware/aux_files/fps_aux.csv creado o sobrescrito con cabeceras de tiempos.
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +343, GPU +964, now: CPU 687, GPU 10040 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in engine deserialization: CPU +7, GPU +0, now: CPU 7, GPU 0 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +0, GPU +1, now: CPU 679, GPU 10041 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +343, GPU +993, now: CPU 687, GPU 10041 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in engine deserialization: CPU +7, GPU +0, now: CPU 7, GPU 0 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +0, GPU +1, now: CPU 679, GPU 10044 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +342, GPU +903, now: CPU 687, GPU 10070 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in engine deserialization: CPU +0, GPU +5, now: CPU 0, GPU 5 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] Init cuDNN: CPU +0, GPU +0, now: CPU 681, GPU 10070 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in IExecutionContext creation: CPU +0, GPU +8, now: CPU 0, GPU 13 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in IExecutionContext creation: CPU +0, GPU +14, now: CPU 7, GPU 14 (MiB)
-[04/08/2025-09:59:08] [TRT] [I] [MemUsageChange] TensorRT-managed allocation in IExecutionContext creation: CPU +0, GPU +14, now: CPU 7, GPU 14 (MiB)
-
-
-
-image 1/2 /ultralytics/ultralytics/assets/bus.jpg: 640x640 1 negra, 1 azul, 4 azul-ds, 6.8ms
-image 2/2 /ultralytics/ultralytics/assets/zidane.jpg: 640x640 2 blancas, 5.5ms
-Speed: 6.9ms preprocess, 6.1ms inference, 5.8ms postprocess per image at shape (1, 3, 640, 640)
-2025-04-08 09:59:17,608 - DEBUG - [PROGRAM - HARDWARE USAGE] Iniciando tegrastats...
-image 1/2 /ultralytics/ultralytics/assets/bus.jpg: 640x640 1 negra, 1 azul, 4 azul-ds, 28.6ms
-image 2/2 /ultralytics/ultralytics/assets/zidane.jpg: 640x640 2 blancas, 22.5ms
-Speed: 6.2ms preprocess, 25.5ms inference, 9.3ms postprocess per image at shape (1, 3, 640, 640)
-image 1/2 /ultralytics/ultralytics/assets/bus.jpg: 640x640 1 negra, 1 azul, 4 azul-ds, 32.3ms
-image 2/2 /ultralytics/ultralytics/assets/zidane.jpg: 640x640 2 blancas, 33.2ms
-Speed: 7.0ms preprocess, 32.8ms inference, 12.5ms postprocess per image at shape (1, 3, 640, 640)
-[PROGRAM - DRAW AND WRITE] Frame 30 procesado[PROGRAM - DRAW AND WRITE] Frame 60 procesado[PROGRAM - DRAW AND WRITE] Frame 90 procesado[PROGRAM - DRAW AND WRITE] Frame 120 procesado[PROGRAM - DRAW AND WRITE] Frame 150 procesado[PROGRAM - DRAW AND WRITE] Frame 180 procesado[PROGRAM - DRAW AND WRITE] Frame 210 procesado[PROGRAM - DRAW AND WRITE] Frame 240 procesado[PROGRAM - DRAW AND WRITE] Frame 270 procesado[PROGRAM - DRAW AND WRITE] Frame 300 procesado[PROGRAM - DRAW AND WRITE] Frame 330 procesado[PROGRAM - DRAW AND WRITE] Frame 360 procesado[PROGRAM - DRAW AND WRITE] Frame 390 procesado[PROGRAM - DRAW AND WRITE] Frame 420 procesado[PROGRAM - DRAW AND WRITE] Frame 450 procesado[PROGRAM - DRAW AND WRITE] Frame 480 procesado[PROGRAM - DRAW AND WRITE] Frame 510 procesado[PROGRAM - DRAW AND WRITE] Frame 540 procesado[PROGRAM - DRAW AND WRITE] Frame 570 procesado[PROGRAM - DRAW AND WRITE] Frame 600 procesado[PROGRAM - DRAW AND WRITE] Frame 630 procesado[PROGRAM - DRAW AND WRITE] Frame 660 procesado[PROGRAM - DRAW AND WRITE] Frame 690 procesado[PROGRAM - DRAW AND WRITE] Frame 720 procesado[PROGRAM - DRAW AND WRITE] Frame 750 procesado[PROGRAM - DRAW AND WRITE] Frame 780 procesado[PROGRAM - DRAW AND WRITE] Frame 810 procesado[PROGRAM - DRAW AND WRITE] Frame 840 procesado[PROGRAM - DRAW AND WRITE] Frame 870 procesado[PROGRAM - DRAW AND WRITE] Frame 900 procesado[PROGRAM - DRAW AND WRITE] Frame 930 procesado[PROGRAM - DRAW AND WRITE] Frame 960 procesado[PROGRAM - DRAW AND WRITE] Frame 990 procesado[PROGRAM - DRAW AND WRITE] Frame 1020 procesado[PROGRAM - DRAW AND WRITE] Frame 1050 procesado[PROGRAM - DRAW AND WRITE] Frame 1080 procesado[PROGRAM - DRAW AND WRITE] Frame 1110 procesado[PROGRAM - DRAW AND WRITE] Frame 1140 procesado[PROGRAM - DRAW AND WRITE] Frame 1170 procesado[PROGRAM - DRAW AND WRITE] Frame 1200 procesado[PROGRAM - DRAW AND WRITE] Frame 1230 procesado[PROGRAM - DRAW AND WRITE] Frame 1260 procesado[PROGRAM - DRAW AND WRITE] Frame 1290 procesado[PROGRAM - DRAW AND WRITE] Frame 1320 procesado[PROGRAM - DRAW AND WRITE] Frame 1350 procesado[PROGRAM - DRAW AND WRITE] Frame 1380 procesado[PROGRAM - DRAW AND WRITE] Frame 1410 procesado[PROGRAM - DRAW AND WRITE] Frame 1440 procesado[PROGRAM - DRAW AND WRITE] Frame 1470 procesado[PROGRAM - DRAW AND WRITE] Frame 1500 procesado[PROGRAM - DRAW AND WRITE] Frame 1530 procesado[PROGRAM - DRAW AND WRITE] Frame 1560 procesado[PROGRAM - DRAW AND WRITE] Frame 1590 procesado[PROGRAM - DRAW AND WRITE] Frame 1620 procesado[PROGRAM - DRAW AND WRITE] Frame 1650 procesado[PROGRAM - DRAW AND WRITE] Frame 1680 procesado[PROGRAM - DRAW AND WRITE] Frame 1710 procesado[PROGRAM - DRAW AND WRITE] Frame 1740 procesado[PROGRAM - DRAW AND WRITE] Frame 1770 procesado[PROGRAM - DRAW AND WRITE] Frame 1800 procesado[PROGRAM - DRAW AND WRITE] Frame 1830 procesado[PROGRAM - DRAW AND WRITE] Frame 1860 procesado[PROGRAM - DRAW AND WRITE] Frame 1890 procesado[PROGRAM - DRAW AND WRITE] Frame 1920 procesado[PROGRAM - DRAW AND WRITE] Frame 1950 procesado[PROGRAM - DRAW AND WRITE] Frame 1980 procesado[PROGRAM - DRAW AND WRITE] Frame 2010 procesado[PROGRAM - DRAW AND WRITE] Frame 2040 procesado[PROGRAM - DRAW AND WRITE] Frame 2070 procesado[PROGRAM - DRAW AND WRITE] Frame 2100 procesado[PROGRAM - DRAW AND WRITE] Frame 2130 procesado[PROGRAM - DRAW AND WRITE] Frame 2160 procesado[PROGRAM - DRAW AND WRITE] Frame 2190 procesado[PROGRAM - DRAW AND WRITE] Frame 2220 procesado[PROGRAM - DRAW AND WRITE] Frame 2250 procesado[PROGRAM - DRAW AND WRITE] Frame 2280 procesado[PROGRAM - DRAW AND WRITE] Frame 2310 procesado[PROGRAM - DRAW AND WRITE] Frame 2340 procesado[PROGRAM - DRAW AND WRITE] Frame 2370 procesado2025-04-08 10:00:38,002 - DEBUG - [PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola
-2025-04-08 10:00:38,002 - DEBUG - [PROGRAM - CAPTURE FRAMES] Se han procesado 2400 frames
-2025-04-08 10:00:38,004 - DEBUG - [PROGRAM - CAPTURE FRAMES] Captura de frames terminada
