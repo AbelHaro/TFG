@@ -2,7 +2,7 @@
 
 # This script runs the inference cases for the given model and dataset.
 
-model_size=("n")
+models=("yolo11n")
 precision=("FP16")
 hardware=("GPU")
 mode=("MAXN")
@@ -11,7 +11,7 @@ max_fps=("30")
 num_objects=("88")
 
 # Loop through all combinations
-for size in "${model_size[@]}"; do
+for model in "${models[@]}"; do
     for prec in "${precision[@]}"; do
         for hw in "${hardware[@]}"; do
             for m in "${mode[@]}"; do
@@ -19,9 +19,9 @@ for size in "${model_size[@]}"; do
                     for fps in "${max_fps[@]}"; do
                         for num_obj in "${num_objects[@]}"; do
                             echo "-------------------------------------------------------------------------------------------------------"
-                            echo "Running case: Model=${size}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${fps}, Num Objects=${num_obj}"
+                            echo "Running case: Model=${model}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${fps}, Num Objects=${num_obj}"
                             command="python3 inference.py \
-                                --model_size $size \
+                                --model $model \
                                 --precision $prec \
                                 --hardware $hw \
                                 --mode $m \
