@@ -23,11 +23,21 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--model_size",
-        default="n",
+        "--model",
+        default="yolo11n",
         type=str,
-        choices=["n", "s", "m", "l", "x"],
-        help="Talla del modelo, default=n",
+        choices=[
+            "yolo11n",
+            "yolo11s",
+            "yolo11m",
+            "yolo11l",
+            "yolo11x",
+            "yolov5nu",
+            "yolov5mu",
+            "yolov8n",
+            "yolov8s",
+        ],
+        help="Talla del modelo, default=yolo11n",
     )
 
     parser.add_argument(
@@ -92,7 +102,7 @@ def parse_arguments():
 def initialize_pipeline(args):
     """Inicializa el pipeline de detección y tracking según el modo de paralelización."""
     mode = f"{args.mode}_{mp.cpu_count()}CORE"
-    model_name = f"yolo11{args.model_size}"
+    model_name = args.model
 
     batch_size = 1
 
