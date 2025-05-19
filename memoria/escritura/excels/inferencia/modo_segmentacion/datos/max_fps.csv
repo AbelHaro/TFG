@@ -1,0 +1,5 @@
+modo_segmentacion,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W,speedup,avg_GPU,avg_CPU
+hilos,2400,131.4,18.26,0.00,12.991,1703.12,1.409,1.000,10.35,25.53
+multiprocesos,2400,105.16,22.82,0.00,14.272,1500.58,1.599,1.250,12.84,33.65
+multihardware,2400,84.36,28.45,0.00,17812,1502.39,1.597,1.558,10,44.25
+multiprocesos memoria compartida,2400,80.27,29.90,0.00,16.551,1320.25,1.818,1.637,17.12,40.1

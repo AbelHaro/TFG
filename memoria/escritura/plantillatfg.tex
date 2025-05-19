@@ -1165,30 +1165,36 @@ Para obtener estas métricas, se han utilizado herramientas de medición de pote
 \section{Cantidad de objetos} \label{sec:cantidad_objetos}
 La cantidad de objetos presentes en el flujo de vídeo es un factor determinante en la evaluación del rendimiento del sistema, ya que influye directamente en la carga computacional de la etapa de seguimiento y escritura. Para analizar esta influencia de manera sistemática, se han realizado pruebas utilizando tres vídeos de prueba distintos, cada uno diseñado para representar un escenario de carga diferente:
 \begin{enumerate}
-   \item \textbf{Vídeo 1: Carga baja y constante:} Un vídeo que mantiene una cantidad constante media de 43 objetos en cada fotograma. Este escenario permite evaluar el rendimiento base del sistema bajo una carga predecible y reducida.
-   \item \textbf{Vídeo 2: Carga alta y constante:} Un vídeo que presenta una cantidad constante media de 84 objetos por fotograma. Este escenario somete al sistema a una carga significativamente mayor, permitiendo identificar posibles cuellos de botella bajo condiciones de alta densidad de objetos.
-   \item \textbf{Vídeo 3: Carga variable:} Un vídeo donde la cantidad de objetos fluctúa dinámicamente a lo largo de su duración, variando entre un mínimo de 0 y un máximo de 180 objetos. Este escenario simula condiciones más realistas y complejas, donde el sistema debe adaptarse a cambios abruptos en la carga de trabajo.
+
+
+   \item \textbf{Vídeo 1: Carga baja y constante:} Un vídeo que mantiene una cantidad constante baja de 17 objetos en cada fotograma. Este escenario permite evaluar el rendimiento base del sistema bajo una carga predecible y reducida.
+   \item \textbf{Vídeo 2: Carga media y constante:} Un vídeo que presenta una cantidad constante media de 43 objetos por fotograma. Este escenario permite observar el rendimiento del sistema bajo una carga moderada.
+   \item \textbf{Vídeo 3: Carga alta y constante:} Un vídeo que presenta una cantidad constante media de 84 objetos por fotograma. Este escenario somete al sistema a una carga significativamente mayor, permitiendo identificar posibles cuellos de botella bajo condiciones de alta densidad de objetos.
+   \item \textbf{Vídeo 4: Carga variable:} Un vídeo donde la cantidad de objetos fluctúa dinámicamente a lo largo de su duración, variando entre un mínimo de 0 y un máximo de 180 objetos. Este escenario simula condiciones más realistas y complejas, donde el sistema debe adaptarse a cambios abruptos en la carga de trabajo.
 \end{enumerate}
 Todos los vídeos de prueba se grabaron con una resolución de 640x640 píxeles y a una tasa de 30 fotogramas por segundo (fps), sirviendo como entrada estándar para el sistema, lo que asegura la consistencia en las condiciones de captura.
 Para el resto de la configuración del sistema durante estas pruebas específicas sobre la cantidad de objetos, se ha empleado la segmentación por procesos con memoria compartida. El modelo de detección de objetos utilizado fue YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU. Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). Esta configuración se seleccionó con el objetivo de maximizar el rendimiento del sistema y evaluar su capacidad de respuesta y robustez bajo condiciones exigentes impuestas por la variación en la densidad de objetos. Las pruebas que se presentan a continuación se realizaron siguiendo la metodología de ejecución a máxima capacidad descrita en la sección \ref{sec:metodologia}, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/cantidad_objetos_3_videos.png}
+   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/cantidad_objetos_4_videos.png}
    \caption{Cantidad de objetos en los vídeos de prueba.}
-   \label{fig:3_videos}
+   \label{fig:4_videos}
 \end{figure}
 
-La Figura \ref{fig:3_videos} ilustra la fluctuación en el conteo de objetos a lo largo de los tres vídeos de prueba utilizados: carga baja y constante, carga alta y constante, y carga variable. Esta variación en la densidad de objetos es un factor clave en la evaluación del rendimiento del sistema, ya que una mayor cantidad de objetos puede incrementar la carga computacional, especialmente en las etapas dependientes de la CPU.
+La Figura \ref{fig:4_videos} representa gráficamente la distribución de objetos por fotograma en los cuatro escenarios de prueba utilizados para la evaluación: cargas baja (17 objetos), media (43 objetos) y alta (84 objetos) constantes, así como un escenario de carga variable que fluctúa entre 0 y 180 objetos a lo largo del tiempo.
+
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/fps_por_frame.png}
-   \caption{FPS por fotograma en función de la cantidad de objetos para los tres vídeos de prueba.}
+   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/max_fps_4_videos/fps_comparison.png}
+   \caption{FPS por fotograma en función de la cantidad de objetos para los cuatro vídeos de prueba.}
    \label{fig:fps_por_frame}
 \end{figure}
 
-Observando la Figura \ref{fig:fps_por_frame}, se puede apreciar cómo el rendimiento global del sistema, medido en fotogramas por segundo (FPS), se ve afectado por la cantidad de objetos presentes en el flujo de vídeo. En el vídeo de carga baja y constante (línea azul), el sistema logra mantener un rendimiento estable, promediando alrededor de 45-50 FPS. Para el vídeo de carga alta y constante (línea roja), el rendimiento promedio disminuye a aproximadamente 30 FPS, indicando que la mayor densidad de objetos impone una carga adicional. En el caso del vídeo con carga variable (línea verde), el rendimiento fluctúa significativamente: alcanza más de 60 FPS cuando hay menos de 20 objetos, pero desciende a cerca de 20 FPS cuando la cantidad de objetos supera los 100. Esta variabilidad en el rendimiento sugiere que ciertas etapas del sistema son sensibles al número de objetos.
+Al examinar la Figura \ref{fig:fps_por_frame}, se evidencia una clara correlación entre el rendimiento del sistema, cuantificado en fotogramas por segundo (FPS), y la densidad de objetos presentes en el flujo de vídeo. En el escenario de carga baja y constante (línea azul), el sistema mantiene un rendimiento consistente y elevado, oscilando entre 50-60 FPS. Para el vídeo de carga media y constante (línea roja), se observa una ligera degradación del rendimiento, que se estabiliza en el rango de 45-50 FPS. En condiciones de carga alta y constante (línea amarilla), el rendimiento experimenta una reducción más significativa, estableciéndose en un promedio de 30-40 FPS. Esta progresiva disminución del rendimiento se alinea con las expectativas teóricas, dado que el incremento en la cantidad de objetos aumenta proporcionalmente la carga computacional en las etapas de seguimiento y escritura.
+
+El escenario de carga variable (línea verde) revela un comportamiento particularmente informativo: el sistema alcanza picos superiores a 60 FPS durante intervalos con menos de 20 objetos, pero experimenta una pronunciada caída hasta aproximadamente 20 FPS cuando la densidad supera los 100 objetos. Esta marcada fluctuación en el rendimiento confirma la sensibilidad de determinadas etapas del sistema al volumen de objetos procesados simultáneamente, lo que resulta crucial para comprender sus limitaciones operativas en entornos dinámicos.
 
 \begin{figure}[H]
    \centering
@@ -1201,21 +1207,21 @@ Para comprender a fondo el impacto de esta variación en la cantidad de objetos,
 
 Se observa que la etapa de captura (línea azul) se mantiene constante, ya que sus operaciones (adquisición de fotogramas) no dependen del contenido de la imagen. De manera similar, la etapa de inferencia (línea roja), ejecutada en la GPU, muestra un tiempo de procesamiento relativamente estable. Aunque podría esperarse una ligera variación, el modelo YOLO procesa la imagen completa y su carga principal no escala linealmente con el número de objetos detectados una vez que la imagen está en la GPU.
 
-Por el contrario, la etapa de seguimiento (línea amarilla), que se ejecuta en la CPU, muestra una clara correlación entre su tiempo de ejecución y la cantidad de objetos. A medida que aumenta el número de objetos (como se ve en la curva de carga variable de la Figura \ref{fig:3_videos}), el tiempo que tarda la etapa de seguimiento también aumenta significativamente. Esto se debe a que el algoritmo BYTETrack debe gestionar más trayectorias, realizar más comparaciones para la asociación de datos y actualizar más filtros de Kalman. Este comportamiento indica que la etapa de seguimiento puede convertirse en un cuello de botella cuando la densidad de objetos es alta.
+Por el contrario, la etapa de seguimiento (línea amarilla), que se ejecuta en la CPU, muestra una clara correlación entre su tiempo de ejecución y la cantidad de objetos. A medida que aumenta el número de objetos (como se ve en la curva de carga variable de la Figura \ref{fig:4_videos}), el tiempo que tarda la etapa de seguimiento también aumenta significativamente. Esto se debe a que el algoritmo BYTETrack debe gestionar más trayectorias, realizar más comparaciones para la asociación de datos y actualizar más filtros de Kalman. Este comportamiento indica que la etapa de seguimiento puede convertirse en un cuello de botella cuando la densidad de objetos es alta.
 
-Finalmente, la etapa de escritura (línea verde), también dependiente de la CPU, muestra un ligero incremento en su tiempo de ejecución a medida que aumenta el número de objetos. Esto es esperable, ya que debe procesar y registrar la información de un mayor número de detecciones y trayectorias. Sin embargo, su impacto en el rendimiento general parece ser menor en comparación con la etapa de seguimiento bajo las condiciones probadas.
+Finalmente, la etapa de escritura (línea verde), también dependiente de la CPU, muestra un ligero incremento en su tiempo de ejecución a medida que aumenta el número de objetos. Esto es esperable, ya que debe procesar y registrar la información de un mayor número de detecciones y trayectorias.
 
 
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/tiempos_etapa_video1.png}
-   \caption{Ejecución temporal de las etapas del sistema durante el vídeo de prueba con carga baja y constante.}
+   \caption{Ejecución temporal de las etapas del sistema durante el vídeo de prueba 2 (carga media y constante).}
    \label{fig:tiempos_etapa_video1}
 \end{figure}
 
-Por otro lado, la Figura \ref{fig:tiempos_etapa_video1} muestra el tiempo de ejecución de cada etapa del sistema a lo largo del vídeo de prueba con carga baja y constante. 
+Por otro lado, la Figura \ref{fig:tiempos_etapa_video1} muestra el tiempo de ejecución de cada etapa del sistema a lo largo del vídeo de prueba 2 (carga media y constante).
 
-En este caso, la etapa de seguimiento (línea amarilla) presenta un tiempo de ejecución mucho más bajo y constante, ya que el número de objetos es significativamente menor. Esto sugiere que el sistema puede manejar eficientemente la carga baja sin experimentar cuellos de botella. 
+En este caso, la etapa de seguimiento (línea amarilla) presenta un tiempo de ejecución mucho más bajo y constante, ya que el número de objetos es significativamente menor. Esto sugiere que el sistema puede manejar eficientemente la carga baja y media sin experimentar cuellos de botella en la etapa de seguimiento o escritura. 
 
 También se observa que la etapa de escritura (línea verde) sigue un patrón similar, con tiempos de ejecución bajos y constantes. 
 
@@ -1237,15 +1243,15 @@ Ahora vamos a analizar el rendimiento del sistema con una simulación de entrada
        display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}},
        display columns/3/.style={column name=FPS, column type={c}},
        display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
-       display columns/5/.style={column name=Potencia (W), column type={c}},
-       display columns/6/.style={column name=Energía (J), column type={c}},
+       display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=2},
+       display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=0},
        display columns/7/.style={column name=Frames/W, column type={c}},
        display columns/8/.style={column name=GPU Avg., column type={c}},
-       display columns/9/.style={column name=CPU Avg, column type={c}},
+       display columns/9/.style={column name=CPU Avg., column type={c}},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
-   ]{excels/inferencia/cantidad_objetos/30_fps/datos.csv}
+   ]{excels/inferencia/cantidad_objetos/resultados/30_fps/datos.csv}
    }
    \caption{Resultados del experimento con distintas cantidades de objetos.}
    \label{tab:experimento_objetos}
@@ -1255,50 +1261,47 @@ Los datos de la Tabla \ref{tab:experimento_objetos} revelan que el sistema logra
 
 \begin{figure}
    \centering
-   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/variable_fps_vs_object_count/fps_vs_object_count.png}
+   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/variable_fps_vs_object_count/fps_vs_object_count.png}
    \caption{FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable.}
    \label{fig:fps_vs_object_count}
 \end{figure}
 
-El análisis de la Tabla \ref{tab:experimento_objetos} también refleja una clara correlación inversa entre la cantidad de objetos y la eficiencia energética del sistema, expresada en fotogramas por vatio (Frames/W). A mayor densidad de objetos, menor es esta eficiencia, lo que indica que el sistema requiere proporcionalmente más energía para procesar escenas complejas. Este comportamiento se alinea con la expectativa de que una mayor carga de trabajo implica un incremento en el consumo de recursos computacionales y energéticos. Esta tendencia se confirma al examinar los niveles de utilización de hardware: el aumento en la cantidad de objetos se corresponde directamente con una mayor utilización media de CPU y, en menor medida, de GPU, evidenciando el incremento gradual en la demanda de recursos del sistema conforme crece la complejidad de la escena analizada.
+El análisis de la Tabla \ref{tab:experimento_objetos} también refleja una clara correlación inversa entre la cantidad de objetos y la eficiencia energética del sistema, expresada en fotogramas por vatio (Frames/W). A mayor densidad de objetos, menor es esta eficiencia, lo que indica que el sistema requiere proporcionalmente más energía para procesar escenas complejas. Este comportamiento se alinea con la expectativa de que una mayor carga de trabajo implica un incremento en el consumo de recursos computacionales y energéticos. Esta tendencia se confirma al examinar los niveles de utilización de hardware: el aumento en la cantidad de objetos se corresponde directamente con una mayor utilización media de CPU evidenciando el incremento gradual en la demanda de recursos del sistema conforme crece la complejidad de la escena analizada.
 
 
 
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/tiempo_etapa_tracking_cantidad_objetos.png}
+   \caption{Tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos.}
+   \label{fig:tiempo_etapa_tracking_cantidad_objetos}
+\end{figure}
 
+Con los datos obtenidos, se ha creado una gráfica que muestra el tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos presentes en el flujo de vídeo. La Figura \ref{fig:tiempo_etapa_tracking_cantidad_objetos} ilustra la relación empírica que describe esta dependencia, que se puede expresar mediante la ecuación:
 
+\begin{equation}
+t_{seguimiento} = 2.94 \times 10^{-4} \times n_{objetos} + 3.4 \times 10^{-3}
+\end{equation}
+
+donde $t_{seguimiento}$ es el tiempo de ejecución de la etapa de seguimiento en segundos y $n_{objetos}$ es la cantidad de objetos. Esta fórmula presenta un coeficiente de determinación (R²) de 0.974, lo que indica un ajuste excelente al comportamiento observado.
+
+Para determinar el umbral teórico donde el sistema dejaría de cumplir los requisitos de tiempo real (33.3 ms por fotograma), podemos despejar $n_{objetos}$ de la ecuación anterior:
+
+\begin{align}
+33.3 \times 10^{-3} &= 2.94 \times 10^{-4} \times n_{objetos} + 3.4 \times 10^{-3}\\
+33.3 \times 10^{-3} - 3.4 \times 10^{-3} &= 2.94 \times 10^{-4} \times n_{objetos}\\
+29.9 \times 10^{-3} &= 2.94 \times 10^{-4} \times n_{objetos}\\
+n_{objetos} &= \frac{29.9 \times 10^{-3}}{2.94 \times 10^{-4}}\\
+n_{objetos} &\approx 101.7
+\end{align}
+
+Este cálculo teórico revela que el sistema alcanzaría su límite de procesamiento en tiempo real aproximadamente con 102 objetos, lo que coincide notablemente con los resultados experimentales mostrados en la Figura \ref{fig:fps_vs_object_count}, donde se observaba una degradación significativa del rendimiento alrededor de los 100 objetos.
+
+Como conclusiones, se puede afirmar que el rendimiento del sistema es altamente sensible a la cantidad de objetos presentes en el flujo de vídeo. El umbral de aproximadamente 100 objetos constituye un límite crítico, donde la etapa de seguimiento comienza a experimentar un aumento significativo en su tiempo de ejecución, haciendo que el sistema no pueda cumplir con los requisitos de tiempo real.
 
 
 
 \section{Tipo de segmentación} \label{sub:analisis_segmentacion}
-------PRUEBA-------
-\begin{table}[h]
-   \centering
-   \resizebox{\textwidth}{!}{ % Ajusta el ancho al tamaño de la página
-   \pgfplotstabletypeset[
-       col sep=comma, % Definir separador de columnas (por si el CSV usa comas)
-       header=true,    % Usar la primera línea como encabezado
-       columns={Model, IoU, CPU_Inference, GPU_Inference, DLA_Inference, CPU_Power, GPU_Power, DLA_Power, CPU_Energy, GPU_Energy, DLA_Energy}, % Seleccionar columnas a mostrar
-       display columns/0/.style={column name=Model, string type}, % Formato de la columna 'Model'
-       display columns/1/.style={column name=IoU}, % Formato de la columna 'IoU'
-       display columns/2/.style={column name=CPU\_Inference, column type={|c|}}, % Estilo para columnas de inferencia
-       display columns/3/.style={column name=GPU\_Inference, column type={|c|}}, 
-       display columns/4/.style={column name=DLA\_Inference, column type={|c|}},
-       display columns/5/.style={column name=CPU\_Power, column type={|c|}}, % Estilo para columnas de potencia
-       display columns/6/.style={column name=GPU\_Power, column type={|c|}},
-       display columns/7/.style={column name=DLA\_Power, column type={|c|}},
-       display columns/8/.style={column name=CPU\_Energy, column type={|c|}}, % Estilo para columnas de energía
-       display columns/9/.style={column name=GPU\_Energy, column type={|c|}},
-       display columns/10/.style={column name=DLA\_Energy, column type={|c|}},
-       every head row/.style={before row=\toprule, after row=\midrule}, % Reglas horizontales en el encabezado
-       every last row/.style={after row=\bottomrule}, % Reglas horizontales al final
-       every column/.style={sci zerofill}, % Opcional, ajusta el formato numérico
-       empty cells with={NaN} % Reemplaza celdas vacías o con guiones por NaN
-   ]{excels/model_comparasion.csv} % Aquí pones la ruta del archivo CSV
-   }
-   \caption{Comparación de modelos en términos de inferencia, consumo de energía y potencia.}
-   \label{tab:model_comparasion}
-\end{table}
-------PRUEBA--------
 Como se ha comentado en la sección \ref{sec:segmentacion_etapas}, el sistema se puede segmentar de diferentes maneras. En esta sección se analizará el rendimiento de la solución propuesta variando el tipo de segmentación.
 
 Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco tipos de segmentación:
@@ -1310,9 +1313,76 @@ Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco t
    \item Segmentación por procesos con memoria compartida (subsección \ref{sub:segmentacion_memoria_compartida}): Cada etapa del sistema se ejecuta en un proceso independiente y se comunica mediante memoria compartida.
 \end{enumerate}
 
+Para evaluar el rendimiento de cada tipo de segmentación, se han realizado pruebas utilizando el vídeo de 84 objetos (carga alta y constante) como entrada estándar. Este vídeo presenta una carga computacional significativa, lo que permite observar las diferencias de rendimiento entre los distintos tipos de segmentación. Para todas las pruebas se ha utilizado el modelo de detección de objetos YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU. Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). 
 
 
+Primero se va analizar el rendimiento de cada tipo de segmentación utilizando la metodología de ejecución a máxima capacidad, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
 
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+       col sep=comma,
+       header=true,
+       columns={modo_segmentacion,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W,speedup,avg_GPU,avg_CPU},
+       display columns/0/.style={column name=Modo de Segmentación, column type={c}, string type},
+       display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=Potencia media (W), column type={c}},
+       display columns/6/.style={column name=Energía (J), column type={c}},
+       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name=Speedup, column type={c}, fixed, precision=2},
+       display columns/9/.style={column name=GPU Avg., column type={c}},
+       display columns/10/.style={column name=CPU Avg., column type={c}},
+       every head row/.style={before row=\toprule, after row=\midrule},
+       every last row/.style={after row=\bottomrule},
+       empty cells with={NaN}
+   ]{excels/inferencia/modo_segmentacion/datos/max_fps.csv}
+   }
+   \caption{Resultados del experimento con distintos tipos de segmentación a máxima capacidad.}
+   \label{tab:experimento_segmentacion_max_fps}
+\end{table}
+
+A partir de los datos de la Tabla \ref{tab:experimento_segmentacion_max_fps}, se pueden extraer las siguientes conclusiones sobre el rendimiento de los diferentes enfoques de segmentación:
+
+La segmentación por hilos es la que ofrece el peor rendimiento. Esto se debe fundamentalmente al Global Interpreter Lock (GIL) de Python, que impide el paralelismo real entre hilos dentro de un mismo proceso, limitando la capacidad de aprovechar múltiples núcleos de CPU.
+
+La segmentación por procesos mejora esta situación al introducir paralelismo real, ya que cada proceso tiene su propio intérprete Python y, por ende, su propio GIL. Sin embargo, la comunicación estándar entre procesos mediante colas introduce una sobrecarga que impide extraer el máximo rendimiento.
+
+La segmentación basada en hardware, que asigna la inferencia a la GPU o DLA, ofrece un rendimiento notable y es capaz de procesar el vídeo en tiempo real. Si bien su velocidad podría ser comparable a la segmentación por procesos con memoria compartida, su consumo energético es superior debido al uso simultáneo de la GPU y, en su caso, la DLA. El rendimiento se ve limitado porque el modelo no se ejecuta en su totalidad en la DLA, lo que resulta en que una porción de la carga de trabajo recaiga sobre la GPU. Esto impide que las unidades de procesamiento operen de forma completamente independiente, generando competencia por los recursos de la GPU.
+
+Finalmente, la segmentación por procesos con memoria compartida es la que ofrece el mejor rendimiento global. Este enfoque combina el paralelismo real de los procesos con una comunicación entre ellos mucho más eficiente gracias al uso de memoria compartida, lo que minimiza la sobrecarga de la transferencia de datos. Esta combinación la posiciona como la opción más rápida, siendo también capaz de procesar el vídeo en tiempo real (30 fps).
+
+Ahora se va a analizar el rendimiento de cada tipo de segmentación utilizando la metodología de ejecución en tiempo real, donde el sistema debe procesar cada fotograma en un tiempo máximo de 33.3 ms (30 fps). Si no logra hacerlo, el fotograma se descarta. Esta metodología permite evaluar la capacidad del sistema para operar en tiempo real y medir la tasa de fotogramas perdidos (LFPS).
+
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+       col sep=comma,
+       header=true,
+       columns={modo_segmentacion,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W,avg_GPU,avg_CPU},
+       display columns/0/.style={column name=Modo de Segmentación, column type={c}, string type},
+       display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=Potencia media (W), column type={c}},
+       display columns/6/.style={column name=Energía (J), column type={c}},
+       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name=GPU Avg., column type={c}},
+       display columns/9/.style={column name=CPU Avg., column type={c}},
+       every head row/.style={before row=\toprule, after row=\midrule},
+       every last row/.style={after row=\bottomrule},
+       empty cells with={NaN}
+   ]{excels/inferencia/modo_segmentacion/datos/30_fps.csv}
+   }
+   \caption{Resultados del experimento con distintos tipos de segmentación a 30 fps.}
+   \label{tab:experimento_segmentacion_30_fps}
+\end{table}
 
 \section{Talla del modelo} \label{sub:talla_modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la talla del modelo de detección de objetos con gráficas y tablas.
