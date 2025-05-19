@@ -1098,6 +1098,17 @@ La quinta opción de segmentación emplea procesos independientes como en \ref{s
 
 Para superar estas limitaciones, la biblioteca \texttt{multiprocessing.shared\_memory} de Python permite a múltiples procesos acceder directamente a la misma región de memoria. Un proceso crea un bloque de memoria compartida, y otros procesos pueden adjuntarse a él usando su nombre único. Ambos pueden leer y escribir directamente en el \textit{buffer} de memoria (\texttt{shm.buf}). Este acceso directo elimina los pasos de serialización/deserialización y las copias intermedias, resultando en una latencia mucho menor y un mayor ancho de banda, lo cual es especialmente beneficioso para datos grandes y estructurados como imágenes o \textit{arrays} NumPy.
 
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.5\textwidth]{images/diseno_e_implementacion/segmentacion_procesos_memoria_compartida.png}
+   \caption{Diagrama de flujo del sistema segmentado en procesos con memoria compartida.}
+   \label{fig:segmentacion_procesos_memoria_compartida}
+\end{figure}
+
+La Figura \ref{fig:segmentacion_procesos_memoria_compartida} ilustra este enfoque, donde cada etapa opera en su propio proceso y se comunica mediante memoria compartida. Este método permite una transferencia de datos más eficiente entre procesos, eliminando la necesidad de serialización y deserialización, lo que resulta en una latencia reducida y un mayor rendimiento general del sistema.
+
+
 Sin embargo, la gestión directa de la memoria compartida requiere una implementación cuidadosa. Para facilitar su uso y gestionar el flujo de datos de manera estructurada, se ha implementado una capa de abstracción: un buffer circular. Este buffer opera sobre un bloque de memoria compartida preasignado y funciona como una cola de capacidad fija. Los datos se escriben en una posición (\textit{tail}) y se leen desde otra (\textit{head}). Cuando los índices alcanzan el final del \textit{buffer}, vuelven al principio, permitiendo un uso continuo del espacio de memoria. La Figura \ref{fig:buffer_circular} ilustra esta estructura conceptual.
 
 \begin{figure}[H]
@@ -1277,7 +1288,7 @@ El análisis de la Tabla \ref{tab:experimento_objetos} también refleja una clar
    \label{fig:tiempo_etapa_tracking_cantidad_objetos}
 \end{figure}
 
-Con los datos obtenidos, se ha creado una gráfica que muestra el tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos presentes en el flujo de vídeo. La Figura \ref{fig:tiempo_etapa_tracking_cantidad_objetos} ilustra la relación empírica que describe esta dependencia, que se puede expresar mediante la ecuación:
+Con los datos obtenidos, se ha creado una gráfica que muestra el tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos presentes en el flujo de vídeo. La Figura \ref{fig:tiempo_etapa_tracking_cantidad_objetos} ilustra la relación empírica que describe esta dependencia. Mediante un análisis de regresión lineal, se ha obtenido la siguiente ecuación:
 
 \begin{equation}
 t_{seguimiento} = 2.94 \times 10^{-4} \times n_{objetos} + 3.4 \times 10^{-3}
@@ -1288,18 +1299,39 @@ donde $t_{seguimiento}$ es el tiempo de ejecución de la etapa de seguimiento en
 Para determinar el umbral teórico donde el sistema dejaría de cumplir los requisitos de tiempo real (33.3 ms por fotograma), podemos despejar $n_{objetos}$ de la ecuación anterior:
 
 \begin{align}
-33.3 \times 10^{-3} &= 2.94 \times 10^{-4} \times n_{objetos} + 3.4 \times 10^{-3}\\
-33.3 \times 10^{-3} - 3.4 \times 10^{-3} &= 2.94 \times 10^{-4} \times n_{objetos}\\
-29.9 \times 10^{-3} &= 2.94 \times 10^{-4} \times n_{objetos}\\
-n_{objetos} &= \frac{29.9 \times 10^{-3}}{2.94 \times 10^{-4}}\\
-n_{objetos} &\approx 101.7
+   2.94 \times 10^{-4} \times n_{objetos} + 3.4 \times 10^{-3} &\leq 33.3 \times 10^{-3} \\
+   2.94 \times 10^{-4} \times n_{objetos} &\leq 33.3 \times 10^{-3} - 3.4 \times 10^{-3} \\
+   2.94 \times 10^{-4} \times n_{objetos} &\leq 29.9 \times 10^{-3} \\
+   n_{objetos} &\leq \frac{29.9 \times 10^{-3}}{2.94 \times 10^{-4}} \\
+   n_{objetos} &\leq 101.70
 \end{align}
 
 Este cálculo teórico revela que el sistema alcanzaría su límite de procesamiento en tiempo real aproximadamente con 102 objetos, lo que coincide notablemente con los resultados experimentales mostrados en la Figura \ref{fig:fps_vs_object_count}, donde se observaba una degradación significativa del rendimiento alrededor de los 100 objetos.
 
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/tiempo_etapa_escritura_cantidad_objetos.png}
+   \caption{Tiempo de ejecución de la etapa de escritura en función de la cantidad de objetos.}
+   \label{fig:tiempo_etapa_escritura_cantidad_objetos}
+\end{figure}
+
+Con los datos obtenidos, se ha creado una gráfica que muestra el tiempo de ejecución de la etapa de escritura en función de la cantidad de objetos presentes en el flujo de vídeo. La Figura \ref{fig:tiempo_etapa_escritura_cantidad_objetos} ilustra la relación empírica que describe esta dependencia. Mediante un análisis de regresión polinómica, se ha obtenido la siguiente ecuación:
+
+\begin{equation}
+   t_{escritura} = 2.11 \times 10^{-3} \times n_{objetos}^{0.56}
+\end{equation}
+donde $t_{escritura}$ es el tiempo de ejecución de la etapa de escritura en segundos y $n_{objetos}$ es la cantidad de objetos. Esta fórmula presenta un coeficiente de determinación (R²) de 0.874, lo que indica un ajuste aceptable al comportamiento observado.
+Para determinar el umbral teórico donde el sistema dejaría de cumplir los requisitos de tiempo real (33.3 ms por fotograma), podemos despejar $n_{objetos}$ de la ecuación anterior:
+\begin{align}
+   2.11 \times 10^{-3} \times n_{objetos}^{0.56} &\leq 33.3 \times 10^{-3} \\
+   n_{objetos}^{0.56} &\leq \frac{33.3 \times 10^{-3}}{2.11 \times 10^{-3}} \\
+   n_{objetos} &\leq \left(\frac{33.3}{2.11}\right)^{\frac{1}{0.56}} \\
+   n_{objetos} &\leq 152.96
+\end{align}
+
+Este cálculo teórico revela que el sistema alcanzaría su límite de procesamiento en tiempo real para la etapa de escritura aproximadamente con 153 objetos. No obstante, y aunque puedan existir algunos valores atípicos (\textit{outliers}), la etapa de seguimiento (\textit{tracking}) es la que marcará el cuello de botella del sistema frente a la de escritura.
+
 Como conclusiones, se puede afirmar que el rendimiento del sistema es altamente sensible a la cantidad de objetos presentes en el flujo de vídeo. El umbral de aproximadamente 100 objetos constituye un límite crítico, donde la etapa de seguimiento comienza a experimentar un aumento significativo en su tiempo de ejecución, haciendo que el sistema no pueda cumplir con los requisitos de tiempo real.
-
-
 
 \section{Tipo de segmentación} \label{sub:analisis_segmentacion}
 Como se ha comentado en la sección \ref{sec:segmentacion_etapas}, el sistema se puede segmentar de diferentes maneras. En esta sección se analizará el rendimiento de la solución propuesta variando el tipo de segmentación.
@@ -1334,14 +1366,15 @@ Primero se va analizar el rendimiento de cada tipo de segmentación utilizando l
        display columns/6/.style={column name=Energía (J), column type={c}},
        display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
        display columns/8/.style={column name=Speedup, column type={c}, fixed, precision=2},
-       display columns/9/.style={column name=GPU Avg., column type={c}},
+       display columns/9/.style={column name=GPU Avg.*, column type={c}},
        display columns/10/.style={column name=CPU Avg., column type={c}},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
    ]{excels/inferencia/modo_segmentacion/datos/max_fps.csv}
    }
-   \caption{Resultados del experimento con distintos tipos de segmentación a máxima capacidad.}
+   \caption{Resultados del experimento con distintos tipos de segmentación a máxima capacidad.\protect\newline\footnotesize{
+      *En la configuración de segmentación por hardware, se utilizan la GPU y los 2 núcleos DLA; sin embargo, solo se muestra la utilización de la GPU, ya que la herramienta de monitorización de NVIDIA no reporta la utilización media de la DLA.}}
    \label{tab:experimento_segmentacion_max_fps}
 \end{table}
 
@@ -1384,6 +1417,7 @@ Ahora se va a analizar el rendimiento de cada tipo de segmentación utilizando l
    \label{tab:experimento_segmentacion_30_fps}
 \end{table}
 
+Como se puede observar en la Tabla \ref{tab:experimento_segmentacion_30_fps}, el tipo de segmentación impacta significativamente el rendimiento del sistema. La segmentación por hilos resulta inviable para tiempo real, con una tasa de fotogramas perdidos (LFPS) de 11.51 fps, lo que confirma los resultados de la ejecución a máxima capacidad. Aunque la segmentación por procesos mejora este valor a 7.29 LFPS, tampoco alcanza los requisitos de tiempo real. Por su parte, la segmentación basada en hardware logra operar en tiempo real, pero a costa de un mayor consumo energético. Finalmente, la segmentación por procesos con memoria compartida se destaca como la opción más eficiente, logrando el mejor rendimiento en tiempo real (LFPS de 0.91) con el menor consumo energético.
 \section{Talla del modelo} \label{sub:talla_modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la talla del modelo de detección de objetos con gráficas y tablas.
 
