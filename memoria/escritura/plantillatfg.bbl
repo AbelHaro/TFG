@@ -6,6 +6,20 @@ Anders S.~G. Andrae and Tomas Edler.
   2030.
 \newblock {\em Challenges}, 6(1):117--157, 2015.
 
+\bibitem{csWikiMaxpoolSample}
+{Computer Science Wiki}.
+\newblock File:maxpoolsample2.png.
+\newblock
+  \url{https://computersciencewiki.org/index.php/File:MaxpoolSample2.png},
+  2018.
+\newblock Accedido el 20 de mayo de 2025.
+
+\bibitem{ConteRebootingComputing}
+T.~Conte.
+\newblock {IEEE} rebooting computing initiative \& international roadmap of
+  devices and systems.
+\newblock In {\em Proc. {IEEE} Rebooting Computer Architecture 2030 Workshop}.
+
 \bibitem{CVAT_ai_Corporation_Computer_Vision_Annotation_2023}
 {CVAT.ai Corporation}.
 \newblock {Computer Vision Annotation Tool (CVAT)}, November 2023.
@@ -67,6 +81,14 @@ Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
 \newblock {\em SSD: Single Shot MultiBox Detector}, page 21–37.
 \newblock Springer International Publishing, 2016.
 
+\bibitem{opengenusHOG}
+Karthik Mittal.
+\newblock Object detection with histogram of oriented gradients (hog).
+\newblock
+  \url{https://iq.opengenus.org/object-detection-with-histogram-of-oriented-gradients-hog/},
+  2020.
+\newblock Accedido el 20 de mayo de 2025.
+
 \bibitem{nvidia_jetson_modules}
 {NVIDIA Corporation}.
 \newblock Jetson modules, support, ecosystem, and lineup.
@@ -76,11 +98,6 @@ Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
 \bibitem{redmon2016lookonceunifiedrealtime}
 Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
 \newblock You only look once: Unified, real-time object detection, 2016.
-
-\bibitem{DennardScaling}
-Liming Xiu.
-\newblock Time moore: Exploiting moore's law from the perspective of time.
-\newblock {\em IEEE Solid-State Circuits Magazine}, 11:39--55, 01 2019.
 
 \bibitem{zhang2022bytetrackmultiobjecttrackingassociating}
 Yifu Zhang, Peize Sun, Yi~Jiang, Dongdong Yu, Fucheng Weng, Zehuan Yuan, Ping
