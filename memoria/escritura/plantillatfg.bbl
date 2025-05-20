@@ -21,6 +21,14 @@ Ross Girshick, Jeff Donahue, Trevor Darrell, and Jitendra Malik.
 \newblock Rich feature hierarchies for accurate object detection and semantic
   segmentation, 2014.
 
+\bibitem{yolov5_ultralytics}
+Glenn Jocher.
+\newblock Ultralytics yolov5, 2020.
+
+\bibitem{yolov8_ultralytics}
+Glenn Jocher, Ayush Chaurasia, and Jing Qiu.
+\newblock Ultralytics yolov8, 2023.
+
 \bibitem{yolo11_ultralytics}
 Glenn Jocher and Jing Qiu.
 \newblock Ultralytics yolo11, 2024.
