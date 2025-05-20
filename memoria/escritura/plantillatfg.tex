@@ -465,8 +465,7 @@ Una vez generadas todas las predicciones, \gls{yolo} implementa un post-procesam
 
 En la Figura~\ref{fig:yolo_architecture} se presenta la arquitectura del modelo primigenio de \gls{yolo} \cite{redmon2016lookonceunifiedrealtime}. Esta arquitectura se basa en una red neuronal convolucional que extrae características de la imagen de entrada y las procesa a través de varias capas para generar las predicciones finales. A lo largo de los años, se han desarrollado múltiples versiones y mejoras de \gls{yolo}, cada una optimizando aspectos como la precisión, la velocidad y la capacidad de detección de objetos pequeños o densamente agrupados.
 
-En este proyecto, se ha seleccionado YOLO11 \cite{yolo11_ultralytics}, que representa una mejora y optimización sobre las arquitecturas YOLO precedentes. Dicho modelo forma parte de la librería Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, la cual ofrece una implementación eficaz y sencilla de diversas variantes de YOLO. Las aportaciones de Ultralytics a la comunidad de visión artificial son notables, ya que sus herramientas y recursos agilizan el ciclo de vida (entrenamiento, evaluación, implementación) de los modelos YOLO en múltiples contextos. YOLO11 se ofrece en diversas configuraciones (11n, 11s, 11m, 11l y 11x).
-
+En este proyecto, se han seleccionado diversas versiones de YOLOV5 \cite{yolov5_ultralytics}, YOLOV8 \cite{yolov8_ultralytics} y YOLO11 \cite{yolo11_ultralytics}. Estas representan mejoras y optimizaciones sobre arquitecturas YOLO anteriores. Los modelos mencionados forman parte de la librería Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, que proporciona una implementación eficaz y sencilla de varias variantes de YOLO. Las aportaciones de Ultralytics a la comunidad de visión artificial son notables, ya que sus herramientas y recursos facilitan el ciclo de vida completo (entrenamiento, evaluación, implementación) de los modelos YOLO.
 
 \subsection{Métricas de evaluación de modelos de detección de objetos} \label{sec:metricas_evaluacion}
 
@@ -840,14 +839,14 @@ Dada la dificultad de acceder a un entorno industrial real para llevar a cabo la
 Para las pruebas experimentales, se configuró un entorno simulado como el ilustrado en la Figura \ref{fig:entorno_simulado}. Este entorno utiliza canicas de cuatro colores distintos (blanco, negro, azul y verde). Con el objetivo de simular la detección de anomalías, se consideraron tanto canicas sin defectos como canicas con defectos para cada uno de los colores. Como defecto, se añadió una mancha de un color diferente al de la canica, presentando diversas formas. Esta distinción duplica el número total de clases que el sistema debe identificar, alcanzando un total de ocho categorías (cuatro colores sin defecto y cuatro colores con defecto).
 
 
-\section{Entrenamiento del modelo} \label{sec:entrenamiento_modelo}
+\section{Entrenamiento de los modelos} \label{sec:entrenamiento_modelo}
 
-La selección y el entrenamiento del modelo de detección de objetos constituyen una fase crítica en el desarrollo del sistema propuesto, ya que de ello dependen directamente la precisión y la robustez del sistema final.
+La selección y el entrenamiento de los modelos de detección de objetos constituyen una fase crítica en el desarrollo del sistema propuesto, ya que de ello dependen directamente la precisión y la robustez del sistema final.
 Tras un análisis comparativo, se optó por los detectores de una etapa frente a los de dos etapas, dada su superior eficiencia para aplicaciones que exigen procesamiento en tiempo real. Dentro de esta categoría, se seleccionó la familia de modelos YOLO. Esta elección se fundamenta en su reconocido equilibrio entre velocidad de inferencia y precisión, así como en la disponibilidad de un robusto ecosistema de herramientas que facilitan tanto el entrenamiento como el despliegue. Alternativas como SSD, si bien competentes, no ofrecían el mismo conjunto de ventajas en términos de comunidad de soporte y facilidad de integración para los fines de este proyecto.
 
-Como modelo perteneciente a la familia de arquitecturas YOLO se ha seleccionado YOLO11. Esta elección se basa en varios factores clave. En primer lugar, YOLO11 es conocido por su excelente equilibrio entre velocidad de inferencia y precisión de detección, lo que lo hace particularmente adecuado para aplicaciones que requieren procesamiento en tiempo real, como es el caso de este proyecto. En segundo lugar, YOLO11, especialmente a través de la implementación proporcionada por la biblioteca Ultralytics, ofrece una gran flexibilidad en términos de escalabilidad (con variantes como 11n, 11s, 11m, etc.) y facilidad de uso para el entrenamiento, la validación y el despliegue.
+Como modelos pertenecientes a la familia de arquitecturas YOLO, se han seleccionado diversas variantes para una evaluación exhaustiva: YOLOv5 (específicamente las versiones 'n' y 'm'), YOLOv8 (también en sus variantes 'n' y 's') y YOLO11 (en sus versiones 'n', 's', 'm' y 'l'). Esta elección se basa en varios factores clave. En primer lugar, estas familias de modelos YOLO son conocidas por su excelente equilibrio entre velocidad de inferencia y precisión de detección, lo que las hace particularmente adecuadas para aplicaciones que requieren procesamiento en tiempo real, como es el caso de este proyecto. En segundo lugar, estos modelos, especialmente a través de la implementación proporcionada por la biblioteca Ultralytics, ofrecen una gran flexibilidad en términos de escalabilidad (con las múltiples variantes mencionadas que difieren en tamaño y complejidad) y facilidad de uso para el entrenamiento, la validación y el despliegue.
 
-Una vez seleccionado el modelo, el siguiente paso crítico es la creación y preparación del conjunto de datos (dataset). Este conjunto de datos es la base sobre la cual el modelo aprenderá a identificar y localizar los objetos de interés (en este caso, las canicas de diferentes colores y con/sin defectos). La calidad y representatividad del dataset tienen un impacto directo y significativo en el rendimiento final del modelo. Un dataset bien construido debe incluir una variedad suficiente de ejemplos que cubran las diferentes condiciones que el sistema podría encontrar en el entorno real, como variaciones en la iluminación, ángulos de visión, oclusiones parciales y la diversidad intrínseca de los objetos mismos. El proceso de creación del dataset implica la captura de imágenes o vídeos del entorno simulado, seguido de una meticulosa fase de etiquetado (anotación), donde se marcan manualmente las cajas delimitadoras (bounding boxes) alrededor de cada objeto de interés y se les asigna la etiqueta de clase correspondiente (p. ej., 'canica\_azul\_defecto'). Este proceso, aunque laborioso, es indispensable para proporcionar al modelo la "verdad fundamental" (ground truth) necesaria para su aprendizaje supervisado.
+Una vez seleccionado los modelos, el siguiente paso crítico es la creación y preparación del conjunto de datos (dataset). Este conjunto de datos es la base sobre la cual los modelos aprenderán a identificar y localizar los objetos de interés (en este caso, las canicas de diferentes colores y con/sin defectos). La calidad y representatividad del dataset tienen un impacto directo y significativo en el rendimiento final de los modelos. Un dataset bien construido debe incluir una variedad suficiente de ejemplos que cubran las diferentes condiciones que el sistema podría encontrar en el entorno real, como variaciones en la iluminación, ángulos de visión, oclusiones parciales y la diversidad intrínseca de los objetos mismos. El proceso de creación del dataset implica la captura de imágenes o vídeos del entorno simulado, seguido de una meticulosa fase de etiquetado (anotación), donde se marcan manualmente las cajas delimitadoras (bounding boxes) alrededor de cada objeto de interés y se les asigna la etiqueta de clase correspondiente (p. ej., 'canica\_azul\_defecto'). Este proceso, aunque laborioso, es indispensable para proporcionar a los modelos la "verdad fundamental" (ground truth) necesaria para su aprendizaje supervisado.
 
 Para el etiquetado de las imágenes, se utilizó la herramienta CVAT\cite{CVAT_ai_Corporation_Computer_Vision_Annotation_2023} (Computer Vision Annotation Tool) de código abierto, que permite realizar anotaciones precisas y eficientes en imágenes, como se muestra en la Figura~\ref{fig:cvat_anotacion}. Permite la creación de diferentes tipos de anotaciones, como cajas delimitadoras, polígonos y puntos clave ademas de la exportación de los datos anotados en varios formatos compatibles con diferentes frameworks de aprendizaje profundo. En este caso, se optó por el formato YOLO, que es ampliamente utilizado y compatible con la implementación de Ultralytics.
 
@@ -864,31 +863,40 @@ Este formato sigue una estructura de texto simple, donde cada línea representa 
 Volviendo al dataset, se capturaron un total de 600 imágenes, de las cuales el 80\% se utilizaron para el entrenamiento, el 10\% para la validación y el 10\% restante para el testeo del modelo. Esta división es crucial para garantizar que el modelo no solo aprenda a detectar los objetos en las imágenes de entrenamiento, sino que también generalice bien a nuevas imágenes que no ha visto antes. La validación se utiliza para ajustar los hiperparámetros del modelo y evitar el sobreajuste (overfitting), mientras que el conjunto de testeo proporciona una evaluación final del rendimiento del modelo.
 
 
-Como, se ha mencionado en la sección \ref{sec:one_stage_detectors}, el modelo YOLO11 presenta varias variantes, cada una con diferentes tamaños y complejidades. Estas diferencias se observan en la Tabla \ref{tab:yolo11_comparison}, donde se comparan las variantes de YOLO11 en términos de latencia, precisión y número de parámetros. Las métricas presentan una clara correlación: a medida que aumenta el tamaño del modelo, también lo hacen la latencia y el número de parámetros, mientras que la precisión (mAP) tiende a mejorar. Esta relación es fundamental para la selección del modelo adecuado, ya que permite equilibrar la necesidad de velocidad de procesamiento con la precisión requerida para la tarea específica de detección y seguimiento de objetos.
+Como se ha mencionado en la sección \ref{sec:one_stage_detectors} y se detalla en la Tabla \ref{tab:yolo_all_variants_comparison}, los modelos YOLO presentan diversas variantes que difieren en tamaño, complejidad, latencia y precisión. Esta tabla comparativa es fundamental para seleccionar el modelo que mejor equilibre la velocidad de procesamiento y la precisión requerida.
 
-Para este trabajo, se optó por la prueba experimental de las variantes YOLO11n, YOLO11s, YOLO11m y YOLO11l, por ello se han entrenado y evaluado estas variantes.
+Para este trabajo, se han entrenado y evaluado experimentalmente las siguientes variantes: YOLOv5n, YOLOv5m, YOLOv8n, YOLOv8s, YOLO11n, YOLO11s, YOLO11m y YOLO11l.
+
+
+
 
 \begin{table}[H]
    \centering
    \resizebox{\textwidth}{!}{%
-   \begin{tabular}{l c | cc | c | c}
+   \begin{tabular}{llc|c|ccl} % Familia (l), Variante (l), Tamaño (c) | Parámetros (M) (c) | Lat CPU (c), Lat GPU (c), GPU Tipo (l)
       \toprule
-      Modelo & Tamaño (px) & Latencia CPU ONNX (ms) & Latencia T4 TRT10 (ms) & mAPval (50-95) & Parámetros (M)\\
+      Familia & Variante & Tamaño (px) & Parámetros (M) & Latencia CPU ONNX (ms) & Latencia GPU (ms) & GPU (para Latencia) \\
       \midrule
-      YOLO11n & 640 & 56.1 ± 0.8 & 1.5 ± 0.0 & 39.5 & 2.6 \\
-      YOLO11s & 640 & 90.0 ± 1.2 & 2.5 ± 0.0 & 47.0 & 9.4 \\
-      YOLO11m & 640 & 183.2 ± 2.0 & 4.7 ± 0.1 & 51.5 & 20.1 \\
-      YOLO11l & 640 & 238.6 ± 1.4 & 6.2 ± 0.1 & 53.4 & 25.3 \\
-      YOLO11x & 640 & 462.8 ± 6.7 & 11.3 ± 0.2 & 54.7 & 56.9 \\
+      \multirow{2}{*}{YOLOv5} & nu & 640 & 2.6 & 73.6 & 1.06 & \multirow{2}{*}{A100 TensorRT} \\
+       & mu & 640 & 25.1 & 233.9 & 1.86 & \\
+      \midrule
+      \multirow{2}{*}{YOLOv8} & n & 640 & 3.2 & 80.4 & 0.99 & \multirow{2}{*}{A100 TensorRT} \\
+       & s & 640 & 11.2 & 128.4 & 1.20 & \\
+      \midrule
+      \multirow{5}{*}{YOLO11} & n & 640 & 2.6 & 56.1 ± 0.8 & 1.5 ± 0.0 & \multirow{5}{*}{T4 TRT10} \\
+       & s & 640 & 9.4 & 90.0 ± 1.2 & 2.5 ± 0.0 & \\
+       & m & 640 & 20.1 & 183.2 ± 2.0 & 4.7 ± 0.1 & \\
+       & l & 640 & 25.3 & 238.6 ± 1.4 & 6.2 ± 0.1 & \\
+       & x & 640 & 56.9 & 462.8 ± 6.7 & 11.3 ± 0.2 & \\
       \bottomrule
    \end{tabular}
    }
-   \caption{Análisis comparativo de las variantes de YOLO11 considerando precisión, velocidad y complejidad computacional.}
-   \label{tab:yolo11_comparison}
+   \caption{Análisis comparativo de variantes de YOLO (v5, v8, v11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU.}
+   \label{tab:yolo_all_variants_comparison}
 \end{table}
 
 
-Para el entrenamiento del modelo se han seleccionado los siguientes hiperparámetros:
+Para el entrenamiento de los modelos se han seleccionado los siguientes hiperparámetros:
 \begin{itemize}
    \item \textbf{Tasa de aprendizaje (learning rate):} Se ha utilizado un valor inicial de 0.01, con un ajuste posterior basado en la tasa de convergencia observada durante el entrenamiento.
    \item \textbf{Número de épocas (epochs):} Se han realizado 30 épocas, para permitir que el modelo aprenda de manera efectiva sin caer en el sobreajuste.
@@ -1135,8 +1143,8 @@ Tras el desarrollo de la solución propuesta, se procede a analizar su rendimien
 
 Se han empleado dos enfoques para las pruebas:
 \begin{enumerate}
-   \item \textbf{Simulación de entrada en tiempo real:} Los fotogramas del vídeo se suministran al sistema a una tasa fija de 30 fps (un fotograma cada 33.3 ms), emulando la entrada de una cámara. Si el sistema no logra procesar un fotograma dentro de este intervalo, dicho fotograma se descarta. Esta metodología permite cuantificar la capacidad del sistema para operar en tiempo real, midiendo el número de fotogramas procesados y perdidos.
    \item \textbf{Ejecución a máxima capacidad:} Los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
+   \item \textbf{Simulación de entrada en tiempo real:} Los fotogramas del vídeo se suministran al sistema a una tasa fija de 30 fps (un fotograma cada 33.3 ms), emulando la entrada de una cámara. Si el sistema no logra procesar un fotograma dentro de este intervalo, dicho fotograma se descarta. Esta metodología permite cuantificar la capacidad del sistema para operar en tiempo real, midiendo el número de fotogramas procesados y perdidos.
 \end{enumerate}
 
 Como métricas de rendimiento, se han considerado las siguientes:
