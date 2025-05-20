@@ -1338,10 +1338,10 @@ Para determinar el umbral teórico donde el sistema dejaría de cumplir los requ
    2.11 \times 10^{-3} \times n_{objetos}^{0.56} &\leq 33.3 \times 10^{-3} \\
    n_{objetos}^{0.56} &\leq \frac{33.3 \times 10^{-3}}{2.11 \times 10^{-3}} \\
    n_{objetos} &\leq \left(\frac{33.3}{2.11}\right)^{\frac{1}{0.56}} \\
-   n_{objetos} &\leq 152.96
+   n_{objetos} &\leq 137.90
 \end{align}
 
-Este cálculo teórico revela que el sistema alcanzaría su límite de procesamiento en tiempo real para la etapa de escritura aproximadamente con 153 objetos. No obstante, y aunque puedan existir algunos valores atípicos (\textit{outliers}), la etapa de seguimiento (\textit{tracking}) es la que marcará el cuello de botella del sistema frente a la de escritura.
+Este cálculo teórico revela que el sistema alcanzaría su límite de procesamiento en tiempo real para la etapa de escritura aproximadamente con 138 objetos. No obstante, y aunque puedan existir algunos valores atípicos (\textit{outliers}), la etapa de seguimiento (\textit{tracking}) es la que marcará el cuello de botella del sistema frente a la de escritura.
 
 Como conclusiones, se puede afirmar que el rendimiento del sistema es altamente sensible a la cantidad de objetos presentes en el flujo de vídeo. El umbral de aproximadamente 100 objetos constituye un límite crítico, donde la etapa de seguimiento comienza a experimentar un aumento significativo en su tiempo de ejecución, haciendo que el sistema no pueda cumplir con los requisitos de tiempo real.
 
