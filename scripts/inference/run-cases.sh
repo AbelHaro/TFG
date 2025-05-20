@@ -2,12 +2,12 @@
 
 # This script runs the inference cases for the given model and dataset.
 
-models=("yolo11n")
+models=("yolov5nu" "yolov5mu" "yolov8n" "yolov8s" "yolo11n" "yolo11s" "yolo11m" "yolo11l") 
 precision=("FP16")
 hardware=("GPU")
 mode=("MAXN")
 parallel=("mp_shared_memory")
-max_fps=("30")
+max_fps=("30" "infinite")
 num_objects=("88")
 
 # Loop through all combinations

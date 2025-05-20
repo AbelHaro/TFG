@@ -44,7 +44,7 @@ for base_model in base_models:
         epochs=30,
         device=0,
         plots=True,
-        # name=f"./train_logs/{version}_canicas_{base_model}",
+        # name=f"./train_logs/{version}_canicas_{base_model
         project=f"./train_logs/{version}_canicas_{base_model}",
     )
 
