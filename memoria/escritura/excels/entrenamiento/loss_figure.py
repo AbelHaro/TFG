@@ -8,31 +8,46 @@ df = pd.read_csv("./loss.csv")  # Asegúrate de usar la ruta correcta al archivo
 # Crear el gráfico
 plt.figure(figsize=(15, 8))
 
+# Definir colores de la paleta
+colors = [
+    "#e41a1c",  # Rojo
+    "#377eb8",  # Azul
+    "#4daf4a",  # Verde
+    "#984ea3",  # Morado
+    "#ff7f00",  # Naranja
+    "#ffff33",  # Amarillo
+    "#a65628",  # Marrón
+    "#f781bf",  # Rosa
+]
+
 # Definir modelos y sus tamaños
 model_configs = {
-    "yolo11": {"sizes": ["n", "s", "m", "l"], "color": "blue", "marker": "o"},
-    "yolov5": {"sizes": ["nu", "mu"], "color": "red", "marker": "s"},
-    "yolov8": {"sizes": ["n", "s"], "color": "green", "marker": "^"},
+    "yolo11": {"sizes": ["n", "s", "m", "l"], "marker": "o"},
+    "yolov5": {"sizes": ["nu", "mu"], "marker": "s"},
+    "yolov8": {"sizes": ["n", "s"], "marker": "^"},
 }
 
 linestyles = {"train": "-", "val": "--"}
 alpha_values = {"train": 1.0, "val": 0.7}
 
+# Color mapping para cada combinación de modelo y tamaño
+color_mapping = {
+    ("yolov5", "nu"): colors[0],  # Rojo
+    ("yolov5", "mu"): colors[1],  # Azul
+    ("yolov8", "n"): colors[2],  # Verde
+    ("yolov8", "s"): colors[3],  # Morado
+    ("yolo11", "n"): colors[4],  # Naranja
+    ("yolo11", "s"): colors[5],  # Amarillo
+    ("yolo11", "m"): colors[6],  # Marrón
+    ("yolo11", "l"): colors[7],  # Rosa
+}
+
 # Iterar sobre modelos y tamaños
 for model, config in model_configs.items():
-    base_color = config["color"]
     marker = config["marker"]
 
     for size in config["sizes"]:
-        # Ajustar el color para diferentes tamaños del mismo modelo
-        if size in ["n", "nu"]:
-            color = base_color
-        elif size in ["s", "mu"]:
-            color = mcolors.to_rgba(base_color, 0.8)
-        elif size == "m":
-            color = mcolors.to_rgba(base_color, 0.6)
-        else:  # "l"
-            color = mcolors.to_rgba(base_color, 0.4)
+        color = color_mapping[(model, size)]
 
         # Construir nombres de columnas
         train_col = f"train_class_loss_{model}_{size}"
