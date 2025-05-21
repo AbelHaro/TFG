@@ -24,7 +24,6 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\usepackage[acronym]{glossaries} % Para crear un glosario
 
 \usepackage{float}          % Para usar [H] en las figuras
 \usepackage{amsmath}        % Para usar \text en modo matemático
@@ -34,7 +33,7 @@
 %                     CODIFICACIO DEL FITXER FONT                             %
 %                                                                             %
 %    windows fa servir normalment 'ansinew'                                   %
-%    amb linux es possible que siga 'latin1' o 'latin9'                       %
+%    amb linux es possible que siga 'latin1' o 'latin9'                       %s
 %    Pero el mes recomanable es fer servir utf8 (unicode 8)                   %
 %                                          (si el vostre editor ho permet)    % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -44,33 +43,39 @@
 % Para conseguir que la tabla de contenido no salga en rojo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\usepackage[acronym]{glossaries}
+\makeglossaries
+
 \hypersetup{ colorlinks=true, linkcolor=black, urlcolor=cyan, }
 
 
-\newacronym{ai}{AI}{Artificial Intelligence}
+\newacronym[plural={AIs}, firstplural={Inteligencias Artificiales (AIs)}]{ai}{AI}{Inteligencia Artificial}
+\newacronym[plural={CNNs}, firstplural={Redes Neuronales Convolucionales (CNNs)}]{cnn}{CNN}{Red Neuronal Convolucional}
+\newacronym[plural={CPUs}, firstplural={Unidades Centrales de Procesamiento (CPUs)}]{cpu}{CPU}{Unidad Central de Procesamiento}
+\newacronym[plural={GPUs}, firstplural={Unidades de Procesamiento Gráfico (GPUs)}]{gpu}{GPU}{Unidad de Procesamiento Gráfico}
+\newacronym[plural={DLAs}, firstplural={Aceleradores de Aprendizaje Profundo (DLAs)}]{dla}{DLA}{Acelerador de Aprendizaje Profundo}
+\newacronym[plural={TPUs}, firstplural={Unidades de Procesamiento Tensorial (TPUs)}]{tpu}{TPU}{Unidad de Procesamiento Tensorial}
+\newacronym[plural={FPS}]{fps}{FPS}{Frames Por Segundo} % FPS suele ser invariable en plural
+\newacronym[plural={IoUs}]{iou}{IoU}{Intersection over Union}
+\newacronym[plural={mAPs}]{map}{mAP}{mean Average Precision}
+\newacronym[plural={MOTs}]{mot}{MOT}{Multiple Object Tracking}
+\newacronym[plural={MOTAs}]{mota}{MOTA}{Multiple Object Tracking Accuracy}
+\newacronym[plural={MOTPs}]{motp}{MOTP}{Multiple Object Tracking Precision}
+\newacronym[plural={NMS}]{nms}{NMS}{Non-Maximum Suppression} % NMS suele ser invariable
+\newacronym[plural={SSDs}]{ssd}{SSD}{Single Shot MultiBox Detector}
+\newacronym[plural={YOLOs}]{yolo}{YOLO}{You Only Look Once}
+\newacronym[plural={GILs}]{gil}{GIL}{Global Interpreter Lock}
+\newacronym[plural={SIMTs}]{simt}{SIMT}{Single Instruction Multiple Threads}
+\newacronym[plural={ASICs}]{asic}{ASIC}{Application-Specific Integrated Circuit}
+\newacronym[plural={FPGAs}]{fpga}{FPGA}{Field Programmable Gate Array}
+\newacronym[plural={SDKs}]{sdk}{SDK}{Software Development Kit}
+\newacronym[plural={MLPs}]{mlp}{MLP}{Multilayer Perceptron}
+\newacronym[plural={HOGs}]{hog}{HOG}{Histogram of Oriented Gradients}
+\newacronym[plural={R-CNNs}]{rcnn}{R-CNN}{Region-based Convolutional Neural Network}
+\newacronym{gap}{GAP}{Grupo de Arquitecturas Paralelas}
+\newacronym{upv}{UPV}{Universidad Politécnica de Valencia}
+\newacronym{sdl}{SDL}{Sistemas Basados en Deep Learning para la Industria}
 
-\newacronym{cnn}{CNN}{Convolutional Neural Network}
-\newacronym{cpu}{CPU}{Central Processing Unit}
-\newacronym{gpu}{GPU}{Graphics Processing Unit}
-\newacronym{dla}{DLA}{Deep Learning Accelerator}
-\newacronym{fps}{FPS}{Frames Per Second}
-\newacronym{iou}{IoU}{Intersection over Union}
-\newacronym{map}{mAP}{mean Average Precision}
-\newacronym{mot}{MOT}{Multiple Object Tracking}
-\newacronym{mota}{MOTA}{Multiple Object Tracking Accuracy}
-\newacronym{motp}{MOTP}{Multiple Object Tracking Precision}
-\newacronym{nms}{NMS}{Non-Maximum Suppression}
-\newacronym{ssd}{SSD}{Single Shot MultiBox Detector}
-\newacronym{yolo}{YOLO}{You Only Look Once}
-\newacronym{gil}{GIL}{Global Interpreter Lock}
-\newacronym{simt}{SIMT}{Single Instruction Multiple Threads}
-\newacronym{asic}{ASIC}{Application-Specific Integrated Circuit}
-\newacronym{fpga}{FPGA}{Field Programmable Gate Array}
-\newacronym{tpu}{TPU}{Tensor Processing Unit}
-\newacronym{sdk}{SDK}{Software Development Kit}
-\newacronym{mlp}{MLP}{Multilayer Perceptron}
-\newacronym{hog}{HOG}{Histogram of Oriented Gradients}
-\newacronym{rcnn}{R-CNN}{Region-based Convolutional Neural Network}
 
 
 
@@ -161,7 +166,8 @@ Durante los últimos años, la inteligencia artificial ha experimentado un creci
 
 El progreso en visión por computador ha sido posible gracias a los avances en redes neuronales convolucionales, que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con una gran precisión y velocidad.
 
-Estos algoritmos de visión artificial requieren una potencia computacional significativa tanto para su entrenamiento como para su ejecución. Las CPUs (Unidades Centrales de Procesamiento) tradicionales resultan insuficientes para estas tareas, por lo que la industria ha desarrollado arquitecturas específicas como las GPUs (Unidades de Procesamiento Gráfico), TPUs (Unidades de Procesamiento Tensorial) y DLAs (Aceleradores de Aprendizaje Profundo). Estos componentes están optimizados para ejecutar operaciones de entrenamiento e inferencia de manera eficiente, permitiendo implementar sistemas de visión artificial capaces de procesar información visual en tiempo real. Sin embargo, estos aceleradores suelen presentar un consumo energético elevado, lo que plantea importantes retos de eficiencia y sostenibilidad.
+Estos algoritmos de visión artificial requieren una potencia computacional significativa tanto para su entrenamiento como para su ejecución. Las \glspl{cpu} tradicionales resultan insuficientes para estas tareas, por lo que la industria ha desarrollado arquitecturas específicas como las \glspl{gpu}\cite[cap. ~3, pp. ~2-7]{hwu2022programming}, \glspl{tpu}\cite{google2025tpu} y \glspl{dla}\cite{nvidia_dla}. Estos componentes están optimizados para ejecutar operaciones de entrenamiento e inferencia de manera eficiente, permitiendo implementar sistemas de visión artificial capaces de procesar información visual en tiempo real. Sin embargo, estos aceleradores suelen presentar un consumo energético elevado, lo que plantea importantes retos de eficiencia y sostenibilidad.
+
 
 
 \begin{figure}[H]
@@ -173,7 +179,7 @@ Estos algoritmos de visión artificial requieren una potencia computacional sign
 
 Como se observa en la Figura~\ref{fig:consumo_electrico_datacenters}, el consumo eléctrico de los centros de datos en el mundo ha ido aumentando de forma exponencial, lo que plantea un desafío significativo para la sostenibilidad del crecimiento tecnológico \cite{challe6010117}. En el peor escenario, esta tendencia podría llevar a un incremento insostenible en la huella de carbono del sector tecnológico, mientras que en el mejor de los casos, la adopción de tecnologías eficientes podría moderar el crecimiento. Este aumento del consumo energético no solo afecta a los centros de datos, sino también a los dispositivos embebidos y móviles, donde la eficiencia energética es crucial para prolongar la vida útil de las baterías y reducir el impacto ambiental.
 
-Para enfrentar estos desafíos, se han desarrollado diversas técnicas de optimización y compresión que reducen el tamaño y la complejidad de los modelos neuronales manteniendo su rendimiento. Paralelamente, han surgido arquitecturas hardware específicamente diseñadas para la inferencia de modelos de aprendizaje profundo en entornos con restricciones energéticas. En este contexto, los dispositivos de la serie Jetson de NVIDIA destacan por ofrecer un equilibrio entre alto rendimiento en tareas de inteligencia artificial y un consumo energético contenido, ideal para aplicaciones embebidas de visión artificial.
+Para enfrentar estos desafíos, se han desarrollado diversas técnicas de optimización y compresión que reducen el tamaño y la complejidad de los modelos neuronales manteniendo su rendimiento. Paralelamente, han surgido arquitecturas hardware específicamente diseñadas para la inferencia de modelos de aprendizaje profundo en entornos con restricciones energéticas. En este contexto, los dispositivos de la serie Jetson de NVIDIA\cite{nvidia_jetson_modules} destacan por ofrecer un equilibrio entre alto rendimiento en tareas de inteligencia artificial y un consumo energético contenido, ideal para aplicaciones embebidas de visión artificial.
 
 La combinación de redes neuronales convolucionales y aceleradores hardware ha permitido la creación de sistemas de visión artificial que pueden detectar y clasificar objetos en movimiento, lo que es esencial en aplicaciones como la vigilancia, la conducción autónoma y la robótica.
 
@@ -183,7 +189,7 @@ Los humamos somos capaces de ver y entender el mundo que nos rodea. Dada una ima
 
 Como se mencionó anteriormente, la inteligencia artificial ha revolucionado la forma en que interactuamos con la tecnología. Se ha convertido en una herramienta esencial para aplicar soluciones innovadoras en una amplia gama de campos. En particular, la visión por computador ha demostrado ser un área de gran potencial. También la existencia de dispositivos de bajo consumo, como los de la serie Jetson de NVIDIA, ha permitido llevar la inteligencia artificial a entornos de edge computing (cómputo en el borde), donde se acerca el procesamiento de datos a la fuente de información. Esto reduce la latencia y el consumo energético. Con todo esto, se abre un abanico de posibilidades para la implementación de sistemas de visión artificial en aplicaciones industriales.
 
-Centradánose en el ámbito industrial, la detección y clasificación de objetos en movimiento es crucial para optimizar procesos, mejorar la seguridad y aumentar la eficiencia. En la mayoría de entornos productivos, la detección de defectos se realiza de forma manual, lo que puede ser ineficiente y propenso a errores. La automatización de este proceso mediante sistemas de visión artificial puede reducir costos, aumentar la precisión y mejorar la calidad del producto final.
+Centrándose en el ámbito industrial, la detección y clasificación de objetos en movimiento es crucial para optimizar procesos, mejorar la seguridad y aumentar la eficiencia. En la mayoría de los entornos productivos, la detección de defectos se realiza de forma manual, lo que puede ser ineficiente y propenso a errores. La automatización de este proceso mediante sistemas de visión artificial puede reducir costes, aumentar la precisión y mejorar la calidad del producto final.
 
 
 La motivación de este trabajo radica en la necesidad de desarrollar un sistema de visión artificial capaz de detectar y clasificar objetos en movimiento en un entorno industrial, específicamente en una cinta transportadora.
@@ -215,9 +221,15 @@ El objetivo principal de este trabajo es desarrollar un sistema de visión artif
 %                         CAPITOLS (tants com calga)                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\section{Colaboraciones}
+
+El presente Trabajo de Fin de Grado se ha desarrollado en el marco de una beca de colaboración y un periodo de prácticas de empresa, ambos focalizados en la investigación y desarrollo que sustenta este proyecto. Estas actividades se han llevado a cabo en el \gls{gap} de la \gls{upv}. El \gls{gap} es un grupo de investigación dentro de la universidad, que se dedica al diseño y evaluación de redes de interconexión para sistemas de computación paralela de altas prestaciones, tales como supercomputadores, clústeres y centros de datos. El Grupo de Arquitecturas Paralelas (GAP) de la Universidad Politécnica de Valencia cuenta con una amplia experiencia en el trabajo sobre redes de interconexión para computadoras paralelas, abarcando desde grandes supercomputadoras, pasando por clústeres de ordenadores personales, usualmente utilizados como servidores, hasta las redes en chip en procesadores multinúcleo. El GAP también ha desarrollado investigación en temas relacionados, como la microarquitectura de procesadores y los protocolos de coherencia de caché. Su investigación abarca también áreas como la optimización de arquitecturas para aplicaciones específicas y la mejora de la eficiencia energética en sistemas computacionales.
+
+Esta colaboración se encuentra estrechamente vinculada con los contenidos y objetivos de la asignatura \gls{sdl}, una asignatura que forma parte de la mención de ingeniería dentro del Grado en Ingeniería Informática. La oportunidad de colaborar con el \gls{gap} ha permitido aplicar de manera práctica y en un contexto de investigación real los conocimientos teóricos y técnicos adquiridos durante la asignatura. Específicamente, ha facilitado la profundización en el diseño, implementación y optimización de sistemas de visión por computador basados en inteligencia artificial, enfrentando desafíos reales relacionados con el rendimiento, la eficiencia y el despliegue en hardware especializado. Esta sinergia entre la formación académica y la investigación aplicada ha enriquecido significativamente la experiencia de aprendizaje, fomentando el desarrollo de habilidades prácticas avanzadas y una comprensión más profunda de las complejidades inherentes al campo de la visión artificial y el aprendizaje profundo en entornos industriales.
+
 \chapter{Conceptos Previos}
 
-En este capítulo se explicará los conceptos previos que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán los fundamentos en Inteligencia Artificial centrándose en las redes neuronales convolucionales, desde sus bases hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
+En este capítulo se describirán los conceptos previos que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán los fundamentos en Inteligencia Artificial centrándose en las redes neuronales convolucionales, desde sus bases hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
 
 \section{Fundamentos y avances en redes neuronales para visión artificial} \label{sec:fundamentos_avances}
 En esta sección se realizará un estudio de las redes neuronales profundas hasta las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. Se explicarán los conceptos básicos de las redes neuronales y la evolución de las arquitecturas.
@@ -239,7 +251,7 @@ El \textit{\textbf{Deep Learning}} o aprendizaje profundo es una rama del aprend
 
 \subsection{Tareas fundamentales en visión por computador} \label{sec:tareas_fundamentales_vision_por_computador}
 
-La visión por computador aborda el desafío de permitir que las máquinas interpreten y comprendan el contenido visual de imágenes y vídeos. Antes del auge del aprendizaje profundo, se empleaban descriptores de características diseñados manualmente, como el \gls{hog}. \gls{hog} captura la forma local de los objetos analizando la distribución de las orientaciones de los gradientes en pequeñas regiones de la imagen (celdas y bloques). La Figura~\ref{fig:hog} muestra una visualización de las características HOG extraídas. Aunque útiles en su momento, estos algoritmos "hechos a mano" presentan limitaciones significativas. En particular, no facilitan el aprendizaje por transferencia, es decir, la reutilización de conocimiento aprendido en tareas previas. Además, la complejidad de estas características está intrínsecamente limitada por la capacidad humana para diseñarlas explícitamente. Estos inconvenientes son superados por los algoritmos de aprendizaje automático de características, como las CNN, que aprenden representaciones relevantes directamente de los datos. Por ello, las CNN han demostrado ser más efectivas en tareas complejas, logrando avances significativos en precisión y eficiencia al aprender automáticamente características a partir de grandes conjuntos de datos.
+La visión por computador aborda el desafío de permitir que las máquinas interpreten y comprendan el contenido visual de imágenes y vídeos. Antes del auge del aprendizaje profundo, se empleaban descriptores de características diseñados manualmente, como el \gls{hog}. \gls{hog} captura la forma local de los objetos analizando la distribución de las orientaciones de los gradientes en pequeñas regiones de la imagen (celdas y bloques). La Figura~\ref{fig:hog} muestra una visualización de las características HOG extraídas. Aunque útiles en su momento, estos algoritmos ``hechos a mano'' presentan limitaciones significativas. En particular, no facilitan el aprendizaje por transferencia, es decir, la reutilización de conocimiento aprendido en tareas previas. Además, la complejidad de estas características está intrínsecamente limitada por la capacidad humana para diseñarlas explícitamente. Estos inconvenientes son superados por los algoritmos de aprendizaje automático de características, como las \gls{cnn}, que aprenden representaciones relevantes directamente de los datos. Por ello, las \gls{cnn} han demostrado ser más efectivas en tareas complejas, logrando avances significativos en precisión y eficiencia al aprender automáticamente características a partir de grandes conjuntos de datos.
 
 \begin{figure}[H]
    \centering
@@ -259,7 +271,7 @@ En el ámbito del procesamiento de imágenes mediante técnicas de deep learning
    \item \textbf{Detección de objetos}: Extiende la tarea anterior para identificar y localizar múltiples objetos en una imagen. Los algoritmos de detección se dividen principalmente en:
       \begin{itemize}
          \item \textit{Detectores de dos etapas}: Como R-CNN, Fast R-CNN y Faster R-CNN, primero generan propuestas de regiones que podrían contener objetos, y luego clasifican estas regiones. Son más precisos pero computacionalmente más costosos.
-         \item \textit{Detectores de una etapa}: Como YOLO (You Only Look Once) y SSD (Single Shot MultiBox Detector), que predicen las cajas delimitadoras y las clases directamente en una sola pasada. Son más rápidos aunque tradicionalmente menos precisos.
+         \item \textit{Detectores de una etapa}: Como \gls{yolo} y \gls{ssd} que predicen las cajas delimitadoras y las clases directamente en una sola pasada. Son más rápidos aunque tradicionalmente menos precisos.
       \end{itemize}
       Ambos enfoques proporcionan para cada objeto detectado su clasificación y cuadro delimitador.
     
@@ -276,7 +288,7 @@ La Figura~\ref{fig:tareas_vision_por_computador} ilustra estas tareas fundamenta
 \end{figure}
 
 \subsection{Arquitectura y funcionamiento de las CNN} \label{sec:arquitectura_cnn}
-Las \gls{cnn} o redes neuronales convolucionales son un tipo específico de red neuronal profunda. Estas redes están diseñadas para procesar imágenes y extraer características relevantes de manera eficiente, lo que las hace especialmente adecuadas para tareas de visión por computador.
+Las \gls{cnn} son un tipo específico de red neuronal profunda. Estas redes están diseñadas para procesar imágenes y extraer características relevantes de manera eficiente, lo que las hace especialmente adecuadas para tareas de visión por computador.
 
 \begin{figure}[H]
    \centering
@@ -285,13 +297,13 @@ Las \gls{cnn} o redes neuronales convolucionales son un tipo específico de red 
    \label{fig:diagrama_de_Venn_inteligencia_artificial}
 \end{figure}
 
-La Figura~\ref{fig:diagrama_de_Venn_inteligencia_artificial} ilustra la relación entre estos conceptos. Las CNN son una subcategoría del Deep Learning, que a su vez es una subcategoría del Machine Learning. Además, las CNN están estrechamente relacionadas con la visión por computador, que busca emular la capacidad de los humanos para interpretar imágenes y vídeos.
+La Figura~\ref{fig:diagrama_de_Venn_inteligencia_artificial} ilustra la relación entre estos conceptos. Las \gls{cnn} son una subcategoría del Deep Learning, que a su vez es una subcategoría del Machine Learning. Además, las \gls{cnn} están estrechamente relacionadas con la visión por computador, que busca emular la capacidad de los humanos para interpretar imágenes y vídeos.
 
-Las CNN se inspiran en la forma en que los humanos percibimos el mundo visual. Al igual que nuestro sistema visual, que procesa la información de manera jerárquica, las CNN utilizan capas convolucionales para extraer características de bajo nivel (como bordes y texturas) y capas más profundas para identificar patrones y objetos más complejos. Esta jerarquía de características permite a las CNN aprender representaciones ricas y abstractas de los datos visuales.
+Las \gls{cnn} se inspiran en la forma en que los humanos percibimos el mundo visual. Al igual que nuestro sistema visual, que procesa la información de manera jerárquica, las \gls{cnn} utilizan capas convolucionales para extraer características de bajo nivel (como bordes y texturas) y capas más profundas para identificar patrones y objetos más complejos. Esta jerarquía de características permite a las \gls{cnn} aprender representaciones ricas y abstractas de los datos visuales.
 
-Estas redes se componen de varias capas, cada una de las cuales realiza operaciones específicas en los datos de entrada. Las capas más comunes y técnicas asociadas en una CNN, que se describen a continuación, son las capas convolucionales, las capas de activación, las capas de pooling, la normalización por lotes y las capas completamente conectadas.
+Estas redes se componen de varias capas, cada una de las cuales realiza operaciones específicas en los datos de entrada. Las capas más comunes y técnicas asociadas en una \gls{cnn}, que se describen a continuación, son las capas convolucionales, las capas de activación, las capas de pooling, la normalización por lotes y las capas completamente conectadas.
 
-Las \textbf{capas convolucionales} utilizan la operación de convolución para extraer características. Esta operación es fundamental en las CNN y consiste en aplicar un filtro (o kernel) a una imagen para extraer características locales. El filtro se desliza sobre la imagen, multiplicando sus valores por los valores de la imagen en cada posición y sumando los resultados. Este proceso genera un mapa de activación que resalta las características relevantes de la imagen.  
+Las \textbf{capas convolucionales} utilizan la operación de convolución para extraer características. Esta operación es fundamental en las \gls{cnn} y consiste en aplicar un filtro (o kernel) a una imagen para extraer características locales. El filtro se desliza sobre la imagen, multiplicando sus valores por los valores de la imagen en cada posición y sumando los resultados. Este proceso genera un mapa de activación que resalta las características relevantes de la imagen.
 
 \begin{figure}[H]
    \centering
@@ -332,7 +344,7 @@ Las \textbf{capas de activación}, especialmente la ReLU (Rectified Linear Unit)
 \end{equation}
 Estas capas se aplican típicamente después de cada capa convolucional y completamente conectada.
 
-Las CNN incorporan \textbf{capas de pooling} (o submuestreo). Estas capas desempeñan un papel crucial en la reducción progresiva de la dimensión espacial (ancho y alto) de los mapas de características, lo que conlleva varios beneficios importantes: disminuyen la cantidad de parámetros y la carga computacional, ayudan a controlar el sobreajuste (\textit{overfitting}) al reducir la complejidad del modelo, y proporcionan un cierto grado de invarianza a pequeñas traslaciones y distorsiones. El funcionamiento del pooling implica deslizar una ventana sobre el mapa de características de entrada y aplicar una operación de agregación. Las operaciones más comunes son Max-Pooling, que selecciona el valor máximo dentro de la ventana (eficaz para capturar las características más prominentes, como se ilustra en la Figura~\ref{fig:pooling}), y Average-Pooling, que calcula el valor promedio (tiende a suavizar las características). El resultado es un mapa de características de menor tamaño pero que conserva la información esencial.
+Las \gls{cnn} incorporan \textbf{capas de pooling} (o submuestreo). Estas capas desempeñan un papel crucial en la reducción progresiva de la dimensión espacial (ancho y alto) de los mapas de características, lo que conlleva varios beneficios importantes: disminuyen la cantidad de parámetros y la carga computacional, ayudan a controlar el sobreajuste (\textit{overfitting}) al reducir la complejidad del modelo, y proporcionan un cierto grado de invarianza a pequeñas traslaciones y distorsiones. El funcionamiento del pooling implica deslizar una ventana sobre el mapa de características de entrada y aplicar una operación de agregación. Las operaciones más comunes son Max-Pooling, que selecciona el valor máximo dentro de la ventana (eficaz para capturar las características más prominentes, como se ilustra en la Figura~\ref{fig:pooling}), y Average-Pooling, que calcula el valor promedio (tiende a suavizar las características). El resultado es un mapa de características de menor tamaño pero que conserva la información esencial.
 
 \begin{figure}[H]
    \centering
@@ -363,7 +375,7 @@ En el final de la red, se utilizan \textbf{capas completamente conectadas} (\tex
 \end{equation}
 donde $z = (z_1, \dots, z_K)$ es el vector de salidas de la capa anterior para $K$ clases. La función Softmax transforma este vector en un vector de probabilidades $\sigma(z) = (\sigma(z_1), \dots, \sigma(z_K))$, donde cada componente $\sigma(z_i)$ se calcula como se muestra. El resultado es un vector de tamaño $K$ donde cada elemento está en el rango (0, 1) y la suma de todos los elementos es igual a 1 ($\sum_{j=1}^{K} \sigma(z_j) = 1$). Esto permite interpretar la salida como una distribución de probabilidad sobre las $K$ posibles clases.
 
-En la Figura~\ref{fig:cnn_example} se muestra un ejemplo de una red neuronal convolucional (CNN) simple. Esta red incluye capas convolucionales para la extracción de características, capas de activación para introducir no linealidad, capas de pooling para reducir la dimensionalidad y capas completamente conectadas para realizar la clasificación final. La combinación de estas capas permite a las CNN aprender representaciones jerárquicas y complejas de los datos visuales, lo que las convierte en una herramienta poderosa para tareas de visión por computador.
+En la Figura~\ref{fig:cnn_example} se muestra un ejemplo de una \gls{cnn} simple. Esta red incluye capas convolucionales para la extracción de características, capas de activación para introducir no linealidad, capas de pooling para reducir la dimensionalidad y capas completamente conectadas para realizar la clasificación final. La combinación de estas capas permite a las \gls{cnn} aprender representaciones jerárquicas y complejas de los datos visuales, lo que las convierte en una herramienta poderosa para tareas de visión por computador.
 
 \begin{figure}[H]
    \centering
@@ -373,9 +385,9 @@ En la Figura~\ref{fig:cnn_example} se muestra un ejemplo de una red neuronal con
 \end{figure}
 
 
-Tras comprender la arquitectura interna de las CNN, el siguiente paso es el entrenamiento. Este proceso se basa fundamentalmente en el uso de un conjunto de datos etiquetado, que actúa como la verdad fundamental (\textit{ground truth}). Este conjunto contiene una colección de imágenes junto con sus correspondientes etiquetas o anotaciones, que la red utilizará para aprender.
+Tras comprender la arquitectura interna de las \gls{cnn}, el siguiente paso es el entrenamiento. Este proceso se basa fundamentalmente en el uso de un conjunto de datos etiquetado, que actúa como la verdad fundamental (\textit{ground truth}). Este conjunto contiene una colección de imágenes junto con sus correspondientes etiquetas o anotaciones, que la red utilizará para aprender.
 
-El objetivo principal del entrenamiento es ajustar los parámetros internos de la CNN (pesos y sesgos) para minimizar una función de pérdida predefinida. Esta función mide la discrepancia o el error entre las predicciones generadas por la red y las etiquetas reales proporcionadas en los datos de entrenamiento.
+El objetivo principal del entrenamiento es ajustar los parámetros internos de la \gls{cnn} (pesos y sesgos) para minimizar una función de pérdida predefinida. Esta función mide la discrepancia o el error entre las predicciones generadas por la red y las etiquetas reales proporcionadas en los datos de entrenamiento.
 
 El proceso de ajuste se realiza de forma iterativa mediante un algoritmo de optimización. El Descenso de Gradiente Estocástico (SGD) y sus variantes, como Adam o RMSprop, son opciones comunes. Estos algoritmos utilizan el cálculo de gradientes para determinar cómo modificar los pesos y sesgos para reducir el error.
 
@@ -383,9 +395,9 @@ El mecanismo central de este ajuste implica dos fases: la propagación hacia ade
 
 Típicamente, todo el conjunto de datos de entrenamiento se procesa varias veces en ciclos conocidos como épocas. Este refinamiento iterativo continúa hasta que el rendimiento de la red, evaluado en un conjunto de datos de validación separado (que no se utiliza para el entrenamiento directo), alcanza un nivel satisfactorio. La validación es crucial para asegurar que el modelo generaliza bien a datos no vistos previamente.
 
-Además, para prevenir el sobreajuste (\textit{overfitting}) —donde el modelo aprende demasiado bien los datos de entrenamiento pero falla en generalizar— se emplean técnicas de regularización. El \textit{dropout} es una técnica común que desactiva aleatoriamente un porcentaje de neuronas durante cada iteración de entrenamiento, forzando a la red a aprender representaciones más robustas. La normalización por lotes (\textit{batch normalization}), explicada previamente, también actúa como regularizador y ayuda a estabilizar el entrenamiento. 
+Además, para prevenir el sobreajuste (\textit{overfitting}) —donde el modelo aprende demasiado bien los datos de entrenamiento pero falla en generalizar— se emplean técnicas de regularización. El \textit{dropout} es una técnica común que desactiva aleatoriamente un porcentaje de neuronas durante cada iteración de entrenamiento, forzando a la red a aprender representaciones más robustas. La normalización por lotes (\textit{batch normalization}), explicada previamente, también actúa como regularizador y ayuda a estabilizar el entrenamiento.
 
-En escenarios prácticos, desarrollar y entrenar una CNN desde cero puede ser computacionalmente costoso y requerir grandes cantidades de datos etiquetados.
+En escenarios prácticos, desarrollar y entrenar una \gls{cnn} desde cero puede ser computacionalmente costoso y requerir grandes cantidades de datos etiquetados.
 
 Por lo tanto, una estrategia común y muy eficaz consiste en aprovechar modelos preentrenados. Arquitecturas como VGG16, ResNet50 y MobileNetV2, que han sido entrenadas previamente en conjuntos de datos de referencia masivos como ImageNet (que contiene millones de imágenes en miles de categorías) o COCO (centrado en la detección y segmentación de objetos), sirven como puntos de partida potentes. Estos modelos ya han aprendido características jerárquicas ricas a partir de datos visuales diversos.
 
@@ -421,7 +433,7 @@ La primera arquitectura exitosa de detección de objetos basada en deep learning
    \label{fig:selective_search}
 \end{figure}
 
-En la segunda fase, cada región propuesta es redimensionada y procesada individualmente por una CNN para extraer características de alto nivel. Estas características alimentan posteriormente a un clasificador SVM (Support Vector Machine) para determinar la categoría del objeto y a un regresor lineal para mejorar la localización del cuadro delimitador. Como se ilustra en la Figura~\ref{fig:r-cnn}, este enfoque fue innovador pero computacionalmente costoso, ya que requiere procesar cada propuesta de región de manera independiente.
+En la segunda fase, cada región propuesta es redimensionada y procesada individualmente por una \gls{cnn} para extraer características de alto nivel. Estas características alimentan posteriormente a un clasificador SVM (Support Vector Machine) para determinar la categoría del objeto y a un regresor lineal para mejorar la localización del cuadro delimitador. Como se ilustra en la Figura~\ref{fig:r-cnn}, este enfoque fue innovador pero computacionalmente costoso, ya que requiere procesar cada propuesta de región de manera independiente.
 
 \begin{figure}[H]
    \centering
@@ -438,10 +450,10 @@ En la segunda fase, cada región propuesta es redimensionada y procesada individ
 
 En contraste con los detectores de dos etapas, los detectores de una etapa (one-stage detectors) adoptan un enfoque más directo y eficiente. Estos detectores realizan la localización y clasificación de objetos simultáneamente en una sola pasada a través de la red, sin necesidad de un paso intermedio de generación de propuestas.
 
-La arquitectura de los detectores de una etapa procesa la imagen completa una única vez, típicamente mediante una red troncal o \textit{backbone} (generalmente una CNN) para la extracción de características. Estas características son posteriormente procesadas por componentes intermedios (\textit{neck}) y alimentadas a una cabeza de detección (\textit{detection head}) que predice simultáneamente las coordenadas de los cuadros delimitadores (\textit{bounding boxes}) y las probabilidades de clase. 
+La arquitectura de los detectores de una etapa procesa la imagen completa una única vez, típicamente mediante una red troncal o \textit{backbone} (generalmente una \gls{cnn}) para la extracción de características. Estas características son posteriormente procesadas por componentes intermedios (\textit{neck}) y alimentadas a una cabeza de detección (\textit{detection head}) que predice simultáneamente las coordenadas de los cuadros delimitadores (\textit{bounding boxes}) y las probabilidades de clase.
 Esta arquitectura de una etapa prioriza la velocidad de inferencia, resultando idónea para aplicaciones en tiempo real donde la latencia es un factor crítico, aunque pueda suponer una ligera concesión en la precisión máxima. Modelos representativos de este enfoque incluyen \gls{ssd} (Single Shot MultiBox Detector)\cite{Liu_2016} y \gls{yolo} (You Only Look Once)\cite{redmon2016lookonceunifiedrealtime}. Estos han demostrado un equilibrio eficaz entre rapidez y exactitud, permitiendo la detección en tiempo real incluso en dispositivos con recursos computacionales limitados.
 
-\gls{yolo} (You Only Look Once) se destaca como una de las arquitecturas de detección de objetos más populares y efectivas. Concebida específicamente para la detección en tiempo real, \gls{yolo} introdujo un enfoque unificado que procesa la imagen completa en una sola pasada, realizando la localización y clasificación de forma simultánea. Esta metodología ha sido fundamental para su adopción en aplicaciones que requieren alta velocidad de procesamiento.
+\gls{yolo} se destaca como una de las arquitecturas de detección de objetos más populares y efectivas. Concebida específicamente para la detección en tiempo real, \gls{yolo} introdujo un enfoque unificado que procesa la imagen completa en una sola pasada, realizando la localización y clasificación de forma simultánea. Esta metodología ha sido fundamental para su adopción en aplicaciones que requieren alta velocidad de procesamiento.
 
 \gls{yolo} en su primera versión procesa la imagen completa de una vez. Divide la imagen en una cuadrícula de $S \times S$ celdas. Cada celda es responsable de detectar los objetos cuyo centro se encuentre dentro de ella. Para cada celda, \gls{yolo} predice $B$ cuadros delimitadores (bounding boxes) y puntuaciones de confianza para esos cuadros. La puntuación de confianza indica la probabilidad de que haya un objeto en el cuadro y la precisión de la predicción del cuadro. Al mismo tiempo, predice las probabilidades de clase para cada objeto detectado en la celda.
 
@@ -465,14 +477,14 @@ Una vez generadas todas las predicciones, \gls{yolo} implementa un post-procesam
 
 En la Figura~\ref{fig:yolo_architecture} se presenta la arquitectura del modelo primigenio de \gls{yolo} \cite{redmon2016lookonceunifiedrealtime}. Esta arquitectura se basa en una red neuronal convolucional que extrae características de la imagen de entrada y las procesa a través de varias capas para generar las predicciones finales. A lo largo de los años, se han desarrollado múltiples versiones y mejoras de \gls{yolo}, cada una optimizando aspectos como la precisión, la velocidad y la capacidad de detección de objetos pequeños o densamente agrupados.
 
-En este proyecto, se han seleccionado diversas versiones de YOLOV5 \cite{yolov5_ultralytics}, YOLOV8 \cite{yolov8_ultralytics} y YOLO11 \cite{yolo11_ultralytics}. Estas representan mejoras y optimizaciones sobre arquitecturas YOLO anteriores. Los modelos mencionados forman parte de la librería Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, que proporciona una implementación eficaz y sencilla de varias variantes de YOLO. Las aportaciones de Ultralytics a la comunidad de visión artificial son notables, ya que sus herramientas y recursos facilitan el ciclo de vida completo (entrenamiento, evaluación, implementación) de los modelos YOLO.
+En este proyecto, se han seleccionado diversas versiones de YOLOV5 \cite{yolov5_ultralytics}, YOLOV8 \cite{yolov8_ultralytics} y YOLO11 \cite{yolo11_ultralytics}. Estas representan mejoras y optimizaciones sobre arquitecturas \gls{yolo} anteriores. Los modelos mencionados forman parte de la librería Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, que proporciona una implementación eficaz y sencilla de varias variantes de \gls{yolo}. Las aportaciones de Ultralytics a la comunidad de visión artificial son notables, ya que sus herramientas y recursos facilitan el ciclo de vida completo (entrenamiento, evaluación, implementación) de los modelos \gls{yolo}.
 
 \subsection{Métricas de evaluación de modelos de detección de objetos} \label{sec:metricas_evaluacion}
 
 Para evaluar el rendimiento de los modelos de detección de objetos, se utilizan métricas específicas que permiten cuantificar la precisión y efectividad del sistema. Entre las métricas más comunes se encuentran:
 
 \begin{itemize}
-   \item \textbf{Precisión (Precision)}: Mide la proporción de verdaderos positivos (TP) respecto al total de predicciones positivas realizadas por el modelo. Se calcula como:
+   \item \textbf{Precisión}: Mide la proporción de verdaderos positivos (TP) respecto al total de predicciones positivas realizadas por el modelo. Se calcula como:
    \[
    \text{Precision} = \frac{TP}{TP + FP}
    \]
@@ -497,7 +509,7 @@ Para evaluar el rendimiento de los modelos de detección de objetos, se utilizan
 
    \item \textbf{Latencia}: Mide el tiempo que tarda el modelo en procesar una imagen y generar una predicción se mide en milisegundos (ms) y un valor bajo indica que el modelo es capaz de realizar inferencias rápidamente.
    
-   \item \textbf{FPS (Frames Per Second)}: Mide la velocidad de procesamiento del modelo, indicando cuántas imágenes puede procesar por segundo un alto valor de FPS indica que el modelo es capaz de realizar inferencias rápidamente.
+   \item \textbf{FPS (Frames Per Second)}: Mide la velocidad de procesamiento del modelo, indicando cuántas imágenes puede procesar por segundo; un alto valor de FPS indica que el modelo es capaz de realizar inferencias rápidamente.
    \item \textbf{F1 Score}: Es la media armónica entre precisión y recall, proporcionando un balance entre ambos. Se utiliza para evaluar el rendimiento del modelo en situaciones donde hay un desbalance entre clases. Se calcula como:
    \[
    \text{F1 Score} = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
@@ -515,9 +527,9 @@ Un aspecto fundamental para el despliegue eficiente de modelos de inteligencia a
 
 \subsection{Limitaciones del hardware tradicional} \label{sec:limitaciones_hardware}
 
-La Dennard Scaling, formulada por Robert Dennard en 1974, establecía que a medida que los transistores se reducían de tamaño, su consumo de energía por unidad de área se mantenía constante. Esto significaba que, al reducir el tamaño de los transistores a la mitad, su área se reducía a un cuarto, pero su consumo de energía por unidad de área permanecía igual. Como resultado, el consumo total de energía se reducía a la mitad, permitiendo aumentar la frecuencia de reloj y el número de transistores sin incrementar significativamente el consumo total de energía. Este principio fue fundamental para el avance exponencial en el rendimiento de los procesadores durante décadas. Sin embargo, a partir de 2005, la Dennard Scaling dejó de cumplirse debido a varios factores físicos fundamentales. A escalas nanométricas, los efectos cuánticos y las fugas de corriente se volvieron significativos, impidiendo que el consumo de energía por unidad de área se mantuviera constante.
+La Dennard Scaling\cite{dennard1974design}, formulada por Robert Dennard en 1974, establecía que a medida que los transistores se reducían de tamaño, su consumo de energía por unidad de área se mantenía constante. Esto significaba que, al reducir el tamaño de los transistores a la mitad, su área se reducía a un cuarto, pero su consumo de energía por unidad de área permanecía igual. Como resultado, el consumo total de energía se reducía a la mitad, permitiendo aumentar la frecuencia de reloj y el número de transistores sin incrementar significativamente el consumo total de energía. Este principio fue fundamental para el avance exponencial en el rendimiento de los procesadores durante décadas. Sin embargo, a partir de 2005, la Dennard Scaling dejó de cumplirse debido a varios factores físicos fundamentales. A escalas nanométricas, los efectos cuánticos y las fugas de corriente se volvieron significativos, impidiendo que el consumo de energía por unidad de área se mantuviera constante.
 
-Por otro lado, la ley de Moore, formulada por Gordon Moore en 1965, predecía que el número de transistores en un chip se duplicaría aproximadamente cada año, predicción que posteriormente se ajustó a cada dos años. Durante décadas, esta ley se cumplió con notable precisión, permitiendo un crecimiento exponencial en la capacidad de procesamiento. Sin embargo, a medida que los transistores se acercan a escalas atómicas (actualmente en torno a los 3-5 nanómetros), los límites físicos y los desafíos de fabricación han ralentizado significativamente este ritmo de avance. Los costes de investigación y desarrollo para mantener esta tendencia se han disparado, y los beneficios en términos de rendimiento por transistor se han reducido.
+Por otro lado, la ley de Moore\cite{moore1965cramming}, formulada por Gordon Moore en 1965, predecía que el número de transistores en un chip se duplicaría aproximadamente cada año, predicción que posteriormente se ajustó a cada dos años. Durante décadas, esta ley se cumplió con notable precisión, permitiendo un crecimiento exponencial en la capacidad de procesamiento. Sin embargo, a medida que los transistores se acercan a escalas atómicas (actualmente en torno a los 3-5 nanómetros), los límites físicos y los desafíos de fabricación han ralentizado significativamente este ritmo de avance. Los costes de investigación y desarrollo para mantener esta tendencia se han disparado, y los beneficios en términos de rendimiento por transistor se han reducido.
 
 \begin{figure}[H]
    \centering
@@ -532,13 +544,11 @@ El punto de inflexión en 2005, marcado como \textit{Dennard Scaling Fails in He
 
 \subsection{Arquitectura y funcionamiento de las GPUs} \label{sec:arquitectura_gpus}
 
-Frente a las limitaciones de las CPUs, han surgido arquitecturas de dominio específico diseñadas para optimizar el rendimiento en tareas concretas. Entre ellas destacan las \gls{fpga} (Field Programmable Gate Arrays), los \gls{asic} (Application-Specific Integrated Circuits) y las \gls{gpu} (Graphics Processing Units). A diferencia de las CPUs de propósito general, estas arquitecturas sacrifican versatilidad para lograr una eficiencia superior en operaciones específicas como el procesamiento gráfico, la inteligencia artificial o el procesamiento de señales.
+Para superar las limitaciones de las \glspl{cpu} en tareas específicas, se emplean arquitecturas hardware especializadas. Entre ellas, las \glspl{fpga} ofrecen flexibilidad al ser reconfigurables post-fabricación, aunque su programación es compleja. En el extremo de la especialización se encuentran los \glspl{asic}, diseñados a medida para una única función, logrando máxima eficiencia a costa de un alto coste de diseño y nula reprogramabilidad; un ejemplo son las \glspl{tpu} de Google, optimizadas para aprendizaje automático.
 
-Las \gls{fpga} son circuitos reconfigurables que pueden programarse después de su fabricación, ofreciendo flexibilidad para adaptarse a distintas aplicaciones, aunque su programación requiere conocimientos especializados. Los \gls{asic}, por otro lado, se diseñan a medida para una única tarea, alcanzando la máxima eficiencia y rendimiento, pero a costa de un diseño costoso, largo y la imposibilidad de reprogramación. Un ejemplo notable de \gls{asic} son las \gls{tpu} (Tensor Processing Units) desarrolladas por Google, optimizadas específicamente para acelerar las cargas de trabajo de aprendizaje automático neuronal.
+Las \glspl{gpu}, por su parte, son arquitecturas orientadas al paralelismo masivo. Su diseño \textit{many-core}, con miles de núcleos de procesamiento más simples, las hace idóneas para cargas de trabajo intensivas y paralelizables, como las operaciones matriciales del aprendizaje profundo. Dada esta capacidad, las \glspl{gpu} son fundamentales en este proyecto.
 
-Las \gls{gpu} son un ejemplo paradigmático de arquitectura de dominio específico orientada al paralelismo masivo. Su diseño \textit{many-core} integra miles de núcleos de procesamiento más simples en un único chip. Esta estructura les permite ejecutar una gran cantidad de hilos de forma concurrente, lo que las hace ideales para cargas de trabajo intensivas y fácilmente paralelizables, como las operaciones matriciales típicas del aprendizaje profundo. Dada su capacidad para acelerar significativamente las tareas de inteligencia artificial, las \gls{gpu} constituyen la arquitectura hardware central utilizada en este proyecto.
-
-El modelo de programación de las \gls{gpu} está basado en la ejecución masiva de hilos, organizados en bloques y rejillas (\textit{blocks} y \textit{grids}), según la terminología de CUDA, el modelo de programación desarrollado por NVIDIA. Cada hilo ejecuta la misma función, conocida como \textit{kernel}, pero opera sobre diferentes fragmentos de datos. Este enfoque, conocido como SIMT (Single Instruction, Multiple Threads), permite aprovechar al máximo el paralelismo inherente a muchas aplicaciones de inteligencia artificial, como el entrenamiento y la inferencia de redes neuronales.
+El modelo de programación de las \glspl{gpu} está basado en la ejecución masiva de hilos, organizados en bloques y rejillas (\textit{blocks} y \textit{grids}), según la terminología de CUDA, el modelo de programación desarrollado por NVIDIA. Cada hilo ejecuta la misma función, conocida como \textit{kernel}, pero opera sobre diferentes fragmentos de datos. Este enfoque, conocido como SIMT (Single Instruction, Multiple Threads), permite aprovechar al máximo el paralelismo inherente a muchas aplicaciones de inteligencia artificial, como el entrenamiento y la inferencia de redes neuronales.
 
 \begin{figure}[H]
    \centering
@@ -546,10 +556,10 @@ El modelo de programación de las \gls{gpu} está basado en la ejecución masiva
    \caption[Comparativa de arquitecturas CPU y GPU]{Comparativa de arquitecturas CPU y GPU. Extraído de \cite{enccs_gpu_ecosystem}.}
    \label{fig:cpu_vs_gpu}
 \end{figure}
-La figura \ref{fig:cpu_vs_gpu} ilustra las diferencias arquitectónicas entre CPU y GPU. Las CPUs constan de un número reducido de núcleos (generalmente entre 4 y 64) optimizados para un alto rendimiento secuencial, donde cada núcleo dispone típicamente de caché y unidad de control privadas. En cambio, las \gls{gpu} se basan en una arquitectura \textit{many-core}, integrando miles de núcleos más simples diseñados para el paralelismo masivo, aunque con menor rendimiento individual por núcleo. Estos núcleos de \gls{gpu} suelen compartir recursos como la caché y las unidades de control, lo que posibilita empaquetar una mayor cantidad de unidades de procesamiento en el mismo chip y, consecuentemente, alcanzar una mayor densidad de cómputo.
+La figura \ref{fig:cpu_vs_gpu} ilustra las diferencias arquitectónicas entre CPU y GPU. Las CPUs constan de un número reducido de núcleos (generalmente entre 4 y 64) optimizados para un alto rendimiento secuencial, donde cada núcleo dispone típicamente de caché y unidad de control privadas. En cambio, las \glspl{gpu} se basan en una arquitectura \textit{many-core}, integrando miles de núcleos más simples diseñados para el paralelismo masivo, aunque con menor rendimiento individual por núcleo. Estos núcleos de \glspl{gpu} suelen compartir recursos como la caché y las unidades de control, lo que posibilita empaquetar una mayor cantidad de unidades de procesamiento en el mismo chip y, consecuentemente, alcanzar una mayor densidad de cómputo.
 
 
-NVIDIA ha sido una figura central en la evolución de la aceleración de IA, realizando contribuciones clave que han modelado el campo. Fue pionera en la computación de propósito general en \gls{gpu} (GPGPU) con la introducción de CUDA en 2006. Esta plataforma permitió utilizar la masiva capacidad de procesamiento paralelo de las \gls{gpu} para tareas computacionales generales, extendiendo su uso más allá de los gráficos tradicionales. La programación de \gls{gpu} se realiza utilizando lenguajes y APIs especializadas como CUDA y OpenCL, que otorgan al desarrollador un control explícito sobre la distribución de datos y tareas entre los miles de núcleos disponibles.
+NVIDIA ha sido una figura central en la evolución de la aceleración de IA, realizando contribuciones clave que han modelado el campo. Fue pionera en la computación de propósito general en \gls{gpu} con la introducción de CUDA en 2006. Esta plataforma permitió utilizar la masiva capacidad de procesamiento paralelo de las \gls{gpu} para tareas computacionales generales, extendiendo su uso más allá de los gráficos tradicionales. La programación de \gls{gpu} se realiza utilizando lenguajes y APIs especializadas como CUDA y OpenCL, que otorgan al desarrollador un control explícito sobre la distribución de datos y tareas entre los miles de núcleos disponibles.
 
 El desarrollo eficaz en este paradigma requiere identificar y explotar el paralelismo inherente a los algoritmos, así como gestionar eficientemente la compleja jerarquía de memoria de la \gls{gpu}. Es crucial considerar la latencia significativamente mayor del acceso a la memoria global en comparación con memorias más rápidas pero de menor capacidad, como la memoria compartida local a un bloque de hilos.
 
@@ -620,14 +630,14 @@ El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de en
    \label{fig:tensorrt_architecture}
 \end{figure}
 
-El proceso típico de uso de TensorRT, como se ilustra esquemáticamente en la Figura~\ref{fig:tensorrt_architecture}, implica tomar un modelo entrenado (generalmente exportado a un formato intermedio como ONNX), utilizar el "constructor" (builder) de TensorRT para aplicar las optimizaciones y generar un "motor" (engine) de inferencia serializado y optimizado. Este motor es específico para el modelo, la precisión deseada y la plataforma hardware de destino (p. ej., un Jetson Orin Nano específico). Finalmente, el motor se carga en el "tiempo de ejecución" (runtime) de TensorRT para realizar inferencias rápidas y eficientes.
+El proceso típico de uso de TensorRT, como se ilustra esquemáticamente en la Figura~\ref{fig:tensorrt_architecture}, implica tomar un modelo entrenado (generalmente exportado a un formato intermedio como ONNX), utilizar el ``constructor'' (builder) de TensorRT para aplicar las optimizaciones y generar un ``motor'' (engine) de inferencia serializado y optimizado. Este motor es específico para el modelo, la precisión deseada y la plataforma hardware de destino (p. ej., un Jetson Orin Nano específico). Finalmente, el motor se carga en el ``tiempo de ejecución'' (runtime) de TensorRT para realizar inferencias rápidas y eficientes.
 
 TensorRT se integra de forma nativa con los principales frameworks de aprendizaje profundo (TensorFlow, PyTorch) y soporta el formato de intercambio ONNX (Open Neural Network Exchange), lo que facilita la importación de modelos desde prácticamente cualquier framework de entrenamiento. Su capacidad para reducir significativamente la latencia y aumentar el rendimiento lo convierte en una herramienta esencial para desplegar modelos de IA en aplicaciones sensibles al tiempo real y en dispositivos con recursos limitados como los de la serie Jetson.
 
 
 
 \section{Seguimiento de objetos en tiempo real} \label{sec:mot}
-En esta sección se presentará los conceptos básicos del seguimiento de objetos en tiempo real, se explicará el problema del seguimiento de objetos múltiples (MOT) y se presentarán los algoritmos más relevantes en este campo.
+En esta sección se presentarán los conceptos básicos del seguimiento de objetos en tiempo real, se explicará el problema del seguimiento de objetos múltiples (MOT) y se presentarán los algoritmos más relevantes en este campo.
 
 \subsection{Introducción al seguimiento de objetos} \label{sec:introduccion_seguimiento_objetos}
 El seguimiento de objetos es un proceso que complementa la salida de los modelos de detección. Mientras que un modelo de detección opera sobre cada fotograma de forma independiente, identificando y localizando objetos como si fueran imágenes estáticas, el \gls{mot} actúa sobre estas detecciones para establecer una correspondencia temporal. La función esencial del \gls{mot} es asignar un identificador único a cada objeto detectado en un fotograma y mantener dicho identificador de manera consistente a lo largo de la secuencia de vídeo. Esto permite reconstruir las trayectorias de los objetos y analizar su comportamiento dinámico en la escena.
@@ -984,7 +994,7 @@ Para la configuración del algoritmo BYTETrack existen varios parámetros ajusta
    \item \texttt{track\_high\_thresh}: Umbral de confianza para considerar una detección como de alta confianza (valor típico: 0.6). Las detecciones por encima de este umbral se utilizan en la primera etapa de asociación.
    \item \texttt{track\_low\_thresh}: Umbral de confianza para considerar una detección como de baja confianza (valor típico: 0.15). Las detecciones que se encuentren entre este umbral y \texttt{track\_high\_thresh} se utilizan en la segunda etapa de asociación para recuperar objetos ocluidos.
    \item \texttt{new\_track\_thresh}: Umbral de confianza mínimo para iniciar una nueva trayectoria a partir de una detección de alta confianza no asociada (valor típico: 0.6). Debe ser al menos tan alto como \texttt{track\_high\_thresh}.
-   \item \texttt{track\_buffer}: Número máximo de fotogramas que una trayectoria puede permanecer sin asociar antes de ser eliminada. Define la "edad" máxima de una pista perdida. Un valor típico es 30 fotogramas.
+   \item track\_buffer: Número máximo de fotogramas que una trayectoria puede permanecer sin asociar antes de ser eliminada. Define la ``edad'' máxima de una pista perdida. Un valor típico es 30 fotogramas.
    \item \texttt{match\_thresh}: Umbral de IoU (Intersection over Union) para la asociación entre las predicciones del Filtro de Kalman y las detecciones (valor típico: 0.8). Si la IoU es mayor que este umbral, se considera una coincidencia potencial.
 \end{itemize}
 
@@ -1477,8 +1487,7 @@ En esta sección se detallará la instalación del entorno de producción, inclu
 %                                BIBLIOGRAFIA                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\printglossaries
-
+\printglossary[type=\acronymtype]
 
 \bibliographystyle{plain}      % Estilo de la bibliografía
 \bibliography{referencias} % Bibliografia
@@ -1578,5 +1587,6 @@ En esta sección se detallará la instalación del entorno de producción, inclu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              FI DEL DOCUMENT                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\printglossaries
 
 \end{document}
