@@ -183,9 +183,20 @@ Para enfrentar estos desafíos, se han desarrollado diversas técnicas de optimi
 
 La combinación de redes neuronales convolucionales y aceleradores hardware ha permitido la creación de sistemas de visión artificial que pueden detectar y clasificar objetos en movimiento, lo que es esencial en aplicaciones como la vigilancia, la conducción autónoma y la robótica.
 
+Con todo ello en mente, este trabajo se centra en el desarrollo de un sistema de visión artificial capaz de detectar y clasificar objetos con posibles defectos en movimiento, utilizando redes neuronales convolucionales y aceleradores hardware de bajo consumo. 
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{images/diseno_e_implementacion/figura_TFG_v3.png}
+   \caption{Esquema del sistema de visión artificial propuesto.}
+\label{fig:esquema_TFG}
+\end{figure}
+
+La Figura~\ref{fig:esquema_TFG} ilustra el esquema del sistema de visión artificial propuesto. Este sistema se basa en la captura de imágenes de objetos en movimiento, que son procesadas por un modelo de red neuronal convolucional (CNN) para detectar y clasificar posibles defectos. El modelo se ejecuta en un dispositivo NVIDIA Jetson, optimizado para ofrecer un rendimiento eficiente en términos de velocidad y consumo energético. La implementación del sistema incluye la captura y etiquetado de imágenes, el diseño y entrenamiento del modelo CNN, así como la integración con el hardware NVIDIA para su despliegue en entornos industriales.
+
 \section{Motivaci\'on} \label{sec:motivacion}
 
-Los humamos somos capaces de ver y entender el mundo que nos rodea. Dada una imagen, podemos identificar objetos, reconocer patrones y tomar decisiones basadas en la información visual. Sin embargo, esta capacidad no es innata en las máquinas. La visión por computador es la ciencia que busca dotar a las máquinas de la capacidad de interpretar y comprender imágenes y vídeos, emulando la forma en que los humanos percibimos el entorno. 
+Los humanos somos capaces de ver y entender el mundo que nos rodea. Dada una imagen, podemos identificar objetos, reconocer patrones y tomar decisiones basadas en la información visual. Sin embargo, esta capacidad no es innata en las máquinas. La visión por computador es la ciencia que busca dotar a las máquinas de la capacidad de interpretar y comprender imágenes y vídeos, emulando la forma en que los humanos percibimos el entorno.
 
 Como se mencionó anteriormente, la inteligencia artificial ha revolucionado la forma en que interactuamos con la tecnología. Se ha convertido en una herramienta esencial para aplicar soluciones innovadoras en una amplia gama de campos. En particular, la visión por computador ha demostrado ser un área de gran potencial. También la existencia de dispositivos de bajo consumo, como los de la serie Jetson de NVIDIA, ha permitido llevar la inteligencia artificial a entornos de edge computing (cómputo en el borde), donde se acerca el procesamiento de datos a la fuente de información. Esto reduce la latencia y el consumo energético. Con todo esto, se abre un abanico de posibilidades para la implementación de sistemas de visión artificial en aplicaciones industriales.
 
@@ -1116,7 +1127,7 @@ La Figura \ref{fig:segmentacion_multihardware} ilustra cómo la etapa de inferen
 \subsection{Segmentación basada en procesos con memoria compartida} \label{sub:segmentacion_memoria_compartida}
 
 
-La quinta opción de segmentación emplea procesos independientes como en \ref{sub:segmentacion_procesos}, pero busca optimizar la comunicación entre ellos utilizando memoria compartida como alternativa a las colas estándar del módulo \texttt{multiprocessing}. La transferencia de grandes volúmenes de datos, como los fotogramas de vídeo, puede volverse ineficiente con \texttt{multiprocessing.Queue} debido a la sobrecarga asociada a la serialización (\textit{pickling}) y deserialización de objetos, así como a la posible copia de datos entre los espacios de memoria de los procesos a través de mecanismos subyacentes como pipes.
+La quinta opción de segmentación emplea procesos independientes como en la sección \ref{sub:segmentacion_procesos}, pero busca optimizar la comunicación entre ellos utilizando memoria compartida como alternativa a las colas estándar del módulo \texttt{multiprocessing}. La transferencia de grandes volúmenes de datos, como los fotogramas de vídeo, puede volverse ineficiente con \texttt{multiprocessing.Queue} debido a la sobrecarga asociada a la serialización (\textit{pickling}) y deserialización de objetos, así como a la posible copia de datos entre los espacios de memoria de los procesos a través de mecanismos subyacentes como pipes.
 
 Para superar estas limitaciones, la biblioteca \texttt{multiprocessing.shared\_memory} de Python permite a múltiples procesos acceder directamente a la misma región de memoria. Un proceso crea un bloque de memoria compartida, y otros procesos pueden adjuntarse a él usando su nombre único. Ambos pueden leer y escribir directamente en el \textit{buffer} de memoria (\texttt{shm.buf}). Este acceso directo elimina los pasos de serialización/deserialización y las copias intermedias, resultando en una latencia mucho menor y un mayor ancho de banda, lo cual es especialmente beneficioso para datos grandes y estructurados como imágenes o \textit{arrays} NumPy.
 
@@ -1447,7 +1458,96 @@ Como se puede observar en la Tabla \ref{tab:experimento_segmentacion_30_fps}, el
 \section{Modelo y talla} \label{sub:modelo_talla}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modelo de detección de objetos y sus diferentes tallas.
 
-Repasando la sección \ref{sec:entrenamiento_modelo}, se han empleado tres modelos de detección de objetos: YOLOv5, YOLOv8 y YOLO11. Cada uno de estos modelos tiene diferentes tallas, que son versiones optimizadas para diferentes capacidades computacionales, se puede revisar en la Tabla \ref{tab:yolo_all_variants_comparison}.
+Repasando la tabla \ref{tab:yolo_all_variants_comparison}, se han empleado tres modelos de detección de objetos: YOLOv5, YOLOv8 y YOLO11. Cada uno de estos modelos tiene diferentes tallas, que son versiones optimizadas para diferentes capacidades computacionales. 
+
+Para la evaluación del rendimiento de cada modelo y sus diferentes tallas, se estableció una configuración base común: los modelos de detección de objetos se optimizaron con NVIDIA TensorRT para su ejecución en la GPU, utilizando precisión FP16 y el perfil de energía MAXN del dispositivo Jetson AGX Xavier. Adicionalmente, se empleó la segmentación por procesos con memoria compartida, identificada en análisis previos como la más eficiente en rendimiento y consumo energético. Sobre esta configuración, las pruebas se realizaron utilizando como entrada estándar el vídeo de 84 objetos (carga alta y constante), lo que permite someter al sistema a una carga computacional elevada y así comparar objetivamente las distintas variantes de modelos y tallas.
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+       col sep=comma,
+       header=true,
+       columns={modelo,frames_procesados,Tejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,Frames_W,Average_GPU,Average_CPU,Tpreprocesado_ms,Tinferencia_ms,Tpostprocesado_ms},
+       display columns/0/.style={column name=Modelo, column type={c}, string type},
+       display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
+       display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=2},
+       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
+       display columns/9/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+       display columns/10/.style={column name=T. Prepro. (ms), column type={c}, fixed, precision=2},
+       display columns/11/.style={column name=T. Infer. (ms), column type={c}, fixed, precision=2},
+       display columns/12/.style={column name=T. Postpro. (ms), column type={c}, fixed, precision=2},
+       every head row/.style={before row=\toprule, after row=\midrule},
+       every last row/.style={after row=\bottomrule},
+       empty cells with={NaN}
+   ]{excels/inferencia/modelo_talla/data/max_fps.csv}
+   }
+   \caption{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
+   \label{tab:experimento_modelo_talla_max_fps_carga_alta_constante}
+\end{table}
+
+Al analizar los resultados presentados en la Tabla \ref{tab:experimento_modelo_talla_max_fps_carga_alta_constante}, se observa una notable similitud en el rendimiento de fotogramas por segundo (FPS) entre todos los modelos y sus respectivas tallas, manteniéndose en un rango aproximado de 28 ± 1 FPS. Esta homogeneidad en la velocidad de procesamiento se explica por la naturaleza del vídeo de prueba utilizado, que presenta una carga alta y constante de objetos. En este escenario, el rendimiento global del sistema se ve limitado predominantemente por la capacidad de las etapas posteriores a la inferencia (como el seguimiento y la escritura) para procesar la gran cantidad de objetos detectados, más que por la complejidad intrínseca o la velocidad de la etapa de inferencia en sí misma. Esto enmascara las diferencias potenciales en la velocidad de inferencia pura que podrían observarse bajo condiciones de menor carga de objetos.
+
+No obstante, al considerar la eficiencia energética, medida en fotogramas por vatio (Frames/W), emergen diferencias significativas. Los modelos YOLO11n y YOLOv8n se destacan como las opciones más eficientes, logrando un mayor número de fotogramas procesados por cada vatio de energía consumida. En contraste, el modelo YOLO11l, a pesar de ofrecer una tasa de FPS comparable, presenta un consumo energético superior, lo que resulta en una menor eficiencia. Esta diferencia se atribuye al mayor número de parámetros del modelo YOLO11l, que inherentemente demanda más recursos computacionales y, por ende, energéticos para su ejecución.
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/modelo_talla/tiempos_inferencia.png}
+   \caption{Tiempos de ejecución de la etapa de inferencia para los diferentes modelos y tallas.}
+   \label{fig:tiempos_inferencia}
+\end{figure}
+Un análisis detallado de los tiempos de la etapa de inferencia, presentado en la Figura \ref{fig:tiempos_inferencia}, revela que los modelos YOLOv8n y YOLO11n destacan por su menor tiempo de ejecución. En contraste, YOLOv5mu y YOLO11l exhiben tiempos más elevados, una tendencia que se alinea con el mayor consumo energético reportado en la Tabla \ref{tab:experimento_modelo_talla_max_fps_carga_alta_constante}.
+
+Ahora se va a analizar el rendimiento de cada modelo y sus diferentes tallas utilizando la metodología de ejecución en tiempo real, donde el sistema debe procesar cada fotograma en un tiempo máximo de 33.3 ms (30 fps). Si no logra hacerlo, el fotograma se descarta. Esta metodología permite evaluar la capacidad del sistema para operar en tiempo real y medir la tasa de fotogramas perdidos (LFPS).
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+       col sep=comma,
+       header=true,
+       columns={modelo,frames_procesados,Tejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,Frames_W,mAP50_95},
+       display columns/0/.style={column name=Modelo, column type={c}, string type},
+       display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
+       display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=2},
+       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+      %  display columns/8/.style={column name={GPU Avg. (\%)}, column type={c}, fixed, precision=2},
+      %  display columns/9/.style={column name={CPU Avg. (\%)}, column type={c}, fixed, precision=2},
+      %  display columns/10/.style={column name=T. Prepro. (ms), column type={c}, fixed, precision=2},
+      %  display columns/11/.style={column name=T. Infer. (ms), column type={c}, fixed, precision=2},
+      %  display columns/12/.style={column name=T. Postpro. (ms), column type={c}, fixed, precision=2},
+       display columns/8/.style={column name={mAP$_{50-95}$}, column type={c}, fixed, precision=2},
+       every head row/.style={before row=\toprule, after row=\midrule},
+       every last row/.style={after row=\bottomrule},
+       empty cells with={NaN}
+   ]{excels/inferencia/modelo_talla/data/30_fps.csv}
+   }
+   \caption{Resultados del experimento con distintos modelos y tallas a 30 fps.}
+   \label{tab:experimento_modelo_talla_30_fps}
+\end{table}
+
+Los resultados de la Tabla \ref{tab:experimento_modelo_talla_30_fps} muestran una tendencia general similar a la observada en la Tabla \ref{tab:experimento_modelo_talla_max_fps_carga_alta_constante} en términos de rendimiento.
+Sin embargo, la Tabla \ref{tab:experimento_modelo_talla_30_fps} permite un análisis más detallado de la tasa de fotogramas perdidos (LFPS) para cada combinación de modelo y talla.
+Se observa que el modelo YOLOv8s presenta la tasa de LFPS más alta, alcanzando 2.39 LFPS.
+A pesar de esto, todas las variantes de modelos y tallas evaluadas mantienen una tasa de LFPS que podría considerarse aceptable para un sistema de visión artificial operando en tiempo real a 30 fps, ya que el sistema podría continuar funcionando de manera efectiva.
+El modelo YOLOv8n registra la tasa de LFPS más baja (1.2 LFPS), aunque las diferencias entre los modelos no son drásticas en este aspecto.
+
+Para seleccionar el modelo y la talla más adecuados, es crucial considerar un equilibrio entre el consumo energético y la precisión del modelo. En el contexto de la tarea actual, que consiste en clasificar canicas de diferentes colores y con/sin defectos, la complejidad es relativamente baja.
+Como resultado, todos los modelos y tallas evaluados alcanzan niveles de precisión (mAP50-95) similares, tal como se evidencia en la última columna de la Tabla \ref{tab:experimento_modelo_talla_30_fps}.
+Dada esta similitud en precisión, para esta aplicación específica, se podría priorizar la elección del modelo y talla que ofrezca el menor consumo energético.
+No obstante, en aplicaciones donde la precisión de detección sea un factor crítico, la selección debería inclinarse hacia el modelo y talla que demuestre el mayor rendimiento en dicha métrica, incluso si esto implica un mayor consumo energético.
+
+
 
 \section{Precisión del modelo} \label{sub:precision_modelo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas.
