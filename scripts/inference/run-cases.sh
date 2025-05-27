@@ -1,14 +1,20 @@
 #!/bin/bash
 
 # This script runs the inference cases for the given model and dataset.
-
-models=("yolov5nu" "yolov5mu" "yolov8n" "yolov8s" "yolo11n" "yolo11s" "yolo11m" "yolo11l") 
+models=("yolo11n")
 precision=("FP16")
 hardware=("GPU")
-mode=("MAXN")
+mode=("30W")
 parallel=("mp_shared_memory")
-max_fps=("30" "infinite")
+max_fps=("infinite" "30")
 num_objects=("88")
+
+# Filter combinations based on allowed cases
+declare -A allowed_cases
+allowed_cases["FP32,GPU"]=1
+allowed_cases["FP32,CPU"]=1
+allowed_cases["FP16,GPU"]=1
+allowed_cases["FP16,DLA0"]=1
 
 # Loop through all combinations
 for model in "${models[@]}"; do
@@ -18,6 +24,12 @@ for model in "${models[@]}"; do
                 for par in "${parallel[@]}"; do
                     for fps in "${max_fps[@]}"; do
                         for num_obj in "${num_objects[@]}"; do
+                            # Check if the case is allowed
+                            case_key="${prec},${hw}"
+                            if [[ -z "${allowed_cases[$case_key]}" ]]; then
+                                echo "Skipping case: Precision=${prec}, Hardware=${hw} (not allowed)"
+                                continue
+                            fi
                             echo "-------------------------------------------------------------------------------------------------------"
                             echo "Running case: Model=${model}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${fps}, Num Objects=${num_obj}"
                             command="python3 inference.py \
@@ -37,8 +49,7 @@ for model in "${models[@]}"; do
 
                             # Check if the command was successful
                             if [ $? -ne 0 ]; then
-                                echo "Error running case: Model=${size}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${fps}, Num Objects=${num_obj}"
-                                exit 1
+                                echo "Error running case: Model=${model}, Precision=${prec}, Hardware=${hw}, Mode=${m}, Parallel=${par}, Max FPS=${fps}, Num Objects=${num_obj}. Continuing to the next case."
                             fi
                             echo
                             echo

@@ -67,7 +67,10 @@ def parse_tegrastats_file(filename, total_time):
     if data:
         for key in data[0].keys():
             if key.startswith("CPU_Core_") and key.endswith("Usage_%"):
-                cpu_quantities += 1
+                for d in data:
+                    if key in d and d[key] != 0:
+                        cpu_quantities += 1
+                        break
 
     print(f"[HARDWARE STATS USAGE] CPU Quantities: {cpu_quantities}")
 

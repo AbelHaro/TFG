@@ -52,7 +52,7 @@ def parse_arguments():
         "--hardware",
         default="GPU",
         type=str,
-        choices=["GPU", "DLA0", "DLA1", "ALL"],
+        choices=["GPU", "DLA0", "DLA1", "ALL", "CPU"],
         help="Hardware a usar, default=GPU",
     )
 
@@ -125,11 +125,16 @@ def initialize_pipeline(args):
     GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU{batch_suffix}.engine"
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0{batch_suffix}.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1{batch_suffix}.engine"
+    CPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}.pt"
 
     model_path = (
         GPU_model_path
         if args.hardware == "GPU"
-        else DLA0_model_path if args.hardware == "DLA0" else DLA1_model_path
+        else (
+            DLA0_model_path
+            if args.hardware == "DLA0"
+            else DLA1_model_path if args.hardware == "DLA1" else CPU_model_path
+        )
     )
 
     if args.num_objects == "libre":
