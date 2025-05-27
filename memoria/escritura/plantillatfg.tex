@@ -75,6 +75,7 @@
 \newacronym{gap}{GAP}{Grupo de Arquitecturas Paralelas}
 \newacronym{upv}{UPV}{Universidad Politécnica de Valencia}
 \newacronym{sdl}{SDL}{Sistemas Basados en Deep Learning para la Industria}
+\newacronym{onnx}{ONNX}{Open Neural Network Exchange}
 
 
 
@@ -641,9 +642,9 @@ El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de en
    \label{fig:tensorrt_architecture}
 \end{figure}
 
-El proceso típico de uso de TensorRT, como se ilustra esquemáticamente en la Figura~\ref{fig:tensorrt_architecture}, implica tomar un modelo entrenado (generalmente exportado a un formato intermedio como ONNX), utilizar el ``constructor'' (builder) de TensorRT para aplicar las optimizaciones y generar un ``motor'' (engine) de inferencia serializado y optimizado. Este motor es específico para el modelo, la precisión deseada y la plataforma hardware de destino (p. ej., un Jetson Orin Nano específico). Finalmente, el motor se carga en el ``tiempo de ejecución'' (runtime) de TensorRT para realizar inferencias rápidas y eficientes.
+El proceso típico de uso de TensorRT, como se ilustra esquemáticamente en la Figura~\ref{fig:tensorrt_architecture}, implica tomar un modelo entrenado (generalmente exportado a un formato intermedio como \gls{onnx}), utilizar el ``constructor'' (builder) de TensorRT para aplicar las optimizaciones y generar un ``motor'' (engine) de inferencia serializado y optimizado. Este motor es específico para el modelo, la precisión deseada y la plataforma hardware de destino (p. ej., un Jetson Orin Nano específico). Finalmente, el motor se carga en el ``tiempo de ejecución'' (runtime) de TensorRT para realizar inferencias rápidas y eficientes.
 
-TensorRT se integra de forma nativa con los principales frameworks de aprendizaje profundo (TensorFlow, PyTorch) y soporta el formato de intercambio ONNX (Open Neural Network Exchange), lo que facilita la importación de modelos desde prácticamente cualquier framework de entrenamiento. Su capacidad para reducir significativamente la latencia y aumentar el rendimiento lo convierte en una herramienta esencial para desplegar modelos de IA en aplicaciones sensibles al tiempo real y en dispositivos con recursos limitados como los de la serie Jetson.
+TensorRT se integra de forma nativa con los principales frameworks de aprendizaje profundo (TensorFlow, PyTorch) y soporta el formato de intercambio \gls{onnx}, lo que facilita la importación de modelos desde prácticamente cualquier framework de entrenamiento. Su capacidad para reducir significativamente la latencia y aumentar el rendimiento lo convierte en una herramienta esencial para desplegar modelos de IA en aplicaciones sensibles al tiempo real y en dispositivos con recursos limitados como los de la serie Jetson.
 
 
 
@@ -1549,15 +1550,120 @@ No obstante, en aplicaciones donde la precisión de detección sea un factor cr�
 
 
 
-\section{Precisión del modelo} \label{sub:precision_modelo}
-En esta sección se analizará el rendimiento de la solución propuesta variando la precisión del modelo de detección de objetos con gráficas y tablas.
+\section{Precisión Numérica y Dispositivo de Inferencia} \label{sub:precision_numerica_dispositivo}
+En esta sección se analizará el rendimiento de la solución propuesta variando la precisión numérica (FP32, FP16, INT8) del modelo de detección de objetos y el dispositivo de inferencia (CPU, GPU, DLA).
 
-\section{Modo de energía y cores de la CPU} \label{sub:modo_energia}
+Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para la ejecución en GPU y DLA, el modelo fue optimizado con NVIDIA TensorRT, evaluándose las precisiones FP32, FP16 e INT8. En el caso de la ejecución en CPU, se empleó el modelo YOLO11n sin la optimización de TensorRT, ya que esta no es aplicable a dicho dispositivo. La exportación del modelo de PyTorch a TensorRT con precisión INT8 requiere un conjunto de datos de calibración; para este propósito, se utilizó un subconjunto de 100 imágenes extraídas del conjunto de entrenamiento original, con el fin de calibrar el modelo y optimizar su rendimiento para la inferencia en INT8.
+
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+       col sep=comma,
+       header=true,
+       columns={Dispositivo,Precision,frames_procesados,tejecucion,FPS,LFPS,potencia_media_consumida,energia_consumida,Frames/W,Average_GPU,Average_CPU,mAP50-95},
+      display columns/0/.style={column name=Dispositivo, column type={c}, string type},
+      display columns/1/.style={column name=Precisión, column type={c}, string type},
+      display columns/2/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+      display columns/3/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+      display columns/4/.style={column name=FPS, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=LFPS, column type={c}, fixed, precision=2},
+      display columns/6/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
+      display columns/7/.style={column name=Energía (J), column type={c}, fixed, precision=2},
+      display columns/8/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/10/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/11/.style={column name={mAP$_{50-95}$}, column type={c}, fixed, precision=4},
+       every head row/.style={before row=\toprule, after row=\midrule},
+       every last row/.style={after row=\bottomrule},
+       empty cells with={NaN}
+   ]{excels/inferencia/precision_device/data/max_fps.csv}
+   }
+   \caption{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
+   \label{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}
+\end{table}
+
+Basándose en los resultados de la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}, se pueden extraer varias conclusiones. Exportar el modelo con TensorRT manteniendo la precisión FP32 produce una aceleración de $\frac{183.29}{84.44} = 2.17\times$ en comparación con la ejecución del modelo sin optimizar. Esto demuestra que optimizar el modelo con TensorRT mejora significativamente el rendimiento, incluso sin reducir la precisión numérica. TensorRT aplica optimizaciones como la fusión de capas y la eliminación de operaciones redundantes, lo que resulta en una ejecución más eficiente. 
+
+
+Para la precisión del modelo en GPU, los resultados muestran un rendimiento similar entre las ejecuciones con precisiones FP32, FP16 e INT8. Sin embargo, es importante destacar que las precisiones FP16 e INT8 logran un menor consumo energético. Esto se debe a que estas precisiones reducidas requieren menos recursos computacionales, lo que se traduce en una mayor eficiencia energética. En particular, la precisión INT8 se presenta como la opción más eficiente en términos de consumo energético, alcanzando un rendimiento de 1.96 Frames/W.
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/precision_device/tiempos_inferencia_gpu.png}
+   \caption{Tiempos de ejecución de la etapa de inferencia para las diferentes precisiones y GPU.}
+   \label{fig:tiempos_inferencia_gpu}
+\end{figure}
+
+
+Un análisis más detallado de los tiempos de la etapa de inferencia, como se observa en la Figura \ref{fig:tiempos_inferencia_gpu}, revela una reducción significativa en el tiempo de inferencia al utilizar precisiones más bajas en combinación con TensorRT.
+
+Observando el tiempo en la CPU de la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}, se puede apreciar que la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.93 FPS.
+
+Al comparar el rendimiento de la GPU y la DLA, se observa que la DLA ofrece un rendimiento similar al de la GPU. Repasando la sección \ref{sec:jetson}, se puede ver que la DLA está diseñada para manejar cargas de trabajo específicas de inferencia de manera más eficiente.
+
+Sin embargo, es crucial señalar que el modelo, tanto en FP16 como en INT8, no se ejecuta completamente en la DLA, ya que algunas operaciones no son compatibles con este dispositivo. Esto implica que la GPU también participa en el procesamiento.
+
+Este fenómeno se hace evidente al observar que, en la precisión INT8, ninguna capa del modelo se ejecuta en la DLA, lo que significa que la GPU es la que realiza todo el procesamiento.
+
+En la precisión FP16, como se observa en la Figura \ref{fig:exportacion_FP16_DLA}, la DLA se encarga de 6 de las 34 operaciones/capas del modelo, mientras que la GPU se encarga de las restantes 28.
+
+En esencia, la DLA no está descargando completamente a la GPU, lo que limita su capacidad para operar de forma independiente y optimizar el rendimiento general del sistema.
+
+En otros modelos más simples, la DLA podría encargarse de la mayoría de las operaciones, pero en el caso del modelo YOLO11n (tampoco fue posible para YOLOv5 y YOLOv8), la complejidad del modelo y las operaciones involucradas impiden que la DLA asuma una carga de trabajo significativa.
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/precision_device/exportación_FP16_DLA.png}
+   \caption{Exportación del modelo YOLO11n con TensorRT a FP16 para su ejecución en la DLA.}
+   \label{fig:exportacion_FP16_DLA}
+\end{figure}
+
+
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+      col sep=comma,
+      header=true,
+      columns={Dispositivo,Precision,frames_procesados,tejecucion,FPS,LFPS,potencia_media_consumida,energia_consumida,Frames/W,Average_GPU,Average_CPU,mAP50-95},
+      display columns/0/.style={column name=Dispositivo, column type={c}, string type},
+      display columns/1/.style={column name=Precisión, column type={c}, string type},
+      display columns/2/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+      display columns/3/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+      display columns/4/.style={column name=FPS, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=LFPS, column type={c}, fixed, precision=2},
+      display columns/6/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
+      display columns/7/.style={column name=Energía (J), column type={c}, fixed, precision=2},
+      display columns/8/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/10/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/11/.style={column name={mAP$_{50-95}$}, column type={c}, fixed, precision=4},
+      every head row/.style={before row=\toprule, after row=\midrule},
+      every last row/.style={after row=\bottomrule},
+      empty cells with={NaN}
+      ]{excels/inferencia/precision_device/data/30_fps.csv}
+      }
+      \caption{Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante.}
+      \label{tab:experimento_precision_dispositivo_30_fps}
+   \end{table}
+
+   En la Tabla \ref{tab:experimento_precision_dispositivo_30_fps}, se obsrvan las ejecuciones en tiempo real de los modelos con diferentes precisiones y dispositivos. Observando los resultados, como se ha mencionado anteriormente, la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.79 FPS y 28.49 LFPS. En cuanto a la GPU, se observa que las precisiones 
+
+
+
+
+   
+   \section{Modo de energía y cores de la CPU} \label{sub:modo_energia}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo y el número de cores de la CPU con gráficas y tablas.
 
 \section{Tamaño de la imagen} \label{sub:talla_imagen}
 En esta sección se analizará el rendimiento de la solución propuesta variando el tamaño de la imagen de entrada del modelo con la técnica de Slicing Aided Hyper Inference (SAHI) con gráficas y tablas.
- 
+
 \chapter{Prueba de concepto} \label{ch:prueba_concepto}
 Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
 
