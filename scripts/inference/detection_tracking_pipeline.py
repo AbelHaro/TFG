@@ -10,6 +10,7 @@ import torch.multiprocessing as mp
 from classes.shared_circular_buffer import SharedCircularBuffer
 from lib.constants import TIMING_FIELDS
 import time
+import numpy as np
 
 DEFAULT_SAHI_CONFIG = {
     "slice_width": 640,
@@ -24,14 +25,14 @@ DEFAULT_SAHI_CONFIG = {
 
 class DetectionTrackingPipeline(ABC):
     """Clase base para pipelines de detección y tracking.
-    
+
     Esta clase implementa la funcionalidad común para todos los tipos de pipelines
     de detección y tracking, permitiendo diferentes estrategias de paralelización.
     """
 
     # Configuración de logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
-    
+
     logging.getLogger().disabled = False
 
     # Configuración por defecto de SAHI
@@ -116,89 +117,93 @@ class DetectionTrackingPipeline(ABC):
             if memory[track_id]["visible_frames"] <= 0:
                 del memory[track_id]
 
-    def capture_frames( 
-            self,
-            video_path: str,
-            frame_queue: Union[mp.Queue, SharedCircularBuffer],
-            t1_start: mp.Event,
-            stop_event: mp.Event,
-            tcp_event: mp.Event,
-            is_tcp: bool,
-            mp_stop_event: Optional[mp.Event] = None,
-            mh_num: int = 1,
-            is_process: bool = False,
-            max_frames: Optional[int] = None,
-            ):
-            logging.debug(f"[PROGRAM - CAPTURE FRAMES] Iniciando captura de frames")
+    def capture_frames(
+        self,
+        video_path: str,
+        frame_queue: Union[mp.Queue, SharedCircularBuffer],
+        t1_start: mp.Event,
+        stop_event: mp.Event,
+        tcp_event: mp.Event,
+        is_tcp: bool,
+        mp_stop_event: Optional[mp.Event] = None,
+        mh_num: int = 1,
+        is_process: bool = False,
+        max_frames: Optional[int] = None,
+    ):
+        logging.debug(f"[PROGRAM - CAPTURE FRAMES] Iniciando captura de frames")
 
-            if not os.path.exists(video_path):
-                for _ in range(mh_num):
-                    frame_queue.put(None)
-                raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
-
-            cap = cv2.VideoCapture(video_path)
-            #cap = cv2.VideoCapture('/dev/video0')
-            #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
-            #cap.set(cv2.CAP_PROP_FPS, 30)
-            
-            first_time = True
-
-            if not cap.isOpened():
-                frame_queue.put(None)
-                raise IOError(f"Error al abrir el archivo de video: {video_path}")
-
-            tcp_event.wait() if is_tcp else None
-
-            frame_count = 0
-
-            import time
-            frame_time = 1 / max_frames if max_frames else None
-
-            t1_start.wait()
-            while cap.isOpened() and not stop_event.is_set():
-                loop_start_time = time.time()
-                
-                if first_time:
-                    t1 = cv2.getTickCount()
-                    first_time = False
-                    
-                ret, frame = cap.read()
-
-                if not ret:
-                    logging.debug(
-                        f"[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola"
-                    )
-                    logging.debug(f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames")
-                    break
-
-                    
-                t2 = cv2.getTickCount()
-                total_frame_time = (t2 - t1) / cv2.getTickFrequency()
-                
-                times = {TIMING_FIELDS["CAPTURE"]: total_frame_time}
-                # logging.debug(f"[DEBUG] Poniendo frame a la cola", frame.shape)
-                try:
-                    frame_queue.put((frame, times, frame_count)) if not max_frames else frame_queue.put_nowait((frame, times, frame_count))
-                
-                except Exception as e:
-                    pass
-                    
-                t1 = cv2.getTickCount()
-                
-                elapsed_time = time.time() - loop_start_time
-                if max_frames and elapsed_time < frame_time:
-                    time.sleep(frame_time - elapsed_time)
-                    
-                frame_count += 1
-                                               
-            cap.release()
-            logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
+        if not os.path.exists(video_path):
             for _ in range(mh_num):
                 frame_queue.put(None)
+            raise FileNotFoundError(f"El archivo de video no existe: {video_path}")
 
-            mp_stop_event.wait() if mp_stop_event else None
-            os._exit(0) if is_process else None
+        cap = cv2.VideoCapture(video_path)
+        # cap = cv2.VideoCapture('/dev/video0')
+        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+        # cap.set(cv2.CAP_PROP_FPS, 30)
+
+        first_time = True
+
+        if not cap.isOpened():
+            frame_queue.put(None)
+            raise IOError(f"Error al abrir el archivo de video: {video_path}")
+
+        tcp_event.wait() if is_tcp else None
+
+        frame_count = 0
+
+        import time
+
+        frame_time = 1 / max_frames if max_frames else None
+
+        t1_start.wait()
+        while cap.isOpened() and not stop_event.is_set():
+            loop_start_time = time.time()
+
+            if first_time:
+                t1 = cv2.getTickCount()
+                first_time = False
+
+            ret, frame = cap.read()
+
+            if not ret:
+                logging.debug(
+                    f"[PROGRAM - CAPTURE FRAMES] No se pudo leer el frame, añadiendo None a la cola"
+                )
+                logging.debug(f"[PROGRAM - CAPTURE FRAMES] Se han procesado {frame_count} frames")
+                break
+
+            t2 = cv2.getTickCount()
+            total_frame_time = (t2 - t1) / cv2.getTickFrequency()
+
+            times = {TIMING_FIELDS["CAPTURE"]: total_frame_time}
+            # logging.debug(f"[DEBUG] Poniendo frame a la cola", frame.shape)
+            try:
+                (
+                    frame_queue.put((frame, times, frame_count))
+                    if not max_frames
+                    else frame_queue.put_nowait((frame, times, frame_count))
+                )
+
+            except Exception as e:
+                pass
+
+            t1 = cv2.getTickCount()
+
+            elapsed_time = time.time() - loop_start_time
+            if max_frames and elapsed_time < frame_time:
+                time.sleep(frame_time - elapsed_time)
+
+            frame_count += 1
+
+        cap.release()
+        logging.debug(f"[PROGRAM - CAPTURE FRAMES] Captura de frames terminada")
+        for _ in range(mh_num):
+            frame_queue.put(None)
+
+        mp_stop_event.wait() if mp_stop_event else None
+        os._exit(0) if is_process else None
 
     def process_frames(
         self,
@@ -215,10 +220,18 @@ class DetectionTrackingPipeline(ABC):
 
         model = YOLO(model_path, task="detect")
 
-        model(conf=0.5, half=True, imgsz=(640, 640), augment=True)
+        model(conf=0.5, half=True, imgsz=(640, 640), augment=True, task="detect")
 
-        # dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
-        # model.predict(source=dummy_frame, device=0, conf=0.2, imgsz=(640, 640), half=True, augment=True, task='detect')
+        dummy_frame = np.zeros((640, 640, 3), dtype=np.uint8)
+        model.predict(
+            source=dummy_frame,
+            device=0,
+            conf=0.2,
+            imgsz=(640, 640),
+            half=True,
+            augment=True,
+            task="detect",
+        )
 
         t1_start.set()
 
@@ -497,7 +510,9 @@ class DetectionTrackingPipeline(ABC):
             if stop_gpu and stop_dla0 and stop_dla1:
                 tracking_queue.put(None)
                 mp_stop_event.wait() if mp_stop_event else None
-                logging.debug("[PROGRAM - TRACKING FRAMES MULTIHARDWARE] Tracking de frames con múltiple hardware terminado")
+                logging.debug(
+                    "[PROGRAM - TRACKING FRAMES MULTIHARDWARE] Tracking de frames con múltiple hardware terminado"
+                )
                 os._exit(0) if is_process else None
                 break
 
@@ -562,7 +577,7 @@ class DetectionTrackingPipeline(ABC):
         import threading
         import time
         from concurrent.futures import ThreadPoolExecutor
-        
+
         # Crear un ThreadPoolExecutor para reutilizar los threads
         thread_pool = ThreadPoolExecutor(max_workers=8)  # Ajustar según el número de núcleos
 
@@ -572,7 +587,7 @@ class DetectionTrackingPipeline(ABC):
         first_time = True
 
         frame_number = 0
-        
+
         sended_id = {}
 
         # Función para resetear FPS cada segundo
@@ -616,7 +631,7 @@ class DetectionTrackingPipeline(ABC):
             # Función para dibujar un objeto en el frame
             def draw_object(obj):
                 nonlocal frame, memory, colors, msg_sended, is_tcp, client_socket
-                
+
                 xmin, ymin, xmax, ymax, obj_id = map(int, obj[:5])
                 conf = float(obj[5])
 
@@ -624,7 +639,12 @@ class DetectionTrackingPipeline(ABC):
                     return
 
                 detected_class = memory[obj_id]["class"]
-                if detected_class.endswith("-d") and not msg_sended and is_tcp and not sended_id.get(obj_id):
+                if (
+                    detected_class.endswith("-d")
+                    and not msg_sended
+                    and is_tcp
+                    and not sended_id.get(obj_id)
+                ):
                     sended_id[obj_id] = True
                     threading.Thread(
                         target=handle_send,
@@ -632,25 +652,27 @@ class DetectionTrackingPipeline(ABC):
                         daemon=True,
                     ).start()
                     msg_sended = True
-                    
-                    logging.debug(f"[PROGRAM - DRAW AND WRITE] Enviando mensaje TCP para ID {obj_id}")
-                    
+
+                    logging.debug(
+                        f"[PROGRAM - DRAW AND WRITE] Enviando mensaje TCP para ID {obj_id}"
+                    )
+
                 color = colors.get(detected_class, (255, 255, 255))
                 cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
                 text = f"ID:{obj_id} {detected_class} {conf:.2f}"
                 cv2.putText(
-                   frame,
-                   text,
-                   (xmin, ymin - 10),
-                   cv2.FONT_HERSHEY_SIMPLEX,
-                   0.5,
-                   (255, 255, 255),
-                   2,
+                    frame,
+                    text,
+                    (xmin, ymin - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (255, 255, 255),
+                    2,
                 )
 
             # Usar thread pool para dibujar objetos en paralelo
             futures = [thread_pool.submit(draw_object, obj) for obj in tracked_objects]
-            
+
             # Esperar a que todas las tareas terminen
             for future in futures:
                 future.result()
@@ -667,8 +689,8 @@ class DetectionTrackingPipeline(ABC):
             out.write(frame)
             FPS_COUNT += 1
 
-            #cv2.imshow("Frame", frame)
-            #if cv2.waitKey(1) & 0xFF == ord("q"):
+            # cv2.imshow("Frame", frame)
+            # if cv2.waitKey(1) & 0xFF == ord("q"):
             #    break
 
             t2 = cv2.getTickCount()
@@ -729,7 +751,7 @@ class DetectionTrackingPipeline(ABC):
         fps_excel_file = create_csv_file(parallel_mode, file_name=fps_name)
 
         frame_count = 0
-        
+
         t1_start.wait()
         t1 = cv2.getTickCount()
 
@@ -754,9 +776,8 @@ class DetectionTrackingPipeline(ABC):
         stop_event.wait()
         t2 = cv2.getTickCount()
         total_time = (t2 - t1) / cv2.getTickFrequency()
-        
-        mp_stop_event.set() if mp_stop_event else None
 
+        mp_stop_event.set() if mp_stop_event else None
 
         logging.debug(f"[PROGRAM - WRITE TO CSV] Total time de write_to_csv: {total_time:.2f} s")
         create_tegrastats_file(tegra_stats_output, hardware_usage_name, total_time)
@@ -770,7 +791,7 @@ class DetectionTrackingPipeline(ABC):
         )
 
         logging.debug(f"[PROGRAM - WRITE TO CSV] Escritura de tiempos terminada")
-        
+
         logging.debug(f"[PROGRAM - WRITE TO CSV] Se han procesado {frame_count} frames")
 
         os._exit(0) if is_process else None

@@ -12,7 +12,10 @@ data_path = f"/TFG/datasets_labeled/{VERSION}_canicas_dataset/data.yaml"
 output_dir = "../validation_predictions"
 
 models_paths = [
-    f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n.pt",
+    # f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n.pt",
+    # f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n_FP32_GPU.engine",
+    # f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n_FP16_GPU.engine",
+    # f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n_FP16_DLA0.engine",
     f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n_INT8_GPU.engine",
     f"../../models/canicas/{VERSION}/{VERSION}_canicas_yolo11n_INT8_DLA0.engine",
 ]
@@ -31,10 +34,11 @@ for model_path in models_paths:
 
     model_name = os.path.splitext(os.path.basename(model_path))[0]
     name = f"val_{model_name}"
-    
+
     metrics = model.val(
         data=data_path,
         batch=1,
+        imgsz=640,
         half=True,
         plots=False,
         project=output_dir,
@@ -42,7 +46,7 @@ for model_path in models_paths:
         conf=0.25,
         iou=0.5,
         device=0,
-        verbose=True
+        verbose=True,
     )
 
     # Imprimir métricas detalladas
