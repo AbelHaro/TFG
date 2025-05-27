@@ -18,3 +18,8 @@
 + [ ] Arregla tiempo de ejecución cuando hay limite de fps
 
 
+++ PRREGUNTAS SOBRE LA CORRECCIÓN 
++ [ ] Página 2: ¿Qué referencias hacer a las GPUs, TPUs y DLAs?
++ [ ] Página 3: ¿Dónde poner la figura?
+
+

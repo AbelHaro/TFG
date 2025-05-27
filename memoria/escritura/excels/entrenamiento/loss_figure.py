@@ -1,52 +1,105 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 
 # Cargar los datos desde el CSV
 df = pd.read_csv("./loss.csv")  # Asegúrate de usar la ruta correcta al archivo CSV
 
 # Crear el gráfico
-plt.figure(figsize=(12, 7))
+plt.figure(figsize=(15, 8))
 
-# Definir colores y estilos
-sizes = ["n", "s", "m", "l"]
-colors = {"n": "blue", "s": "green", "m": "red", "l": "purple"}
+# Definir colores de la paleta
+colors = [
+    "#e41a1c",  # Rojo
+    "#377eb8",  # Azul
+    "#4daf4a",  # Verde
+    "#984ea3",  # Morado
+    "#ff7f00",  # Naranja
+    "#ffff33",  # Amarillo
+    "#a65628",  # Marrón
+    "#f781bf",  # Rosa
+]
+
+# Definir modelos y sus tamaños
+model_configs = {
+    "yolo11": {"sizes": ["n", "s", "m", "l"], "marker": "o"},
+    "yolov5": {"sizes": ["nu", "mu"], "marker": "s"},
+    "yolov8": {"sizes": ["n", "s"], "marker": "^"},
+}
+
 linestyles = {"train": "-", "val": "--"}
-labels_map = {"n": "Nano", "s": "Small", "m": "Medium", "l": "Large"}
+alpha_values = {"train": 1.0, "val": 0.7}
 
+# Color mapping para cada combinación de modelo y tamaño
+color_mapping = {
+    ("yolov5", "nu"): colors[0],  # Rojo
+    ("yolov5", "mu"): colors[1],  # Azul
+    ("yolov8", "n"): colors[2],  # Verde
+    ("yolov8", "s"): colors[3],  # Morado
+    ("yolo11", "n"): colors[4],  # Naranja
+    ("yolo11", "s"): colors[5],  # Amarillo
+    ("yolo11", "m"): colors[6],  # Marrón
+    ("yolo11", "l"): colors[7],  # Rosa
+}
 
-# Iterar sobre los tamaños y graficar
-for size_suffix in sizes:
-    train_col = f"train_class_loss_{size_suffix}"
-    val_col = f"val_class_loss_{size_suffix}"
-    color = colors[size_suffix]
-    size_label = size_suffix
+# Iterar sobre modelos y tamaños
+for model, config in model_configs.items():
+    marker = config["marker"]
 
-    if train_col in df.columns:
-        plt.plot(
-            df["epoca"],
-            df[train_col],
-            label=f"Train Class Loss ({size_label})",
-            color=color,
-            linestyle=linestyles["train"],
-        )
-    if val_col in df.columns:
-        plt.plot(
-            df["epoca"],
-            df[val_col],
-            label=f"Validation Class Loss ({size_label})",
-            color=color,
-            linestyle=linestyles["val"],
-        )
+    for size in config["sizes"]:
+        color = color_mapping[(model, size)]
+
+        # Construir nombres de columnas
+        train_col = f"train_class_loss_{model}_{size}"
+        val_col = f"val_class_loss_{model}_{size}"
+
+        # Mapear nombres para la leyenda
+        size_label = {
+            "n": "Nano",
+            "s": "Small",
+            "m": "Medium",
+            "l": "Large",
+            "nu": "Nano",
+            "mu": "Medium",
+        }[size]
+
+        model_label = {"yolo11": "YOLO11", "yolov5": "YOLOv5", "yolov8": "YOLOv8"}[model]
+
+        if train_col in df.columns:
+            plt.plot(
+                df["epoca"],
+                df[train_col],
+                label=f"{model_label} {size_label} (Train)",
+                color=color,
+                linestyle=linestyles["train"],
+                marker=marker,
+                markersize=4,
+                markevery=5,
+                alpha=alpha_values["train"],
+            )
+        if val_col in df.columns:
+            plt.plot(
+                df["epoca"],
+                df[val_col],
+                label=f"{model_label} {size_label} (Val)",
+                color=color,
+                linestyle=linestyles["val"],
+                marker=marker,
+                markersize=4,
+                markevery=5,
+                alpha=alpha_values["val"],
+            )
 
 # Configurar el gráfico
-plt.title("Class Loss durante el entrenamiento y validación por tamaño")
+plt.title("Class Loss durante el entrenamiento y validación por modelo y tamaño")
 plt.xlabel("Época")
 plt.ylabel("Class Loss")
-plt.legend(loc="upper right", bbox_to_anchor=(1.25, 1))  # Ajustado para más etiquetas
-plt.grid(True)
-plt.tight_layout()  # Ajusta el layout para que la leyenda no se corte
+plt.legend(loc="center left", bbox_to_anchor=(1.0, 0.5))
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
 
-plt.savefig("loss_plot.png", dpi=300, bbox_inches="tight")  # Guardar la figura
+# Guardar la figura
+plt.savefig("loss_plot.png", dpi=300, bbox_inches="tight")
 
 # Mostrar el gráfico
 plt.show()
