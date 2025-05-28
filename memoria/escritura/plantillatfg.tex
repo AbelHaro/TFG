@@ -1550,10 +1550,10 @@ No obstante, en aplicaciones donde la precisión de detección sea un factor cr�
 
 
 
-\section{Precisión Numérica y Dispositivo de Inferencia} \label{sub:precision_numerica_dispositivo}
-En esta sección se analizará el rendimiento de la solución propuesta variando la precisión numérica (FP32, FP16, INT8) del modelo de detección de objetos y el dispositivo de inferencia (CPU, GPU, DLA).
+\section{Precisión Numérica y Acelerador de Inferencia} \label{sub:precision_numerica_dispositivo}
+En esta sección se analizará el rendimiento de la solución propuesta variando la precisión numérica (FP32, FP16, INT8) del modelo de detección de objetos y el acelerador de inferencia (CPU, GPU, DLA).
 
-Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para la ejecución en GPU y DLA, el modelo fue optimizado con NVIDIA TensorRT, evaluándose las precisiones FP32, FP16 e INT8. En el caso de la ejecución en CPU, se empleó el modelo YOLO11n sin la optimización de TensorRT, ya que esta no es aplicable a dicho dispositivo. La exportación del modelo de PyTorch a TensorRT con precisión INT8 requiere un conjunto de datos de calibración; para este propósito, se utilizó un subconjunto de 100 imágenes extraídas del conjunto de entrenamiento original, con el fin de calibrar el modelo y optimizar su rendimiento para la inferencia en INT8.
+Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para la ejecución en GPU y DLA, el modelo fue optimizado con NVIDIA TensorRT, evaluándose las precisiones FP32, FP16 e INT8. En el caso de la ejecución en CPU, se empleó el modelo YOLO11n sin la optimización de TensorRT, ya que esta no es aplicable a dicho dispositivo. La exportación del modelo de PyTorch a TensorRT con precisión INT8 requiere un conjunto de datos de calibración; para este propósito, se utilizó un subconjunto de 100 imágenes extraídas del conjunto de entrenamiento original, con el fin de calibrar el modelo y optimizar su rendimiento para la inferencia en INT8. Por último, la precisión de validación de todos los modelos en la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante} es casi idéntica, con un mAP50-95 de 0.77 para todas las variantes, lo que indica que la precisión del modelo no se ve afectada significativamente por la reducción de la precisión numérica posiblemente debido a la sencillez de la tarea de detección de objetos en este caso específico.
 
 
 \begin{table}[H]
@@ -1563,7 +1563,7 @@ Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para l
        col sep=comma,
        header=true,
        columns={Dispositivo,Precision,frames_procesados,tejecucion,FPS,LFPS,potencia_media_consumida,energia_consumida,Frames/W,Average_GPU,Average_CPU,mAP50-95},
-      display columns/0/.style={column name=Dispositivo, column type={c}, string type},
+      display columns/0/.style={column name=Acelerador, column type={c}, string type},
       display columns/1/.style={column name=Precisión, column type={c}, string type},
       display columns/2/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
       display columns/3/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
@@ -1631,7 +1631,7 @@ En otros modelos más simples, la DLA podría encargarse de la mayoría de las o
       col sep=comma,
       header=true,
       columns={Dispositivo,Precision,frames_procesados,tejecucion,FPS,LFPS,potencia_media_consumida,energia_consumida,Frames/W,Average_GPU,Average_CPU,mAP50-95},
-      display columns/0/.style={column name=Dispositivo, column type={c}, string type},
+      display columns/0/.style={column name=Acelerador, column type={c}, string type},
       display columns/1/.style={column name=Precisión, column type={c}, string type},
       display columns/2/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
       display columns/3/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
@@ -1652,17 +1652,85 @@ En otros modelos más simples, la DLA podría encargarse de la mayoría de las o
       \label{tab:experimento_precision_dispositivo_30_fps}
    \end{table}
 
-   En la Tabla \ref{tab:experimento_precision_dispositivo_30_fps}, se obsrvan las ejecuciones en tiempo real de los modelos con diferentes precisiones y dispositivos. Observando los resultados, como se ha mencionado anteriormente, la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.79 FPS y 28.49 LFPS. En cuanto a la GPU, se observa que las precisiones 
+   En la Tabla \ref{tab:experimento_precision_dispositivo_30_fps}, se obsrvan las ejecuciones en tiempo real de los modelos con diferentes precisiones y dispositivos. Observando los resultados, como se ha mencionado anteriormente, la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.79 FPS y 28.49 LFPS. En cuanto a la GPU, todas las precisiones (FP32, FP16 e INT8 con TensorRT) logran operar en tiempo real, con tasas de FPS de 28.42, 28.73 y 28.44 respectivamente, lo que indica que el sistema puede procesar los fotogramas a la velocidad requerida sin perder ninguno. La combinación de la GPU con la precisión INT8 es la más eficiente en términos de consumo energético, alcanzando 1.96 Frames/W.
+
+
 
 
 
 
    
    \section{Modo de energía y cores de la CPU} \label{sub:modo_energia}
-En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo y el número de cores de la CPU con gráficas y tablas.
+   En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo (10W, 15W, 30W, MAXN) y el número de cores de la CPU habilitados (2, 4, 6 y 8 cores). Es importante mencionar que los perfiles de energía que se han utilizado son los que se encuentran disponibles en el dispositivo Jetson AGX Xavier por defecto, estos perfiles de energía también modifican la frecuencia máxima del procesador.
 
-\section{Tamaño de la imagen} \label{sub:talla_imagen}
-En esta sección se analizará el rendimiento de la solución propuesta variando el tamaño de la imagen de entrada del modelo con la técnica de Slicing Aided Hyper Inference (SAHI) con gráficas y tablas.
+   Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la GPU, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+      col sep=comma,
+      header=true,
+      columns={energy_mode,cpu_core,freq,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu},
+      display columns/0/.style={column name=Modo de Energía, column type={c}, string type},
+      display columns/1/.style={column name=Núcleos de CPU, column type={c}, string type},
+      display columns/2/.style={column name=Frecuencia (GHz), column type={c}, fixed, precision=2},
+      display columns/3/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+      display columns/4/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=FPS, column type={c}, fixed, precision=2},
+      display columns/6/.style={column name=LFPS, column type={c}, fixed, precision=2},
+      display columns/7/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
+      display columns/8/.style={column name=Energía (J), column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+      display columns/10/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/11/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+      every head row/.style={before row=\toprule, after row=\midrule},
+      every last row/.style={after row=\bottomrule},
+      empty cells with={NaN}
+      ]{excels/inferencia/modo_energia_cpu/data/max_fps.csv}
+      }
+      \caption{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
+      \label{tab:experimento_modo_energia_cpu_max_fps_carga_alta_constante}
+   \end{table}
+
+   Observando los resultados de la Tabla \ref{tab:experimento_modo_energia_cpu_max_fps_carga_alta_constante}, se aprecia una clara influencia del perfil de energía y del número de núcleos de CPU activos en el rendimiento del sistema. En general, al aumentar el perfil de energía y la cantidad de núcleos habilitados, se observa una mejora en la tasa de fotogramas por segundo (FPS). Sin embargo, el perfil de energía de 30W presenta un comportamiento particular: la configuración óptima se alcanza con 4 núcleos de CPU. Esto se debe a que esta combinación ofrece la frecuencia máxima del procesador más alta (1.8 GHz) en comparación con las configuraciones de 6 y 8 núcleos bajo el mismo perfil (1.41 GHz y 1.2 GHz, respectivamente). Aunque la configuración de 30W con 4 núcleos exhibe el mayor consumo de potencia medio (9.535 W), resulta en el menor consumo de energía total (1136.27 J) debido a la reducción en el tiempo de ejecución en comparación con las configuraciones de 6 y 8 núcleos bajo el mismo perfil. Esto subraya la importancia de considerar tanto el consumo de potencia instantáneo como la duración total de la ejecución al evaluar la eficiencia energética del sistema.
+
+   Para evaluar el rendimiento en condiciones de tiempo real, se utilizó el mismo vídeo de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida. Se estableció un límite de 33.3 ms por fotograma (30 FPS) para evaluar la capacidad del sistema para operar en tiempo real y medir la tasa de fotogramas perdidos (LFPS). Es importante señalar que, en los perfiles de energía más bajos, no se logró simular el tiempo real, lo que resultó en tiempos de ejecución superiores a los 80 segundos del vídeo a 30 FPS.
+
+   \begin{table}[H]
+      \centering
+      \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+      \pgfplotstabletypeset[
+         col sep=comma,
+         header=true,
+         columns={energy_mode,cpu_core,freq,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu},
+         display columns/0/.style={column name=Modo de Energía, column type={c}, string type},
+         display columns/1/.style={column name=Núcleos de CPU, column type={c}, string type},
+         display columns/2/.style={column name=Frecuencia (GHz), column type={c}, fixed, precision=2},
+         display columns/3/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+         display columns/4/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+         display columns/5/.style={column name=FPS, column type={c}, fixed, precision=2},
+         display columns/6/.style={column name=LFPS, column type={c}, fixed, precision=2},
+         display columns/7/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
+         display columns/8/.style={column name=Energía (J), column type={c}, fixed, precision=2},
+         display columns/9/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+         display columns/10/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
+         display columns/11/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+         every head row/.style={before row=\toprule, after row=\midrule},
+         every last row/.style={after row=\bottomrule},
+         empty cells with={NaN}
+         ]{excels/inferencia/modo_energia_cpu/data/30_fps.csv}
+         }
+         \caption{Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante.}
+         \label{tab:experimento_modo_energia_cpu_30_fps}
+      \end{table}
+
+      La Tabla \ref{tab:experimento_modo_energia_cpu_30_fps} presenta los resultados de la simulación en tiempo real. Como se mencionó anteriormente, los perfiles de energía más bajos no lograron simular el tiempo real, evidenciado por tiempos de ejecución superiores a la duración del vídeo de prueba. De todos los perfiles de energía evaluados, únicamente la configuración de máximas prestaciones (MAXN) con 8 núcleos de CPU activos logró operar a una tasa de 26.69 FPS, lo que indica que el sistema puede procesar los fotogramas a una velocidad cercana a la requerida, aunque con cierta pérdida de fotogramas.
+
+
+
+\section{Dispositivos Jetson} \label{sec:jetson}
+En esta sección se analizará el rendimiento de la solución propuesta en diferentes dispositivos Jetson, específicamente en el Jetson Orin Nano, Jetson AGX Xavier  y Jetson AGX Orin. Se utilizará el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la GPU, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
 
 \chapter{Prueba de concepto} \label{ch:prueba_concepto}
 Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
