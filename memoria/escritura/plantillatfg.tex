@@ -1161,13 +1161,14 @@ En resumen, la segmentación basada en procesos con memoria compartida y un buff
 
 \chapter{Evaluación de la solución} \label{ch:evaluacion_solucion}
 
-En este capítulo se evaluará la solución propuesta variando los parámetros posibles
+En este capítulo se presenta la evaluación del sistema propuesto, analizando su rendimiento y eficiencia en diferentes configuraciones. Se describen las metodologías de evaluación empleadas, las métricas de rendimiento consideradas y los resultados obtenidos en cada caso. El objetivo es proporcionar una visión clara de cómo el sistema se comporta bajo diversas condiciones y configuraciones, permitiendo identificar sus fortalezas y áreas de mejora.
 
 \section{Metodología de evaluación y métricas de rendimiento} \label{sec:metodologia}
 
-Tras el desarrollo de la solución propuesta, se procede a analizar su rendimiento. La evaluación se basa en un vídeo de prueba de 80 segundos (2400 fotogramas) que muestra un flujo de canicas, grabado a 640x640 píxeles y 30 fotogramas por segundo (fps). Este vídeo sirve como entrada estándar para el sistema, permitiendo medir diversas métricas de rendimiento según la configuración.
+Tras el desarrollo de la solución propuesta, se procede a analizar su rendimiento. La evaluación se basa en diferentes vídeos de prueba de 80 segundos (2400 fotogramas) que muestran un flujo de canicas, grabados a 640x640 píxeles y 30 fotogramas por segundo. Estos vídeos sirven como entrada estándar para el sistema, permitiendo medir diversas métricas de rendimiento según la configuración.
 
-Se han empleado dos enfoques para las pruebas:
+Para evaluar el rendimiento del sistema, se han implementado dos metodologías de ejecución:
+
 \begin{enumerate}
    \item \textbf{Ejecución a máxima capacidad:} Los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
    \item \textbf{Simulación de entrada en tiempo real:} Los fotogramas del vídeo se suministran al sistema a una tasa fija de 30 fps (un fotograma cada 33.3 ms), emulando la entrada de una cámara. Si el sistema no logra procesar un fotograma dentro de este intervalo, dicho fotograma se descarta. Esta metodología permite cuantificar la capacidad del sistema para operar en tiempo real, midiendo el número de fotogramas procesados y perdidos.
@@ -1179,7 +1180,7 @@ Como métricas de rendimiento, se han considerado las siguientes:
 
       \item \textbf{Tasa de fotogramas perdidos (LFPS):} Número de fotogramas descartados por segundo debido a la incapacidad del sistema para procesarlos dentro del intervalo temporal requerido. Esta métrica refleja la robustez del sistema bajo restricciones de tiempo real y su eficacia para mantener sincronización con la fuente de entrada. Un valor cercano a cero indica un rendimiento óptimo.
 
-      \item \textbf{Potencia consumida media (W):} Potencia eléctrica media requerida por el sistema durante la ejecución, medida en vatios. Se obtiene promediando las lecturas de potencia instantánea registradas por las herramientas de monitorización hardware. Esta métrica es crucial para evaluar la viabilidad del sistema en entornos con restricciones energéticas, especialmente en aplicaciones embebidas o de borde.
+      \item \textbf{Potencia media consumida (W):} Potencia eléctrica media requerida por el sistema durante la ejecución, medida en vatios. Se obtiene promediando las lecturas de potencia instantánea registradas por las herramientas de monitorización hardware. Esta métrica es crucial para evaluar la viabilidad del sistema en entornos con restricciones energéticas, especialmente en aplicaciones \textit{embedded} o en el \textit{edge}.
 
       \item \textbf{Energía consumida (J):} Cantidad total de energía eléctrica utilizada por el sistema para procesar la secuencia completa, medida en julios. Se calcula integrando la potencia instantánea a lo largo del tiempo de ejecución. Esta métrica proporciona una perspectiva integral de la eficiencia energética y es fundamental para estimar costes operativos y requisitos de refrigeración en implementaciones a largo plazo.
 
@@ -1200,12 +1201,12 @@ Como métricas de rendimiento, se han considerado las siguientes:
 
       \item \textbf{GPU Average Utilization:} Porcentaje medio de utilización de los recursos de la GPU durante el tiempo de ejecución. Este valor, obtenido mediante las herramientas de monitorización de NVIDIA, representa qué fracción de la capacidad computacional total de la GPU se aprovecha efectivamente. Una utilización cercana al 100\% sugiere un aprovechamiento óptimo del hardware, mientras que valores bajos podrían indicar cuellos de botella en otras partes del sistema o ineficiencias en la implementación.
       
-      \item \textbf{CPU Average Utilization:} Porcentaje medio de utilización de los núcleos de la CPU durante el tiempo de ejecución. Esta métrica es la media aritmética de todos los núcleos disponibles (entre 1 y 12, dependiendo de la configuración específica de la plataforma Jetson) y lo promedia. Permite identificar si las etapas del sistema que se ejecutan en CPU están equilibradas respecto a las que utilizan aceleradores hardware, y detectar posibles desbalances en la carga de trabajo entre las diferentes unidades de procesamiento.
+      \item \textbf{CPU Average Utilization:} Porcentaje medio de utilización de los núcleos de la CPU durante el tiempo de ejecución. Esta métrica es la media aritmética de todos los núcleos disponibles (entre 1 y 12, dependiendo de la configuración específica del dispositivo Jetson) y lo promedia. Permite identificar si las etapas del sistema que se ejecutan en CPU están equilibradas respecto a las que utilizan aceleradores hardware, y detectar posibles desbalances en la carga de trabajo entre las diferentes unidades de procesamiento.
 
 \end{itemize}
 
 
-Para obtener estas métricas, se han utilizado herramientas de medición de potencia y energía, como el comando \texttt{tegrastats} de NVIDIA, que proporciona información sobre el consumo de energía y la carga de la CPU/GPU/DLA. Esta herramienta permite monitorizar el rendimiento del sistema en tiempo real, proporcionando datos precisos sobre el uso de recursos y el consumo energético.
+Para obtener estas métricas, se han utilizado herramientas de medición de potencia y energía, como el comando \texttt{tegrastats} de NVIDIA, que proporciona información sobre el consumo de energía y la carga de la CPU y GPU. Esta herramienta permite monitorizar el rendimiento del sistema en tiempo real, proporcionando datos precisos sobre el uso de recursos y el consumo energético.
 
 \section{Cantidad de objetos} \label{sec:cantidad_objetos}
 La cantidad de objetos presentes en el flujo de vídeo es un factor determinante en la evaluación del rendimiento del sistema, ya que influye directamente en la carga computacional de la etapa de seguimiento y escritura. Para analizar esta influencia de manera sistemática, se han realizado pruebas utilizando tres vídeos de prueba distintos, cada uno diseñado para representar un escenario de carga diferente:
@@ -1217,8 +1218,13 @@ La cantidad de objetos presentes en el flujo de vídeo es un factor determinante
    \item \textbf{Vídeo 3: Carga alta y constante:} Un vídeo que presenta una cantidad constante media de 84 objetos por fotograma. Este escenario somete al sistema a una carga significativamente mayor, permitiendo identificar posibles cuellos de botella bajo condiciones de alta densidad de objetos.
    \item \textbf{Vídeo 4: Carga variable:} Un vídeo donde la cantidad de objetos fluctúa dinámicamente a lo largo de su duración, variando entre un mínimo de 0 y un máximo de 180 objetos. Este escenario simula condiciones más realistas y complejas, donde el sistema debe adaptarse a cambios abruptos en la carga de trabajo.
 \end{enumerate}
-Todos los vídeos de prueba se grabaron con una resolución de 640x640 píxeles y a una tasa de 30 fotogramas por segundo (fps), sirviendo como entrada estándar para el sistema, lo que asegura la consistencia en las condiciones de captura.
-Para el resto de la configuración del sistema durante estas pruebas específicas sobre la cantidad de objetos, se ha empleado la segmentación por procesos con memoria compartida. El modelo de detección de objetos utilizado fue YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU. Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). Esta configuración se seleccionó con el objetivo de maximizar el rendimiento del sistema y evaluar su capacidad de respuesta y robustez bajo condiciones exigentes impuestas por la variación en la densidad de objetos. Las pruebas que se presentan a continuación se realizaron siguiendo la metodología de ejecución a máxima capacidad descrita en la sección \ref{sec:metodologia}, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
+Todos los vídeos de prueba se grabaron con una resolución de 640x640 píxeles y a una tasa de 30 fotogramas por segundo, sirviendo como entrada estándar para el sistema, lo que asegura la consistencia en las condiciones de captura.
+
+Para el resto de la configuración del sistema durante estas pruebas específicas sobre la cantidad de objetos, se ha empleado la segmentación por procesos con memoria compartida. El modelo de detección de objetos utilizado fue YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU.
+
+Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). Esta configuración se seleccionó con el objetivo de maximizar el rendimiento del sistema y evaluar su capacidad de respuesta y robustez bajo condiciones exigentes impuestas por la variación en la densidad de objetos.
+
+Las pruebas que se presentan a continuación se realizaron siguiendo la metodología de ejecución a máxima capacidad descrita en la sección \ref{sec:metodologia}, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
 
 \begin{figure}[H]
    \centering
@@ -1227,8 +1233,7 @@ Para el resto de la configuración del sistema durante estas pruebas específica
    \label{fig:4_videos}
 \end{figure}
 
-La Figura \ref{fig:4_videos} representa gráficamente la distribución de objetos por fotograma en los cuatro escenarios de prueba utilizados para la evaluación: cargas baja (17 objetos), media (43 objetos) y alta (84 objetos) constantes, así como un escenario de carga variable que fluctúa entre 0 y 180 objetos a lo largo del tiempo.
-
+La Figura \ref{fig:4_videos} ilustra la cantidad de objetos presentes en cada fotograma para los cuatro vídeos de prueba utilizados: carga baja constante (17 objetos), carga media constante (43 objetos), carga alta constante (84 objetos) y carga variable (entre 0 y 180 objetos).
 
 \begin{figure}[H]
    \centering
@@ -1266,9 +1271,9 @@ Finalmente, la etapa de escritura (línea verde), también dependiente de la CPU
 
 Por otro lado, la Figura \ref{fig:tiempos_etapa_video1} muestra el tiempo de ejecución de cada etapa del sistema a lo largo del vídeo de prueba 2 (carga media y constante).
 
-En este caso, la etapa de seguimiento (línea amarilla) presenta un tiempo de ejecución mucho más bajo y constante, ya que el número de objetos es significativamente menor. Esto sugiere que el sistema puede manejar eficientemente la carga baja y media sin experimentar cuellos de botella en la etapa de seguimiento o escritura. 
+En este caso, la etapa de seguimiento (línea amarilla) presenta un tiempo de ejecución bajo y estable, reflejando la menor carga de trabajo al procesar un número constante de objetos. Esto indica que el sistema gestiona eficientemente escenarios de carga baja y media, sin generar cuellos de botella significativos en las etapas de seguimiento o escritura.
 
-También se observa que la etapa de escritura (línea verde) sigue un patrón similar, con tiempos de ejecución bajos y constantes. 
+De forma similar, la etapa de escritura (línea verde) muestra tiempos de ejecución bajos y uniformes, lo que confirma la capacidad del sistema para mantener un rendimiento constante en condiciones de carga moderada.
 
 La etapa de captura (línea azul) y la etapa de inferencia (línea roja) mantienen un rendimiento estable, similar al observado en el vídeo de carga variable, lo que indica que su rendimiento no se ve afectado por la cantidad de objetos presentes.
 
@@ -1372,11 +1377,11 @@ Como se ha comentado en la sección \ref{sec:segmentacion_etapas}, el sistema se
 
 Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco tipos de modos de segmentación:
 \begin{enumerate}
-   \item Ejecución secuencial (subsección \ref{sub:secuencial}): Cada etapa del sistema se ejecuta de forma consecutiva. Este es el enfoque base y no se considera una segmentación propiamente dicha, sino el punto de partida para la comparación.
-   \item Segmentación por hilos (subsección \ref{sub:segmentacion_hilos}): Cada etapa del sistema se ejecuta en un hilo independiente.
-   \item Segmentación por procesos (subsección \ref{sub:segmentacion_procesos}): Cada etapa del sistema se ejecuta en un proceso independiente.
-   \item Segmentación por hardware (subsección \ref{sub:segmentacion_hardware}): La etapa de inferencia se descarga a los aceleradores de hardware (GPU o DLA).
-   \item Segmentación por procesos con memoria compartida (subsección \ref{sub:segmentacion_memoria_compartida}): Cada etapa del sistema se ejecuta en un proceso independiente y se comunica mediante memoria compartida.
+   \item \textbf{Ejecución secuencial} (subsección \ref{sub:secuencial}): Cada etapa del sistema se ejecuta de forma consecutiva. Este es el enfoque base y no se considera una segmentación propiamente dicha, sino el punto de partida para la comparación.
+   \item \textbf{Segmentación por hilos} (subsección \ref{sub:segmentacion_hilos}): Cada etapa del sistema se ejecuta en un hilo independiente.
+   \item \textbf{Segmentación por procesos} (subsección \ref{sub:segmentacion_procesos}): Cada etapa del sistema se ejecuta en un proceso independiente.
+   \item \textbf{Segmentación por hardware} (subsección \ref{sub:segmentacion_hardware}): La etapa de inferencia se descarga a los aceleradores de hardware (GPU o DLA).
+   \item \textbf{Segmentación por procesos con memoria compartida} (subsección \ref{sub:segmentacion_memoria_compartida}): Cada etapa del sistema se ejecuta en un proceso independiente y se comunica mediante memoria compartida.
 \end{enumerate}
 
 Para evaluar el rendimiento de cada tipo de segmentación, se han realizado pruebas utilizando el vídeo de 84 objetos (carga alta y constante) como entrada estándar. Este vídeo presenta una carga computacional significativa, lo que permite observar las diferencias de rendimiento entre los distintos tipos de segmentación. Para todas las pruebas se ha utilizado el modelo de detección de objetos YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU. Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). 
@@ -1455,7 +1460,10 @@ Ahora se va a analizar el rendimiento de cada tipo de segmentación utilizando l
    \label{tab:experimento_segmentacion_30_fps}
 \end{table}
 
-Como se puede observar en la Tabla \ref{tab:experimento_segmentacion_30_fps}, el tipo de segmentación impacta significativamente el rendimiento del sistema. La ejecución secuencial es completamente inviable para tiempo real, presentando la tasa más alta de fotogramas perdidos (LFPS) con 19.87 fps. La segmentación por hilos, aunque mejora ligeramente, sigue siendo inviable para tiempo real, con una tasa de fotogramas perdidos (LFPS) de 11.51 fps, lo que confirma los resultados de la ejecución a máxima capacidad. Aunque la segmentación por procesos mejora este valor a 7.29 LFPS, tampoco alcanza los requisitos de tiempo real. Por su parte, la segmentación basada en hardware logra operar en tiempo real, pero a costa de un mayor consumo energético. Finalmente, la segmentación por procesos con memoria compartida se destaca como la opción más eficiente, logrando el mejor rendimiento en tiempo real (LFPS de 0.91) con el menor consumo energético.
+Como se puede observar en la Tabla \ref{tab:experimento_segmentacion_30_fps}, el tipo de segmentación influye significativamente en el rendimiento del sistema. La ejecución secuencial es inviable para tiempo real, presentando la tasa más alta de fotogramas perdidos (LFPS) con 19.87 fps. La segmentación por hilos, aunque mejora ligeramente, sigue siendo inviable para tiempo real, con una LFPS de 11.51, lo que confirma los resultados de la ejecución a máxima capacidad. Aunque la segmentación por procesos mejora este valor a 7.29 LFPS, tampoco alcanza los requisitos de tiempo real. Por su parte, la segmentación basada en hardware logra operar en tiempo real, pero a costa de un mayor consumo energético. Finalmente, la segmentación por procesos con memoria compartida destaca como la opción más eficiente, logrando el mejor rendimiento en tiempo real (LFPS de 0.91) con el menor consumo energético.
+
+Como conclusión, la segmentación por procesos con memoria compartida es la más adecuada para aplicaciones en tiempo real, ya que combina un rendimiento óptimo con un consumo energético eficiente. Este enfoque permite al sistema operar de manera efectiva bajo condiciones de alta carga computacional, cumpliendo con los requisitos de tiempo real sin comprometer la eficiencia energética.
+
 \section{Modelo y talla} \label{sub:modelo_talla}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modelo de detección de objetos y sus diferentes tallas.
 
@@ -1584,44 +1592,29 @@ Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para l
    \label{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}
 \end{table}
 
-Basándose en los resultados de la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}, se pueden extraer varias conclusiones. Exportar el modelo con TensorRT manteniendo la precisión FP32 produce una aceleración de $\frac{183.29}{84.44} = 2.17\times$ en comparación con la ejecución del modelo sin optimizar. Esto demuestra que optimizar el modelo con TensorRT mejora significativamente el rendimiento, incluso sin reducir la precisión numérica. TensorRT aplica optimizaciones como la fusión de capas y la eliminación de operaciones redundantes, lo que resulta en una ejecución más eficiente. 
+Basándose en los resultados de la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}, se pueden extraer varias conclusiones sobre el impacto de la precisión numérica y el acelerador de inferencia.
 
+En primer lugar, la ejecución del modelo en CPU resulta completamente inviable para aplicaciones en tiempo real. Como se aprecia en la tabla, la tasa de procesamiento es de tan solo 0.93 FPS, lo que demuestra la necesidad de aceleradores hardware para esta tarea.
 
-Para la precisión del modelo en GPU, los resultados muestran un rendimiento similar entre las ejecuciones con precisiones FP32, FP16 e INT8. Sin embargo, es importante destacar que las precisiones FP16 e INT8 logran un menor consumo energético. Esto se debe a que estas precisiones reducidas requieren menos recursos computacionales, lo que se traduce en una mayor eficiencia energética. En particular, la precisión INT8 se presenta como la opción más eficiente en términos de consumo energético, alcanzando un rendimiento de 1.96 Frames/W.
-
-
+Al comparar el rendimiento de la GPU y los Deep Learning Accelerators (DLA), se observa que la DLA, en teoría diseñada para manejar cargas de trabajo específicas de inferencia de manera eficiente (como se repasó en la sección \ref{sec:jetson}), ofrece un rendimiento similar al de la GPU en este caso. Sin embargo, es crucial señalar que el modelo YOLO11n, tanto en precisión FP16 como en INT8, no se ejecuta completamente en la DLA, ya que algunas de sus operaciones no son compatibles con este dispositivo. Esto implica que la GPU también participa en el procesamiento. Este fenómeno se hace particularmente evidente en la precisión INT8, donde ninguna capa del modelo se ejecuta en la DLA, recayendo toda la carga en la GPU.
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/precision_device/tiempos_inferencia_gpu.png}
-   \caption{Tiempos de ejecución de la etapa de inferencia para las diferentes precisiones y GPU.}
-   \label{fig:tiempos_inferencia_gpu}
-\end{figure}
-
-
-Un análisis más detallado de los tiempos de la etapa de inferencia, como se observa en la Figura \ref{fig:tiempos_inferencia_gpu}, revela una reducción significativa en el tiempo de inferencia al utilizar precisiones más bajas en combinación con TensorRT.
-
-Observando el tiempo en la CPU de la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}, se puede apreciar que la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.93 FPS.
-
-Al comparar el rendimiento de la GPU y la DLA, se observa que la DLA ofrece un rendimiento similar al de la GPU. Repasando la sección \ref{sec:jetson}, se puede ver que la DLA está diseñada para manejar cargas de trabajo específicas de inferencia de manera más eficiente.
-
-Sin embargo, es crucial señalar que el modelo, tanto en FP16 como en INT8, no se ejecuta completamente en la DLA, ya que algunas operaciones no son compatibles con este dispositivo. Esto implica que la GPU también participa en el procesamiento.
-
-Este fenómeno se hace evidente al observar que, en la precisión INT8, ninguna capa del modelo se ejecuta en la DLA, lo que significa que la GPU es la que realiza todo el procesamiento.
-
-En la precisión FP16, como se observa en la Figura \ref{fig:exportacion_FP16_DLA}, la DLA se encarga de 6 de las 34 operaciones/capas del modelo, mientras que la GPU se encarga de las restantes 28.
-
-En esencia, la DLA no está descargando completamente a la GPU, lo que limita su capacidad para operar de forma independiente y optimizar el rendimiento general del sistema.
-
-En otros modelos más simples, la DLA podría encargarse de la mayoría de las operaciones, pero en el caso del modelo YOLO11n (tampoco fue posible para YOLOv5 y YOLOv8), la complejidad del modelo y las operaciones involucradas impiden que la DLA asuma una carga de trabajo significativa.
-
-
-\begin{figure}[H]
-   \centering
-   \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/precision_device/exportación_FP16_DLA.png}
+   \includegraphics[width=0.85\textwidth]{images/analisis_de_la_solucion/precision_device/exportación_FP16_DLA.png}
    \caption{Exportación del modelo YOLO11n con TensorRT a FP16 para su ejecución en la DLA.}
    \label{fig:exportacion_FP16_DLA}
 \end{figure}
+En la precisión FP16, como se ilustra en la Figura \ref{fig:exportacion_FP16_DLA}, la DLA se encarga de 6 de las 34 operaciones/capas del modelo, mientras que la GPU procesa las 28 restantes. En esencia, la DLA no logra descargar completamente a la GPU, lo que limita su capacidad para operar de forma independiente y optimizar el rendimiento general del sistema. Si bien en modelos más simples la DLA podría asumir una mayor proporción de las operaciones, la complejidad del modelo YOLO11n (y de forma similar para YOLOv5 y YOLOv8) impide que la DLA asuma una carga de trabajo más significativa.
 
+Considerando la ejecución en GPU, la optimización con TensorRT, incluso manteniendo la precisión FP32, produce una notable aceleración en comparación con la ejecución del modelo sin optimizar en GPU. El modelo optimizado para GPU con TensorRT en FP32 alcanza un speedup de $\frac{183.29}{84.44} = 2.17\times$ frente a la GPU. Esto demuestra que TensorRT mejora drásticamente el rendimiento mediante optimizaciones como la fusión de capas y la eliminación de operaciones redundantes, resultando en una ejecución más eficiente.
+
+En cuanto a las diferentes precisiones numéricas en la GPU (todas optimizadas con TensorRT), los resultados muestran un rendimiento en FPS similar entre FP32, FP16 e INT8.
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/precision_device/tiempos_inferencia_gpu.png}
+   \caption{Tiempos de ejecución de la etapa de inferencia para las diferentes precisiones en GPU con TensorRT.}
+   \label{fig:tiempos_inferencia_gpu}
+\end{figure}
+Un análisis más detallado de los tiempos de la etapa de inferencia, como se observa en la Figura \ref{fig:tiempos_inferencia_gpu}, revela una reducción en el tiempo de inferencia al utilizar precisiones más bajas. Aunque el impacto en los FPS totales del sistema es limitado por otros factores del \textit{pipeline} en este escenario de alta carga de objetos, es importante destacar que las precisiones FP16 e INT8 logran un menor consumo energético. Esto se debe a que estas precisiones reducidas requieren menos recursos computacionales, lo que se traduce en una mayor eficiencia energética. En particular, la precisión INT8 se presenta como la opción más eficiente en términos de consumo energético, alcanzando un rendimiento de 1.96 Frames/W.
 
 
 \begin{table}[H]
@@ -1652,7 +1645,11 @@ En otros modelos más simples, la DLA podría encargarse de la mayoría de las o
       \label{tab:experimento_precision_dispositivo_30_fps}
    \end{table}
 
-   En la Tabla \ref{tab:experimento_precision_dispositivo_30_fps}, se obsrvan las ejecuciones en tiempo real de los modelos con diferentes precisiones y dispositivos. Observando los resultados, como se ha mencionado anteriormente, la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.79 FPS y 28.49 LFPS. En cuanto a la GPU, todas las precisiones (FP32, FP16 e INT8 con TensorRT) logran operar en tiempo real, con tasas de FPS de 28.42, 28.73 y 28.44 respectivamente, lo que indica que el sistema puede procesar los fotogramas a la velocidad requerida sin perder ninguno. La combinación de la GPU con la precisión INT8 es la más eficiente en términos de consumo energético, alcanzando 1.96 Frames/W.
+   En la Tabla \ref{tab:experimento_precision_dispositivo_30_fps}, se observan las ejecuciones en tiempo real de los modelos con diferentes precisiones y dispositivos. Observando los resultados, como se ha mencionado anteriormente, la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.79 FPS y 28.49 LFPS.
+
+   En cuanto a la GPU, todas las precisiones (FP32, FP16 e INT8 con TensorRT) logran operar en tiempo real, con tasas de FPS de 28.42, 28.73 y 28.44 respectivamente, lo que indica que el sistema puede procesar los fotogramas a la velocidad requerida sin perder ninguno.
+
+   La combinación de la GPU con la precisión INT8 es la más eficiente en términos de consumo energético, alcanzando 1.96 Frames/W.
 
 
 
