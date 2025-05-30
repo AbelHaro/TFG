@@ -26,18 +26,24 @@ if os.path.exists(object_count_file) and os.path.exists(fps_file):
     # Plot FPS on the primary axis (switched)
     fps_color = "tab:blue"
     ax1.set_xlabel("Número de frame")
-    ax1.set_ylabel("FPS")
-    ax1.plot(fps_data[fps_data.columns[0]], fps_data[fps_data.columns[1]], color=fps_color)
+    ax1.set_ylabel("FPS", color=fps_color)  # Modified: Set y-axis label color
+    ax1.plot(
+        fps_data[fps_data.columns[0]],
+        fps_data[fps_data.columns[1]],
+        color=fps_color,
+        label=fps_data.columns[1],
+    )  # Modified: Added label for legend
     ax1.tick_params(axis="y", labelcolor=fps_color)
 
     # Plot object count on the secondary axis (switched)
     objects_color = "tab:red"
-    ax2.set_ylabel("Cantidad de objetos")
+    ax2.set_ylabel("Cantidad de objetos", color=objects_color)  # Modified: Set y-axis label color
     ax2.plot(
         object_count_data[object_count_data.columns[0]],
         object_count_data[object_count_data.columns[1]],
         color=objects_color,
-    )
+        label=object_count_data.columns[1],
+    )  # Modified: Added label for legend
     ax2.tick_params(axis="y", labelcolor=objects_color)
 
     # Set x-axis and y-axis limits
@@ -57,14 +63,19 @@ if os.path.exists(object_count_file) and os.path.exists(fps_file):
     # Add legend
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, [fps_data.columns[1], object_count_data.columns[1]], loc="best")
+    ax1.legend(
+        lines1 + lines2, labels1 + labels2, loc="best"
+    )  # Modified: Use labels from get_legend_handles_labels
+
+    # Apply tight layout before saving
+    plt.tight_layout()  # Modified: Moved before savefig
 
     # Save the figure
     save_path = os.path.join(script_dir, "fps_vs_object_count.png")
     plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
-    # Show the plot
-    plt.tight_layout()
+    # If you want to show the plot interactively, uncomment the next line
+    # plt.show()
 
 else:
     print(f"Error: File {object_count_file} or {fps_file} not found!")
