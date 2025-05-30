@@ -361,7 +361,7 @@ Las \gls{cnn} incorporan \textbf{capas de pooling} (o submuestreo). Estas capas 
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.6\textwidth]{images/estado_del_arte/max_pooling.png}
-   \caption[Ejemplo de operación de max-pooling con una ventana de $2 \times 2$ y un paso de 2]{Ejemplo de operación de max-pooling con una ventana de $2 \times 2$ y un paso de 2. Se selecciona el valor máximo de cada región de color. Extraído de \cite{csWikiMaxpoolSample}.}
+   \caption[Ejemplo de operación de max-pooling con una ventana de $2 \times 2$ y un \textit{stride} de 2]{Ejemplo de operación de max-pooling con una ventana de $2 \times 2$ y un \textit{stride} de 2. Se selecciona el valor máximo de cada región de color. Extraído de \cite{csWikiMaxpoolSample}.}
    \label{fig:pooling}
 \end{figure}
 
@@ -1658,7 +1658,7 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
 
    
    \section{Modo de energía y cores de la CPU} \label{sub:modo_energia}
-   En esta sección se analizará el rendimiento de la solución propuesta variando el modo de energía del dispositivo (10W, 15W, 30W, MAXN) y el número de cores de la CPU habilitados (2, 4, 6 y 8 cores). Es importante mencionar que los perfiles de energía que se han utilizado son los que se encuentran disponibles en el dispositivo Jetson AGX Xavier por defecto, estos perfiles de energía también modifican la frecuencia máxima del procesador.
+   En esta sección se analizará el rendimiento del sistema variando la configuración energética del dispositivo NVIDIA Jetson AGX Xavier. Se explorarán distintos modos de energía (10W, 15W, 30W y MAXN, que corresponde al máximo rendimiento posible) y el número de núcleos de CPU activos (2, 4, 6 y 8). Es importante destacar que los perfiles de energía predefinidos en el Jetson AGX Xavier no solo limitan el consumo máximo, sino que también ajustan la frecuencia máxima de la CPU. Por lo tanto, esta evaluación permitirá comprender cómo la combinación de consumo energético y capacidad de procesamiento de la CPU influyen en el rendimiento global del sistema.
 
    Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la GPU, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
 
@@ -1733,7 +1733,31 @@ En esta sección se analizará el rendimiento de la solución propuesta en difer
 Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
 
 \section{Construcción del entorno} \label{sub:construccion_entorno}
-En esta sección se describirá la construcción del entorno de producción, incluyendo la configuración de la cinta transportadora y otros componentes necesarios.
+Después del desarrollo y análisis de la solución propuesta, utilizando vídeos pregrabados y en un entorno de laboratorio, se ha implementado una prueba de concepto que simula un entorno de producción real mediante una cinta transportadora sencilla. El objetivo de esta prueba es validar la viabilidad de la solución en un escenario práctico, permitiendo evaluar el rendimiento del sistema y su capacidad para detectar y clasificar objetos en movimiento. Para la construcción de la cinta transportadora, se han utilizado los planos y materiales proporcionados en un proyecto de referencia \cite{hackster_counting_inspection}.
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{images/prueba_de_concepto/planos_cinta.png}
+   \caption[Planos de la cinta transportadora]{Planos de la cinta transportadora. Extraído de \cite{hackster_counting_inspection}.}
+   \label{fig:planos_cinta}
+\end{figure}
+
+Para la construcción de la cinta transportadora, se han utilizado los siguientes materiales:
+
+\begin{itemize}
+   \item Un motor de corriente continua (DC) de 12V.
+   \item PLA (ácido poliláctico) para la impresión 3D de las piezas.
+   \item 4x rodamientos de 608ZZ.
+   \item Servo motor de 9g.
+   \item Cinta transportadora de 1.5 cm de ancho.
+   \item Raspberry Pi Pico WH.
+   \item Cámara 
+   \item Cableado y conectores.
+   \item Fuente de alimentación.
+
+\end{itemize}
+
 
 \section{Instalación del entorno} \label{sub:instalacion_entorno}
 En esta sección se detallará la instalación del entorno de producción, incluyendo la instalación de software y la configuración de hardware.
@@ -1806,17 +1830,17 @@ En esta sección se detallará la instalación del entorno de producción, inclu
 
 
 
-\chapter{Configuración del sistema} \label{ch:configuracion_sistema}
+% \chapter{Configuración del sistema} \label{ch:configuracion_sistema}
 
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
+% ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Fase de inicialización} \label{sec:fase_inicializacion}
+% \section{Fase de inicialización} \label{sec:fase_inicializacion}
 
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
+% ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
-\section{Identificación de dispositivos} \label{sec:identificacion_dispositivos}
+% \section{Identificación de dispositivos} \label{sec:identificacion_dispositivos}
 
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
+% ????? ????????????? ????????????? ????????????? ????????????? ?????????????
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               ALTRES  APÈNDIXS                              %
