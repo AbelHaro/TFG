@@ -155,7 +155,7 @@ The work includes a comprehensive analysis of the system's performance under var
 %                                  INTRODUCCIO                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Introducci\'on}
+\chapter{Introducci\'on} \label{chap:introduccion}
 Durante los últimos años, la inteligencia artificial ha experimentado un crecimiento en popularidad sin precedentes, transformando nuestra capacidad tecnológica con herramientas revolucionarias. Este avance ha sido impulsado por la disponibilidad de grandes volúmenes de datos, el desarrollo de algoritmos avanzados y las mejoras significativas en el hardware de procesamiento, que han permitido a las máquinas aprender y adaptarse a situaciones complejas. Algunos campos destacados de aplicación incluyen el procesamiento del lenguaje natural, la visión por computador y la robótica. En particular, la visión por computador ha visto un auge significativo, con aplicaciones en áreas como la seguridad, la medicina y la automoción. Esta creciente popularidad por el mundo de la inteligencia artificial se refleja en la evolución del interés público en ella, como muestra la Figura~\ref{fig:interes_en_inteligencia_artificial}.
 
 \begin{figure}[H]
@@ -223,7 +223,19 @@ El objetivo principal de este trabajo es desarrollar un sistema de visión artif
 
 \section{Estructura de la memoria}  \label{sec:estructura_memoria}
 
-????? ????????????? ????????????? ????????????? ????????????? ????????????? 
+La memoria se estructura en seis capítulos, cada uno dedicado a un aspecto fundamental del trabajo desarrollado:
+
+El \textbf{Capítulo~\ref{chap:introduccion}} introduce el proyecto, detallando la motivación subyacente, los objetivos específicos que se persiguen, la organización general de esta memoria y las colaboraciones para el desarrollo del trabajo.
+
+El \textbf{Capítulo~\ref{chap:conceptos_previos}} sienta las bases teóricas del trabajo. Comienza explorando los fundamentos de la inteligencia artificial y avanza hacia los desarrollos más recientes en redes neuronales convolucionales aplicadas a la visión por computador. A continuación, se justifica el uso de aceleradores hardware para tareas de IA, presentando los dispositivos de bajo consumo NVIDIA Jetson. El capítulo concluye con una descripción de los algoritmos de seguimiento de objetos en tiempo real, detallando el funcionamiento de ByteTrack y las métricas de evaluación pertinentes.
+
+El \textbf{Capítulo~\ref{chap:diseno_e_implementacion}} detalla el proceso de diseño e implementación del sistema de visión artificial. Se inicia con un análisis del problema, seguido de la descripción de la recolección de imágenes, su etiquetado y el entrenamiento de los modelos de detección. Concluye con el diseño modular del sistema, especificando sus etapas y las estrategias de segmentación consideradas para su implementación.
+
+El \textbf{Capítulo~\ref{chap:evaluacion_solucion}} presenta la metodología empleada para evaluar el rendimiento del sistema. Define las métricas clave, describe la configuración de los experimentos y la recolección de datos. Posteriormente, se analizan exhaustivamente los resultados obtenidos, comparando el comportamiento del sistema bajo diversas configuraciones de hardware y software, y evaluando su precisión, velocidad y eficiencia energética.
+
+El \textbf{Capítulo~\ref{chap:prueba_concepto}} describe la construcción de un prototipo de cinta transportadora, diseñado para validar el sistema de visión artificial en un entorno que simula condiciones de producción. Se presentan los resultados obtenidos durante esta prueba de concepto.
+
+Finalmente, el \textbf{Capítulo~\ref{chap:conclusiones}} resume las principales conclusiones derivadas del trabajo, resaltando los logros alcanzados, las limitaciones identificadas y las posibles líneas de investigación y desarrollo futuras.
 
 %\section{Notes bibliografiques} %%%%% Opcional
 
@@ -239,7 +251,7 @@ El presente Trabajo de Fin de Grado se ha desarrollado en el marco de una beca d
 
 Esta colaboración se encuentra estrechamente vinculada con los contenidos y objetivos de la asignatura \gls{sdl}, una asignatura que forma parte de la mención de ingeniería dentro del Grado en Ingeniería Informática. La oportunidad de colaborar con el \gls{gap} ha permitido aplicar de manera práctica y en un contexto de investigación real los conocimientos teóricos y técnicos adquiridos durante la asignatura. Específicamente, ha facilitado la profundización en el diseño, implementación y optimización de sistemas de visión por computador basados en inteligencia artificial, enfrentando desafíos reales relacionados con el rendimiento, la eficiencia y el despliegue en hardware especializado. Esta sinergia entre la formación académica y la investigación aplicada ha enriquecido significativamente la experiencia de aprendizaje, fomentando el desarrollo de habilidades prácticas avanzadas y una comprensión más profunda de las complejidades inherentes al campo de la visión artificial y el aprendizaje profundo en entornos industriales.
 
-\chapter{Conceptos Previos}
+\chapter{Conceptos Previos} \label{chap:conceptos_previos}
 
 En este capítulo se describirán los conceptos previos que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán los fundamentos en Inteligencia Artificial centrándose en las redes neuronales convolucionales, desde sus bases hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
 
@@ -1170,7 +1182,7 @@ La configuración de cada buffer circular requiere definir estáticamente su cap
 En resumen, la segmentación basada en procesos con memoria compartida y un buffer circular busca ofrecer un rendimiento superior para la transferencia de grandes bloques de datos como fotogramas de vídeo, aunque esto implicaría una mayor complejidad en la implementación y gestión de la memoria.
 
 
-\chapter{Evaluación de la solución} \label{ch:evaluacion_solucion}
+\chapter{Evaluación de la solución} \label{chap:evaluacion_solucion}
 
 En este capítulo se presenta la evaluación del sistema propuesto, analizando su rendimiento y eficiencia en diferentes configuraciones. Se describen las metodologías de evaluación empleadas, las métricas de rendimiento consideradas y los resultados obtenidos en cada caso. El objetivo es proporcionar una visión clara de cómo el sistema se comporta bajo diversas condiciones y configuraciones, permitiendo identificar sus fortalezas y áreas de mejora.
 
@@ -1737,10 +1749,10 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
 
 
 
-\section{Dispositivos Jetson} \label{sec:jetson}
+\section{Dispositivos Jetson} \label{sec:dispositivos_jetson}
 En esta sección se analizará el rendimiento de la solución propuesta en diferentes dispositivos Jetson, específicamente en el Jetson Orin Nano, Jetson AGX Xavier  y Jetson AGX Orin. Se utilizará el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la GPU, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
 
-\chapter{Prueba de concepto} \label{ch:prueba_concepto}
+\chapter{Prueba de concepto} \label{chap:prueba_concepto}
 Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
 
 \section{Construcción del entorno} \label{sub:construccion_entorno}
@@ -1853,7 +1865,7 @@ Al recibir esta señal, la Raspberry Pi Pico WH activa el servomotor durante un 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\chapter{Objetivos de Desarrollo Sostenible}
+\chapter{Objetivos de Desarrollo Sostenible} \label{ch:ods}
 
 \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}X|c|c|c|c|}\hline
    \textbf{Objetivos de Desarrollo Sostenible} & \textbf{Alto} & \textbf{Medio} & \textbf{Bajo} & \textbf{No procede} \\ \hline
