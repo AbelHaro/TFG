@@ -478,7 +478,19 @@ Esta arquitectura de una etapa prioriza la velocidad de inferencia, resultando i
 
 Como se ilustra en la Figura~\ref{fig:yolo_detections_example}, \gls{yolo} modela la detección como un problema de regresión. Las predicciones del modelo se codifican como una matriz de 3 dimensiones de  $S \times S \times (B * 5 + C)$, donde el factor $5$ corresponde a las coordenadas $x$, $y$, ancho, alto y la puntuación de confianza para cada cuadro delimitador, mientras que $C$ representa el número de clases posibles. Por ejemplo, si se utilizan $B=2$ cuadros delimitadores (por cada celda, es decir, cada celda realiza 2 predicciones) y $C=20$ clases, el tensor de salida tendrá dimensiones $S \times S \times (2 * 5 + 20)$. 
 
-Una vez generadas todas las predicciones, \gls{yolo} implementa un post-procesamiento mediante supresión de no máximos (NMS) para eliminar detecciones redundantes y conservar únicamente las más precisas. Este enfoque unificado permite que \gls{yolo} procese imágenes a velocidades significativamente mayores que los detectores de dos etapas, mientras mantiene una precisión competitiva, lo que lo hace ideal para aplicaciones en tiempo real como las que se abordan en este trabajo.
+Una vez generadas las predicciones, \gls{yolo} implementa un post-procesamiento mediante \gls{nms} para eliminar detecciones redundantes y conservar únicamente las más precisas. El algoritmo \gls{nms} funciona de la siguiente manera:
+
+\begin{enumerate}
+   \item \textbf{Ordenamiento por Confianza:} Las cajas delimitadoras detectadas se ordenan por su puntuación de confianza, de mayor a menor.
+   \item \textbf{Selección de la Detección Más Confiable:} Se selecciona la caja delimitadora con la puntuación de confianza más alta y se añade a la lista de detecciones finales.
+   \item \textbf{Cálculo de la Intersección sobre Unión (IoU):} Se calcula la \gls{iou} entre la caja delimitadora seleccionada y todas las demás cajas delimitadoras restantes.
+   \item \textbf{Eliminación de Detecciones Redundantes:} Se eliminan todas las cajas delimitadoras con una \gls{iou} superior a un umbral predefinido con la caja delimitadora seleccionada.
+   \item \textbf{Iteración:} Se repiten los pasos 2-4 hasta que no queden más cajas delimitadoras por procesar.
+\end{enumerate}
+
+En resumen, \gls{nms} evalúa la superposición entre las cajas y elimina aquellas que exceden un cierto umbral con la caja de mayor confianza, asegurando que solo las detecciones más precisas y no redundantes se conserven, mejorando la calidad general de las detecciones.
+
+Este enfoque unificado permite que \gls{yolo} procese imágenes a velocidades significativamente mayores que los detectores de dos etapas, mientras mantiene una precisión competitiva, lo que lo hace ideal para aplicaciones en tiempo real como las que se abordan en este trabajo.
 
 \begin{figure}[H]
    \centering
@@ -993,7 +1005,6 @@ La etapa de captura de imágenes es la responsable de adquirir los fotogramas de
 La etapa de inferencia constituye el núcleo computacional del sistema, siendo responsable de ejecutar el modelo de detección de objetos preentrenado sobre cada fotograma adquirido por la etapa de captura. Para esta tarea crucial, se ha seleccionado el modelo \gls{yolo}11, una variante optimizada dentro de la familia \gls{yolo}, reconocida por su equilibrio entre velocidad y precisión en tareas de detección en tiempo real. La implementación se apoya en el framework de Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, una biblioteca de alto nivel que simplifica significativamente el ciclo de vida de los modelos YOLO, desde el entrenamiento hasta el despliegue y la inferencia, ofreciendo una interfaz robusta y eficiente.
 
 El proceso de inferencia comienza con la adquisición de un fotograma de vídeo, que se convierte en un tensor adecuado para la entrada del modelo. Este tensor es una representación numérica de la imagen, donde cada píxel se traduce en un valor que el modelo puede procesar. La transformación del fotograma a tensor incluye operaciones como la normalización y el redimensionamiento, asegurando que los datos estén en el formato correcto para el modelo YOLO11.
-
 La ejecución de la inferencia propiamente dicha implica cargar el modelo \gls{yolo}11 (potencialmente optimizado mediante NVIDIA TensorRT para maximizar el rendimiento en la plataforma Jetson) y pasarle el tensor de entrada. Aprovechando la aceleración por hardware (\gls{gpu} y/o \gls{dla}s disponibles en los módulos Jetson), el modelo procesa la imagen y genera un conjunto de predicciones. Estas predicciones iniciales suelen ser numerosas y requieren un postprocesamiento para refinar los resultados. Este postprocesamiento, a menudo gestionado internamente por el framework Ultralytics o aplicado explícitamente, incluye la aplicación de un umbral de confianza para descartar detecciones poco fiables y la ejecución del algoritmo de \gls{nms} para eliminar cajas delimitadoras redundantes que correspondan al mismo objeto.
 
 El resultado final de la etapa de inferencia, que se transfiere a la etapa de seguimiento, es una lista estructurada de las detecciones finales para el fotograma actual. Cada detección en esta lista contiene información esencial: las coordenadas de la caja delimitadora que localiza al objeto (comúnmente en formato (x, y, w, h), donde (x, y) representan las coordenadas del centro de la caja, y (w, h) su anchura y altura), una puntuación de confianza que cuantifica la fiabilidad de la detección, y la etiqueta de la clase predicha para el objeto (p. ej., 'canica\_azul', 'canica\_verde\_defecto'). La eficiencia y rapidez de esta etapa son críticas para mantener la capacidad de procesamiento en tiempo real del sistema global.
@@ -1733,8 +1744,7 @@ En esta sección se analizará el rendimiento de la solución propuesta en difer
 Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
 
 \section{Construcción del entorno} \label{sub:construccion_entorno}
-Después del desarrollo y análisis de la solución propuesta, utilizando vídeos pregrabados y en un entorno de laboratorio, se ha implementado una prueba de concepto que simula un entorno de producción real mediante una cinta transportadora sencilla. El objetivo de esta prueba es validar la viabilidad de la solución en un escenario práctico, permitiendo evaluar el rendimiento del sistema y su capacidad para detectar y clasificar objetos en movimiento. Para la construcción de la cinta transportadora, se han utilizado los planos y materiales proporcionados en un proyecto de referencia \cite{hackster_counting_inspection}.
-
+Tras la fase de desarrollo y análisis de la solución propuesta, que se llevó a cabo utilizando vídeos pregrabados en un entorno de laboratorio, se procedió a la implementación de una prueba de concepto. Esta prueba simula un entorno de producción real mediante la construcción de una cinta transportadora sencilla. El principal objetivo de esta etapa es validar la viabilidad y el rendimiento de la solución en un escenario práctico, evaluando su capacidad para detectar y clasificar objetos (canicas) en movimiento sobre dicha cinta. Para la construcción de la cinta transportadora, se tomaron como referencia los planos y la lista de materiales detallados en un proyecto de acceso público \cite{hackster_counting_inspection}.
 
 \begin{figure}[H]
    \centering
@@ -1743,20 +1753,28 @@ Después del desarrollo y análisis de la solución propuesta, utilizando vídeo
    \label{fig:planos_cinta}
 \end{figure}
 
-Para la construcción de la cinta transportadora, se han utilizado los siguientes materiales:
+Los materiales empleados para la construcción de la cinta transportadora son los siguientes:
 
 \begin{itemize}
-   \item Un motor de corriente continua (DC) de 12V.
-   \item PLA (ácido poliláctico) para la impresión 3D de las piezas.
-   \item 4x rodamientos de 608ZZ.
-   \item Servo motor de 9g.
-   \item Cinta transportadora de 1.5 cm de ancho.
-   \item Raspberry Pi Pico WH.
-   \item Cámara 
-   \item Cableado y conectores.
-   \item Fuente de alimentación.
-
+   \item Un motor de corriente continua (DC) de 12V para el accionamiento de la cinta.
+   \item Filamento PLA (ácido poliláctico) para la impresión 3D de las piezas estructurales de la cinta.
+   \item Cuatro rodamientos de tipo 608ZZ para facilitar el movimiento suave de la cinta.
+   \item Un servomotor de 9g, encargado de accionar el mecanismo de rechazo de canicas defectuosas.
+   \item Una banda transportadora de 1.5 cm de ancho.
+   \item Una placa microcontroladora Raspberry Pi Pico WH para el control del servomotor.
+   \item Una cámara para la captura de imágenes de los objetos en la cinta.
+   \item Cableado diverso y conectores para las interconexiones eléctricas.
+   \item Una fuente de alimentación para suministrar energía a los componentes.
 \end{itemize}
+
+El montaje de la cinta transportadora se realizó siguiendo los planos ilustrados en la Figura \ref{fig:planos_cinta}. La Raspberry Pi Pico WH se programó para controlar el servomotor que desvía las canicas identificadas como defectuosas. Para la programación de este microcontrolador se utilizó MicroPython\cite{micropython_home}. La cámara se ubicó estratégicamente en la parte superior de la cinta para obtener una vista clara de las canicas durante su tránsito. El motor DC, alimentado por una fuente de 12V, es el responsable del movimiento continuo de la banda transportadora.
+
+El sistema completo se configuró de la siguiente manera:
+El procesamiento principal, incluyendo la ejecución del modelo de detección de objetos, se realiza en un dispositivo NVIDIA Jetson AGX Xavier. Este dispositivo es el encargado de analizar las imágenes capturadas por la cámara.
+Para la comunicación entre el Jetson AGX Xavier y la Raspberry Pi Pico WH, se establece una conexión TCP/IP. Al iniciar el sistema, el Jetson AGX Xavier actúa como servidor, abriendo un socket en el puerto 5000 y esperando la conexión de la Raspberry Pi Pico WH (cliente).
+Una vez que la Raspberry Pi Pico WH se conecta, envía un mensaje de inicio al Jetson. A partir de este momento, el Jetson comienza a procesar el flujo de vídeo de la cámara.
+Cuando el modelo de detección en el Jetson identifica una canica defectuosa, envía un mensaje específico a la Raspberry Pi Pico WH.
+Al recibir esta señal, la Raspberry Pi Pico WH activa el servomotor durante un breve instante. Este accionamiento mueve un mecanismo que desvía la canica defectuosa fuera de la trayectoria principal de la cinta transportadora.
 
 
 \section{Instalación del entorno} \label{sub:instalacion_entorno}

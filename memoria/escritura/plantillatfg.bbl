@@ -98,14 +98,21 @@ Harold~W. Kuhn.
 
 \bibitem{explainningAI}
 Tushar Kumar.
-\newblock R-cnn explained, 2024.
-\newblock Accedido: 14 de abril de 2025.
+\newblock R-cnn explained.
+\newblock \url{https://youtu.be/5DvljLV4S1E?si=oeQUo9Cmv4NInTns}, 2024.
+\newblock Video. Accedido: 14 de abril de 2025.
 
 \bibitem{Liu_2016}
 Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
   Cheng-Yang Fu, and Alexander~C. Berg.
 \newblock {\em SSD: Single Shot MultiBox Detector}, page 21–37.
 \newblock Springer International Publishing, 2016.
+
+\bibitem{micropython_home}
+MicroPython.
+\newblock Micropython - python for microcontrollers.
+\newblock \url{https://micropython.org/}, 2025.
+\newblock Accedido el 2 de junio de 2025.
 
 \bibitem{opengenusHOG}
 Karthik Mittal.
