@@ -19,6 +19,7 @@
 
 
 \usepackage{pgfplotstable} % Para leer y mostrar tablas desde CSV
+% \pgfplotsset{compat=1.16} % Set compatibility for pgfplots
 \usepackage{booktabs}       % Para mejorar el diseño de la tabla
 \usepackage{multirow}       % Para fusionar filas
 \usepackage{caption}
@@ -161,7 +162,7 @@ Durante los últimos años, la inteligencia artificial ha experimentado un creci
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.7\textwidth]{excels/introduccion/interes_en_ia.png}
-   \caption{Evolución del interés público en inteligencia artificial según datos de Google Trends (2020-2025).}
+   \caption[Evolución del interés público en inteligencia artificial según datos de Google Trends (2020-2025)]{Evolución del interés público en inteligencia artificial según datos de Google Trends (2020-2025).}
 \label{fig:interes_en_inteligencia_artificial}
 \end{figure}
 
@@ -189,7 +190,7 @@ Con todo ello en mente, este trabajo se centra en el desarrollo de un sistema de
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.7\textwidth]{images/diseno_e_implementacion/figura_TFG_v3.png}
-   \caption{Esquema del sistema de visión artificial propuesto.}
+   \caption[Esquema del sistema de visión artificial propuesto]{Esquema del sistema de visión artificial propuesto.}
 \label{fig:esquema_TFG}
 \end{figure}
 
@@ -259,7 +260,8 @@ En este capítulo se describirán los conceptos previos que constituyen la base 
 En esta sección se realizará un estudio de las redes neuronales profundas hasta las redes neuronales convolucionales, desde sus fundamentos hasta los modelos más recientes en detección de objetos. Se explicarán los conceptos básicos de las redes neuronales y la evolución de las arquitecturas.
 
 \subsection{Fundamentos de la inteligencia artificial} \label{sec:fundamentos_inteligencia_artificial}
-La \textit{\textbf{Inteligencia Artificial}} es un campo de estudio que busca desarrollar sistemas capaces de realizar tareas que normalmente requieren inteligencia humana, como el reconocimiento de voz, la toma de decisiones y la comprensión del lenguaje natural. Dentro de este campo, existen diversas subdisciplinas, entre las cuales destacan el \textit{\textbf{Machine Learning}} y el \textit{\textbf{Deep Learning}}.
+La \textit{\textbf{Inteligencia Artificial}} es un campo de estudio que busca desarrollar sistemas capaces de realizar tareas que normalmente requieren inteligencia humana, como el reconocimiento de voz, la toma de decisiones y la comprensión del lenguaje natural. Dentro de este campo, existen diversas 
+subdisciplinas, entre las cuales destacan el \textit{\textbf{Machine Learning}} y el \textit{\textbf{Deep Learning}}.
 
 El \textit{\textbf{Machine Learning}} o aprendizaje automático es una rama de la inteligencia artificial que se centra en el desarrollo de algoritmos y modelos que permiten a las máquinas aprender de los datos y realizar predicciones o tomar decisiones sin ser programadas explícitamente. Este enfoque se basa en la idea de que las máquinas pueden identificar patrones y relaciones en grandes conjuntos de datos, lo que les permite generalizar y adaptarse a nuevas situaciones.
 
@@ -343,17 +345,17 @@ La Figura~\ref{fig:operacion_convolucion} ilustra la operación de una capa de c
    \begin{subfigure}[b]{0.25\textwidth}
       \centering
       \includegraphics[width=\textwidth]{images/estado_del_arte/bus_original.jpg}
-      \caption{Imagen de un autobús.}
+      \caption[Imagen de un autobús]{Imagen de un autobús.}
       \label{fig:bus_original}
    \end{subfigure}
    \hfill
    \begin{subfigure}[b]{0.7\textwidth}
       \centering
       \includegraphics[width=\textwidth]{images/estado_del_arte/bus_primera_capa_convolucion.png}
-      \caption{Resultado de la operación de convolución.}
+      \caption[Resultado de la operación de convolución]{Resultado de la operación de convolución.}
       \label{fig:bus_primera_capa_convolucion}
    \end{subfigure}
-   \caption{Proceso de convolución aplicado a una imagen de un autobús.}
+   \caption[Proceso de convolución aplicado a una imagen de un autobús]{Proceso de convolución aplicado a una imagen de un autobús.}
    \label{fig:bus_convolucion}
 \end{figure}
 
@@ -443,14 +445,14 @@ La primera arquitectura exitosa de detección de objetos basada en deep learning
    \begin{subfigure}[b]{0.45\textwidth}
       \centering
       \includegraphics[width=\textwidth]{images/estado_del_arte/selective_search_original.png}
-      \caption{Imagen original.}
+      \caption[Imagen original]{Imagen original.}
       \label{fig:selective_search_original}
    \end{subfigure}
    \hfill
    \begin{subfigure}[b]{0.45\textwidth}
       \centering
       \includegraphics[width=\textwidth]{images/estado_del_arte/selective_search_result.png}
-      \caption{Resultado de búsqueda selectiva.}     
+      \caption[Resultado de búsqueda selectiva]{Resultado de búsqueda selectiva.}     
       \label{fig:selective_search_result}
    \end{subfigure}
    \caption[Proceso de búsqueda selectiva aplicado a una imagen]{Proceso de búsqueda selectiva aplicado a una imagen. Extraído de \cite{explainningAI}.}
@@ -627,7 +629,7 @@ Más allá del hardware, el valor de la plataforma Jetson reside en su ecosistem
       \bottomrule
    \end{tabular}
    }
-   \caption{Comparativa técnica entre diferentes modelos NVIDIA Jetson.}
+   \caption[Comparativa técnica entre diferentes modelos NVIDIA Jetson]{Comparativa técnica entre diferentes modelos NVIDIA Jetson.}
    \label{tab:jetson_comparison}
 \end{table}
 
@@ -637,7 +639,7 @@ La tabla \ref{tab:jetson_comparison}\cite{nvidia_jetson_modules} presenta una co
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/estado_del_arte/jetson_family.png}
-   \caption{Módulos Jetson de NVIDIA.}
+   \caption[Módulos Jetson de NVIDIA]{Módulos Jetson de NVIDIA}
    \label{fig:jetson_modules}
 \end{figure}
 
@@ -662,7 +664,7 @@ El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de en
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/estado_del_arte/TensorRT_pipeline.png}
-   \caption{Ejemplo de flujo de trabajo de optimización con TensorRT.}
+   \caption[Ejemplo de flujo de trabajo de optimización con TensorRT]{Ejemplo de flujo de trabajo de optimización con TensorRT}
    \label{fig:tensorrt_architecture}
 \end{figure}
 
@@ -693,7 +695,7 @@ Este ciclo permite al filtro refinar continuamente la estimación del estado del
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/estado_del_arte/filtro_de_kalman.png}
-   \caption{Diagrama de flujo del filtro de Kalman.}
+   \caption[Diagrama de flujo del filtro de Kalman]{Diagrama de flujo del filtro de Kalman.}
    \label{fig:filtro_de_kalman}
 \end{figure}
 
@@ -711,13 +713,12 @@ La Figura ~\ref{fig:filtro_de_kalman} representa el funcionamiento de un filtro 
 
    \item \textbf{PREDECIR}
    El otro paso clave del filtro utiliza el modelo del sistema para predecir el siguiente estado y su incertidumbre, basándose en la estimación anterior y considerando el retardo de una unidad.
-
    \item \textbf{Retardo de unidad (\(n \rightarrow n{-}1\))}
    Este bloque representa el almacenamiento del estado estimado en el instante anterior para ser utilizado en la siguiente predicción.
-
-   \item \textbf{OUTPUTS: Estimación del estado del sistema}
-   Este es el resultado final del filtro: una estimación refinada del estado actual del sistema, que es más precisa que la simple medición directa.
 \end{itemize}
+
+Este es el resultado final del filtro: una estimación refinada del estado actual del sistema, que es más precisa que la simple medición directa.
+
 
 En conjunto, el filtro de Kalman realiza un ciclo continuo de predicción y corrección, usando tanto el modelo del sistema como las mediciones reales, para obtener una estimación óptima del estado.
 
@@ -882,7 +883,7 @@ Dada la dificultad de acceder a un entorno industrial real para llevar a cabo la
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.6\textwidth]{images/diseno_e_implementacion/ejemplo_canicas.png}
-   \caption{Ejemplo de entorno simulado con canicas.}
+   \caption[Ejemplo de entorno simulado con canicas]{Ejemplo de entorno simulado con canicas.}
    \label{fig:entorno_simulado}
 \end{figure}
 
@@ -903,7 +904,7 @@ Para el etiquetado de las imágenes, se utilizó la herramienta CVAT\cite{CVAT_a
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/diseno_e_implementacion/ejemplo_CVAT.png}
-   \caption{Ejemplo de anotación de imágenes utilizando CVAT.}
+   \caption[Ejemplo de anotación de imágenes utilizando CVAT]{Ejemplo de anotación de imágenes utilizando CVAT.}
    \label{fig:cvat_anotacion}
 \end{figure}
 
@@ -941,7 +942,7 @@ Para este trabajo, se han entrenado y evaluado experimentalmente las siguientes 
       \bottomrule
    \end{tabular}
    }
-   \caption{Análisis comparativo de variantes de YOLO (v5, v8, v11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU.}
+   \caption[Análisis comparativo de variantes de YOLO (v5, v8, v11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU]{Análisis comparativo de variantes de YOLO (v5, v8, v11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU.}
    \label{tab:yolo_all_variants_comparison}
 \end{table}
 
@@ -977,7 +978,7 @@ Los resultados del entrenamiento se han evaluado utilizando el conjunto de valid
       YOLO11l & 0.485 & 0.954 & 0.947 & 0.967 & 0.801 \\
       \bottomrule
    \end{tabular}
-   \caption{Comparativa del rendimiento de los modelos YOLOv5, YOLOv8 y YOLO11 en términos de tiempo de entrenamiento, precisión, recall y mAP.}
+   \caption[Comparativa del rendimiento de los modelos YOLOv5, YOLOv8 y YOLO11 en términos de tiempo de entrenamiento, precisión, recall y mAP]{Comparativa del rendimiento de los modelos YOLOv5, YOLOv8 y YOLO11 en términos de tiempo de entrenamiento, precisión, recall y mAP.}
    \label{tab:modelos_metrics}
 \end{table}
 
@@ -986,7 +987,7 @@ La Tabla \ref{tab:modelos_metrics} resume los resultados del entrenamiento para 
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{excels/entrenamiento/loss_plot.png}
-   \caption{Curvas de pérdida de entrenamiento y validación para las distintas tallas de modelos YOLOv5, YOLOv8 y YOLO11.}
+   \caption[Curvas de pérdida de entrenamiento y validación para las distintas tallas de modelos YOLOv5, YOLOv8 y YOLO11]{Curvas de pérdida de entrenamiento y validación para las distintas tallas de modelos YOLOv5, YOLOv8 y YOLO11.}
    \label{fig:loss_curves}
 \end{figure}
 
@@ -1000,7 +1001,7 @@ El sistema está organizado como una serie de etapas de procesamiento secuencial
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.95\textwidth]{images/diseno_e_implementacion/figura_TFG_v3.png}
-   \caption{Figura del sistema propuesto.}
+   \caption[Figura del sistema propuesto]{Figura del sistema propuesto.}
    \label{fig:sistema_propuesto}
 \end{figure}
 
@@ -1048,7 +1049,7 @@ La etapa de escritura de resultados es responsable de gestionar la salida del si
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.5\textwidth]{images/diseno_e_implementacion/ejemplo_canicas_resultado.png}
-   \caption{Ejemplo de salida del sistema.}
+   \caption[Ejemplo de salida del sistema]{Ejemplo de salida del sistema.}
    \label{fig:resultado_sistema}
 \end{figure}
 
@@ -1067,7 +1068,7 @@ La primera y mas trivial opción es la ejecución secuencial de las etapas del s
 \begin{figure}[H]
    \centering
    \includegraphics[width=1\textwidth]{images/diseno_e_implementacion/secuencial.png}
-   \caption{Diagrama de flujo del sistema sin segmentar.}
+   \caption[Diagrama de flujo del sistema sin segmentar]{Diagrama de flujo del sistema sin segmentar.}
    \label{fig:secuencial}
 \end{figure}
 
@@ -1093,7 +1094,7 @@ No obstante, el \gls{gil} no bloquea la ejecución en todas las circunstancias. 
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.3\textwidth]{images/diseno_e_implementacion/segmentacion_hilos.png}
-   \caption{Diagrama de flujo del sistema segmentado en hilos.}
+   \caption[Diagrama de flujo del sistema segmentado en hilos]{Diagrama de flujo del sistema segmentado en hilos.}
    \label{fig:hilos}
 
 \end{figure}
@@ -1113,7 +1114,7 @@ La principal ventaja de este enfoque es que cada etapa del sistema se ejecuta en
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.3\textwidth]{images/diseno_e_implementacion/segmentacion_procesos.png}
-   \caption{Diagrama de flujo del sistema segmentado en procesos.}
+   \caption[Diagrama de flujo del sistema segmentado en procesos]{Diagrama de flujo del sistema segmentado en procesos.}
    \label{fig:procesos}
 \end{figure}
 
@@ -1124,7 +1125,7 @@ Sin embargo, este enfoque también presenta desventajas. La comunicación entre 
 \begin{figure}[H]
    \centering
    \includegraphics[width=1\textwidth]{images/diseno_e_implementacion/segmentacion.png}
-   \caption{Diagrama de flujo del sistema segmentado.}
+   \caption[Diagrama de flujo del sistema segmentado]{Diagrama de flujo del sistema segmentado.}
    \label{fig:segmentacion}
 \end{figure}
 
@@ -1145,7 +1146,7 @@ Este enfoque permite una ejecución paralela real, donde la CPU gestiona el fluj
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.6\textwidth]{images/diseno_e_implementacion/segmentacion_multihardware.png}
-   \caption{Diagrama de flujo del sistema segmentado en diferentes unidades de procesamiento.}
+   \caption[Diagrama de flujo del sistema segmentado en diferentes unidades de procesamiento]{Diagrama de flujo del sistema segmentado en diferentes unidades de procesamiento.}
    \label{fig:segmentacion_multihardware}
 \end{figure}
 
@@ -1163,7 +1164,7 @@ Para superar estas limitaciones, la biblioteca \texttt{multiprocessing.shared\_m
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.5\textwidth]{images/diseno_e_implementacion/segmentacion_procesos_memoria_compartida.png}
-   \caption{Diagrama de flujo del sistema segmentado en procesos con memoria compartida.}
+   \caption[Diagrama de flujo del sistema segmentado en procesos con memoria compartida]{Diagrama de flujo del sistema segmentado en procesos con memoria compartida.}
    \label{fig:segmentacion_procesos_memoria_compartida}
 \end{figure}
 
@@ -1175,7 +1176,7 @@ Sin embargo, la gestión directa de la memoria compartida requiere una implement
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.6\textwidth]{images/diseno_e_implementacion/buffer_circular.png}
-   \caption{Ejemplo de buffer circular.}
+   \caption[Ejemplo de buffer circular]{Ejemplo de buffer circular.}
    \label{fig:buffer_circular}
 \end{figure}
 
@@ -1256,7 +1257,7 @@ Las pruebas que se presentan a continuación se realizaron siguiendo la metodolo
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/cantidad_objetos_4_videos.png}
-   \caption{Cantidad de objetos en los vídeos de prueba.}
+   \caption[Cantidad de objetos en los vídeos de prueba]{Cantidad de objetos en los vídeos de prueba.}
    \label{fig:4_videos}
 \end{figure}
 
@@ -1265,7 +1266,7 @@ La Figura \ref{fig:4_videos} ilustra la cantidad de objetos presentes en cada fo
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/max_fps_4_videos/fps_comparison.png}
-   \caption{FPS por fotograma en función de la cantidad de objetos para los cuatro vídeos de prueba.}
+   \caption[FPS por fotograma en función de la cantidad de objetos para los cuatro vídeos de prueba]{FPS por fotograma en función de la cantidad de objetos para los cuatro vídeos de prueba.}
    \label{fig:fps_por_frame}
 \end{figure}
 
@@ -1276,7 +1277,7 @@ El escenario de carga variable (línea verde) revela un comportamiento particula
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/tiempos_etapa.png}
-   \caption{Ejecución temporal de las etapas del sistema durante el vídeo de prueba con carga variable.}
+   \caption[Ejecución temporal de las etapas del sistema durante el vídeo de prueba con carga variable]{Ejecución temporal de las etapas del sistema durante el vídeo de prueba con carga variable.}
    \label{fig:tiempos_etapa}
 \end{figure}
 
@@ -1292,7 +1293,7 @@ Finalmente, la etapa de escritura (línea verde), también dependiente de la CPU
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/tiempos_etapa_video1.png}
-   \caption{Ejecución temporal de las etapas del sistema durante el vídeo de prueba 2 (carga media y constante).}
+   \caption[Ejecución temporal de las etapas del sistema durante el vídeo de prueba 2 (carga media y constante)]{Ejecución temporal de las etapas del sistema durante el vídeo de prueba 2 (carga media y constante).}
    \label{fig:tiempos_etapa_video1}
 \end{figure}
 
@@ -1330,7 +1331,7 @@ Ahora vamos a analizar el rendimiento del sistema con una simulación de entrada
        empty cells with={NaN}
    ]{excels/inferencia/cantidad_objetos/resultados/30_fps/datos.csv}
    }
-   \caption{Resultados del experimento con distintas cantidades de objetos.}
+   \caption[Resultados del experimento con distintas cantidades de objetos]{Resultados del experimento con distintas cantidades de objetos.}
    \label{tab:experimento_objetos}
 \end{table}
 
@@ -1339,7 +1340,7 @@ Los datos de la Tabla \ref{tab:experimento_objetos} revelan que el sistema logra
 \begin{figure}
    \centering
    \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/variable_fps_vs_object_count/fps_vs_object_count.png}
-   \caption{FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable.}
+   \caption[FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable]{FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable.}
    \label{fig:fps_vs_object_count}
 \end{figure}
 
@@ -1350,7 +1351,7 @@ El análisis de la Tabla \ref{tab:experimento_objetos} también refleja una clar
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/tiempo_etapa_tracking_cantidad_objetos.png}
-   \caption{Tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos.}
+   \caption[Tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos]{Tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos.}
    \label{fig:tiempo_etapa_tracking_cantidad_objetos}
 \end{figure}
 
@@ -1377,7 +1378,7 @@ Este cálculo teórico revela que el sistema alcanzaría su límite de procesami
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/tiempo_etapa_escritura_cantidad_objetos.png}
-   \caption{Tiempo de ejecución de la etapa de escritura en función de la cantidad de objetos.}
+   \caption[Tiempo de ejecución de la etapa de escritura en función de la cantidad de objetos]{Tiempo de ejecución de la etapa de escritura en función de la cantidad de objetos.}
    \label{fig:tiempo_etapa_escritura_cantidad_objetos}
 \end{figure}
 
@@ -1439,7 +1440,7 @@ Primero se va analizar el rendimiento de cada tipo de segmentación utilizando l
        empty cells with={NaN}
    ]{excels/inferencia/modo_segmentacion/datos/max_fps.csv}
    }
-   \caption{Resultados del experimento con distintos tipos de segmentación a máxima capacidad.}
+   \caption[Resultados del experimento con distintos tipos de segmentación a máxima capacidad]{Resultados del experimento con distintos tipos de segmentación a máxima capacidad.}
    \label{tab:experimento_segmentacion_max_fps}
 \end{table}
 
@@ -1483,7 +1484,7 @@ Ahora se va a analizar el rendimiento de cada tipo de segmentación utilizando l
        empty cells with={NaN}
    ]{excels/inferencia/modo_segmentacion/datos/30_fps.csv}
    }
-   \caption{Resultados del experimento con distintos tipos de segmentación a 30 fps.}
+   \caption[Resultados del experimento con distintos tipos de segmentación a 30 fps]{Resultados del experimento con distintos tipos de segmentación a 30 fps.}
    \label{tab:experimento_segmentacion_30_fps}
 \end{table}
 
@@ -1523,7 +1524,7 @@ Para la evaluación del rendimiento de cada modelo y sus diferentes tallas, se e
        empty cells with={NaN}
    ]{excels/inferencia/modelo_talla/data/max_fps.csv}
    }
-   \caption{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
+   \caption[Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante]{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
    \label{tab:experimento_modelo_talla_max_fps_carga_alta_constante}
 \end{table}
 
@@ -1535,7 +1536,7 @@ No obstante, al considerar la eficiencia energética, medida en fotogramas por v
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/modelo_talla/tiempos_inferencia.png}
-   \caption{Tiempos de ejecución de la etapa de inferencia para los diferentes modelos y tallas.}
+   \caption[Tiempos de ejecución de la etapa de inferencia para los diferentes modelos y tallas]{Tiempos de ejecución de la etapa de inferencia para los diferentes modelos y tallas.}
    \label{fig:tiempos_inferencia}
 \end{figure}
 Un análisis detallado de los tiempos de la etapa de inferencia, presentado en la Figura \ref{fig:tiempos_inferencia}, revela que los modelos YOLOv8n y YOLO11n destacan por su menor tiempo de ejecución. En contraste, YOLOv5mu y YOLO11l exhiben tiempos más elevados, una tendencia que se alinea con el mayor consumo energético reportado en la Tabla \ref{tab:experimento_modelo_talla_max_fps_carga_alta_constante}.
@@ -1568,7 +1569,7 @@ Ahora se va a analizar el rendimiento de cada modelo y sus diferentes tallas uti
        empty cells with={NaN}
    ]{excels/inferencia/modelo_talla/data/30_fps.csv}
    }
-   \caption{Resultados del experimento con distintos modelos y tallas a 30 fps.}
+   \caption[Resultados del experimento con distintos modelos y tallas a 30 fps]{Resultados del experimento con distintos modelos y tallas a 30 fps.}
    \label{tab:experimento_modelo_talla_30_fps}
 \end{table}
 
@@ -1615,7 +1616,7 @@ Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para l
        empty cells with={NaN}
    ]{excels/inferencia/precision_device/data/max_fps.csv}
    }
-   \caption{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
+   \caption[Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante]{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
    \label{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}
 \end{table}
 
@@ -1627,7 +1628,7 @@ Al comparar el rendimiento de la GPU y los Deep Learning Accelerators (DLA), se 
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.85\textwidth]{images/analisis_de_la_solucion/precision_device/exportación_FP16_DLA.png}
-   \caption{Exportación del modelo YOLO11n con TensorRT a FP16 para su ejecución en la DLA.}
+   \caption[Exportación del modelo YOLO11n con TensorRT a FP16 para su ejecución en la DLA]{Exportación del modelo YOLO11n con TensorRT a FP16 para su ejecución en la DLA.}
    \label{fig:exportacion_FP16_DLA}
 \end{figure}
 En la precisión FP16, como se ilustra en la Figura \ref{fig:exportacion_FP16_DLA}, la DLA se encarga de 6 de las 34 operaciones/capas del modelo, mientras que la GPU procesa las 28 restantes. En esencia, la DLA no logra descargar completamente a la GPU, lo que limita su capacidad para operar de forma independiente y optimizar el rendimiento general del sistema. Si bien en modelos más simples la DLA podría asumir una mayor proporción de las operaciones, la complejidad del modelo YOLO11n (y de forma similar para YOLOv5 y YOLOv8) impide que la DLA asuma una carga de trabajo más significativa.
@@ -1638,7 +1639,7 @@ En cuanto a las diferentes precisiones numéricas en la GPU (todas optimizadas c
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/precision_device/tiempos_inferencia_gpu.png}
-   \caption{Tiempos de ejecución de la etapa de inferencia para las diferentes precisiones en GPU con TensorRT.}
+   \caption[Tiempos de ejecución de la etapa de inferencia para las diferentes precisiones en GPU con TensorRT]{Tiempos de ejecución de la etapa de inferencia para las diferentes precisiones en GPU con TensorRT.}
    \label{fig:tiempos_inferencia_gpu}
 \end{figure}
 Un análisis más detallado de los tiempos de la etapa de inferencia, como se observa en la Figura \ref{fig:tiempos_inferencia_gpu}, revela una reducción en el tiempo de inferencia al utilizar precisiones más bajas. Aunque el impacto en los FPS totales del sistema es limitado por otros factores del \textit{pipeline} en este escenario de alta carga de objetos, es importante destacar que las precisiones FP16 e INT8 logran un menor consumo energético. Esto se debe a que estas precisiones reducidas requieren menos recursos computacionales, lo que se traduce en una mayor eficiencia energética. En particular, la precisión INT8 se presenta como la opción más eficiente en términos de consumo energético, alcanzando un rendimiento de 1.96 Frames/W.
@@ -1668,7 +1669,7 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
       empty cells with={NaN}
       ]{excels/inferencia/precision_device/data/30_fps.csv}
       }
-      \caption{Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante.}
+      \caption[Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante]{Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante.}
       \label{tab:experimento_precision_dispositivo_30_fps}
    \end{table}
 
@@ -1713,7 +1714,7 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
       empty cells with={NaN}
       ]{excels/inferencia/modo_energia_cpu/data/max_fps.csv}
       }
-      \caption{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
+      \caption[Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante]{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
       \label{tab:experimento_modo_energia_cpu_max_fps_carga_alta_constante}
    \end{table}
 
@@ -1745,7 +1746,7 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
          empty cells with={NaN}
          ]{excels/inferencia/modo_energia_cpu/data/30_fps.csv}
          }
-         \caption{Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante.}
+         \caption[Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante]{Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante.}
          \label{tab:experimento_modo_energia_cpu_30_fps}
       \end{table}
 
