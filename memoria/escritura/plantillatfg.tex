@@ -1669,7 +1669,7 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
 
    
    \section{Modo de energía y cores de la CPU} \label{sub:modo_energia}
-   En esta sección se analizará el rendimiento del sistema variando la configuración energética del dispositivo NVIDIA Jetson AGX Xavier. Se explorarán distintos modos de energía (10W, 15W, 30W y MAXN, que corresponde al máximo rendimiento posible) y el número de núcleos de CPU activos (2, 4, 6 y 8). Es importante destacar que los perfiles de energía predefinidos en el Jetson AGX Xavier no solo limitan el consumo máximo, sino que también ajustan la frecuencia máxima de la CPU. Por lo tanto, esta evaluación permitirá comprender cómo la combinación de consumo energético y capacidad de procesamiento de la CPU influyen en el rendimiento global del sistema.
+   En esta sección, se analiza el impacto de la configuración energética del dispositivo NVIDIA Jetson AGX Xavier en el rendimiento del sistema. Se exploran distintos perfiles de energía predefinidos (10W, 15W, 30W y MAXN), los cuales ajustan tanto el número de núcleos de CPU activos como su frecuencia máxima de operación. El objetivo es evaluar cómo estas configuraciones influyen en la velocidad de procesamiento (FPS), el consumo energético y, por ende, la eficiencia energética global del sistema.
 
    Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la GPU, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
 
@@ -1775,18 +1775,6 @@ Para la comunicación entre el Jetson AGX Xavier y la Raspberry Pi Pico WH, se e
 Una vez que la Raspberry Pi Pico WH se conecta, envía un mensaje de inicio al Jetson. A partir de este momento, el Jetson comienza a procesar el flujo de vídeo de la cámara.
 Cuando el modelo de detección en el Jetson identifica una canica defectuosa, envía un mensaje específico a la Raspberry Pi Pico WH.
 Al recibir esta señal, la Raspberry Pi Pico WH activa el servomotor durante un breve instante. Este accionamiento mueve un mecanismo que desvía la canica defectuosa fuera de la trayectoria principal de la cinta transportadora.
-
-
-\section{Instalación del entorno} \label{sub:instalacion_entorno}
-En esta sección se detallará la instalación del entorno de producción, incluyendo la instalación de software y la configuración de hardware.
-
-
-
-
-
-
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                 CONCLUSIONS                                 %
