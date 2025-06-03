@@ -79,6 +79,7 @@
 \newacronym{upv}{UPV}{Universidad Politécnica de Valencia}
 \newacronym{sdl}{SDL}{Sistemas Basados en Deep Learning para la Industria}
 \newacronym{onnx}{ONNX}{Open Neural Network Exchange}
+\newacronym{cvat}{CVAT}{Computer Vision Annotation Tool}
 
 
 
@@ -904,7 +905,7 @@ Como modelos pertenecientes a la familia de arquitecturas YOLO, se han seleccion
 
 Una vez seleccionado los modelos, el siguiente paso crítico es la creación y preparación del conjunto de datos (dataset). Este conjunto de datos es la base sobre la cual los modelos aprenderán a identificar y localizar los objetos de interés (en este caso, las canicas de diferentes colores y con/sin defectos). La calidad y representatividad del dataset tienen un impacto directo y significativo en el rendimiento final de los modelos. Un dataset bien construido debe incluir una variedad suficiente de ejemplos que cubran las diferentes condiciones que el sistema podría encontrar en el entorno real, como variaciones en la iluminación, ángulos de visión, oclusiones parciales y la diversidad intrínseca de los objetos mismos. El proceso de creación del dataset implica la captura de imágenes o vídeos del entorno simulado, seguido de una meticulosa fase de etiquetado (anotación), donde se marcan manualmente las cajas delimitadoras (bounding boxes) alrededor de cada objeto de interés y se les asigna la etiqueta de clase correspondiente (p. ej., 'canica\_azul\_defecto'). Este proceso, aunque laborioso, es indispensable para proporcionar a los modelos la "verdad fundamental" (ground truth) necesaria para su aprendizaje supervisado.
 
-Para el etiquetado de las imágenes, se utilizó la herramienta CVAT\cite{CVAT_ai_Corporation_Computer_Vision_Annotation_2023} (Computer Vision Annotation Tool) de código abierto, que permite realizar anotaciones precisas y eficientes en imágenes, como se muestra en la Figura~\ref{fig:cvat_anotacion}. Permite la creación de diferentes tipos de anotaciones, como cajas delimitadoras, polígonos y puntos clave ademas de la exportación de los datos anotados en varios formatos compatibles con diferentes frameworks de aprendizaje profundo. En este caso, se optó por el formato YOLO, que es ampliamente utilizado y compatible con la implementación de Ultralytics.
+Para el etiquetado de las imágenes, se utilizó la herramienta \gls{cvat}\cite{CVAT_ai_Corporation_Computer_Vision_Annotation_2023} de código abierto, que permite realizar anotaciones precisas y eficientes en imágenes, como se muestra en la Figura~\ref{fig:cvat_anotacion}. Permite la creación de diferentes tipos de anotaciones, como cajas delimitadoras, polígonos y puntos clave ademas de la exportación de los datos anotados en varios formatos compatibles con diferentes frameworks de aprendizaje profundo. En este caso, se optó por el formato YOLO, que es ampliamente utilizado y compatible con la implementación de Ultralytics.
 
 \begin{figure}[H]
    \centering
