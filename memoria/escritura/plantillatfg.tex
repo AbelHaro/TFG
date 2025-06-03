@@ -62,6 +62,8 @@
 \newacronym[plural={MOTs}]{mot}{MOT}{Multiple Object Tracking}
 \newacronym[plural={MOTAs}]{mota}{MOTA}{Multiple Object Tracking Accuracy}
 \newacronym[plural={MOTPs}]{motp}{MOTP}{Multiple Object Tracking Precision}
+\newacronym[plural={IDF1s}]{idf1}{IDF1}{ID F1 Score}
+\newacronym[plural={HOTAs}]{hota}{HOTA}{Higher Order Tracking Accuracy}
 \newacronym[plural={NMS}]{nms}{NMS}{Non-Maximum Suppression} % NMS suele ser invariable
 \newacronym[plural={SSDs}]{ssd}{SSD}{Single Shot MultiBox Detector}
 \newacronym[plural={YOLOs}]{yolo}{YOLO}{You Only Look Once}
@@ -232,7 +234,7 @@ El \textbf{Capítulo~\ref{chap:conceptos_previos}} sienta las bases teóricas de
 
 El \textbf{Capítulo~\ref{chap:diseno_e_implementacion}} detalla el proceso de diseño e implementación del sistema de visión artificial. Se inicia con un análisis del problema, seguido de la descripción de la recolección de imágenes, su etiquetado y el entrenamiento de los modelos de detección. Concluye con el diseño modular del sistema, especificando sus etapas y las estrategias de segmentación consideradas para su implementación.
 
-El \textbf{Capítulo~\ref{chap:evaluacion_solucion}} presenta la metodología empleada para evaluar el rendimiento del sistema. Define las métricas clave, describe la configuración de los experimentos y la recolección de datos. Posteriormente, se analizan exhaustivamente los resultados obtenidos, comparando el comportamiento del sistema bajo diversas configuraciones de hardware y software, y evaluando su precisión, velocidad y eficiencia energética.
+El \textbf{Capítulo~\ref{chap:evaluacion_solucion}} presenta la metodología empleada para evaluar el rendimiento del sistema. Define las métricas clave, describe la configuración de los experimentos y la recolección de datos. Posteriormente, se analizan exhaustivamente los resultados obtenidos, comparando el comportamiento del sistema bajo diversas configuraciones de hardware y software, y evaluando su precisión, velocidad y eficiencia energética. Por último, se analizan las métricas de seguimiento de objetos para evaluar la efectividad del sistema en la detección y seguimiento de objetos en movimiento.
 
 El \textbf{Capítulo~\ref{chap:prueba_concepto}} describe la construcción de un prototipo de cinta transportadora, diseñado para validar el sistema de visión artificial en un entorno que simula condiciones de producción. Se presentan los resultados obtenidos durante esta prueba de concepto.
 
@@ -248,9 +250,12 @@ Finalmente, el \textbf{Capítulo~\ref{chap:conclusiones}} resume las principales
 
 \section{Colaboraciones}
 
-El presente Trabajo de Fin de Grado se ha desarrollado en el marco de una beca de colaboración y un periodo de prácticas de empresa, ambos focalizados en la investigación y desarrollo que sustenta este proyecto. Estas actividades se han llevado a cabo en el \gls{gap} de la \gls{upv}. El \gls{gap} es un grupo de investigación dentro de la universidad, que se dedica al diseño y evaluación de redes de interconexión para sistemas de computación paralela de altas prestaciones, tales como supercomputadores, clústeres y centros de datos. El Grupo de Arquitecturas Paralelas (GAP) de la Universidad Politécnica de Valencia cuenta con una amplia experiencia en el trabajo sobre redes de interconexión para computadoras paralelas, abarcando desde grandes supercomputadoras, pasando por clústeres de ordenadores personales, usualmente utilizados como servidores, hasta las redes en chip en procesadores multinúcleo. El GAP también ha desarrollado investigación en temas relacionados, como la microarquitectura de procesadores y los protocolos de coherencia de caché. Su investigación abarca también áreas como la optimización de arquitecturas para aplicaciones específicas y la mejora de la eficiencia energética en sistemas computacionales.
+El presente Trabajo de Fin de Grado se ha desarrollado en el marco de una beca de colaboración y un periodo de prácticas de empresa, ambos focalizados en la investigación y desarrollo que sustenta este proyecto. Estas actividades se han llevado a cabo en el \gls{gap} de la \gls{upv}. El \gls{gap} es un grupo de investigación dentro de la universidad, que se dedica al diseño y evaluación de redes de interconexión para sistemas de computación paralela de altas prestaciones, tales como supercomputadores, clústeres y centros de datos.
+
+El Grupo de Arquitecturas Paralelas (GAP) de la Universidad Politécnica de Valencia cuenta con una amplia experiencia en el trabajo sobre redes de interconexión para computadoras paralelas, abarcando desde grandes supercomputadoras, pasando por clústeres de ordenadores personales, usualmente utilizados como servidores, hasta las redes en chip en procesadores multinúcleo. El GAP también ha desarrollado investigación en temas relacionados, como la microarquitectura de procesadores y los protocolos de coherencia de caché. Su investigación abarca también áreas como la optimización de arquitecturas para aplicaciones específicas y la mejora de la eficiencia energética en sistemas computacionales.
 
 Esta colaboración se encuentra estrechamente vinculada con los contenidos y objetivos de la asignatura \gls{sdl}, una asignatura que forma parte de la mención de ingeniería dentro del Grado en Ingeniería Informática. La oportunidad de colaborar con el \gls{gap} ha permitido aplicar de manera práctica y en un contexto de investigación real los conocimientos teóricos y técnicos adquiridos durante la asignatura. Específicamente, ha facilitado la profundización en el diseño, implementación y optimización de sistemas de visión por computador basados en inteligencia artificial, enfrentando desafíos reales relacionados con el rendimiento, la eficiencia y el despliegue en hardware especializado. Esta sinergia entre la formación académica y la investigación aplicada ha enriquecido significativamente la experiencia de aprendizaje, fomentando el desarrollo de habilidades prácticas avanzadas y una comprensión más profunda de las complejidades inherentes al campo de la visión artificial y el aprendizaje profundo en entornos industriales.
+
 
 \chapter{Conceptos Previos}\label{chap:conceptos_previos}
 
@@ -620,12 +625,12 @@ Más allá del hardware, el valor de la plataforma Jetson reside en su ecosistem
 \begin{table}[H]
    \centering
    \resizebox{\textwidth}{!}{%
-   \begin{tabular}{l | c | c | c | c | c | c}
+   \begin{tabular}{l | c | c | c | c | c | c | c }
       \toprule
-      Modelo & AI Performance & GPU & GPU Max Freq. & CPU & Memoria & DLAs \\
-      Jetson AGX Orin & 275 TOPS & 2048-core Ampere, 64 Tensor Cores & 1.3 GHz & 12-core Cortex-A78AE, 3MB L2 + 6MB L3, 2.2 GHz & 64GB LPDDR5, 204.8GB/s & 2x NVDLA v2 \\ 
-      Jetson Orin Nano & 67 TOPS & 1024-core Ampere, 32 Tensor Cores & 1020 MHz & 6-core Cortex-A78AE, 1.5MB L2 + 4MB L3, 1.7 GHz & 8GB LPDDR5, 102 GB/s & - \\ 
-      Jetson AGX Xavier & 32 TOPS & 512-core Volta, 64 Tensor Cores & 1377 MHz & 8-core Carmel v8.2, 8MB L2 + 4MB L3, 2.2 GHz & 32GB LPDDR4x, 136.5GB/s & 2x NVDLA v1 \\
+      Modelo & AI Performance & GPU & GPU Max Freq. & CPU & Memoria & DLAs & Precio (€)\\
+      Jetson AGX Orin & 275 TOPS & 2048-core Ampere, 64 Tensor Cores & 1.3 GHz & 12-core Cortex-A78AE, 3MB L2 + 6MB L3, 2.2 GHz & 64GB LPDDR5, 204.8GB/s & 2x NVDLA v2 & 2400 \\
+      Jetson Orin Nano & 67 TOPS & 1024-core Ampere, 32 Tensor Cores & 1020 MHz & 6-core Cortex-A78AE, 1.5MB L2 + 4MB L3, 1.7 GHz & 8GB LPDDR5, 102 GB/s & - & 300 \\
+      Jetson AGX Xavier & 32 TOPS & 512-core Volta, 64 Tensor Cores & 1377 MHz & 8-core Carmel v8.2, 8MB L2 + 4MB L3, 2.2 GHz & 32GB LPDDR4x, 136.5GB/s & 2x NVDLA v1 & 1000 \\
       \bottomrule
    \end{tabular}
    }
@@ -817,7 +822,7 @@ En el contexto de MOT, los errores pueden clasificarse en tres categorías princ
 A continuación se presentan las métricas más relevantes en este campo, que cuantifican estos errores de diversas maneras:
 
 \begin{itemize}
-   \item \textbf{MOTA (Multiple Object Tracking Accuracy):} Es una de las métricas más consolidadas y ampliamente utilizadas para evaluar el rendimiento general de un algoritmo MOT. MOTA agrega tres tipos de errores principales que pueden ocurrir durante el seguimiento:
+   \item \textbf{\gls{mota}:} Es una de las métricas más consolidadas y ampliamente utilizadas para evaluar el rendimiento general de un algoritmo MOT. MOTA agrega tres tipos de errores principales que pueden ocurrir durante el seguimiento:
    \begin{itemize}
      \item Falsos Negativos (FN): Objetos reales presentes en la escena que el algoritmo de seguimiento no detecta o no sigue.
      \item Falsos Positivos (FP): Detecciones o trayectorias generadas por el algoritmo de seguimiento que no corresponden a ningún objeto real.
@@ -830,13 +835,13 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
    donde \(FN_t\), \(FP_t\), e \(IDSW_t\) son el número de falsos negativos, falsos positivos y cambios de identidad en el fotograma \(t\), respectivamente. \(GT_t\) es el número total de objetos reales (verdad de referencia) en el fotograma \(t\). El sumatorio se realiza sobre todos los fotogramas de la secuencia.
    Un valor de MOTA más alto indica un mejor rendimiento, con un máximo teórico de 1 (o 100\%). Sin embargo, MOTA puede ser negativo si el número de errores supera el número de objetos reales. Aunque es una métrica integral, tiende a dar más peso a la precisión de la detección que a la consistencia de la identidad a largo plazo.
 
-   \item \textbf{MOTP (Multiple Object Tracking Precision):} Esta métrica evalúa la precisión de la localización de los objetos a lo largo del tiempo. Se calcula como la media de las distancias entre las cajas delimitadoras predichas y las cajas delimitadoras reales (verdad de referencia) para todas las asociaciones correctas. Matemáticamente, se expresa como:
+   \item \textbf{\gls{motp}:} Esta métrica evalúa la precisión de la localización de los objetos a lo largo del tiempo. Se calcula como la media de las distancias entre las cajas delimitadoras predichas y las cajas delimitadoras reales (verdad de referencia) para todas las asociaciones correctas. Matemáticamente, se expresa como:
    \begin{equation}
    MOTP = \frac{\sum_{t,i} d_{t,i}}{\sum_{t} c_t}
    \end{equation}
    donde $d_{t,i}$ es la distancia (generalmente IoU) entre la predicción y la verdad de referencia para el objeto $i$ en el fotograma $t$, y $c_t$ es el número total de asociaciones correctas en el fotograma $t$. Un valor de MOTP más alto indica una mayor precisión en la localización de los objetos. A diferencia de MOTA, MOTP no penaliza los errores de identidad, sino que se centra exclusivamente en qué tan precisas son las localizaciones de los objetos cuando se asocian correctamente.
 
-   \item \textbf{IDF1 (ID F1 Score):} Esta métrica se centra específicamente en la capacidad del algoritmo de seguimiento para mantener correctamente la identidad de los objetos a lo largo del tiempo. Es la media armónica de la Precisión de ID (IDP) y el Recall de ID (IDR).
+   \item \textbf{\gls{idf1}:} Esta métrica se centra específicamente en la capacidad del algoritmo de seguimiento para mantener correctamente la identidad de los objetos a lo largo del tiempo. Es la media armónica de la Precisión de ID (IDP) y el Recall de ID (IDR).
    \begin{itemize}
      \item IDP (ID Precision): Proporción de detecciones correctamente asignadas a una trayectoria (ID) respecto al total de detecciones asignadas.
      \item IDR (ID Recall): Proporción de objetos reales correctamente identificados y seguidos a lo largo de su trayectoria respecto al total de objetos reales.
@@ -847,7 +852,7 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
    \end{equation}
    donde \(IDTP\) (ID True Positives) son los verdaderos positivos en términos de asignación de identidad correcta a lo largo de las trayectorias, \(IDFP\) (ID False Positives) son las asignaciones de identidad incorrectas, y \(IDFN\) (ID False Negatives) son las identidades de objetos reales que no fueron correctamente mantenidas. Un valor de IDF1 más alto (hasta 1 o 100\%) indica una mejor consistencia en el seguimiento de la identidad. Es particularmente útil para evaluar el rendimiento en escenarios con oclusiones prolongadas o interacciones complejas entre objetos.
 
-   \item \textbf{HOTA (Higher Order Tracking Accuracy):} Es una métrica más reciente diseñada para proporcionar una evaluación más equilibrada y completa del rendimiento del MOT. HOTA descompone explícitamente el rendimiento en precisión de detección, precisión de asociación y precisión de localización. Se calcula como la media geométrica de la Precisión de Detección (DetA) y la Precisión de Asociación (AssA), donde cada una de estas componentes considera la precisión de localización (IoU).
+   \item \textbf{\gls{hota}:} Es una métrica más reciente diseñada para proporcionar una evaluación más equilibrada y completa del rendimiento del MOT. HOTA descompone explícitamente el rendimiento en precisión de detección, precisión de asociación y precisión de localización. Se calcula como la media geométrica de la Precisión de Detección (DetA) y la Precisión de Asociación (AssA), donde cada una de estas componentes considera la precisión de localización (IoU).
    \begin{equation}
    HOTA = \sqrt{DetA \cdot AssA}
    \end{equation}
@@ -1233,10 +1238,14 @@ Como métricas de rendimiento, se han considerado las siguientes:
 
 \end{itemize}
 
+\section{Variación de la configuración del sistema} \label{sec:variacion_configuracion}
+
+Para evaluar el rendimiento del sistema propuesto, se han realizado pruebas variando la configuración de las etapas del sistema. Estas pruebas se han llevado a cabo utilizando los vídeos de prueba descritos en la sección \ref{sec:cantidad_objetos}, con el objetivo de analizar cómo diferentes configuraciones afectan al rendimiento y a las métricas de eficiencia energética.
+
 
 Para obtener estas métricas, se han utilizado herramientas de medición de potencia y energía, como el comando \texttt{tegrastats} de NVIDIA, que proporciona información sobre el consumo de energía y la carga de la CPU y GPU. Esta herramienta permite monitorizar el rendimiento del sistema en tiempo real, proporcionando datos precisos sobre el uso de recursos y el consumo energético.
 
-\section{Cantidad de objetos} \label{sec:cantidad_objetos}
+\subsection{Cantidad de objetos} \label{sec:cantidad_objetos}
 La cantidad de objetos presentes en el flujo de vídeo es un factor determinante en la evaluación del rendimiento del sistema, ya que influye directamente en la carga computacional de la etapa de seguimiento y escritura. Para analizar esta influencia de manera sistemática, se han realizado pruebas utilizando tres vídeos de prueba distintos, cada uno diseñado para representar un escenario de carga diferente:
 \begin{enumerate}
 
@@ -1400,7 +1409,7 @@ Este cálculo teórico revela que el sistema alcanzaría su límite de procesami
 
 Como conclusiones, se puede afirmar que el rendimiento del sistema es altamente sensible a la cantidad de objetos presentes en el flujo de vídeo. El umbral de aproximadamente 100 objetos constituye un límite crítico, donde la etapa de seguimiento comienza a experimentar un aumento significativo en su tiempo de ejecución, haciendo que el sistema no pueda cumplir con los requisitos de tiempo real.
 
-\section{Tipo de segmentación} \label{sub:analisis_segmentacion}
+\subsection{Tipo de segmentación} \label{sub:analisis_segmentacion}
 Como se ha comentado en la sección \ref{sec:segmentacion_etapas}, el sistema se puede segmentar de diferentes maneras. En esta sección se analizará el rendimiento de la solución propuesta variando el tipo de segmentación.
 
 Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco tipos de modos de segmentación:
@@ -1492,7 +1501,7 @@ Como se puede observar en la Tabla \ref{tab:experimento_segmentacion_30_fps}, el
 
 Como conclusión, la segmentación por procesos con memoria compartida es la más adecuada para aplicaciones en tiempo real, ya que combina un rendimiento óptimo con un consumo energético eficiente. Este enfoque permite al sistema operar de manera efectiva bajo condiciones de alta carga computacional, cumpliendo con los requisitos de tiempo real sin comprometer la eficiencia energética.
 
-\section{Modelo y talla} \label{sub:modelo_talla}
+\subsection{Modelo y talla} \label{sub:modelo_talla}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modelo de detección de objetos y sus diferentes tallas.
 
 Repasando la tabla \ref{tab:yolo_all_variants_comparison}, se han empleado tres modelos de detección de objetos: YOLOv5, YOLOv8 y YOLO11. Cada uno de estos modelos tiene diferentes tallas, que son versiones optimizadas para diferentes capacidades computacionales. 
@@ -1586,7 +1595,7 @@ No obstante, en aplicaciones donde la precisión de detección sea un factor cr�
 
 
 
-\section{Precisión Numérica y Acelerador de Inferencia} \label{sub:precision_numerica_dispositivo}
+\subsection{Precisión Numérica y Acelerador de Inferencia} \label{sub:precision_numerica_dispositivo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la precisión numérica (FP32, FP16, INT8) del modelo de detección de objetos y el acelerador de inferencia (CPU, GPU, DLA).
 
 Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para la ejecución en GPU y DLA, el modelo fue optimizado con NVIDIA TensorRT, evaluándose las precisiones FP32, FP16 e INT8. En el caso de la ejecución en CPU, se empleó el modelo YOLO11n sin la optimización de TensorRT, ya que esta no es aplicable a dicho dispositivo. La exportación del modelo de PyTorch a TensorRT con precisión INT8 requiere un conjunto de datos de calibración; para este propósito, se utilizó un subconjunto de 100 imágenes extraídas del conjunto de entrenamiento original, con el fin de calibrar el modelo y optimizar su rendimiento para la inferencia en INT8. Por último, la precisión de validación de todos los modelos en la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante} es casi idéntica, con un mAP50-95 de 0.77 para todas las variantes, lo que indica que la precisión del modelo no se ve afectada significativamente por la reducción de la precisión numérica posiblemente debido a la sencillez de la tarea de detección de objetos en este caso específico.
@@ -1685,7 +1694,7 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
 
 
    
-   \section{Modo de energía y cores de la CPU} \label{sub:modo_energia}
+   \subsection{Modo de energía y cores de la CPU} \label{sub:modo_energia}
    En esta sección, se analiza el impacto de la configuración energética del dispositivo NVIDIA Jetson AGX Xavier en el rendimiento del sistema. Se exploran distintos perfiles de energía predefinidos (10W, 15W, 30W y MAXN), los cuales ajustan tanto el número de núcleos de CPU activos como su frecuencia máxima de operación. El objetivo es evaluar cómo estas configuraciones influyen en la velocidad de procesamiento (FPS), el consumo energético y, por ende, la eficiencia energética global del sistema.
 
    Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la GPU, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
@@ -1754,14 +1763,104 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
 
 
 
-\section{Dispositivos Jetson} \label{sec:dispositivos_jetson}
+\subsection{Dispositivos Jetson} \label{sec:dispositivos_jetson}
 En esta sección se analizará el rendimiento de la solución propuesta en diferentes dispositivos Jetson, específicamente en el Jetson Orin Nano, Jetson AGX Xavier  y Jetson AGX Orin. Se utilizará el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la GPU, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
+Repasando lo visto en la sección \ref{sec:jetson}, los dispositivos Jetson evaluados pertenecen a dos generaciones distintas: la Jetson AGX Xavier, que forma parte de una generación anterior, y los modelos Jetson Orin Nano y Jetson AGX Orin, que pertenecen a la generación más reciente de dispositivos Jetson.
+
+La Jetson AGX Xavier es un dispositivo de la generación anterior que cuenta con 8 procesadores ARM Carmel v8.2 a 2.2GHz, una GPU NVIDIA con 512 núcleos Volta y 64 Tensor Cores, junto con 32GB de memoria LPDDR4x. Además, incluye 2 NVIDIA Deep Learning Accelerators (DLA) v1.
+
+Por otro lado, el Jetson Orin Nano, perteneciente a la generación más reciente, está equipado con 6 procesadores ARM Cortex-A78AE a 1.7GHz, una GPU NVIDIA con 1024 núcleos Ampere y 32 Tensor Cores, y 8GB de memoria LPDDR5. Aunque es el modelo más compacto de la serie Orin, ofrece un rendimiento notable para aplicaciones de inteligencia artificial en el \textit{edge}.
+
+Finalmente, la Jetson AGX Orin, también de la generación más reciente, es el modelo más avanzado de los tres. Cuenta con 12 procesadores ARM Cortex-A78AE a 2.2GHz, una GPU NVIDIA con 2048 núcleos Ampere y 64 Tensor Cores, y 64GB de memoria LPDDR5. Además, incluye 2 NVIDIA Deep Learning Accelerators (DLA) v2, que representan una mejora respecto a los DLA v1 de la Jetson AGX Xavier, proporcionando mayor eficiencia y capacidad para tareas de inferencia en redes neuronales profundas.
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+      col sep=comma,
+      header=true,
+      columns={dispositivo,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu,Tpreprocesado,Tinferencia,Tpostprocesado},
+      display columns/0/.style={column name=Dispositivo, column type={c}, string type},
+      display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+      display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+      display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
+      display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
+      display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=2},
+      display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+      display columns/8/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+      every head row/.style={before row=\toprule, after row=\midrule},
+      every last row/.style={after row=\bottomrule},
+      empty cells with={NaN}
+      ]{excels/inferencia/dispositivos_jetson/data/max_fps.csv}
+      }
+      \caption[Resultados del experimento con distintos dispositivos Jetson a máxima capacidad con un vídeo de carga alta y constante]{Resultados del experimento con distintos dispositivos Jetson a máxima capacidad con un vídeo de carga alta y constante.}
+      \label{tab:experimento_dispositivos_jetson_max_fps_carga_alta_constante}
+\end{table}
+
+
+Analizando los resultados de la Tabla \ref{tab:experimento_dispositivos_jetson_max_fps_carga_alta_constante}, se observa que todos los dispositivos Jetson logran procesar el vídeo de 84 objetos (carga alta y constante) a una tasa de FPS superior a 30, lo que indica que posiblemente pueden operar en tiempo real. Sin embargo, el rendimiento varía significativamente entre los dispositivos. El que mayor rendimiento ofrece es el Jetson AGX Orin, con una tasa de FPS de 56.43, seguido por el Jetson Orin Nano con 44.01 FPS, y finalmente el Jetson AGX Xavier con 30.75 FPS. Esta diferencia en el rendimiento se debe a las especificaciones de hardware de cada dispositivo, como la cantidad de núcleos de CPU, la potencia de la GPU. 
+
+De manera sorprendente, el Jetson Orin Nano, a pesar de ser un dispositivo más compacto y de menor potencia que el Jetson AGX Orin, logra un rendimiento notablemente alto, superando al Jetson AGX Xavier y siendo el dispositivo más eficiente en términos de consumo energético, alcanzando 5.82 Frames/W frente a los 4.33 Frames/W del Jetson AGX Orin.
+
+\begin{table}[H]
+   \centering
+   \resizebox{\textwidth}{!}{% Ajusta al ancho de página
+   \pgfplotstabletypeset[
+      col sep=comma,
+      header=true,
+      columns={dispositivo,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu,Tpreprocesado,Tinferencia,Tpostprocesado},
+      display columns/0/.style={column name=Dispositivo, column type={c}, string type},
+      display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
+      display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
+      display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
+      display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
+      display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=2},
+      display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+      display columns/8/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+      every head row/.style={before row=\toprule, after row=\midrule},
+      every last row/.style={after row=\bottomrule},
+      empty cells with={NaN}
+      ]{excels/inferencia/dispositivos_jetson/data/30_fps.csv}
+      }
+      \caption[Resultados del experimento con distintos dispositivos Jetson a 30 fps con un vídeo de carga alta y constante]{Resultados del experimento con distintos dispositivos Jetson a 30 fps con un vídeo de carga alta y constante.}
+      \label{tab:experimento_dispositivos_jetson_30_fps_carga_alta_constante}
+\end{table}
+
+Los resultados de la Tabla \ref{tab:experimento_dispositivos_jetson_30_fps_carga_alta_constante} reflejan una tendencia similar a la observada en la Tabla \ref{tab:experimento_dispositivos_jetson_max_fps_carga_alta_constante}. Todos los dispositivos evaluados tienen la capacidad de operar en tiempo real. Sin embargo, para determinar cuál es el más adecuado para la solución propuesta, es necesario considerar no solo el rendimiento en FPS, sino también el consumo energético y la eficiencia.
+
+En este contexto, el Jetson Orin Nano destaca como el dispositivo más eficiente, alcanzando una tasa de 4.73 Frames/W en condiciones de tiempo real, superando a los otros dos dispositivos. Además, su precio es significativamente más bajo, siendo de 300€, en comparación con los 2400€ del Jetson AGX Orin. Por lo tanto, para este caso específico, donde se utiliza un modelo de detección de objetos relativamente sencillo y se requiere un rendimiento en tiempo real, el Jetson Orin Nano se presenta como la opción más adecuada. Su principal limitación radica en la memoria, que es de 8GB LPDDR5, en comparación con los 64GB LPDDR5 del Jetson AGX Orin y los 32GB LPDDR4x del Jetson AGX Xavier.
+
+Sin embargo, si la aplicación requiere un mayor rendimiento para modelos más complejos o tareas más exigentes, el Jetson AGX Orin sería la elección ideal debido a su superior capacidad de procesamiento y su habilidad para manejar cargas de trabajo más intensivas.
+
+
+\section{Evaluación del seguimiento de objetos} \label{sub:evaluacion_seguimiento_objetos}
+Tras implementar la solución propuesta, se evaluó su capacidad para realizar un seguimiento preciso de los objetos detectados. Este análisis se centró en determinar cómo el sistema mantiene la coherencia en la identificación de los objetos a lo largo del tiempo, un aspecto esencial para aplicaciones como la inspección de calidad y el conteo automatizado, donde la trayectoria y la identidad de cada elemento son cruciales.
+
+Para medir el rendimiento de manera exhaustiva, se recurrió a un conjunto de métricas estándar en el campo del seguimiento de objetos múltiples (\gls{mot}), tal como se describió en la subsección \ref{sec:metricas_mot}. Estas métricas, incluyendo \gls{mota} para la precisión global del seguimiento, \gls{motp} para la exactitud en la localización, \gls{idf1} para la consistencia en la asignación de identidades, y \gls{hota} para una visión equilibrada de detección y asociación, ofrecen una perspectiva multidimensional del comportamiento del sistema.
+
+El experimento se llevó a cabo utilizando un vídeo de prueba compuesto por 600 fotogramas. Este vídeo fue cuidadosamente etiquetado de forma manual para generar una referencia precisa (\textit{ground truth}), contra la cual se compararon las salidas del sistema. En esta evaluación, el modelo YOLO11n, optimizado con NVIDIA TensorRT y configurado para operar con precisión FP16, se encargó de la detección inicial de objetos en cada fotograma. Posteriormente, el algoritmo BYTETrack\cite{zhang2022bytetrackmultiobjecttrackingassociating} gestionó la tarea de seguimiento, asociando las detecciones a lo largo de la secuencia para construir y mantener las trayectorias de los objetos.
+
+Los resultados obtenidos fueron notablemente positivos y validan la robustez del enfoque implementado. El sistema alcanzó un \gls{mota} del 81.8\%, lo que indica una alta precisión general en el seguimiento, minimizando errores como falsos positivos, detecciones omitidas o cambios incorrectos de identidad.
+
+En términos de localización, el \gls{motp} fue del 80.4\%, reflejando que las cajas delimitadoras predichas por el sistema se alinearon con gran exactitud con las posiciones reales de los objetos, un factor importante para cualquier análisis espacial posterior.
+
+De particular relevancia para la aplicación objetivo, el sistema demostró una excelente consistencia en la asignación de identidades, logrando un \gls{idf1} del 90.2\%. Este alto valor de \gls{idf1} es un fuerte indicador de que el sistema puede mantener la identidad correcta de cada objeto a lo largo del tiempo, incluso en presencia de oclusiones o interacciones complejas, lo cual es fundamental para un seguimiento fiable a nivel individual.
+
+Finalmente, la métrica \gls{hota}, que ofrece una evaluación más holística, alcanzó un valor del 71.7\%, confirmando un equilibrio sólido y competente entre la calidad de la detección inicial y la efectividad de la asociación de trayectorias.
+Colectivamente, estos resultados cuantitativos no solo demuestran la eficacia del sistema para el seguimiento de objetos múltiples, sino que también justifican las elecciones de diseño y la combinación de tecnologías empleadas, subrayando su preparación para aplicaciones que requieren un seguimiento robusto y preciso en entornos dinámicos.
 
 \chapter{Prueba de concepto} \label{chap:prueba_concepto}
 Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
 
 \section{Construcción del entorno} \label{sub:construccion_entorno}
 Tras la fase de desarrollo y análisis de la solución propuesta, que se llevó a cabo utilizando vídeos pregrabados en un entorno de laboratorio, se procedió a la implementación de una prueba de concepto. Esta prueba simula un entorno de producción real mediante la construcción de una cinta transportadora sencilla. El principal objetivo de esta etapa es validar la viabilidad y el rendimiento de la solución en un escenario práctico, evaluando su capacidad para detectar y clasificar objetos (canicas) en movimiento sobre dicha cinta. Para la construcción de la cinta transportadora, se tomaron como referencia los planos y la lista de materiales detallados en un proyecto de acceso público \cite{hackster_counting_inspection}.
+
+
+
 
 \begin{figure}[H]
    \centering
@@ -1799,7 +1898,61 @@ Al recibir esta señal, la Raspberry Pi Pico WH activa el servomotor durante un 
 
 \chapter{Conclusiones} \label{chap:conclusiones}
 
-????? ????????????? ????????????? ????????????? ????????????? ?????????????
+En este capítulo se presentan las conclusiones obtenidas a partir del desarrollo y la implementación de la solución propuesta para la detección y clasificación de objetos en movimiento sobre una cinta transportadora. Se reflexiona sobre los logros alcanzados, las lecciones aprendidas durante el proceso y las posibles direcciones futuras para mejorar y ampliar el sistema.
+
+\section{Objetivos alcanzados y dificultades}
+
+A lo largo de este Trabajo de Fin de Grado, se han abordado diversos desafíos y se han alcanzado los objetivos propuestos, aunque no sin encontrar ciertas dificultades inherentes al desarrollo de un sistema complejo de visión artificial. A continuación, se detallan los principales logros y los obstáculos superados.
+
+Los objetivos fundamentales del proyecto se han alcanzado con éxito. Se llevó a cabo un estudio exhaustivo del estado del arte, abarcando tanto las redes neuronales convolucionales, con experimentación en diversos modelos de detección, como los aceleradores hardware, con especial atención a las GPUs y la plataforma NVIDIA Jetson. Durante esta fase, se identificaron y superaron desafíos significativos, principalmente relacionados con la gestión de la compatibilidad entre las múltiples versiones de frameworks de aprendizaje profundo y el software de NVIDIA. La arquitectura ARM64 de los dispositivos Jetson también presentó particularidades que complejizaron la instalación y configuración de dependencias críticas, como ciertas bibliotecas de Python y componentes específicos del ecosistema de NVIDIA. A pesar de estos obstáculos técnicos, se logró una configuración estable y funcional del entorno de desarrollo y experimentación.
+
+Se generó un conjunto de datos y vídeos de entrenamiento, fundamental para optimizar la precisión del modelo de detección. Estos recursos, obtenidos grabando canicas en movimiento sobre la cinta transportadora, proporcionaron un entorno de prueba realista. El principal desafío fue seleccionar un objeto de prueba fácilmente identificable y con variabilidad controlada en forma y color. Aunque se hubiera preferido un objeto industrial más complejo, no se dispuso de medios para su adquisición.
+
+Se entrenaron múltiples modelos de detección de las familias YOLOv5, YOLOv8 y YOLO11, en diversas precisiones y tamaños. Esto permitió evaluar su evolución y rendimiento en precisión y velocidad. La principal dificultad fue el ajuste fino de hiperparámetros para optimizar el rendimiento, proceso que requirió numerosas iteraciones y pruebas.
+
+Se implementó un sistema de seguimiento que integra los modelos de detección entrenados con el algoritmo BYTETrack. Esta combinación permitió mantener la identidad de los objetos a lo largo del tiempo, mejorando significativamente la precisión y robustez del sistema. El principal obstáculo fue la integración del algoritmo de seguimiento con la salida de detección, debido a incompatibilidades entre versiones de frameworks y dependencias. No obstante, se logró una integración exitosa y eficaz en la práctica.
+
+Para analizar los cuellos de botella, se exploraron diversas estrategias de segmentación para identificar componentes críticos y optimizar su rendimiento. La segmentación por procesos con memoria compartida fue la más efectiva, facilitando la comunicación eficiente entre detección y seguimiento, y mejorando notablemente el rendimiento global. La mayor complejidad residió en la programación de la comunicación interproceso (transmisión de datos y sincronización), que exigió un conocimiento profundo de programación concurrente y gestión de memoria compartida.
+
+Para cuantificar las métricas de rendimiento bajo diferentes configuraciones de hardware, se realizaron múltiples experimentos. Estos incluyeron la evaluación de distintos modelos y tamaños, operando a diversas tasas de fotogramas por segundo (FPS) y utilizando diferentes dispositivos Jetson. Estos experimentos permitieron evaluar el rendimiento en condiciones realistas y ajustar la configuración para un equilibrio óptimo entre precisión y velocidad. La principal dificultad fue la ejecución de numerosas pruebas y ajustes para identificar la configuración óptima, lo que demandó una considerable inversión de tiempo y recursos.
+\section{Aprendizaje}
+
+Durante el desarrollo de este Trabajo de Fin de Grado, se adquirieron conocimientos y habilidades valiosas en diversas áreas. En primer lugar, se profundizó en el ciclo de vida completo de las redes neuronales, desde la creación y anotación de conjuntos de datos, pasando por el entrenamiento y ajuste de hiperparámetros, hasta la optimización de los modelos para una inferencia eficiente. Este proceso implicó un aprendizaje significativo sobre la arquitectura interna de las redes, las métricas de evaluación y las técnicas para mejorar su rendimiento.
+
+Paralelamente, se exploró en detalle el uso de aceleradores hardware, con un enfoque particular en las GPUs y la plataforma NVIDIA Jetson. Esta exploración permitió comprender cómo estas tecnologías pueden mejorar drásticamente el rendimiento de los sistemas de visión artificial en tiempo real. La experiencia práctica obtenida en la configuración y optimización del entorno de desarrollo, así como en la resolución de problemas complejos relacionados con la compatibilidad de software y las particularidades de la arquitectura ARM64, constituyó un aspecto crucial del aprendizaje.
+
+Asimismo, se desarrollaron habilidades prácticas en la implementación de sistemas de seguimiento de objetos. La integración de los modelos de detección entrenados con algoritmos avanzados como BYTETrack supuso un aprendizaje profundo sobre la gestión de identidades y la reconstrucción de trayectorias de objetos en movimiento, aspectos esenciales para aplicaciones industriales y comerciales.
+
+Además, se adquirieron conocimientos sólidos sobre técnicas de programación concurrente, específicamente la segmentación por procesos y la comunicación interproceso mediante memoria compartida. Esta área permitió optimizar significativamente el rendimiento del sistema al identificar y abordar cuellos de botella críticos en el flujo de datos.
+
+Finalmente, la planificación y ejecución de una batería exhaustiva de experimentos para cuantificar métricas de rendimiento bajo diversas configuraciones de hardware y software proporcionó una comprensión práctica y metodológica sobre cómo evaluar, comparar y mejorar el rendimiento en sistemas complejos de visión artificial.
+
+
+\section{Relación con los estudios cursados}
+
+Este Trabajo de Fin de Grado se relaciona estrechamente con los estudios cursados en el Grado en Ingeniería Informática, especialmente en las siguientes asignaturas han sido las que han proporcionado la base teórica y práctica necesaria para llevar a cabo este proyecto:
+
+\begin{itemize}
+   \item \textbf{SDL (Sistemas basados en Deep Learning para la Industria):} La asignatura se encuentra en el segundo cuatrimestre del tercer curso del grado en Ingeniería Informática en la mención de Ingeniería de Computadores. La asignatura tiene como objetivos «Conocer, configurar y utilizar los sistemas actuales específicos para inteligencia artificial (en concreto aprendizaje profundo) que existen para la industria. Especial énfasis en sistemas reales con capacidad de procesamiento de imágenes (clasificación/detección de objetos)» y «Conocer y profundizar en sistemas basados en GPU para el procesamiento de modelos de redes neuronales». Esta asignatura es la base teórica y práctica de este Trabajo de Fin de Grado, ya que se ha utilizado el conocimiento adquirido en ella para implementar la solución propuesta, incluyendo la selección y entrenamiento de modelos de detección de objetos, así como la optimización para su ejecución en dispositivos Jetson.
+   
+   \item \textbf{CPA (Computación Paralela):} La asignatura se encuentra en el primer cuatrimestre del tercer curso del grado en Ingeniería Informática. La asignatura tiene como objetivo «Conocer la computación paralela y los modelos de programación paralela a través de los modelos más extendidos: memoria compartida y memoria distribuida». Los conocimientos adquiridos en esta asignatura han sido de especial relevancia para la implementación de técnicas de paralelización para distribuir la carga computacional del procesado de vídeos entre hilos y/o procesos para reducir el tiempo de procesado.
+\end{itemize}
+
+
+
+\section{Trabajo futuro}
+
+Como trabajo futuro para mejorar la solución propuesta, se plantean varias líneas de investigación y desarrollo que podrían ampliar las capacidades del sistema y optimizar su rendimiento.
+
+Una primera línea de mejora consistiría en \textbf{evaluar el sistema con objetos de mayor complejidad}. Aunque la prueba de concepto se realizó con canicas, un objeto relativamente simple, sería beneficioso probar el sistema con una gama más amplia de objetos que presenten mayor variabilidad en forma, tamaño, textura y color. Esto permitiría validar la robustez y la capacidad de generalización del sistema en escenarios más desafiantes, acercándose a las condiciones reales de un entorno industrial. La utilización de objetos industriales auténticos, con sus irregularidades y posibles defectos específicos, proporcionaría una evaluación más fidedigna del rendimiento del sistema en aplicaciones prácticas.
+
+Otra dirección prometedora es la \textbf{incorporación de múltiples cámaras} para obtener una visión más completa de la escena. Un sistema multicámara permitiría capturar imágenes desde diferentes ángulos y perspectivas, lo que podría mejorar significativamente la detección y el seguimiento de objetos, especialmente en situaciones de oclusión parcial o cuando los objetos se mueven rápidamente y cambian de orientación. La fusión de información de múltiples vistas podría conducir a una reconstrucción 3D más precisa de los objetos y sus trayectorias, enriqueciendo el análisis y permitiendo una inspección más detallada.
+
+Además de la visión, se podría \textbf{integrar información de otros tipos de sensores} para complementar los datos visuales. Sensores de proximidad, sensores de peso, cámaras térmicas o incluso sensores hiperespectrales podrían proporcionar información adicional valiosa. Por ejemplo, los sensores de peso podrían ayudar a verificar la cantidad de producto, mientras que las cámaras térmicas podrían detectar anomalías de temperatura no visibles. Esta fusión multisensorial podría mejorar la capacidad del sistema para identificar defectos sutiles o características que no son fácilmente discernibles solo con cámaras RGB.
+
+Para completar el ciclo de inspección, se podría \textbf{desarrollar un mecanismo de rechazo de objetos defectuosos más sofisticado y automatizado}. Esto podría implicar el diseño e integración de actuadores neumáticos, brazos robóticos pequeños o desviadores mecánicos controlados por el sistema. Al detectar un objeto no conforme, el sistema enviaría una señal para activar el mecanismo de rechazo, retirando el producto defectuoso de la línea de producción de manera eficiente y sin intervención manual, lo que mejoraría la productividad y reduciría errores.
+
+Finalmente, para escalar la capacidad de procesamiento y manejar flujos de vídeo de mayor resolución o múltiples líneas de producción, se podría explorar la \textbf{implementación de un sistema distribuido utilizando varios dispositivos Jetson}. Cada dispositivo podría encargarse de una porción del flujo de vídeo o de una tarea específica (p. ej., un dispositivo para detección y otro para seguimiento avanzado). Esta arquitectura distribuida permitiría un procesamiento paralelo más efectivo, mejorando la velocidad general del sistema y su capacidad para manejar cargas de trabajo más intensivas, haciéndolo adecuado para entornos industriales de mayor escala.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                BIBLIOGRAFIA                                 %
