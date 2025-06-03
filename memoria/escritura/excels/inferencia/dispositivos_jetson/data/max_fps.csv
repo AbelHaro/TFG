@@ -1,0 +1,4 @@
+dispositivo,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu,Tpreprocesado,Tinferencia,Tpostprocesado
+Jetson AGX Xavier ,2400,78.06,30.75,0.00,16.470,1285.27,1.87,17.72,40.08,2.14,5.77,3.8
+Jetson Orin Nano,2400,54.53,44.01,0.00,7.568,412.49,5.82,19.97,53.38,1.76,4.44,3.96
+Jetson AGX Orin,2400,42.53,56.43,0.00,13.029,553.97,4.33,21.32,26.93,1.32,2.51,2.89
