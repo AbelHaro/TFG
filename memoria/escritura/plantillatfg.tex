@@ -2068,14 +2068,14 @@ El primero de los archivos que se muestra a continuación es el objeto Detection
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.7\textwidth]{codigo/images/detection_tracking_pipeline_uml.png}
+   \includegraphics[width=0.8\textwidth]{codigo/images/detection_tracking_pipeline_uml.png}
       \caption[Diagrama de clases del objeto DetectionTrackingPipeline]{Diagrama de clases del objeto DetectionTrackingPipeline.}
       \label{fig:detection_tracking_pipeline_uml}
    \end{figure}
 
-   La figura \ref{fig:detection_tracking_pipeline_uml} muestra el diagrama de clases del objeto DetectionTrackingPipeline.
+   La figura \ref{fig:detection_tracking_pipeline_uml} muestra el diagrama de clases del objeto DetectionTrackingPipeline. Durante la ejecución del programa, las funciones \textit{capture\_frames}, \textit{process\_frames}, \textit{tracking\_frames} y \textit{draw\_and\_write\_frames} se ejecutarán en paralelo, cada una en un hilo o proceso diferente, según la configuración elegida. El objeto DetectionTrackingPipeline se encarga de gestionar la comunicación entre estos hilos o procesos, asegurando que los datos se transmitan correctamente entre ellos y que el sistema funcione de manera eficiente.
 
-   \lstinputlisting[language=python, caption=detection\_tracking\_pipeline.py, label=lst:detection_tracking_pipeline, basicstyle=\footnotesize\ttfamily, breaklines=true,literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/detection_tracking_pipeline.py}
+   \lstinputlisting[language=python, caption=detection\_tracking\_pipeline.py, label=lst:detection_tracking_pipeline, basicstyle=\footnotesize\ttfamily, breaklines=true, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/detection_tracking_pipeline.py}
 
 
    El segundo archivo es el programa que configura las llamadas a las funciones del objeto DetectionTrackingPipeline. Este programa se encarga de inicializar el objeto según el tipo de segmentación elegida, ya sea por hilos, procesos, multiproceso o memoria compartida. 
