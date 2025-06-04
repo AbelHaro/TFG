@@ -621,8 +621,6 @@ Cada módulo Jetson se basa en una arquitectura System-on-Chip (SoC), que integr
 
 Un pilar fundamental del diseño de la serie Jetson es la optimización de la eficiencia energética. Estos dispositivos están diseñados para ofrecer un alto rendimiento computacional por cada vatio de energía consumido (TOPS/W), esencial para aplicaciones embebidas con fuentes de alimentación limitadas o restricciones térmicas. La capacidad de configurar diferentes perfiles de energía permite ajustar dinámicamente el equilibrio entre rendimiento y consumo.
 
-Más allá del hardware, el valor de la plataforma Jetson reside en su ecosistema de software integral, proporcionado a través del NVIDIA JetPack SDK. Este paquete incluye el sistema operativo Linux optimizado (L4T), controladores, bibliotecas aceleradas por \gls{gpu} como CUDA, cuDNN y TensorRT, además de herramientas de desarrollo y documentación. Esta plataforma unificada simplifica el ciclo de desarrollo, desde la creación y entrenamiento de modelos hasta su optimización y despliegue en los dispositivos Jetson, acelerando la innovación.
-
 \begin{table}[H]
    \centering
    \resizebox{\textwidth}{!}{%
@@ -644,10 +642,15 @@ La tabla \ref{tab:jetson_comparison}\cite{nvidia_jetson_modules} presenta una co
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{images/estado_del_arte/jetson_family.png}
+   \includegraphics[width=0.6\textwidth]{images/estado_del_arte/jetson_family.png}
    \caption[Módulos Jetson de NVIDIA]{Módulos Jetson de NVIDIA}
    \label{fig:jetson_modules}
 \end{figure}
+
+
+Más allá del hardware, la fortaleza de la plataforma Jetson reside en su completo ecosistema de software, proporcionado a través del SDK NVIDIA JetPack. Esto incluye un sistema operativo Linux optimizado (L4T), controladores, CUDA, cuDNN, TensorRT, herramientas de desarrollo y documentación. Esta plataforma unificada agiliza el desarrollo, desde la creación del modelo hasta la implementación optimizada.
+
+Para este trabajo, todos los programas se ejecutaron utilizando imágenes de contenedores Docker proporcionadas por Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}. Construidas sobre las imágenes base de NVIDIA y optimizadas para la serie Jetson, estas imágenes preconfiguradas simplifican la implementación al incluir todas las dependencias necesarias como CUDA, cuDNN, TensorRT y las bibliotecas de Python requeridas, asegurando la reproducibilidad del entorno.
 
 \subsection{TensorRT} \label{sec:tensorrt}
 NVIDIA TensorRT es un kit de desarrollo de software (SDK) integral diseñado específicamente para la optimización de modelos de aprendizaje profundo y la consecución de una inferencia de muy alto rendimiento en la amplia gama de hardware de NVIDIA, desde centros de datos hasta sistemas embebidos como la serie Jetson. Actúa como un potente compilador y motor de ejecución en tiempo real que transforma modelos previamente entrenados en versiones altamente eficientes, optimizadas para el despliegue en producción.
@@ -2061,8 +2064,8 @@ Finalmente, para escalar la capacidad de procesamiento y manejar flujos de víde
    \textbf{ODS-12. Producción y consumo responsables:} La implementación de sistemas de detección temprana de defectos contribuye sustancialmente a la producción responsable mediante: 1) la reducción del descarte de productos y materias primas al identificar problemas en etapas iniciales del proceso productivo, 2) la optimización del consumo energético al evitar el procesamiento completo de productos defectuosos, y 3) la mejora de la calidad final que aumenta la vida útil de los productos. Estas aportaciones se vinculan directamente con la meta 12.5 de la ONU: «De aquí a 2030, reducir considerablemente la generación de desechos mediante actividades de prevención, reducción, reciclado y reutilización», ya que el sistema desarrollado actúa preventivamente evitando la generación de residuos industriales y facilitando la reutilización de materiales recuperados.
 
 \chapter{Código fuente} \label{ch:codigo_fuente}
-\section{Código fuente del proyecto}
-El código fuente del proyecto se encuentra disponible en el repositorio de GitHub del autor, en la siguiente dirección: \url{https://github.com/usuario/proyecto}
+
+En este capítulo se presenta el código fuente más relevante de la solución propuesta eliminando las partes que no aportan valor al lector. El código completo se encuentra disponible en el repositorio de GitHub del proyecto\footnote{\url{https://github.com/AbelHaro/TFG}}
 
 El primero de los archivos que se muestra a continuación es el objeto DetectionTrackingPipeline, que implementa las funciones de las cuatro fases del pipeline de detección y seguimiento de objetos. Este objeto se encarga de inicializar el modelo de detección, el algoritmo de seguimiento, la cámara y el socket para la comunicación con la Raspberry Pi Pico WH. Además, implementa las funciones para procesar los fotogramas de vídeo, detectar los objetos, realizar el seguimiento y pintarlos en el fotograma.
 
@@ -2088,9 +2091,38 @@ El primero de los archivos que se muestra a continuación es el objeto Detection
       \label{fig:unified_pipeline_uml}
    \end{figure}
 
-   La figura \ref{fig:unified_pipeline_uml} muestra el diagrama de clases de objeto UnifiedPipeline.
+   La figura \ref{fig:unified_pipeline_uml} muestra el diagrama de clases de objeto UnifiedPipeline. Esta hereda del objeto DetectionTrackingPipeline y añade la funcionalidad de inicializar el objeto según el tipo de segmentación elegida. La función \textit{run} se encarga de iniciar el proceso de captura, procesamiento, seguimiento y escritura de fotogramas. Dependiendo del tipo de segmentación elegida, se ejecutará en un hilo o proceso diferente. 
 
-   \lstinputlisting[language=python, caption=Ejemplo de código Python (desde archivo), label=lst:unified_pipeline, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/unified_pipeline.py}
+   \lstinputlisting[language=python, caption=unified\_pipeline.py, label=lst:unified_pipeline, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/unified_pipeline.py}
+
+
+   El tercer archivo define `TrackerWrapper`, una clase que encapsula la funcionalidad del algoritmo de seguimiento BYTETrack. Su propósito es simplificar la integración del algoritmo de seguimiento en el pipeline principal.
+
+   \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.7\textwidth]{codigo/images/tracker_wrapper_uml.png}
+      \caption[Diagrama de clases del objeto TrackerWrapper]{Diagrama de clases del objeto TrackerWrapper.}
+      \label{fig:tracker_wrapper_uml}
+   \end{figure}
+
+   La Figura \ref{fig:tracker_wrapper_uml} presenta el diagrama de clases de `TrackerWrapper`. A partir de `BaseTracker`, esta clase se encarga de inicializar el algoritmo BYTETrack y provee la función `track` para procesar cada fotograma y retornar las trayectorias de los objetos detectados. En esencia, `TrackerWrapper` abstrae la complejidad de la interacción directa con BYTETrack, ofreciendo una interfaz limpia y consistente al resto del sistema.
+
+   \lstinputlisting[language=python, caption=tracker\_wrapper.py, label=lst:tracker_wrapper, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/classes/tracker_wrapper.py}
+
+   Por último, el cuarto archivo es el objeto `SharedCircularBuffer`, que implementa un buffer circular con memoria compartida. Este buffer permite crear la abstracción de una cola de mensajes que puede ser utilizada por diferentes procesos que comparten memoria. 
+
+   \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.5\textwidth]{codigo/images/shared_circular_buffer_uml.png}
+      \caption[Diagrama de clases del objeto SharedCircularBuffer]{Diagrama de clases del objeto SharedCircularBuffer.}
+      \label{fig:shared_circular_buffer_uml}
+   \end{figure}
+
+   La Figura \ref{fig:shared_circular_buffer_uml} muestra el diagrama de clases del objeto `SharedCircularBuffer`. Este objeto implementa las funciones para inicializar el buffer, escribir y leer mensajes, y gestionar la memoria compartida. El buffer circular permite que los procesos que comparten memoria puedan comunicarse de manera eficiente, evitando bloqueos y garantizando un acceso seguro a los datos.
+
+   \lstinputlisting[language=python, caption=shared\_circular\_buffer.py, label=lst:shared_circular_buffer, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/classes/shared_circular_buffer.py}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              FI DEL DOCUMENT                                %

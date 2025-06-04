@@ -356,8 +356,8 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         self.t1_start.wait()
         logging.info("t1_start signal received.")
 
-        t_inicio_procesamiento = cv2.getTickCount()
-        
+        t_start_processing = cv2.getTickCount()
+
         # Wait for the pipeline to complete its main task.
         # `stop_event` is usually activated by the last worker in the chain
         # (draw_and_write_frames) when there are no more frames to process.
@@ -365,15 +365,15 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         self.stop_event.wait()
         logging.info("stop_event signal received.")
 
-        t_fin_procesamiento = cv2.getTickCount()
-        
+        t_end_processing = cv2.getTickCount()
+
         # Clean up resources (e.g. shared memory queues)
         # It's important to do this before processes terminate completely.
         self._cleanup()
 
         # Calculate and display performance statistics
-        tiempo_total_segundos = (t_fin_procesamiento - t_inicio_procesamiento) / cv2.getTickFrequency()
-        
+        tiempo_total_segundos = (t_end_processing - t_start_processing) / cv2.getTickFrequency()
+
         # Get the total number of frames from the video to calculate average FPS.
         # I assume that get_total_frames is a method (possibly static or instance)
         # that reads video metadata.
