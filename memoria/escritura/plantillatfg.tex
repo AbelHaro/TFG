@@ -1893,6 +1893,10 @@ Una vez que la Raspberry Pi Pico WH se conecta, envía un mensaje de inicio al J
 Cuando el modelo de detección en el Jetson identifica una canica defectuosa, envía un mensaje específico a la Raspberry Pi Pico WH.
 Al recibir esta señal, la Raspberry Pi Pico WH activa el servomotor durante un breve instante. Este accionamiento mueve un mecanismo que desvía la canica defectuosa fuera de la trayectoria principal de la cinta transportadora.
 
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                 CONCLUSIONS                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2055,6 +2059,38 @@ Finalmente, para escalar la capacidad de procesamiento y manejar flujos de víde
    \textbf{ODS-9. Industria, innovación e infraestructura:} El desarrollo de sistemas inteligentes para la detección de defectos representa una clara apuesta por la innovación industrial. Este proyecto no solo implementa tecnologías emergentes como la IA en procesos productivos, sino que además optimiza su rendimiento mediante el uso eficiente de hardware especializado como GPUs, algoritmos de seguimiento multi-objeto y técnicas de paralelización. Esto responde directamente a la meta 9.4 de la ONU: «Modernizar la infraestructura y reconvertir las industrias para que sean sostenibles, utilizando los recursos con mayor eficacia y promoviendo la adopción de tecnologías y procesos industriales limpios y ambientalmente racionales», al permitir mejoras significativas en eficiencia energética y uso de recursos mediante sistemas de inspección automatizados.
 
    \textbf{ODS-12. Producción y consumo responsables:} La implementación de sistemas de detección temprana de defectos contribuye sustancialmente a la producción responsable mediante: 1) la reducción del descarte de productos y materias primas al identificar problemas en etapas iniciales del proceso productivo, 2) la optimización del consumo energético al evitar el procesamiento completo de productos defectuosos, y 3) la mejora de la calidad final que aumenta la vida útil de los productos. Estas aportaciones se vinculan directamente con la meta 12.5 de la ONU: «De aquí a 2030, reducir considerablemente la generación de desechos mediante actividades de prevención, reducción, reciclado y reutilización», ya que el sistema desarrollado actúa preventivamente evitando la generación de residuos industriales y facilitando la reutilización de materiales recuperados.
+
+\chapter{Código fuente} \label{ch:codigo_fuente}
+\section{Código fuente del proyecto}
+El código fuente del proyecto se encuentra disponible en el repositorio de GitHub del autor, en la siguiente dirección: \url{https://github.com/usuario/proyecto}
+
+El primero de los archivos que se muestra a continuación es el objeto DetectionTrackingPipeline, que implementa las funciones de las cuatro fases del pipeline de detección y seguimiento de objetos. Este objeto se encarga de inicializar el modelo de detección, el algoritmo de seguimiento, la cámara y el socket para la comunicación con la Raspberry Pi Pico WH. Además, implementa las funciones para procesar los fotogramas de vídeo, detectar los objetos, realizar el seguimiento y pintarlos en el fotograma.
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.7\textwidth]{codigo/images/detection_tracking_pipeline_uml.png}
+      \caption[Diagrama de clases del objeto DetectionTrackingPipeline]{Diagrama de clases del objeto DetectionTrackingPipeline.}
+      \label{fig:detection_tracking_pipeline_uml}
+   \end{figure}
+
+   La figura \ref{fig:detection_tracking_pipeline_uml} muestra el diagrama de clases del objeto DetectionTrackingPipeline.
+
+   \lstinputlisting[language=python, caption=detection\_tracking\_pipeline.py, label=lst:detection_tracking_pipeline, basicstyle=\footnotesize\ttfamily, breaklines=true,literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/detection_tracking_pipeline.py}
+
+
+   El segundo archivo es el programa que configura las llamadas a las funciones del objeto DetectionTrackingPipeline. Este programa se encarga de inicializar el objeto según el tipo de segmentación elegida, ya sea por hilos, procesos, multiproceso o memoria compartida. 
+
+
+   \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.7\textwidth]{codigo/images/unified_pipeline_uml.png}
+      \caption[Diagrama de clases del programa principal]{Diagrama de clases del programa principal.}
+      \label{fig:unified_pipeline_uml}
+   \end{figure}
+
+   La figura \ref{fig:unified_pipeline_uml} muestra el diagrama de clases de objeto UnifiedPipeline.
+
+   \lstinputlisting[language=python, caption=Ejemplo de código Python (desde archivo), label=lst:unified_pipeline, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/unified_pipeline.py}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              FI DEL DOCUMENT                                %
