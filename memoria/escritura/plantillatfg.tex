@@ -980,7 +980,7 @@ Los resultados del entrenamiento se han evaluado utilizando el conjunto de valid
    \centering
    \begin{tabular}{l | c | c | c | c | c}
       \toprule
-      Modelo & Tiempo (h) & Precisión & Recall & mAP50 & mAP50-95 \\
+      Modelo & Tiempo (h) $\downarrow$ & Precisión $\uparrow$ & Recall $\uparrow$ & mAP50 $\uparrow$ & mAP50-95 $\uparrow$ \\
       \midrule
       YOLOv5nu & 0.128 & 0.898 & 0.922 & 0.939 & 0.759 \\
       YOLOv5mu & 0.333 & 0.952 &  0.928 & 0.955 & 0.790 \\
@@ -1446,14 +1446,14 @@ Primero se va analizar el rendimiento de cada tipo de segmentación utilizando l
             string replace={multiprocesos memoria compartida}{\begin{tabular}[c]{@{}c@{}}multiprocesos\\memoria compartida\end{tabular}}},
        display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
        display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
-       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
-       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
-       display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W)\end{tabular}, column type={c}},
-       display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J)\end{tabular}, column type={c}},
-       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
-       display columns/8/.style={column name=Speedup, column type={c}, fixed, precision=2},
-       display columns/9/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU Avg.\\[0.1ex] \protect\footnotemark\end{tabular}, column type={c}},
-       display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU\\Avg.\end{tabular}, column type={c}},
+       display columns/3/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W) $\downarrow$\end{tabular}, column type={c}},
+       display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J) $\downarrow$\end{tabular}, column type={c}},
+       display columns/7/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name=Speedup $\uparrow$, column type={c}, fixed, precision=2},
+       display columns/9/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU Avg.\\[0.1ex] \protect\footnotemark $\downarrow$\end{tabular}, column type={c}},
+       display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU\\Avg. $\downarrow$\end{tabular}, column type={c}},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
@@ -1492,11 +1492,11 @@ Ahora se va a analizar el rendimiento de cada tipo de segmentación utilizando l
             string replace={multiprocesos memoria compartida}{\begin{tabular}[c]{@{}c@{}}multiprocesos\\memoria compartida\end{tabular}}},
        display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
        display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
-       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
-       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
-       display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W)\end{tabular}, column type={c}},
-       display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J)\end{tabular}, column type={c}},
-       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+       display columns/3/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W) $\downarrow$\end{tabular}, column type={c}},
+       display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J) $\downarrow$\end{tabular}, column type={c}},
+       display columns/7/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
