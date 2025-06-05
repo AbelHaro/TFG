@@ -25,26 +25,28 @@ if os.path.exists(object_count_file) and os.path.exists(fps_file):
 
     # Plot FPS on the primary axis (switched)
     fps_color = "tab:blue"
-    ax1.set_xlabel("Número de frame")
-    ax1.set_ylabel("FPS", color=fps_color)  # Modified: Set y-axis label color
+    ax1.set_xlabel("Número de frame", fontsize=16)
+    ax1.set_ylabel("FPS", color=fps_color, fontsize=16)  # Modified: Set y-axis label color
     ax1.plot(
         fps_data[fps_data.columns[0]],
         fps_data[fps_data.columns[1]],
         color=fps_color,
         label=fps_data.columns[1],
     )  # Modified: Added label for legend
-    ax1.tick_params(axis="y", labelcolor=fps_color)
+    ax1.tick_params(axis="y", labelcolor=fps_color, labelsize=14)
 
     # Plot object count on the secondary axis (switched)
     objects_color = "tab:red"
-    ax2.set_ylabel("Cantidad de objetos", color=objects_color)  # Modified: Set y-axis label color
+    ax2.set_ylabel(
+        "Cantidad de objetos", color=objects_color, fontsize=16
+    )  # Modified: Set y-axis label color
     ax2.plot(
         object_count_data[object_count_data.columns[0]],
         object_count_data[object_count_data.columns[1]],
         color=objects_color,
         label=object_count_data.columns[1],
     )  # Modified: Added label for legend
-    ax2.tick_params(axis="y", labelcolor=objects_color)
+    ax2.tick_params(axis="y", labelcolor=objects_color, labelsize=14)
 
     # Set x-axis and y-axis limits
     x_max = object_count_data[object_count_data.columns[0]].max()
@@ -56,15 +58,18 @@ if os.path.exists(object_count_file) and os.path.exists(fps_file):
     ax1.set_ylim(0, y1_max * 1.1)  # Add 10% padding on top only
     ax2.set_ylim(0, y2_max * 1.1)  # Add 10% padding on top only
 
+    # Set x-axis tick label size
+    ax1.tick_params(axis="x", labelsize=14)
+
     # Add title and grid
-    plt.title("FPS y Cantidad de Objetos por frame en el video 4 (carga variable)")
+    plt.title("FPS y Cantidad de Objetos por frame en el video 4 (carga variable)", fontsize=18)
     ax1.grid(True)
 
     # Add legend
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(
-        lines1 + lines2, labels1 + labels2, loc="best"
+        lines1 + lines2, labels1 + labels2, loc="best", fontsize=14
     )  # Modified: Use labels from get_legend_handles_labels
 
     # Apply tight layout before saving
