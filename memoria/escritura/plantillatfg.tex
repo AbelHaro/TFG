@@ -613,7 +613,7 @@ Dada la complejidad de esta programación a bajo nivel, NVIDIA ha desarrollado u
 En el frente del hardware, la compañía ha impulsado continuamente la innovación con el desarrollo de componentes especializados como los Tensor Cores, introducidos en la arquitectura Volta. Estos núcleos están diseñados específicamente para acelerar las operaciones matriciales intensivas (como multiplicaciones de matrices mixtas) que son omnipresentes en el entrenamiento e inferencia de modelos de IA. Como resultado de estas continuas innovaciones en hardware y la creación de un ecosistema de software integral, NVIDIA ha logrado establecer estándares de facto para la aceleración de IA, consolidándose como la plataforma preferida en una amplia gama de entornos, desde grandes centros de datos hasta sistemas embebidos con recursos limitados.
 
 
-\subsection{Serie Jetson: dispositivos de IA de bajo consumo} \label{sec:jetson}
+\subsection{Serie Jetson: dispositivos para IA de bajo consumo} \label{sec:jetson}
 La serie Jetson de NVIDIA constituye una familia de módulos computacionales diseñados específicamente para habilitar la inteligencia artificial y el aprendizaje profundo en dispositivos de borde (edge devices). Estos sistemas compactos y de bajo consumo son fundamentales para aplicaciones que requieren procesamiento local de datos con alta capacidad de cómputo.
 
 El enfoque principal de la serie Jetson es la computación en el borde (edge computing), un paradigma que acerca el procesamiento de datos y la inteligencia artificial a la fuente donde se generan. Esto resulta crucial en aplicaciones donde la latencia, el ancho de banda limitado o la privacidad son factores críticos, ya que evita la necesidad de enviar grandes volúmenes de datos a la nube para su análisis. Los dispositivos Jetson están optimizados para operar bajo restricciones significativas de energía, tamaño y coste, características típicas de los entornos embebidos y de borde.
@@ -1088,7 +1088,7 @@ La primera y mas trivial opción es la ejecución secuencial de las etapas del s
 
 La Figura \ref{fig:secuencial} ilustra el flujo de datos en un sistema secuencial. En este diagrama, cada etapa del sistema se ejecuta de forma lineal, donde la salida de una etapa se convierte en la entrada de la siguiente. Este enfoque es fácil de entender y de implementar, pero no aprovecha al máximo los recursos disponibles.
 
-\subsection{Segmentación basada en hilos} \label{sub:segmentacion_hilos}
+\subsection{Segmentación en hilos} \label{sub:segmentacion_hilos}
 
 La segunda opción es la segmentación del sistema en diferentes hilos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un hilo (\textit{thread}) independiente. A diferencia del enfoque secuencial donde cada etapa debe esperar a que la anterior finalice, la segmentación por hilos permite que las etapas operen de forma concurrente, solapando sus ejecuciones. Esto puede mejorar significativamente el rendimiento (throughput) y reducir la latencia, ya que mientras una etapa espera por una operación (p. ej., E/S de la cámara), otra etapa puede estar procesando datos (p. ej., inferencia en GPU o seguimiento en CPU). Los hilos operan dentro del mismo proceso, compartiendo el mismo espacio de memoria. La comunicación y transferencia de datos (fotogramas, detecciones) entre estas etapas/hilos se gestiona mediante colas de mensajes (\textit{Queue}) de la librería estándar de Python, que aseguran una transferencia eficiente y segura entre hilos (\textit{thread-safe}).
 
@@ -1119,7 +1119,7 @@ Considerando estas características, la segmentación basada en hilos puede ser 
 
 Aunque más complejo de implementar que el enfoque secuencial debido a la necesidad de sincronización y comunicación entre hilos, este modelo permite una mejor utilización de los recursos y mejora la capacidad de respuesta y el rendimiento general del sistema al solapar operaciones de E/S y cómputo intensivo (en GPU/DLA) con otras tareas.
 
-\subsection{Segmentación basada en procesos} \label{sub:segmentacion_procesos}
+\subsection{Segmentación en procesos} \label{sub:segmentacion_procesos}
 
 La tercera opción es la segmentación del sistema en diferentes procesos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un proceso independiente. La comunicación y transferencia de datos entre estas etapas/procesos se gestiona mediante colas de mensajes (\textit{Queue}). Estas colas provienen del módulo `multiprocessing` de la librería estándar de Python y comparten la misma interfaz que las colas estándar del módulo `queue`, lo que asegura una transferencia eficiente y segura entre procesos (\textit{process-safe}).
 
@@ -1152,8 +1152,8 @@ Cada etapa del sistema (captura, inferencia, seguimiento, escritura) tiene una d
 Esta asincronía, gestionada mediante colas, permite un mayor rendimiento (throughput) en comparación con el modelo estrictamente secuencial (Figura \ref{fig:secuencial}), donde cada etapa debe esperar a que la anterior finalice completamente. No obstante, si una etapa es significativamente más lenta que las demás, puede convertirse en un cuello de botella, haciendo que las colas anteriores se llenen y las posteriores permanezcan vacías, limitando el rendimiento general del sistema al ritmo de la etapa más lenta.
 
 
-\subsection{Segmentación basada en hardware} \label{sub:segmentacion_hardware}
-La cuarta opción es la segmentación basada en hardware. Aprovechando la arquitectura heterogénea de la plataforma NVIDIA Jetson, esta opción de segmentación distribuye las tareas entre las diferentes unidades de procesamiento disponibles. La etapa de inferencia, supuestamente la más exigente computacionalmente, se descarga específicamente a los aceleradores de hardware: la GPU o uno de los Deep Learning Accelerators (DLA0, DLA1) si están presentes en el módulo Jetson. Las demás etapas (captura, seguimiento y escritura) permanecen asignadas a la CPU.
+\subsection{Segmentación heterógenea} \label{sub:segmentacion_hardware}
+La cuarta opción es la segmentación basada en computación heterogénea. Aprovechando la arquitectura heterogénea de la plataforma NVIDIA Jetson, esta opción de segmentación distribuye las tareas entre las diferentes unidades de procesamiento disponibles. La etapa de inferencia, supuestamente la más exigente computacionalmente, se descarga específicamente a los aceleradores de hardware: la GPU o uno de los Deep Learning Accelerators (DLA0, DLA1) si están presentes en el módulo Jetson. Las demás etapas (captura, seguimiento y escritura) permanecen asignadas a la CPU.
 
 Este enfoque permite una ejecución paralela real, donde la CPU gestiona el flujo de datos y la lógica de seguimiento mientras la GPU y/o las DLAs procesan simultáneamente los fotogramas para la detección de objetos. Para manejar los resultados que llegan de forma asíncrona desde estos aceleradores, a cada fotograma capturado se le asigna un identificador único. Esto garantiza que las detecciones se asocien correctamente con el fotograma original antes de pasar a la etapa de seguimiento, preservando así el orden temporal de la secuencia. La comunicación entre los procesos que se ejecutan en la CPU y aquellos que gestionan la inferencia en los aceleradores se realiza mediante las colas inter-proceso seguras (\textit{process-safe queues}) descritas anteriormente.
 
@@ -1334,16 +1334,16 @@ Ahora vamos a analizar el rendimiento del sistema con una simulación de entrada
        col sep=comma,
        header=true,
        columns={cantidad_objetos,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W,avg_GPU,avg_CPU},
-       display columns/0/.style={column name=Cant.\ Objetos, column type={c}, string type},
-       display columns/1/.style={column name=Frames Procesados, column type={c}},
-       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}},
-       display columns/3/.style={column name=FPS, column type={c}},
-       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
-       display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=2},
-       display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=0},
-       display columns/7/.style={column name=Frames/W, column type={c}},
-       display columns/8/.style={column name=GPU Avg., column type={c}},
-       display columns/9/.style={column name=CPU Avg., column type={c}},
+       display columns/0/.style={column name=\begin{tabular}[c]{@{}c@{}}Cant. \\ Objetos\end{tabular}, column type={c}, string type},
+       display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames \\ Procesados\end{tabular}, column type={c}},
+       display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo \\ Ejec. (s) $\downarrow$\end{tabular}, column type={c}},
+       display columns/3/.style={column name=FPS $\uparrow$, column type={c}},
+       display columns/4/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia \\ media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía \\ (J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=0},
+       display columns/7/.style={column name=Frames/W $\uparrow$, column type={c}},
+       display columns/8/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU \\ Avg. (\%) $\downarrow$\end{tabular}, column type={c}},
+       display columns/9/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU \\ Avg. (\%) $\downarrow$\end{tabular}, column type={c}},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
@@ -1426,7 +1426,7 @@ Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco t
    \item \textbf{Ejecución secuencial} (subsección \ref{sub:secuencial}): Cada etapa del sistema se ejecuta de forma consecutiva. Este es el enfoque base y no se considera una segmentación propiamente dicha, sino el punto de partida para la comparación.
    \item \textbf{Segmentación por hilos} (subsección \ref{sub:segmentacion_hilos}): Cada etapa del sistema se ejecuta en un hilo independiente.
    \item \textbf{Segmentación por procesos} (subsección \ref{sub:segmentacion_procesos}): Cada etapa del sistema se ejecuta en un proceso independiente.
-   \item \textbf{Segmentación por hardware} (subsección \ref{sub:segmentacion_hardware}): La etapa de inferencia se descarga a los aceleradores de hardware (GPU o DLA).
+   \item \textbf{Segmentación heterogénea} (subsección \ref{sub:segmentacion_hardware}): La etapa de inferencia se descarga a los aceleradores de hardware (GPU o DLA).
    \item \textbf{Segmentación por procesos con memoria compartida} (subsección \ref{sub:segmentacion_memoria_compartida}): Cada etapa del sistema se ejecuta en un proceso independiente y se comunica mediante memoria compartida.
 \end{enumerate}
 
@@ -1444,8 +1444,8 @@ Primero se va analizar el rendimiento de cada tipo de segmentación utilizando l
        columns={modo_segmentacion,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W,speedup,avg_GPU,avg_CPU},
        display columns/0/.style={column name=\begin{tabular}[c]{@{}c@{}}Modo de\\Segmentación\end{tabular}, column type={c}, string type,
             string replace={multiprocesos memoria compartida}{\begin{tabular}[c]{@{}c@{}}multiprocesos\\memoria compartida\end{tabular}}},
-       display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados\end{tabular}, column type={c}, fixed, precision=0},
-       display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s)\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
        display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
        display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
        display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W)\end{tabular}, column type={c}},
@@ -1464,7 +1464,7 @@ Primero se va analizar el rendimiento de cada tipo de segmentación utilizando l
 \end{table}
 
 
-\footnotetext{\footnotesize En la configuración de segmentación por hardware, se utilizan la GPU y los dos núcleos DLA; sin embargo, solo se muestra la utilización de la GPU, ya que la herramienta de monitorización de NVIDIA no reporta la utilización media de la DLA.}
+\footnotetext{\footnotesize En la configuración de segmentación heterogénea, se utilizan la GPU y los dos núcleos DLA; sin embargo, solo se muestra la utilización de la GPU, ya que la herramienta de monitorización de NVIDIA no reporta la utilización media de la DLA.}
 
 A partir de los datos de la Tabla \ref{tab:experimento_segmentacion_max_fps}, se pueden extraer las siguientes conclusiones sobre el rendimiento de los diferentes enfoques de segmentación:
 
@@ -1474,7 +1474,7 @@ La segmentación por hilos es la que ofrece el peor rendimiento después de la s
 
 La segmentación por procesos mejora esta situación al introducir paralelismo real, ya que cada proceso tiene su propio intérprete Python y, por ende, su propio GIL. Sin embargo, la comunicación estándar entre procesos mediante colas introduce una sobrecarga que impide extraer el máximo rendimiento.
 
-La segmentación basada en hardware, que asigna la inferencia a la GPU o DLA, ofrece un rendimiento notable y es capaz de procesar el vídeo en tiempo real. Si bien su velocidad podría ser comparable a la segmentación por procesos con memoria compartida, su consumo energético es superior debido al uso simultáneo de la GPU y, en su caso, la DLA. El rendimiento se ve limitado porque el modelo no se ejecuta en su totalidad en la DLA, lo que resulta en que una porción de la carga de trabajo recaiga sobre la GPU. Esto impide que las unidades de procesamiento operen de forma completamente independiente, generando competencia por los recursos de la GPU.
+La segmentación heterogénea, que asigna la inferencia a la GPU o DLA, ofrece un rendimiento notable y es capaz de procesar el vídeo en tiempo real. Si bien su velocidad podría ser comparable a la segmentación por procesos con memoria compartida, su consumo energético es superior debido al uso simultáneo de la GPU y, en su caso, la DLA. El rendimiento se ve limitado porque el modelo no se ejecuta en su totalidad en la DLA, lo que resulta en que una porción de la carga de trabajo recaiga sobre la GPU. Esto impide que las unidades de procesamiento operen de forma completamente independiente, generando competencia por los recursos de la GPU.
 
 Finalmente, la segmentación por procesos con memoria compartida es la que ofrece el mejor rendimiento global. Este enfoque combina el paralelismo real de los procesos con una comunicación entre ellos mucho más eficiente gracias al uso de memoria compartida, lo que minimiza la sobrecarga de la transferencia de datos. Esta combinación la posiciona como la opción más rápida, siendo también capaz de procesar el vídeo en tiempo real (30 fps).
 
@@ -1490,8 +1490,8 @@ Ahora se va a analizar el rendimiento de cada tipo de segmentación utilizando l
        columns={modo_segmentacion,frames_procesados,tiempo_ejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,frames_por_W},
        display columns/0/.style={column name=\begin{tabular}[c]{@{}c@{}}Modo de\\Segmentación\end{tabular}, column type={c}, string type,
             string replace={multiprocesos memoria compartida}{\begin{tabular}[c]{@{}c@{}}multiprocesos\\memoria compartida\end{tabular}}},
-       display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados\end{tabular}, column type={c}, fixed, precision=0},
-       display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s)\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
        display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
        display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
        display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W)\end{tabular}, column type={c}},
@@ -1506,9 +1506,13 @@ Ahora se va a analizar el rendimiento de cada tipo de segmentación utilizando l
    \label{tab:experimento_segmentacion_30_fps}
 \end{table}
 
-Como se puede observar en la Tabla \ref{tab:experimento_segmentacion_30_fps}, el tipo de segmentación influye significativamente en el rendimiento del sistema. La ejecución secuencial es inviable para tiempo real, presentando la tasa más alta de fotogramas perdidos (LFPS) con 19.87 fps. La segmentación por hilos, aunque mejora ligeramente, sigue siendo inviable para tiempo real, con una LFPS de 11.51, lo que confirma los resultados de la ejecución a máxima capacidad. Aunque la segmentación por procesos mejora este valor a 7.29 LFPS, tampoco alcanza los requisitos de tiempo real. Por su parte, la segmentación basada en hardware logra operar en tiempo real, pero a costa de un mayor consumo energético. Finalmente, la segmentación por procesos con memoria compartida destaca como la opción más eficiente, logrando el mejor rendimiento en tiempo real (LFPS de 0.91) con el menor consumo energético.
+Como se puede observar en la Tabla \ref{tab:experimento_segmentacion_30_fps}, el tipo de segmentación influye significativamente en el rendimiento del sistema. La ejecución secuencial es inviable para tiempo real, presentando la tasa más alta de fotogramas perdidos (LFPS) con 19.87 fps.
 
-Como conclusión, la segmentación por procesos con memoria compartida es la más adecuada para aplicaciones en tiempo real, ya que combina un rendimiento óptimo con un consumo energético eficiente. Este enfoque permite al sistema operar de manera efectiva bajo condiciones de alta carga computacional, cumpliendo con los requisitos de tiempo real sin comprometer la eficiencia energética.
+La segmentación por hilos, aunque mejora ligeramente, sigue siendo inviable para tiempo real, con una LFPS de 11.51, lo que confirma los resultados de la ejecución a máxima capacidad. Aunque la segmentación por procesos mejora este valor a 7.29 LFPS, tampoco alcanza los requisitos de tiempo real.
+
+Por su parte, la segmentación heterogénea logra operar en tiempo real, pero a costa de un mayor consumo energético. Finalmente, la segmentación por procesos con memoria compartida destaca como la opción más eficiente, logrando el mejor rendimiento en tiempo real (LFPS de 0.91) con el menor consumo energético.
+
+Como conclusión, la segmentación por procesos con memoria compartida es la más adecuada para aplicaciones en tiempo real, ya que combina un rendimiento óptimo con un consumo energético eficiente. Este enfoque permite al sistema operar de manera efectiva bajo condiciones de alta carga computacional, cumpliendo con los requisitos de tiempo real sin comprometer la eficiencia energética. La segmentación heterogénea, no resulta tan eficiente debido a la falta de independencia total entre la GPU y la DLA, lo que limita su capacidad de procesamiento en paralelo pero resulta una aproximación viable en un futuro si NVIDIA mejora la implementación de la DLA para que pueda ejecutar todo el modelo de detección de objetos.
 
 \subsection{Modelo y talla} \label{sub:modelo_talla}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modelo de detección de objetos y sus diferentes tallas.
@@ -1525,18 +1529,18 @@ Para la evaluación del rendimiento de cada modelo y sus diferentes tallas, se e
        header=true,
        columns={modelo,frames_procesados,Tejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,Frames_W,Average_GPU,Average_CPU,Tpreprocesado_ms,Tinferencia_ms,Tpostprocesado_ms},
        display columns/0/.style={column name=Modelo, column type={c}, string type},
-       display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
-       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
-       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
-       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
-       display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
-       display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=2},
-       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
-       display columns/8/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
-       display columns/9/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
-       display columns/10/.style={column name=T. Prepro. (ms), column type={c}, fixed, precision=2},
-       display columns/11/.style={column name=T. Infer. (ms), column type={c}, fixed, precision=2},
-       display columns/12/.style={column name=T. Postpro. (ms), column type={c}, fixed, precision=2},
+       display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/3/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=3},
+       display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/7/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU\\Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/9/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU\\Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Prepro.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/11/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Infer.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/12/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Postpro.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
@@ -1569,19 +1573,19 @@ Ahora se va a analizar el rendimiento de cada modelo y sus diferentes tallas uti
        header=true,
        columns={modelo,frames_procesados,Tejecucion_s,FPS,LFPS,potencia_media_consumida_W,energia_consumida_J,Frames_W,mAP50_95},
        display columns/0/.style={column name=Modelo, column type={c}, string type},
-       display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
-       display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
-       display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
-       display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
-       display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
-       display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=2},
-       display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
+       display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+       display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s)  $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/3/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+       display columns/4/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+       display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=3},
+       display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+       display columns/7/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
       %  display columns/8/.style={column name={GPU Avg. (\%)}, column type={c}, fixed, precision=2},
       %  display columns/9/.style={column name={CPU Avg. (\%)}, column type={c}, fixed, precision=2},
       %  display columns/10/.style={column name=T. Prepro. (ms), column type={c}, fixed, precision=2},
       %  display columns/11/.style={column name=T. Infer. (ms), column type={c}, fixed, precision=2},
       %  display columns/12/.style={column name=T. Postpro. (ms), column type={c}, fixed, precision=2},
-       display columns/8/.style={column name={mAP$_{50-95}$}, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name={mAP$_{50-95}$ $\uparrow$}, column type={c}, fixed, precision=2},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
@@ -1619,16 +1623,16 @@ Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para l
        columns={Dispositivo,Precision,frames_procesados,tejecucion,FPS,LFPS,potencia_media_consumida,energia_consumida,Frames/W,Average_GPU,Average_CPU,mAP50-95},
       display columns/0/.style={column name=Acelerador, column type={c}, string type},
       display columns/1/.style={column name=Precisión, column type={c}, string type},
-      display columns/2/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
-      display columns/3/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
-      display columns/4/.style={column name=FPS, column type={c}, fixed, precision=2},
-      display columns/5/.style={column name=LFPS, column type={c}, fixed, precision=2},
-      display columns/6/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
-      display columns/7/.style={column name=Energía (J), column type={c}, fixed, precision=2},
-      display columns/8/.style={column name=Frames/W, column type={c}, fixed, precision=2},
-      display columns/9/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
-      display columns/10/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
-      display columns/11/.style={column name={mAP$_{50-95}$}, column type={c}, fixed, precision=4},
+      display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+      display columns/3/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s)  $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/4/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+      display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=3},
+      display columns/7/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/8/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU\\Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU\\Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/11/.style={column name={mAP$_{50-95}$ $\uparrow$}, column type={c}, fixed, precision=4},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
@@ -1672,16 +1676,16 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
       columns={Dispositivo,Precision,frames_procesados,tejecucion,FPS,LFPS,potencia_media_consumida,energia_consumida,Frames/W,Average_GPU,Average_CPU,mAP50-95},
       display columns/0/.style={column name=Acelerador, column type={c}, string type},
       display columns/1/.style={column name=Precisión, column type={c}, string type},
-      display columns/2/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
-      display columns/3/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
-      display columns/4/.style={column name=FPS, column type={c}, fixed, precision=2},
-      display columns/5/.style={column name=LFPS, column type={c}, fixed, precision=2},
-      display columns/6/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
-      display columns/7/.style={column name=Energía (J), column type={c}, fixed, precision=2},
-      display columns/8/.style={column name=Frames/W, column type={c}, fixed, precision=2},
-      display columns/9/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
-      display columns/10/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
-      display columns/11/.style={column name={mAP$_{50-95}$}, column type={c}, fixed, precision=4},
+      display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames \\ Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+      display columns/3/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo \\ Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/4/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+      display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia \\ media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=3},
+      display columns/7/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía \\ (J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/8/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU \\ Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU \\ Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/11/.style={column name={mAP$_{50-95}$ $\uparrow$}, column type={c}, fixed, precision=4},
       every head row/.style={before row=\toprule, after row=\midrule},
       every last row/.style={after row=\bottomrule},
       empty cells with={NaN}
@@ -1693,20 +1697,14 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
 
    En la Tabla \ref{tab:experimento_precision_dispositivo_30_fps}, se observan las ejecuciones en tiempo real de los modelos con diferentes precisiones y dispositivos. Observando los resultados, como se ha mencionado anteriormente, la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.79 FPS y 28.49 LFPS.
 
-   En cuanto a la GPU, todas las precisiones (FP32, FP16 e INT8 con TensorRT) logran operar en tiempo real, con tasas de FPS de 28.42, 28.73 y 28.44 respectivamente, lo que indica que el sistema puede procesar los fotogramas a la velocidad requerida sin perder ninguno.
+   En cuanto a la \gls{gpu}, todas las precisiones (FP32, FP16 e INT8 con TensorRT) logran operar en tiempo real, con tasas de FPS de 28.42, 28.73 y 28.44 respectivamente, lo que indica que el sistema puede procesar los fotogramas a la velocidad requerida sin perder ninguno.
 
-   La combinación de la GPU con la precisión INT8 es la más eficiente en términos de consumo energético, alcanzando 1.96 Frames/W.
+   La combinación de la \gls{gpu} con la precisión INT8 es la más eficiente en términos de consumo energético, alcanzando 1.96 Frames/W.
 
-
-
-
-
-
-   
    \subsection{Modo de energía y cores de la CPU} \label{sub:modo_energia}
    En esta sección, se analiza el impacto de la configuración energética del dispositivo NVIDIA Jetson AGX Xavier en el rendimiento del sistema. Se exploran distintos perfiles de energía predefinidos (10W, 15W, 30W y MAXN), los cuales ajustan tanto el número de núcleos de CPU activos como su frecuencia máxima de operación. El objetivo es evaluar cómo estas configuraciones influyen en la velocidad de procesamiento (FPS), el consumo energético y, por ende, la eficiencia energética global del sistema.
 
-   Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la GPU, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
+   Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n con la precisión FP16 optimizado con TensorRT para su ejecución en la \gls{gpu}, un video de 84 objetos (carga alta y constante) y la segmentación por procesos con memoria compartida.
 
 \begin{table}[H]
    \centering
@@ -1715,18 +1713,18 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
       col sep=comma,
       header=true,
       columns={energy_mode,cpu_core,freq,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu},
-      display columns/0/.style={column name=Modo de Energía, column type={c}, string type},
-      display columns/1/.style={column name=Núcleos de CPU, column type={c}, string type},
-      display columns/2/.style={column name=Frecuencia (GHz), column type={c}, fixed, precision=2},
-      display columns/3/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
-      display columns/4/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
-      display columns/5/.style={column name=FPS, column type={c}, fixed, precision=2},
-      display columns/6/.style={column name=LFPS, column type={c}, fixed, precision=2},
-      display columns/7/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
-      display columns/8/.style={column name=Energía (J), column type={c}, fixed, precision=2},
-      display columns/9/.style={column name=Frames/W, column type={c}, fixed, precision=2},
-      display columns/10/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
-      display columns/11/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/0/.style={column name=\begin{tabular}[c]{@{}c@{}}Modo de \\ Energía\end{tabular}, column type={c}, string type},
+      display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Núcleos \\ de CPU\end{tabular}, column type={c}, string type},
+      display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Frecuencia \\ (GHz)\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/3/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames \\ Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+      display columns/4/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo \\ Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/6/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+      display columns/7/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia \\ media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=3},
+      display columns/8/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía \\ (J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU \\ Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/11/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU \\ Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
       every head row/.style={before row=\toprule, after row=\midrule},
       every last row/.style={after row=\bottomrule},
       empty cells with={NaN}
@@ -1747,18 +1745,18 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
          col sep=comma,
          header=true,
          columns={energy_mode,cpu_core,freq,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu},
-         display columns/0/.style={column name=Modo de Energía, column type={c}, string type},
-         display columns/1/.style={column name=Núcleos de CPU, column type={c}, string type},
-         display columns/2/.style={column name=Frecuencia (GHz), column type={c}, fixed, precision=2},
-         display columns/3/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
-         display columns/4/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
-         display columns/5/.style={column name=FPS, column type={c}, fixed, precision=2},
-         display columns/6/.style={column name=LFPS, column type={c}, fixed, precision=2},
-         display columns/7/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
-         display columns/8/.style={column name=Energía (J), column type={c}, fixed, precision=2},
-         display columns/9/.style={column name=Frames/W, column type={c}, fixed, precision=2},
-         display columns/10/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
-         display columns/11/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+         display columns/0/.style={column name=\begin{tabular}[c]{@{}c@{}}Modo de \\ Energía\end{tabular}, column type={c}, string type},
+         display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Núcleos \\ de CPU\end{tabular}, column type={c}, string type},
+         display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Frecuencia \\ (GHz)\end{tabular}, column type={c}, fixed, precision=2},
+         display columns/3/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames \\ Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+         display columns/4/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo \\ Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+         display columns/5/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+         display columns/6/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+         display columns/7/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia \\ media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=3},
+         display columns/8/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía \\ (J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+         display columns/9/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
+         display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU \\ Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+         display columns/11/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU \\ Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
          every head row/.style={before row=\toprule, after row=\midrule},
          every last row/.style={after row=\bottomrule},
          empty cells with={NaN}
@@ -1790,15 +1788,18 @@ Finalmente, la Jetson AGX Orin, también de la generación más reciente, es el 
       header=true,
       columns={dispositivo,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu,Tpreprocesado,Tinferencia,Tpostprocesado},
       display columns/0/.style={column name=Dispositivo, column type={c}, string type},
-      display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
-      display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
-      display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
-      display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
-      display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
-      display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=2},
-      display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
-      display columns/8/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
-      display columns/9/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+      display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/3/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/4/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=3},
+      display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/7/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/8/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU\\Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU\\Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Prepro.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/11/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Infer.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/12/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Postpro.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
       every head row/.style={before row=\toprule, after row=\midrule},
       every last row/.style={after row=\bottomrule},
       empty cells with={NaN}
@@ -1821,15 +1822,18 @@ De manera sorprendente, el Jetson Orin Nano, a pesar de ser un dispositivo más 
       header=true,
       columns={dispositivo,processed_frame,execution_time,fps,lfps,average_power_consuption,energy_consuption,frames/w,average_gpu,average_cpu,Tpreprocesado,Tinferencia,Tpostprocesado},
       display columns/0/.style={column name=Dispositivo, column type={c}, string type},
-      display columns/1/.style={column name=Frames Procesados, column type={c}, fixed, precision=0},
-      display columns/2/.style={column name=Tiempo Ejec. (s), column type={c}, fixed, precision=2},
-      display columns/3/.style={column name=FPS, column type={c}, fixed, precision=2},
-      display columns/4/.style={column name=LFPS, column type={c}, fixed, precision=2},
-      display columns/5/.style={column name=Potencia media (W), column type={c}, fixed, precision=3},
-      display columns/6/.style={column name=Energía (J), column type={c}, fixed, precision=2},
-      display columns/7/.style={column name=Frames/W, column type={c}, fixed, precision=2},
-      display columns/8/.style={column name=GPU Avg. (\%), column type={c}, fixed, precision=2},
-      display columns/9/.style={column name=CPU Avg. (\%), column type={c}, fixed, precision=2},
+      display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
+      display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/3/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/4/.style={column name=LFPS $\downarrow$, column type={c}, fixed, precision=2},
+      display columns/5/.style={column name=\begin{tabular}[c]{@{}c@{}}Potencia\\media (W) $\downarrow$\end{tabular}, column type={c}, fixed, precision=3},
+      display columns/6/.style={column name=\begin{tabular}[c]{@{}c@{}}Energía\\(J) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/7/.style={column name=Frames/W $\uparrow$, column type={c}, fixed, precision=2},
+      display columns/8/.style={column name=\begin{tabular}[c]{@{}c@{}}GPU\\Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/9/.style={column name=\begin{tabular}[c]{@{}c@{}}CPU\\Avg. (\%) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/10/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Prepro.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/11/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Infer.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
+      display columns/12/.style={column name=\begin{tabular}[c]{@{}c@{}}T. Postpro.\\(ms) $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
       every head row/.style={before row=\toprule, after row=\midrule},
       every last row/.style={after row=\bottomrule},
       empty cells with={NaN}
@@ -2039,7 +2043,7 @@ Finalmente, para escalar la capacidad de procesamiento y manejar flujos de víde
 \chapter{Objetivos de desarrollo sostenible} \label{ch:ods}
 
 \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}X|c|c|c|c|}\hline
-   \textbf{Objetivos de Desarrollo Sostenible} & \textbf{Alto} & \textbf{Medio} & \textbf{Bajo} & \textbf{No procede} \\ \hline
+   \textbf{Objetivos de Desarrollo Sostenible} & \textbf{Alto} & \textbf{Medio} & \textbf{Bajo} & \begin{tabular}[c]{@{}c@{}}\textbf{No}\\\textbf{procede}\end{tabular} \\ \hline
    ODS 1.  \textbf{Fin de la pobreza.}                            & & & & X \\ \hline
    ODS 2.  \textbf{Hambre cero.}                                  & & X & & \\ \hline
    ODS 3.  \textbf{Salud y bienestar.}                            & & & & X\\ \hline
