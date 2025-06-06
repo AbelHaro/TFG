@@ -50,7 +50,7 @@
 \hypersetup{ colorlinks=true, linkcolor=black, urlcolor=cyan, }
 
 
-\newacronym[plural={AIs}, firstplural={Inteligencias Artificiales (AIs)}]{ai}{AI}{Inteligencia Artificial}
+\newacronym[plural={AIs}, firstplural={Inteligencias Artificiales (AIs)}]{ai}{IA}{Inteligencia Artificial}
 \newacronym[plural={CNNs}, firstplural={Redes Neuronales Convolucionales (CNNs)}]{cnn}{CNN}{Red Neuronal Convolucional}
 \newacronym[plural={CPUs}, firstplural={Unidades Centrales de Procesamiento (CPUs)}]{cpu}{CPU}{Unidad Central de Procesamiento}
 \newacronym[plural={GPUs}, firstplural={Unidades de Procesamiento Gráfico (GPUs)}]{gpu}{GPU}{Unidad de Procesamiento Gráfico}
@@ -205,7 +205,7 @@ La Figura~\ref{fig:esquema_TFG} ilustra el esquema del sistema de visión artifi
 
 Los humanos somos capaces de ver y entender el mundo que nos rodea. Dada una imagen, podemos identificar objetos, reconocer patrones y tomar decisiones basadas en la información visual. Sin embargo, esta capacidad no es innata en las máquinas. La visión por computador es la ciencia que busca dotar a las máquinas de la capacidad de interpretar y comprender imágenes y vídeos, emulando la forma en que los humanos percibimos el entorno.
 
-Como se mencionó anteriormente, la \gls{ai} ha revolucionado la forma en que interactuamos con la tecnología. Se ha convertido en una herramienta esencial para aplicar soluciones innovadoras en una amplia gama de campos. En particular, la visión por computador ha demostrado ser un área de gran potencial. También la existencia de dispositivos de bajo consumo, como los de la serie Jetson de NVIDIA, ha permitido llevar la \gls{ai} a entornos de edge computing (cómputo en el borde), donde se acerca el procesamiento de datos a la fuente de información. Esto reduce la latencia y el consumo energético. Con todo esto, se abre un abanico de posibilidades para la implementación de sistemas de visión artificial en aplicaciones industriales.
+Como se mencionó anteriormente, la \gls{ai} ha revolucionado la forma en que interactuamos con la tecnología. Se ha convertido en una herramienta esencial para aplicar soluciones innovadoras en una amplia gama de campos. En particular, la visión por computador ha demostrado ser un área de gran potencial. También la existencia de dispositivos de bajo consumo, como los de la serie Jetson de NVIDIA, ha permitido llevar la \gls{ai} a entornos de \textit{edge computing} (cómputo en el borde), donde se acerca el procesamiento de datos a la fuente de información. Esto reduce la latencia y el consumo energético. Con todo esto, se abre un abanico de posibilidades para la implementación de sistemas de visión artificial en aplicaciones industriales.
 
 Centrándose en el ámbito industrial, la detección y clasificación de objetos en movimiento es crucial para optimizar procesos, mejorar la seguridad y aumentar la eficiencia. En la mayoría de los entornos productivos, la detección de defectos se realiza de forma manual, lo que puede ser ineficiente y propenso a errores. La automatización de este proceso mediante sistemas de visión artificial puede reducir costes, aumentar la precisión y mejorar la calidad del producto final.
 
@@ -433,7 +433,7 @@ Además, para prevenir el sobreajuste (\textit{overfitting}) —donde el modelo 
 
 En escenarios prácticos, desarrollar y entrenar una \gls{cnn} desde cero puede ser computacionalmente costoso y requerir grandes cantidades de datos etiquetados.
 
-Por lo tanto, una estrategia común y muy eficaz consiste en aprovechar modelos preentrenados. Arquitecturas como VGG16, ResNet50 y MobileNetV2, que han sido entrenadas previamente en conjuntos de datos de referencia masivos como ImageNet (que contiene millones de imágenes en miles de categorías) o COCO (centrado en la detección y segmentación de objetos), sirven como puntos de partida potentes. Estos modelos ya han aprendido características jerárquicas ricas a partir de datos visuales diversos.
+Por lo tanto, una estrategia común y muy eficaz consiste en aprovechar modelos preentrenados. Arquitecturas como VGG16, ResNet50 y MobileNetV2, que han sido entrenadas previamente en conjuntos de datos de referencia masivos como ImageNet\cite{ImageNet} (que contiene millones de imágenes en miles de categorías) o COCO\cite{lin2015microsoftcococommonobjects}, sirven como puntos de partida potentes. Estos modelos ya han aprendido características jerárquicas ricas a partir de datos visuales diversos.
 
 Mediante una técnica conocida como \textit{transfer learning} o aprendizaje por transferencia, estos modelos preentrenados pueden adaptarse eficientemente a tareas nuevas y específicas, incluso con conjuntos de datos personalizados más pequeños. El aprendizaje por transferencia generalmente implica tomar las capas de extracción de características del modelo preentrenado (la base convolucional) y ajustarlas (\textit{fine-tuning}) o añadir nuevas capas de clasificación adaptadas a la tarea objetivo.
 
