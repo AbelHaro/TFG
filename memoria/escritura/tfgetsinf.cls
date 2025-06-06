@@ -172,34 +172,50 @@
 
 \RequirePackage{listings}
 
-\lstset{ %
-	language=python,					% choose the language of the code
-	basicstyle=\footnotesize\ttfamily,	% the size of the fonts that are used for the code
-	numbers=left,                   % where to put the line-numbers
-	numberstyle=\tiny\color{gray},  % the size and color of the line-numbers
-	stepnumber=1,                   % the step between two line-numbers
-	numbersep=5pt,                  % how far the line-numbers are from the code
-	backgroundcolor=\color{gray!5}, % light gray background
-	rulecolor=\color{gray!30},      % frame color
-	keywordstyle=\color{blue!70!black}\bfseries, % choose the color of the keywords
-	commentstyle=\color{green!60!black}\small\ttfamily, % choose the color of the comments
-	stringstyle=\color{red!70!black}, % choose the color of the strings
-	identifierstyle=\color{black},  % color of identifiers
-	showspaces=false,               % show spaces adding particular underscores
-	showstringspaces=false,         % underline spaces within strings
-	showtabs=false,                 % show tabs within strings adding particular underscores
-	frame=leftline,          		% adds a left line frame
-	framerule=2pt,                  % thickness of the frame rule
-	xleftmargin=0pt,                % no left margin to maximize width
-	framexleftmargin=0pt,           % no frame left margin
-	xrightmargin=0pt,               % no right margin
-	framexrightmargin=0pt,          % no frame right margin
-	tabsize=2,          			% sets default tabsize to 4 spaces
-	captionpos=b,           		% sets the caption-position to bottom
-	breaklines=true,        		% sets automatic line breaking
-	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
-	escapeinside={\%*}{*)}          % if you want to add a comment within your code
+% \lstset{ %
+% 	language=python,					% choose the language of the code
+% 	basicstyle=\footnotesize\ttfamily,	% the size of the fonts that are used for the code
+% 	numbers=left,                   % where to put the line-numbers
+% 	numberstyle=\tiny\color{gray},  % the size and color of the line-numbers
+% 	stepnumber=1,                   % the step between two line-numbers
+% 	numbersep=5pt,                  % how far the line-numbers are from the code
+% 	backgroundcolor=\color{gray!5}, % light gray background
+% 	rulecolor=\color{gray!30},      % frame color
+% 	keywordstyle=\color{blue!70!black}\bfseries, % choose the color of the keywords
+% 	commentstyle=\color{green!60!black}\small\ttfamily, % choose the color of the comments
+% 	stringstyle=\color{red!70!black}, % choose the color of the strings
+% 	identifierstyle=\color{black},  % color of identifiers
+% 	showspaces=false,               % show spaces adding particular underscores
+% 	showstringspaces=false,         % underline spaces within strings
+% 	showtabs=false,                 % show tabs within strings adding particular underscores
+% 	frame=leftline,          		% adds a left line frame
+% 	framerule=2pt,                  % thickness of the frame rule
+% 	xleftmargin=0pt,                % no left margin to maximize width
+% 	framexleftmargin=0pt,           % no frame left margin
+% 	xrightmargin=0pt,               % no right margin
+% 	framexrightmargin=0pt,          % no frame right margin
+% 	tabsize=2,          			% sets default tabsize to 4 spaces
+% 	captionpos=b,           		% sets the caption-position to bottom
+% 	breaklines=true,        		% sets automatic line breaking
+% 	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+% 	escapeinside={\%*}{*)}          % if you want to add a comment within your code
+% }
+
+
+\definecolor{codebg}{gray}{0.95}
+\lstset{
+    language=Python,
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{teal},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    breaklines=true
 }
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Aspecto los tÃ­tulos para \chapter y \section, asÃ­ como 

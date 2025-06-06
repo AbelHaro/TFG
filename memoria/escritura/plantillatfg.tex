@@ -1904,6 +1904,15 @@ Una vez que la Raspberry Pi Pico WH se conecta, envía un mensaje de inicio al J
 Cuando el modelo de detección en el Jetson identifica una canica defectuosa, envía un mensaje específico a la Raspberry Pi Pico WH.
 Al recibir esta señal, la Raspberry Pi Pico WH activa el servomotor durante un breve instante. Este accionamiento mueve un mecanismo que desvía la canica defectuosa fuera de la trayectoria principal de la cinta transportadora.
 
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/prueba_de_concepto/cinta_transportadora_construccion.jpeg}
+   \caption[Cinta transportadora construida para la prueba de concepto]{Cinta transportadora construida para la prueba de concepto.}
+   \label{fig:cinta_transportadora}
+\end{figure}
+
+En la Figura \ref{fig:cinta_transportadora} se muestra la cinta transportadora construida para la prueba de concepto. 
+
 
 
 
@@ -2094,7 +2103,7 @@ El primero de los archivos que se muestra a continuación es el objeto Detection
 
    \begin{figure}[H]
       \centering
-      \includegraphics[width=0.7\textwidth]{codigo/images/unified_pipeline_uml.png}
+      \includegraphics[width=1\textwidth]{codigo/images/unified_pipeline_uml.png}
       \caption[Diagrama de clases del programa principal]{Diagrama de clases del programa principal.}
       \label{fig:unified_pipeline_uml}
    \end{figure}
@@ -2108,7 +2117,7 @@ El primero de los archivos que se muestra a continuación es el objeto Detection
 
    \begin{figure}[H]
       \centering
-      \includegraphics[width=0.7\textwidth]{codigo/images/tracker_wrapper_uml.png}
+      \includegraphics[width=1\textwidth]{codigo/images/tracker_wrapper_uml.png}
       \caption[Diagrama de clases del objeto TrackerWrapper]{Diagrama de clases del objeto TrackerWrapper.}
       \label{fig:tracker_wrapper_uml}
    \end{figure}
@@ -2117,11 +2126,11 @@ El primero de los archivos que se muestra a continuación es el objeto Detection
 
    \lstinputlisting[language=python, caption=tracker\_wrapper.py, label=lst:tracker_wrapper, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/classes/tracker_wrapper.py}
 
-   Por último, el cuarto archivo es el objeto `SharedCircularBuffer`, que implementa un buffer circular con memoria compartida. Este buffer permite crear la abstracción de una cola de mensajes que puede ser utilizada por diferentes procesos que comparten memoria. 
+   El cuarto archivo es el objeto `SharedCircularBuffer`, que implementa un buffer circular con memoria compartida. Este buffer permite crear la abstracción de una cola de mensajes que puede ser utilizada por diferentes procesos que comparten memoria. 
 
    \begin{figure}[H]
       \centering
-      \includegraphics[width=0.5\textwidth]{codigo/images/shared_circular_buffer_uml.png}
+      \includegraphics[width=1\textwidth]{codigo/images/shared_circular_buffer_uml.png}
       \caption[Diagrama de clases del objeto SharedCircularBuffer]{Diagrama de clases del objeto SharedCircularBuffer.}
       \label{fig:shared_circular_buffer_uml}
    \end{figure}
@@ -2130,6 +2139,11 @@ El primero de los archivos que se muestra a continuación es el objeto Detection
 
    \lstinputlisting[language=python, caption=shared\_circular\_buffer.py, label=lst:shared_circular_buffer, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/classes/shared_circular_buffer.py}
 
+
+   Por último, el quinto archivo es el programa que se encarga de proporcionar los argumentos necesarios para ejecutar el programa principal. Este programa permite al usuario elegir todas las opciones de configuración del pipeline, como el tipo de segmentación, el modelo de detección, la precisión, el tamaño del modelo, el dispositivo a utilizar y la tasa de fotogramas por segundo.
+
+
+   \lstinputlisting[language=python, caption=inference.py, label=lst:inference, basicstyle=\footnotesize\ttfamily, breaklines=true, breakatwhitespace=true, literate={á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'{i}}}1 {ó}{{\'{o}}}1 {ú}{{\'{u}}}1 {ñ}{{\~{n}}}1 {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1 {Ó}{{\'{O}}}1 {Ú}{{\'{U}}}1 {Ñ}{{\~{N}}}1 {¡}{{\textexclamdown}}1 {¿}{{\textquestiondown}}1]{codigo/inference.py}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
