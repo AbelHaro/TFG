@@ -1,4 +1,3 @@
-from abc import ABC
 import cv2
 import torch.multiprocessing as mp
 from queue import Queue
@@ -6,7 +5,7 @@ from classes.shared_circular_buffer import SharedCircularBuffer
 from detection_tracking_pipeline import DetectionTrackingPipeline
 import threading
 import logging
-from typing import Union, List, Type, Any
+from typing import Union, List, Type
 
 
 class UnifiedPipeline(DetectionTrackingPipeline):
@@ -65,8 +64,8 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         self.dla1_model = dla1_model
         # mh_num is used to indicate to capture_frames how many 'None' signals to send
         # when finishing, so that all frame_queue consumers terminate.
-        self.mh_num = 1 # Default: one frame consumer (process_frames), if using mp_hardware, it would be 3 (GPU + DLA0 + DLA1)
-        
+        self.mh_num = 1  # Default: one frame consumer (process_frames), if using mp_hardware, it would be 3 (GPU + DLA0 + DLA1)
+
         self._initialize_queues()
         self._initialize_events()
         # Initializes shared memory for object tracking.
@@ -87,7 +86,9 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             # Multiple detection queues for different hardware (GPU, DLA0, DLA1)
             # and a common frame queue. All use SharedCircularBuffer.
             logging.info("mp_hardware mode: Using SharedCircularBuffer for all queues.")
-            self.frame_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16) # Arbitrary item size
+            self.frame_queue = SharedCircularBuffer(
+                queue_size=queue_size, max_item_size=16
+            )  # Arbitrary item size
             self.detection_queue_GPU = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
             self.detection_queue_DLA0 = SharedCircularBuffer(
                 queue_size=queue_size, max_item_size=16
@@ -98,7 +99,7 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             self.tracking_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
             self.times_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
             self.mh_num = 3  # One frame capturer feeds 3 frame processors (GPU, DLA0, DLA1)
-        
+
         elif self.parallel_mode == "threads":
             # Standard `queue.Queue` queues for communication between threads.
             logging.info("threads mode: Using queue.Queue.")
@@ -106,7 +107,7 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             self.detection_queue = Queue(maxsize=queue_size)
             self.tracking_queue = Queue(maxsize=queue_size)
             self.times_queue = Queue(maxsize=queue_size)
-        
+
         elif self.parallel_mode == "mp_shared_memory":
             # `SharedCircularBuffer` queues for multiprocessing with shared memory.
             logging.info("mp_shared_memory mode: Using SharedCircularBuffer.")
@@ -114,14 +115,12 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             self.detection_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
             self.tracking_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
             self.times_queue = SharedCircularBuffer(queue_size=queue_size, max_item_size=16)
-        
-        else: # Default mode: standard multiprocessing
+
+        else:  # Default mode: standard multiprocessing
             # `mp.Queue` queues from `torch.multiprocessing`.
             # If max_fps is defined, the frame queue has size 1 to process frame by frame.
             logging.info("Standard multiprocessing mode: Using mp.Queue.")
-            self.frame_queue = (
-                mp.Queue(maxsize=1) if self.max_fps else mp.Queue(maxsize=queue_size)
-            )
+            self.frame_queue = mp.Queue(maxsize=1) if self.max_fps else mp.Queue(maxsize=queue_size)
             self.detection_queue = mp.Queue(maxsize=queue_size)
             self.tracking_queue = mp.Queue(maxsize=queue_size)
             self.times_queue = mp.Queue(maxsize=queue_size)
@@ -144,7 +143,9 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         self.stop_event = mp.Event()
         self.t1_start = mp.Event()
         self.tcp_event = mp.Event()
-        self.mp_stop_event = mp.Event() # Used for workers to wait before os._exit if they are processes
+        self.mp_stop_event = (
+            mp.Event()
+        )  # Used for workers to wait before os._exit if they are processes
 
     def _get_worker_class(self) -> Type[Union[mp.Process, threading.Thread]]:
         """Determines the base class for workers (process or thread).
@@ -179,14 +180,14 @@ class UnifiedPipeline(DetectionTrackingPipeline):
                 args=(
                     self.video_path,
                     self.frame_queue,
-                    self.t1_start,      # Event to start capture after others are ready
-                    self.stop_event,    # Event to stop capture
-                    self.tcp_event,     # Event for TCP synchronization (if is_tcp)
+                    self.t1_start,  # Event to start capture after others are ready
+                    self.stop_event,  # Event to stop capture
+                    self.tcp_event,  # Event for TCP synchronization (if is_tcp)
                     self.is_tcp,
-                    self.mp_stop_event, # Event to wait before exiting (if process)
-                    self.mh_num,        # Number of frame_queue consumers
-                    self.is_process,    # True if the worker is a process
-                    self.max_fps,       # FPS limit for capture
+                    self.mp_stop_event,  # Event to wait before exiting (if process)
+                    self.mh_num,  # Number of frame_queue consumers
+                    self.is_process,  # True if the worker is a process
+                    self.max_fps,  # FPS limit for capture
                 ),
             )
         )
@@ -201,7 +202,7 @@ class UnifiedPipeline(DetectionTrackingPipeline):
                 (self.dla1_model, self.detection_queue_DLA1, "DLA1"),
             ]
             for model_p, detection_q, hw_name in hardware_setups:
-                if model_p: # Only create the worker if a model path was provided
+                if model_p:  # Only create the worker if a model path was provided
                     workers.append(
                         Worker(
                             name=f"ProcessWorker_{hw_name}",
@@ -210,13 +211,13 @@ class UnifiedPipeline(DetectionTrackingPipeline):
                                 self.frame_queue,
                                 detection_q,
                                 model_p,
-                                self.t1_start,      # Signals when the model is ready
+                                self.t1_start,  # Signals when the model is ready
                                 self.mp_stop_event,
                                 self.is_process,
                             ),
                         )
                     )
-            
+
             # Multi-Hardware specific Tracking Worker
             # Consumes from all `detection_queue_*` and produces to `tracking_queue`.
             workers.append(
@@ -267,7 +268,7 @@ class UnifiedPipeline(DetectionTrackingPipeline):
             )
 
         # 3. Workers common to all modes (Drawing, CSV Writing, Hardware Usage)
-        
+
         # Worker to draw detections/tracking on frames and write the output video.
         # Consumes from `tracking_queue` and can interact with TCP.
         workers.append(
@@ -276,13 +277,13 @@ class UnifiedPipeline(DetectionTrackingPipeline):
                 target=self.draw_and_write_frames,
                 args=(
                     self.tracking_queue,
-                    self.times_queue,       # To send end signal to write_to_csv
+                    self.times_queue,  # To send end signal to write_to_csv
                     self.output_video_path,
-                    self.CLASSES,           # Class definitions for drawing
-                    self.memory,            # Tracking memory for consistency
-                    self.COLORS,            # Colors for classes
-                    self.stop_event,        # To stop if other parts fail
-                    self.tcp_event,         # For TCP synchronization
+                    self.CLASSES,  # Class definitions for drawing
+                    self.memory,  # Tracking memory for consistency
+                    self.COLORS,  # Colors for classes
+                    self.stop_event,  # To stop if other parts fail
+                    self.tcp_event,  # For TCP synchronization
                     self.is_tcp,
                     self.mp_stop_event,
                     self.is_process,
@@ -314,22 +315,26 @@ class UnifiedPipeline(DetectionTrackingPipeline):
                         self.detection_queue_DLA1,
                     ]
                 )
-            else: # mp_shared_memory
+            else:  # mp_shared_memory
                 queues_to_clean.append(self.detection_queue)
 
             for i, queue_buffer in enumerate(queues_to_clean):
                 try:
-                    if isinstance(queue_buffer, SharedCircularBuffer): # Double check just in case
+                    if isinstance(queue_buffer, SharedCircularBuffer):  # Double check just in case
                         logging.debug(f"Closing and unlinking buffer {i}...")
                         queue_buffer.close()
                         queue_buffer.unlink()
                         logging.debug(f"Buffer {i} cleaned.")
                     else:
-                        logging.warning(f"Expected SharedCircularBuffer in cleanup, got {type(queue_buffer)}")
+                        logging.warning(
+                            f"Expected SharedCircularBuffer in cleanup, got {type(queue_buffer)}"
+                        )
                 except Exception as e:
                     logging.error(f"Error cleaning buffer {i}: {e}")
         else:
-            logging.info(f"{self.parallel_mode} mode: No manual cleanup required for standard queues.")
+            logging.info(
+                f"{self.parallel_mode} mode: No manual cleanup required for standard queues."
+            )
         logging.info("Resource cleanup finished.")
 
     def run(self):
@@ -343,7 +348,7 @@ class UnifiedPipeline(DetectionTrackingPipeline):
         if that is the parallelization mode.
         """
         logging.info(f"Starting pipeline in mode: {self.parallel_mode}")
-        
+
         # Create and start all workers (processes or threads)
         workers = self._create_workers()
         for worker in workers:
@@ -380,22 +385,21 @@ class UnifiedPipeline(DetectionTrackingPipeline):
 
         print(f"Total processing time: {tiempo_total_segundos:.2f} seconds")
 
-
         # Wait for all workers to finish, especially important for threads.
         # For processes, mp_stop_event and os._exit() handle their termination.
         if self.parallel_mode == "threads":
             logging.info("Waiting for thread termination...")
             for worker in workers:
-                if worker.is_alive(): # Only join if the thread is still alive
+                if worker.is_alive():  # Only join if the thread is still alive
                     logging.info(f"Waiting for {worker.name}...")
-                    worker.join(timeout=10) # Add a timeout to avoid indefinite blocking
+                    worker.join(timeout=10)  # Add a timeout to avoid indefinite blocking
                     if worker.is_alive():
                         logging.warning(f"Thread {worker.name} did not finish after timeout.")
                     else:
                         logging.info(f"Thread {worker.name} finished.")
-        
+
         # Signal processes that they can terminate (if they are waiting for mp_stop_event)
         if self.is_process:
-             self.mp_stop_event.set()
+            self.mp_stop_event.set()
 
         print("Pipeline finished.")
