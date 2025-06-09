@@ -220,7 +220,7 @@ El objetivo principal de este trabajo es desarrollar un sistema de visión artif
 \begin{itemize}
    \item Realizar un estudio del estado del arte en \glspl{cnn}, aceleradores hardware de bajo consumo y técnicas avanzadas de optimización para visión artificial.
    \item Desarrollar un conjunto de datos para el entrenamiento y evaluación del sistema, mediante la captura y etiquetado de imágenes de objetos en movimiento.
-   \item Diseñar, entrenar y validar un modelo de red neuronal convolucional optimizado para la detección y clasificación en tiempo real de defectos en objetos en movimiento.
+   \item Entrenar y validar un modelo de red neuronal convolucional optimizado para la detección y clasificación en tiempo real de defectos en objetos en movimiento.
    \item Implementar un sistema completo de visión artificial que integre el modelo entrenado con los aceleradores hardware NVIDIA, enfocado en maximizar la eficiencia y minimizar la latencia.
    \item Analizar los cuellos de botella del sistema, y aplicar técnicas específicas de optimización para mejorar el rendimiento y la eficiencia energética.
    \item Cuantificar de manera exhaustiva el rendimiento del sistema mediante métricas precisas de exactitud (\gls{map}, precisión, recall), latencia (\gls{fps}) y consumo energético (W, J/inferencia).
@@ -257,12 +257,12 @@ El presente Trabajo de Fin de Grado se ha desarrollado en el marco de una beca d
 
 El Grupo de Arquitecturas Paralelas (GAP) de la Universidad Politécnica de Valencia cuenta con una amplia experiencia en el trabajo sobre redes de interconexión para computadoras paralelas, abarcando desde grandes supercomputadoras, pasando por clústeres de ordenadores personales, usualmente utilizados como servidores, hasta las redes en chip en procesadores multinúcleo. El GAP también ha desarrollado investigación en temas relacionados, como la microarquitectura de procesadores y los protocolos de coherencia de caché. Su investigación abarca también áreas como la optimización de arquitecturas para aplicaciones específicas y la mejora de la eficiencia energética en sistemas computacionales.
 
-Esta colaboración se encuentra estrechamente vinculada con los contenidos y objetivos de la asignatura \gls{sdl}, una asignatura que forma parte de la mención de ingeniería dentro del Grado en Ingeniería Informática. La oportunidad de colaborar con el \gls{gap} ha permitido aplicar de manera práctica y en un contexto de investigación real los conocimientos teóricos y técnicos adquiridos durante la asignatura. Específicamente, ha facilitado la profundización en el diseño, implementación y optimización de sistemas de visión por computador basados en \gls{ai}, enfrentando desafíos reales relacionados con el rendimiento, la eficiencia y el despliegue en hardware especializado. Esta sinergia entre la formación académica y la investigación aplicada ha enriquecido significativamente la experiencia de aprendizaje, fomentando el desarrollo de habilidades prácticas avanzadas y una comprensión más profunda de las complejidades inherentes al campo de la visión artificial y el aprendizaje profundo en entornos industriales.
+Esta colaboración se encuentra estrechamente vinculada con los contenidos y objetivos de la asignatura \gls{sdl}, una asignatura que forma parte de la mención de Ingeniería de Computadores dentro del Grado en Ingeniería Informática. La oportunidad de colaborar con el \gls{gap} ha permitido aplicar de manera práctica y en un contexto de investigación real los conocimientos teóricos y técnicos adquiridos durante la asignatura. Específicamente, ha facilitado la profundización en el diseño, implementación y optimización de sistemas de visión por computador basados en \gls{ai}, enfrentando desafíos reales relacionados con el rendimiento, la eficiencia y el despliegue en hardware especializado. Esta sinergia entre la formación académica y la investigación aplicada ha enriquecido significativamente la experiencia de aprendizaje, fomentando el desarrollo de habilidades prácticas avanzadas y una comprensión más profunda de las complejidades inherentes al campo de la visión artificial y el aprendizaje profundo en entornos industriales.
 
 
 \chapter{Conceptos previos}\label{chap:conceptos_previos}
 
-En este capítulo se describirán los conceptos previos que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán los fundamentos en \gls{ai} centrándose en las \glspl{cnn}, desde sus bases hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Posteriormente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Finalmente, se explorará la técnica de Slicing Aided Hyper Inference (SAHI), una metodología avanzada para mejorar la detección de objetos pequeños o densamente agrupados. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
+En este capítulo se describirán los conceptos previos que constituyen la base teórica y técnica de este trabajo. Primero, se examinarán los fundamentos en \gls{ai} centrándose en las \glspl{cnn}, desde sus bases hasta los modelos más recientes en detección de objetos. A continuación, se analizarán los aceleradores hardware de bajo consumo, con especial énfasis en la arquitectura y capacidades de los dispositivos NVIDIA Jetson. Finalmente, se estudiarán los algoritmos de seguimiento de objetos en tiempo real, fundamentales para aplicaciones con elementos en movimiento. Este marco teórico permitirá contextualizar adecuadamente la solución propuesta para la detección de defectos en objetos en movimiento.
 
 \section{Fundamentos y avances en redes neuronales para visión artificial} \label{sec:fundamentos_avances}
 En esta sección se realizará un estudio de las redes neuronales profundas hasta las \glspl{cnn}, desde sus fundamentos hasta los modelos más recientes en detección de objetos. Se explicarán los conceptos básicos de las redes neuronales y la evolución de las arquitecturas.
@@ -523,7 +523,7 @@ Este enfoque unificado permite que \gls{yolo} procese imágenes a velocidades si
 
 En la Figura~\ref{fig:yolo_architecture} se presenta la arquitectura del modelo primigenio de \gls{yolo} \cite{redmon2016lookonceunifiedrealtime}. Esta arquitectura se basa en una red neuronal convolucional que extrae características de la imagen de entrada y las procesa a través de varias capas para generar las predicciones finales. A lo largo de los años, se han desarrollado múltiples versiones y mejoras de \gls{yolo}, cada una optimizando aspectos como la precisión, la velocidad y la capacidad de detección de objetos pequeños o densamente agrupados.
 
-En este proyecto, se han seleccionado diversas versiones de YOLOV5 \cite{yolov5_ultralytics}, YOLOV8 \cite{yolov8_ultralytics} y YOLO11 \cite{yolo11_ultralytics}. Estas representan mejoras y optimizaciones sobre arquitecturas \gls{yolo} anteriores. Los modelos mencionados forman parte de la librería Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, que proporciona una implementación eficaz y sencilla de varias variantes de \gls{yolo}. Las aportaciones de Ultralytics a la comunidad de visión artificial son notables, ya que sus herramientas y recursos facilitan el ciclo de vida completo (entrenamiento, evaluación, implementación) de los modelos \gls{yolo}.
+En este proyecto, se han seleccionado diversas versiones de YOLOV5 \cite{yolov5_ultralytics}, YOLOV8 \cite{yolov8_ultralytics} y YOLO11 \cite{yolo11_ultralytics}. Los modelos mencionados forman parte de la librería Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, que proporciona una implementación eficaz y sencilla de varias variantes de \gls{yolo}. Las aportaciones de Ultralytics a la comunidad de visión artificial son notables, ya que sus herramientas y recursos facilitan el ciclo de vida completo (entrenamiento, evaluación, implementación) de los modelos \gls{yolo}.
 
 \subsection{Métricas de evaluación de modelos de detección de objetos} \label{sec:metricas_evaluacion}
 
@@ -561,7 +561,7 @@ Para evaluar el rendimiento de los modelos de detección de objetos, se utilizan
 
    Un F1 Score alto indica que el modelo tiene un buen equilibrio entre precisión y recall, lo que es especialmente importante en aplicaciones donde tanto la detección correcta como la minimización de falsos positivos son críticas.
 
-   \item \textbf{Loss (Pérdida)}: Es una medida de la discrepancia entre las predicciones del modelo y las etiquetas reales. Durante el entrenamiento, el objetivo es minimizar esta pérdida. Existen diferentes tipos de funciones de pérdida, como la pérdida de clasificación (Cross-Entropy Loss) y la pérdida de localización (Smooth L1 Loss), que se combinan para evaluar el rendimiento del modelo.
+   \item \textbf{Loss (Pérdida)}: Es una medida de la discrepancia entre las predicciones del modelo y las etiquetas reales. Durante el entrenamiento, el objetivo es minimizar esta pérdida. Existen diferentes tipos de funciones de pérdida, como la pérdida de clasificación (\textit{Cross-Entropy Loss}) y la pérdida de localización (\textit{Smooth L1 Loss}), que se combinan para evaluar el rendimiento del modelo.
 
 \end{itemize}
 
@@ -613,9 +613,9 @@ En el frente del hardware, la compañía ha impulsado continuamente la innovaci�
 
 
 \subsection{Serie Jetson: dispositivos para IA de bajo consumo} \label{sec:jetson}
-La serie Jetson de NVIDIA constituye una familia de módulos computacionales diseñados específicamente para habilitar la \gls{ai} y el aprendizaje profundo en dispositivos de borde (edge devices). Estos sistemas compactos y de bajo consumo son fundamentales para aplicaciones que requieren procesamiento local de datos con alta capacidad de cómputo.
+La serie Jetson de NVIDIA constituye una familia de módulos computacionales diseñados específicamente para habilitar la \gls{ai} y el aprendizaje profundo en dispositivos de borde (\textit{edge devices}). Estos sistemas compactos y de bajo consumo son fundamentales para aplicaciones que requieren procesamiento local de datos con alta capacidad de cómputo.
 
-El enfoque principal de la serie Jetson es la computación en el borde (edge computing), un paradigma que acerca el procesamiento de datos y la \gls{ai} a la fuente donde se generan. Esto resulta crucial en aplicaciones donde la latencia, el ancho de banda limitado o la privacidad son factores críticos, ya que evita la necesidad de enviar grandes volúmenes de datos a la nube para su análisis. Los dispositivos Jetson están optimizados para operar bajo restricciones significativas de energía, tamaño y coste, características típicas de los entornos embebidos y de borde.
+El enfoque principal de la serie Jetson es la computación en el borde (\textit{edge computing}), un paradigma que acerca el procesamiento de datos y la \gls{ai} a la fuente donde se generan. Esto resulta crucial en aplicaciones donde la latencia, el ancho de banda limitado o la privacidad son factores críticos, ya que evita la necesidad de enviar grandes volúmenes de datos a la nube para su análisis. Los dispositivos Jetson están optimizados para operar bajo restricciones significativas de energía, tamaño y coste, características típicas de los entornos embebidos y de borde.
 
 Cada módulo Jetson se basa en una arquitectura System-on-Chip (SoC), que integra múltiples componentes de procesamiento en un único circuito integrado. Esto incluye núcleos de CPU basados en la arquitectura ARM y potentes núcleos de \gls{gpu} NVIDIA con arquitecturas modernas. Además, algunos modelos de gama alta, como los Jetson AGX Orin y AGX Xavier utilizados en este trabajo, incorporan aceleradores de hardware dedicados conocidos como \glspl{dla}. Estas unidades especializadas están diseñadas para ejecutar operaciones de inferencia de redes neuronales de manera altamente eficiente en términos de rendimiento y consumo energético, liberando así la \gls{gpu} y la CPU para otras tareas. Esta integración heterogénea permite una alta eficiencia computacional y energética, reduce la huella física del sistema y simplifica el diseño de la placa portadora, resultando en soluciones más compactas y eficientes.
 
@@ -653,7 +653,7 @@ La tabla \ref{tab:jetson_comparison}\cite{nvidia_jetson_modules} presenta una co
 
 Más allá del hardware, la fortaleza de la plataforma Jetson reside en su completo ecosistema de software, proporcionado a través del SDK NVIDIA JetPack. Esto incluye un sistema operativo Linux optimizado (L4T), controladores, CUDA, cuDNN, TensorRT, herramientas de desarrollo y documentación. Esta plataforma unificada agiliza el desarrollo, desde la creación del modelo hasta la implementación optimizada.
 
-Para este trabajo, todos los programas se ejecutaron utilizando imágenes de contenedores Docker proporcionadas por Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}. Construidas sobre las imágenes base de NVIDIA y optimizadas para la serie Jetson, estas imágenes preconfiguradas simplifican la implementación al incluir todas las dependencias necesarias como CUDA, cuDNN, TensorRT y las bibliotecas de Python requeridas, asegurando la reproducibilidad del entorno.
+Para este trabajo, todos los programas se ejecutaron utilizando imágenes de contenedores Docker proporcionadas por Ultralytics \cite{ultralytics_docker_quickstart}. Construidas sobre las imágenes base de NVIDIA y optimizadas para la serie Jetson, estas imágenes preconfiguradas simplifican la implementación al incluir todas las dependencias necesarias como CUDA, cuDNN, TensorRT y las bibliotecas de Python requeridas, asegurando la reproducibilidad del entorno.
 
 \subsection{TensorRT} \label{sec:tensorrt}
 NVIDIA TensorRT es un kit de desarrollo de software (SDK) integral diseñado específicamente para la optimización de modelos de aprendizaje profundo y la consecución de una inferencia de muy alto rendimiento en la amplia gama de hardware de NVIDIA, desde centros de datos hasta sistemas embebidos como la serie Jetson. Actúa como un potente compilador y motor de ejecución en tiempo real que transforma modelos previamente entrenados en versiones altamente eficientes, optimizadas para el despliegue en producción.
@@ -667,6 +667,15 @@ El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de en
          \item \textit{Eliminación de Capas:} Identifica y elimina capas que no son necesarias para la inferencia, como las capas de dropout.
          \item \textit{Fusión de Tensores (Tensor Fusion):} Combina operaciones que acceden a los mismos tensores para mejorar la localidad de los datos.
       \end{itemize}
+
+      \begin{figure}[H]
+         \centering
+         \includegraphics[width=0.7\textwidth]{images/estado_del_arte/TensorRT_optimizaciones.png}
+         \caption[Ejemplo de optimización de grafo computacional en TensorRT]{Ejemplo de optimización de grafo computacional en TensorRT.}
+         \label{fig:tensorrt_optimization_graph}
+      \end{figure}
+
+
    \item \textbf{Calibración y Cuantización de Precisión:} TensorRT ofrece un soporte robusto para reducir la precisión numérica de los pesos y activaciones del modelo. Puede convertir modelos de precisión completa (FP32) a precisiones más bajas como FP16 (media precisión), INT8 (enteros de 8 bits), o incluso formatos más recientes como FP8 o FP4 en hardware compatible. Esta reducción disminuye drásticamente el tamaño del modelo, el ancho de banda de memoria requerido y acelera el cómputo (especialmente en hardware con soporte nativo como los Tensor Cores), a menudo con una pérdida mínima o nula de precisión.
    \item \textbf{Selección Automática de Kernels (Kernel Auto-Tuning):} Durante la fase de construcción, TensorRT evalúa múltiples implementaciones (kernels) para cada operación en el hardware de destino específico y selecciona la más rápida disponible, considerando factores como el tamaño de los tensores y la precisión utilizada.
    \item \textbf{Gestión Dinámica de Memoria (Dynamic Tensor Memory):} Optimiza la asignación de memoria para los tensores intermedios, reutilizando la memoria siempre que sea posible para minimizar la huella de memoria global.
@@ -714,25 +723,17 @@ Este ciclo permite al filtro refinar continuamente la estimación del estado del
 La Figura ~\ref{fig:filtro_de_kalman} representa el funcionamiento de un filtro de Kalman, un algoritmo muy utilizado para estimar el estado de un sistema dinámico en presencia de ruido e incertidumbre. A continuación se explica cada bloque:
 
 \begin{itemize}
-   \item \textbf{INPUTS: Parámetro medido}
-   Este bloque representa las mediciones que se obtienen del sistema. Estas mediciones contienen errores (ruido), por lo que no se usan directamente, sino que se pasan al filtro para su procesamiento.
+   \item \textbf{Mediciones (Entrada):} Este bloque representa las mediciones obtenidas del sistema, que contienen ruido. Estas mediciones se pasan al filtro para su procesamiento.
 
-   \item \textbf{INPUTS: Estado inicial}
-   Proporciona una estimación inicial del estado del sistema y su incertidumbre asociada. Esta información se utiliza para arrancar el filtro de Kalman.
+   \item \textbf{Estado Inicial (Entrada):} Proporciona una estimación inicial del estado del sistema y su incertidumbre asociada, utilizada para inicializar el filtro de Kalman.
 
-   \item \textbf{ACTUALIZAR}
-   Este es uno de los dos pasos principales del filtro de Kalman. Combina la predicción previa con la medición actual para actualizar la estimación del estado del sistema y ajusta la incertidumbre de esa estimación.
+   \item \textbf{Actualización:} Este paso combina la predicción previa con la medición actual para obtener una estimación actualizada del estado del sistema, ajustando la incertidumbre.
 
-   \item \textbf{PREDECIR}
-   El otro paso clave del filtro utiliza el modelo del sistema para predecir el siguiente estado y su incertidumbre, basándose en la estimación anterior y considerando el retardo de una unidad.
-   \item \textbf{Retardo de unidad (\(n \rightarrow n{-}1\))}
-   Este bloque representa el almacenamiento del estado estimado en el instante anterior para ser utilizado en la siguiente predicción.
+   \item \textbf{Predicción:} Este paso utiliza un modelo del sistema para predecir el siguiente estado y su incertidumbre, basándose en la estimación anterior.
+   \item \textbf{Retardo de Unidad (\(n \rightarrow n-1\)):} Almacena el estado estimado en el instante anterior para su uso en la siguiente predicción.
 \end{itemize}
 
-Este es el resultado final del filtro: una estimación refinada del estado actual del sistema, que es más precisa que la simple medición directa.
-
-
-En conjunto, el filtro de Kalman realiza un ciclo continuo de predicción y corrección, usando tanto el modelo del sistema como las mediciones reales, para obtener una estimación óptima del estado.
+Este es el resultado final del filtro: una estimación refinada del estado actual del sistema, que es más precisa que la simple medición directa, permitiendo suavizar las trayectorias de los objetos, predecir su posición futura y manejar la incertidumbre en las mediciones, lo que es esencial para el seguimiento efectivo de objetos en secuencias de vídeo. En conjunto, el filtro de Kalman realiza un ciclo continuo de predicción y corrección, usando tanto el modelo del sistema como las mediciones reales, para obtener una estimación óptima del estado.
 
 
 
@@ -754,7 +755,7 @@ En conjunto, el filtro de Kalman realiza un ciclo continuo de predicción y corr
 
 \subsection{BYTETrack}\label{sec:bytetrack}
 
-BYTETrack \cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo avanzado de \gls{mot} que se inscribe dentro del paradigma de seguimiento por detección (\textit{tracking-by-detection}). Este paradigma consiste en detectar objetos en cada fotograma de forma independiente y luego asociar estas detecciones a lo largo del tiempo para construir trayectorias coherentes. La innovación fundamental de BYTETrack reside en su novedoso método de asociación de datos, denominado BYTE, que aborda explícitamente un problema común en MOT: el manejo de detecciones con baja puntuación de confianza.
+BYTETrack \cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo avanzado de \gls{mot} que se inscribe dentro del paradigma de seguimiento por detección (\textit{tracking-by-detection}). Este paradigma consiste en detectar objetos en cada fotograma de forma independiente y luego asociar estas detecciones a lo largo del tiempo para construir trayectorias coherentes, asignando un ID consistente a cada objeto a lo largo del tiempo. Para la predicción y suavizado de estas trayectorias, BYTETrack se apoya en los resultados que le ofrece el filtro de Kalman. La innovación fundamental de BYTETrack reside en su novedoso método de asociación de datos, denominado BYTE, que aborda explícitamente un problema común en MOT: el manejo de detecciones con baja puntuación de confianza.
 
 Mientras que la mayoría de los algoritmos de seguimiento descartan las detecciones por debajo de un cierto umbral de confianza para evitar la introducción de falsos positivos, BYTETrack reconoce que estas detecciones de baja confianza a menudo corresponden a objetos reales que están parcialmente ocluidos o cuya apariencia ha cambiado temporalmente. Descartarlas puede llevar a la pérdida de trayectorias y a una menor precisión general del seguimiento. Esta estrategia de asociación en dos pasos permite a BYTETrack recuperar objetos reales incluso cuando la confianza del detector disminuye debido a oclusiones o desenfoque, manteniendo la continuidad de las trayectorias. Al separar claramente las detecciones de alta y baja confianza y utilizarlas de manera diferenciada en el proceso de asociación, BYTETrack logra una notable mejora en la robustez del seguimiento, reduce significativamente la fragmentación de las trayectorias (medida por métricas como IDF1) y maneja eficazmente las variaciones en la calidad de las detecciones, todo ello manteniendo una alta eficiencia computacional.
 
@@ -881,7 +882,7 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
 
 \chapter{Diseño e implementación de la solución}\label{chap:diseno_e_implementacion}
 
-En este capítulo se abordará en profundidad el diseño y la implementación del sistema de visión artificial propuesto. Se iniciará con un análisis detallado del problema a resolver, definiendo los desafíos inherentes a la detección y seguimiento de objetos en movimiento y los requisitos específicos del sistema, como la operación en tiempo real. A continuación, se describirá el proceso de entrenamiento de los modelos de detección de objetos, la metodología para la creación y anotación del conjunto de datos de canicas, y los parámetros de entrenamiento utilizados. Posteriormente, se presentará una descripción global del sistema, detallando su arquitectura modular y el flujo de datos entre sus componentes. Se profundizará en el diseño específico de cada una de las etapas que conforman el sistema: la captura de imágenes, la inferencia del modelo de detección, el seguimiento de los objetos mediante el algoritmo BYTETrack y la escritura de los resultados. Finalmente, se explorarán y justificarán las diversas estrategias de segmentación del sistema (secuencial, basada en hilos, basada en procesos, y optimizaciones con memoria compartida o aceleración por hardware específico) que se han considerado e implementado con el objetivo de optimizar el rendimiento y la eficiencia del procesamiento en la plataforma NVIDIA Jetson.
+En este capítulo se abordará en profundidad el diseño y la implementación del sistema de visión artificial propuesto. Se iniciará con un análisis detallado del problema a resolver, definiendo los desafíos inherentes a la detección y seguimiento de objetos en movimiento y los requisitos específicos del sistema, como la operación en tiempo real. A continuación, se describirá el proceso de entrenamiento de los modelos de detección de objetos, la metodología para la creación y anotación del conjunto de datos de canicas, y los parámetros de entrenamiento utilizados. Posteriormente, se presentará una descripción global del sistema, detallando su arquitectura modular y el flujo de datos entre sus componentes. Se profundizará en el diseño específico de cada una de las etapas que conforman el sistema: la captura de imágenes, la inferencia del modelo de detección, el seguimiento de los objetos mediante el algoritmo BYTETrack y la escritura de los resultados. Finalmente, se explorarán y justificarán las diversas estrategias de segmentación del sistema que se han considerado e implementado con el objetivo de optimizar el rendimiento y la eficiencia del procesamiento en la plataforma NVIDIA Jetson.
 
 
 
@@ -908,7 +909,7 @@ Para las pruebas experimentales, se configuró un entorno simulado como el ilust
 La selección y el entrenamiento de los modelos de detección de objetos constituyen una fase crítica en el desarrollo del sistema propuesto, ya que de ello dependen directamente la precisión y la robustez del sistema final.
 Tras un análisis comparativo, se optó por los detectores de una etapa frente a los de dos etapas, dada su superior eficiencia para aplicaciones que exigen procesamiento en tiempo real. Dentro de esta categoría, se seleccionó la familia de modelos YOLO. Esta elección se fundamenta en su reconocido equilibrio entre velocidad de inferencia y precisión, así como en la disponibilidad de un robusto ecosistema de herramientas que facilitan tanto el entrenamiento como el despliegue. Alternativas como SSD, si bien competentes, no ofrecían el mismo conjunto de ventajas en términos de comunidad de soporte y facilidad de integración para los fines de este proyecto.
 
-Como modelos pertenecientes a la familia de arquitecturas YOLO, se han seleccionado diversas variantes para una evaluación exhaustiva: YOLOv5 (específicamente las versiones 'n' y 'm'), YOLOv8 (también en sus variantes 'n' y 's') y YOLO11 (en sus versiones 'n', 's', 'm' y 'l'). Esta elección se basa en varios factores clave. En primer lugar, estas familias de modelos YOLO son conocidas por su excelente equilibrio entre velocidad de inferencia y precisión de detección, lo que las hace particularmente adecuadas para aplicaciones que requieren procesamiento en tiempo real, como es el caso de este proyecto. En segundo lugar, estos modelos, especialmente a través de la implementación proporcionada por la biblioteca Ultralytics, ofrecen una gran flexibilidad en términos de escalabilidad (con las múltiples variantes mencionadas que difieren en tamaño y complejidad) y facilidad de uso para el entrenamiento, la validación y el despliegue.
+Como modelos pertenecientes a la familia de arquitecturas YOLO, se han seleccionado diversas variantes para una evaluación exhaustiva: YOLOv5 (específicamente las versiones 'n' y 'm'), YOLOv8 (también en sus variantes 'n' y 's') y YOLO11 (en sus versiones 'n', 's', 'm' y 'l'). Esta elección se basa en varios factores clave. En primer lugar, estas familias de modelos YOLO son conocidas por su excelente equilibrio entre velocidad de inferencia y precisión de detección, lo que las hace particularmente adecuadas para aplicaciones que requieren procesamiento en tiempo real, como es el caso de este proyecto. En segundo lugar, estos modelos, especialmente a través de la implementación proporcionada por la biblioteca Ultralytics, ofrecen una gran flexibilidad y facilidad de uso para el entrenamiento, la validación y el despliegue.
 
 Una vez seleccionado los modelos, el siguiente paso crítico es la creación y preparación del conjunto de datos (dataset). Este conjunto de datos es la base sobre la cual los modelos aprenderán a identificar y localizar los objetos de interés (en este caso, las canicas de diferentes colores y con/sin defectos). La calidad y representatividad del dataset tienen un impacto directo y significativo en el rendimiento final de los modelos. Un dataset bien construido debe incluir una variedad suficiente de ejemplos que cubran las diferentes condiciones que el sistema podría encontrar en el entorno real, como variaciones en la iluminación, ángulos de visión, oclusiones parciales y la diversidad intrínseca de los objetos mismos. El proceso de creación del dataset implica la captura de imágenes o vídeos del entorno simulado, seguido de una meticulosa fase de etiquetado (anotación), donde se marcan manualmente las cajas delimitadoras (bounding boxes) alrededor de cada objeto de interés y se les asigna la etiqueta de clase correspondiente (p. ej., 'canica\_azul\_defecto'). Este proceso, aunque laborioso, es indispensable para proporcionar a los modelos la "verdad fundamental" (ground truth) necesaria para su aprendizaje supervisado.
 
@@ -1029,13 +1030,14 @@ El sistema propuesto se compone de cuatro etapas principales, cada una de las cu
 
 \subsection{Captura de imágenes} \label{sec:captura_imagenes}
 
-La etapa de captura de imágenes es la responsable de adquirir los fotogramas del flujo de vídeo en tiempo real. Sus funciones abarcan la configuración y el control de la cámara, la adquisición de las imágenes y su posible preprocesamiento inicial antes de ser transferidas al módulo de inferencia. Para la implementación de este módulo se ha empleado la biblioteca OpenCV, la cual ofrece una interfaz robusta y eficiente para la interacción con dispositivos de captura y el procesamiento básico de imágenes. La cámara se configura para operar a una resolución y tasa de fotogramas adecuadas a los requisitos de la aplicación. El preprocesamiento puede incluir diversas operaciones, tales como la conversión a escala de grises, la normalización de píxeles o el redimensionamiento, adaptándose a las especificaciones del modelo de detección de objetos utilizado. En el sistema desarrollado, se empleó una cámara de alta definición capaz de alcanzar una resolución máxima de 1920x1080 píxeles y una tasa de 30 fps. Si bien se experimentó con diversas configuraciones de resolución y tasa de fotogramas según las necesidades de cada prueba, la configuración estándar para la mayoría de los experimentos fue de 640x640 píxeles a 30 fps. Esta etapa se ejecuta íntegramente en la CPU.
+La etapa de captura de imágenes es la responsable de adquirir los fotogramas del flujo de vídeo en tiempo real. Sus funciones abarcan la configuración y el control de la cámara, la adquisición de las imágenes y su posible preprocesamiento inicial antes de ser transferidas al módulo de inferencia. Para la implementación de este módulo se ha empleado la biblioteca OpenCV, la cual ofrece una interfaz robusta y eficiente para la interacción con dispositivos de captura y el procesamiento básico de imágenes. La cámara se configura para operar a una resolución y tasa de fotogramas adecuadas a los requisitos de la aplicación. El preprocesamiento puede incluir diversas operaciones, tales como la conversión a escala de grises, la normalización de píxeles o el redimensionamiento, adaptándose a las especificaciones del modelo de detección de objetos utilizado. En el sistema desarrollado, se empleó una cámara de alta definición capaz de alcanzar una resolución máxima de 1920x1080 píxeles y una tasa de 30 fps. Si bien se experimentó con diversas configuraciones de resolución y tasa de fotogramas según las necesidades de cada prueba, la configuración estándar para los experimentos realizados fue de 640x640 píxeles a 30 fps. Esta etapa se ejecuta íntegramente en la CPU.
 
 \subsection{Inferencia} \label{sec:inferencia}
-La etapa de inferencia constituye el núcleo computacional del sistema, siendo responsable de ejecutar el modelo de detección de objetos preentrenado sobre cada fotograma adquirido por la etapa de captura. Para esta tarea crucial, se ha seleccionado el modelo \gls{yolo}11, una variante optimizada dentro de la familia \gls{yolo}, reconocida por su equilibrio entre velocidad y precisión en tareas de detección en tiempo real. La implementación se apoya en el framework de Ultralytics \cite{Jocher_Ultralytics_YOLO_2023}, una biblioteca de alto nivel que simplifica significativamente el ciclo de vida de los modelos YOLO, desde el entrenamiento hasta el despliegue y la inferencia, ofreciendo una interfaz robusta y eficiente.
+La etapa de inferencia constituye el núcleo computacional del sistema, siendo responsable de ejecutar el modelo de detección de objetos preentrenado sobre cada fotograma adquirido por la etapa de captura.
 
-El proceso de inferencia comienza con la adquisición de un fotograma de vídeo, que se convierte en un tensor adecuado para la entrada del modelo. Este tensor es una representación numérica de la imagen, donde cada píxel se traduce en un valor que el modelo puede procesar. La transformación del fotograma a tensor incluye operaciones como la normalización y el redimensionamiento, asegurando que los datos estén en el formato correcto para el modelo YOLO11.
-La ejecución de la inferencia propiamente dicha implica cargar el modelo \gls{yolo}11 (potencialmente optimizado mediante NVIDIA TensorRT para maximizar el rendimiento en la plataforma Jetson) y pasarle el tensor de entrada. Aprovechando la aceleración por hardware (\gls{gpu} y/o \gls{dla}s disponibles en los módulos Jetson), el modelo procesa la imagen y genera un conjunto de predicciones. Estas predicciones iniciales suelen ser numerosas y requieren un postprocesamiento para refinar los resultados. Este postprocesamiento, a menudo gestionado internamente por el framework Ultralytics o aplicado explícitamente, incluye la aplicación de un umbral de confianza para descartar detecciones poco fiables y la ejecución del algoritmo de \gls{nms} para eliminar cajas delimitadoras redundantes que correspondan al mismo objeto.
+El proceso de inferencia comienza con la adquisición de un fotograma de vídeo, que se convierte en un tensor adecuado para la entrada del modelo. Este tensor es una representación numérica de la imagen, donde cada píxel se traduce en un valor que el modelo puede procesar. La transformación del fotograma a tensor incluye operaciones como la normalización y el redimensionamiento, asegurando que los datos estén en el formato correcto para el modelo. En el caso de los modelos YOLO, este tensor suele tener una forma de (batch\_size, channels, height, width), donde `channels` representa los canales de color (típicamente 3 para RGB), y `height` y `width` son las dimensiones de la imagen redimensionada. Este paso es crucial para garantizar que el modelo pueda interpretar correctamente la información visual contenida en el fotograma.
+
+La ejecución de la inferencia propiamente dicha implica cargar el modelo \gls{yolo} (potencialmente optimizado mediante NVIDIA TensorRT para maximizar el rendimiento en la plataforma Jetson) y pasarle el tensor de entrada. Aprovechando la aceleración por hardware (\gls{gpu} y/o \gls{dla}s disponibles en los módulos Jetson), el modelo procesa la imagen y genera un conjunto de predicciones. Estas predicciones iniciales suelen ser numerosas y requieren un postprocesamiento para refinar los resultados. Este postprocesamiento, a menudo gestionado internamente por el framework Ultralytics o aplicado explícitamente, incluye la aplicación de un umbral de confianza para descartar detecciones poco fiables y la ejecución del algoritmo de \gls{nms} para eliminar cajas delimitadoras redundantes que correspondan al mismo objeto.
 
 El resultado final de la etapa de inferencia, que se transfiere a la etapa de seguimiento, es una lista estructurada de las detecciones finales para el fotograma actual. Cada detección en esta lista contiene información esencial: las coordenadas de la caja delimitadora que localiza al objeto (comúnmente en formato (x, y, w, h), donde (x, y) representan las coordenadas del centro de la caja, y (w, h) su anchura y altura), una puntuación de confianza que cuantifica la fiabilidad de la detección, y la etiqueta de la clase predicha para el objeto (p. ej., 'canica\_azul', 'canica\_verde\_defecto'). La eficiencia y rapidez de esta etapa son críticas para mantener la capacidad de procesamiento en tiempo real del sistema global.
 
@@ -1068,6 +1070,80 @@ La etapa de escritura de resultados es responsable de gestionar la salida del si
 
 La Figura \ref{fig:resultado_sistema} muestra un ejemplo de la salida del sistema, donde se visualizan las detecciones y trayectorias de los objetos en el flujo de vídeo. Cada objeto detectado está representado por una caja delimitadora que incluye su etiqueta de clase y un identificador único. Esta representación gráfica permite una rápida identificación y seguimiento de los objetos en movimiento, facilitando la monitorización en tiempo real del sistema.
 
+Un problema potencial en esta etapa es que un objeto, como una canica defectuosa, haya sido detectado como tal en fotogramas anteriores, pero que, debido a su movimiento, el defecto se haya ocultado temporalmente. En este caso, el sistema podría no detectarlo como defectuoso, llevando a una interpretación errónea. Para mitigar esto, se implementa un algoritmo de memoria que, utilizando el identificador único de cada objeto, recuerda su estado anterior y aplica una lógica de corrección para mantener la coherencia en la clasificación a lo largo del tiempo.
+
+El siguiente algoritmo, se encarga de actualizar una estructura de memoria que almacena información sobre los objetos detectados y rastreados a lo largo del tiempo en una secuencia de vídeo. Su propósito principal es recordar si un objeto ha sido clasificado como defectuoso, incluso cuando el defecto deja de ser visible temporalmente en fotogramas posteriores.
+
+
+La memoria es un diccionario donde cada clave es el identificador único de un objeto (\texttt{track\_id}), y el valor asociado es otro diccionario con la siguiente estructura:
+
+\begin{verbatim}
+{
+   track_id: {
+      "defective": True/False,            # Indica si el objeto es defectuoso
+
+      "permanent_defective": True/False,  # Indica si el objeto 
+                                          # es permanentemente defectuoso
+
+      "visible_frames": N,                # Cuántos fotogramas puede no 
+                                          # ser visto antes de ser eliminado
+
+      "class": "clase_objeto"             # Clase del objeto
+   },
+   ...
+}
+\end{verbatim}
+
+Por ejemplo:
+\begin{verbatim}
+{
+   1: {
+      "defective": False,
+      "permanent_defective": False,
+      "visible_frames": 30,
+      "class": "canica_azul"
+   },
+   2: {
+      "defective": True,
+      "permanent_defective": True,
+      "visible_frames": 5,
+      "class": "canica_roja_defecto"
+   },
+   ...
+}
+\end{verbatim}
+
+\begin{itemize}
+   \item \textbf{Parámetros de entrada:}
+   \begin{itemize}
+      \item \texttt{tracked\_objects}: Lista de objetos rastreados en el fotograma actual. Cada objeto contiene, entre otros atributos, un identificador único de seguimiento (\texttt{track\_id}) y la clase detectada.
+      \item \texttt{memory}: Diccionario que representa la memoria persistente de los objetos rastreados. La clave es el identificador del objeto, y el valor es un diccionario con información como si el objeto es defectuoso, cuántos fotogramas ha sido visible, su clase, etc.
+      \item \texttt{classes}: Lista de nombres de clase, utilizada para traducir el índice de clase numérico a su representación textual.
+   \end{itemize}
+
+   \item \textbf{Funcionamiento:}
+   \begin{enumerate}
+      \item Se define una constante \texttt{FRAME\_AGE = 60}, que representa cuántos fotogramas puede permanecer un objeto en la memoria sin ser visto antes de ser eliminado.
+      \item También se define un umbral \texttt{PERMANENT\_DEFECT\_THRESHOLD = 3}, que indica cuántos fotogramas consecutivos un objeto debe ser detectado como defectuoso para marcarse como defectuoso de forma permanente.
+      \item Para cada objeto en \texttt{tracked\_objects}:
+      \begin{itemize}
+         \item Se extrae el identificador de seguimiento y la clase correspondiente.
+         \item Se determina si la clase  es defectuosa o no, basándose en un conjunto predefinido de clases defectuosas.
+         \item Si el objeto ya existe en la memoria:
+         \begin{itemize}
+            \item Si ya estaba marcado como defectuoso permanente, simplemente se actualiza su contador de visibilidad.
+            \item Si se detecta nuevamente como defectuoso, se incrementa un contador. Si este contador alcanza el umbral establecido, el objeto se marca como defectuoso permanente.
+            \item Si el objeto no es defectuoso en este fotograma, se reinicia el contador.
+            \item Se actualizan los campos \texttt{defective}, \texttt{visible\_frames} y \texttt{class}.
+         \end{itemize}
+         \item Si el objeto no existía previamente en la memoria, se crea una nueva entrada con sus atributos iniciales.
+      \end{itemize}
+      \item Finalmente, se recorre toda la memoria decrementando \texttt{visible\_frames} de cada objeto. Si este contador llega a cero, se elimina el objeto de la memoria.
+   \end{enumerate}
+\end{itemize}
+
+Este procedimiento permite mantener un historial consistente de los objetos rastreados, y ayuda a preservar la información de defectos incluso cuando estos no son visibles temporalmente, mejorando la robustez del sistema frente a interrupciones breves en la detección.
+
 \section{Segmentación de las etapas del sistema} \label{sec:segmentacion_etapas}
 
 Tras la implementación de las etapas del sistema, se ha considerado la posibilidad de segmentar el sistema mediante estas etapas para mejorar el rendimiento y la eficiencia del procesamiento. La segmentación permite distribuir la carga de trabajo entre diferentes unidades de procesamiento, optimizando así el uso de los recursos disponibles en la plataforma.
@@ -1089,7 +1165,9 @@ La Figura \ref{fig:secuencial} ilustra el flujo de datos en un sistema secuencia
 
 \subsection{Segmentación en hilos} \label{sub:segmentacion_hilos}
 
-La segunda opción es la segmentación del sistema en diferentes hilos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un hilo (\textit{thread}) independiente. A diferencia del enfoque secuencial donde cada etapa debe esperar a que la anterior finalice, la segmentación por hilos permite que las etapas operen de forma concurrente, solapando sus ejecuciones. Esto puede mejorar significativamente el rendimiento (throughput) y reducir la latencia, ya que mientras una etapa espera por una operación (p. ej., E/S de la cámara), otra etapa puede estar procesando datos (p. ej., inferencia en GPU o seguimiento en CPU). Los hilos operan dentro del mismo proceso, compartiendo el mismo espacio de memoria. La comunicación y transferencia de datos (fotogramas, detecciones) entre estas etapas/hilos se gestiona mediante colas de mensajes (\textit{Queue}) de la librería estándar de Python, que aseguran una transferencia eficiente y segura entre hilos (\textit{thread-safe}).
+La segunda opción es la segmentación del sistema en diferentes hilos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un hilo (\textit{thread}) independiente. A diferencia del enfoque secuencial donde cada etapa debe esperar a que la anterior finalice, la segmentación por hilos permite que las etapas operen de forma concurrente, solapando sus ejecuciones. Esto puede mejorar significativamente el rendimiento (throughput) y reducir la latencia, ya que mientras una etapa espera por una operación (p. ej., E/S de la cámara), otra etapa puede estar procesando datos (p. ej., inferencia en GPU o seguimiento en CPU). 
+
+Los hilos operan dentro del mismo proceso, compartiendo el mismo espacio de memoria. La comunicación y transferencia de datos (fotogramas, detecciones) entre estas etapas/hilos se gestiona mediante colas de mensajes (\textit{Queue}) de la librería estándar de Python, que aseguran una transferencia eficiente y segura entre hilos (\textit{thread-safe}).
 
 
 En Python, un hilo es una unidad básica de ejecución. Sin embargo, al trabajar con hilos en Python, es crucial entender el impacto del \gls{gil} (Global Interpreter Lock). El \gls{gil} es un mecanismo de bloqueo mutuo (mutex) que protege el acceso al intérprete de Python. Su función principal es permitir que solo un hilo ejecute código de bytes Python (\textit{Python bytecode}) a la vez dentro de un único proceso, incluso si el sistema dispone de múltiples núcleos de CPU. Es decir, en Python, debido al \gls{gil}, dos hilos de un mismo proceso no pueden ejecutar código Python de manera simultánea en núcleos de CPU diferentes. Esta restricción se implementó originalmente para simplificar la gestión de memoria (específicamente, el conteo de referencias) y prevenir condiciones de carrera en el acceso a objetos Python.
@@ -1104,7 +1182,7 @@ No obstante, el \gls{gil} no bloquea la ejecución en todas las circunstancias. 
 \end{itemize}
 
 
-\begin{figure}[H]
+\begin{figure}[h]
    \centering
    \includegraphics[width=0.3\textwidth]{images/diseno_e_implementacion/segmentacion_hilos.png}
    \caption[Diagrama de flujo del sistema segmentado en hilos]{Diagrama de flujo del sistema segmentado en hilos.}
@@ -1144,7 +1222,7 @@ Sin embargo, este enfoque también presenta desventajas. La comunicación entre 
 
 La Figura \ref{fig:segmentacion} ilustra el flujo de datos en un sistema segmentado mediante procesos independientes, contrastando con el enfoque secuencial mostrado en la Figura \ref{fig:secuencial}. En este diseño segmentado, cada etapa principal (captura, inferencia, seguimiento, escritura) opera en su propio proceso, permitiendo la ejecución concurrente en diferentes núcleos de CPU si están disponibles.
 
-Siguiendo la analogía con la arquitectura de un procesador, este enfoque se asemeja a un procesador segmentado (pipelined), donde diferentes instrucciones se encuentran en distintas fases de ejecución simultáneamente. Sin embargo, existe una diferencia fundamental: mientras que en un procesador segmentado todas las etapas avanzan sincronizadas por un ciclo de reloj común, determinado por la duración de la etapa más lenta, en nuestro sistema las etapas operan de forma asíncrona.
+Siguiendo la analogía con la arquitectura de un procesador, este enfoque se asemeja a un procesador segmentado (\textit{pipelined}), donde diferentes instrucciones se encuentran en distintas fases de ejecución simultáneamente. Sin embargo, existe una diferencia fundamental: mientras que en un procesador segmentado todas las etapas avanzan sincronizadas por un ciclo de reloj común, determinado por la duración de la etapa más lenta, en nuestro sistema las etapas operan de forma asíncrona.
 
 Cada etapa del sistema (captura, inferencia, seguimiento, escritura) tiene una duración variable y no necesariamente igual a las demás. Por ejemplo, la inferencia en la GPU puede ser mucho más rápida o lenta que la captura de imágenes o el seguimiento en la CPU. Las colas de mensajes actúan como buffers intermedios que desacoplan las etapas, permitiendo que cada una procese datos a su propio ritmo. Una etapa más rápida puede producir resultados que se acumulan en la cola de salida, mientras que una etapa más lenta consumirá datos de su cola de entrada cuando estén disponibles, esperando si la cola está vacía.
 
