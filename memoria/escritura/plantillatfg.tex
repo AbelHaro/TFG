@@ -19,7 +19,7 @@
 
 
 \usepackage{pgfplotstable} % Para leer y mostrar tablas desde CSV
-% \pgfplotsset{compat=1.16} % Set compatibility for pgfplots
+\pgfplotsset{compat=1.16} % Set compatibility for pgfplots
 \usepackage{booktabs}       % Para mejorar el diseño de la tabla
 \usepackage{multirow}       % Para fusionar filas
 \usepackage{caption}
@@ -861,6 +861,16 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
    \end{equation}
    donde \(IDTP\) (ID True Positives) son los verdaderos positivos en términos de asignación de identidad correcta a lo largo de las trayectorias, \(IDFP\) (ID False Positives) son las asignaciones de identidad incorrectas, y \(IDFN\) (ID False Negatives) son las identidades de objetos reales que no fueron correctamente mantenidas. Un valor de IDF1 más alto (hasta 1 o 100\%) indica una mejor consistencia en el seguimiento de la identidad. Es particularmente útil para evaluar el rendimiento en escenarios con oclusiones prolongadas o interacciones complejas entre objetos.
 
+
+   \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.8\textwidth]{images/estado_del_arte/IDF1.png}
+      \caption[Ejemplo visual de IDF1]{Ejemplo visual de IDF1. Extraído de \cite[fig. 10, p.~20]{idf1}.}
+      \label{fig:idf1_example}      
+   \end{figure}
+
+
+
    \item \textbf{\gls{hota}:} Es una métrica más reciente diseñada para proporcionar una evaluación más equilibrada y completa del rendimiento del MOT. HOTA descompone explícitamente el rendimiento en precisión de detección, precisión de asociación y precisión de localización. Se calcula como la media geométrica de la Precisión de Detección (DetA) y la Precisión de Asociación (AssA), donde cada una de estas componentes considera la precisión de localización (IoU).
    \begin{equation}
    HOTA = \sqrt{DetA \cdot AssA}
@@ -1392,9 +1402,9 @@ Finalmente, la etapa de escritura (línea verde), también dependiente de la CPU
    \label{fig:tiempos_etapa_video1}
 \end{figure}
 
-Por otro lado, la Figura \ref{fig:tiempos_etapa_video1} muestra el tiempo de ejecución de cada etapa del sistema a lo largo del vídeo de prueba 2 (carga media y constante).
+Por otro lado, la Figura \ref{fig:tiempos_etapa_video1} muestra el tiempo de ejecución de cada etapa del sistema a lo largo del vídeo de prueba 1 (carga baja y constante).
 
-En este caso, la etapa de seguimiento (línea amarilla) presenta un tiempo de ejecución bajo y estable, reflejando la menor carga de trabajo al procesar un número constante de objetos. Esto indica que el sistema gestiona eficientemente escenarios de carga baja y media, sin generar cuellos de botella significativos en las etapas de seguimiento o escritura.
+En este caso, la etapa de seguimiento (línea amarilla) presenta un tiempo de ejecución bajo y estable, reflejando la menor carga de trabajo al procesar un número constante de objetos. Esto indica que el sistema gestiona eficientemente escenarios de carga baja, sin generar cuellos de botella significativos en las etapas de seguimiento o escritura.
 
 De forma similar, la etapa de escritura (línea verde) muestra tiempos de ejecución bajos y uniformes, lo que confirma la capacidad del sistema para mantener un rendimiento constante en condiciones de carga moderada.
 
@@ -1430,11 +1440,11 @@ Ahora vamos a analizar el rendimiento del sistema con una simulación de entrada
    \label{tab:experimento_objetos}
 \end{table}
 
-Los datos de la Tabla \ref{tab:experimento_objetos} revelan que el sistema logra procesar una cantidad considerable de fotogramas en tiempo real bajo distintas condiciones de carga. Sin embargo, la Figura \ref{fig:fps_vs_object_count} muestra una relación más compleja: cuando la cantidad de objetos excede el umbral de 100, el rendimiento del sistema disminuye notablemente, llegando a generar tasas de fotogramas perdidos (LFPS) de hasta 10 frames por segundo en estos segmentos de alta densidad. Esta observación pone de manifiesto que las métricas promedio pueden resultar engañosas, ya que tienden a ocultar intervalos críticos de bajo rendimiento durante los picos de carga, precisamente cuando el sistema sería más necesario en aplicaciones industriales reales.
+Los datos de la Tabla \ref{tab:experimento_objetos} revelan que el sistema logra procesar una cantidad considerable de fotogramas en tiempo real bajo distintas condiciones de carga, dando lugar a pensar que el sistema es capaz de manejar cargas altas de manera efectiva. Sin embargo, la Figura \ref{fig:fps_vs_object_count} muestra una relación más compleja; cuando la cantidad de objetos excede el umbral de 100, el rendimiento del sistema disminuye notablemente, llegando a generar tasas de fotogramas perdidos (LFPS) de hasta 10 frames por segundo en estos segmentos de alta densidad. Esta observación pone de manifiesto que las métricas promedio pueden resultar engañosas, ya que tienden a ocultar intervalos críticos de bajo rendimiento durante los picos de carga, precisamente cuando el sistema sería más necesario en aplicaciones industriales reales.
 
 \begin{figure}
    \centering
-   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/variable_fps_vs_object_count/fps_vs_object_count.png}
+   \includegraphics[width=0.75\textwidth]{excels/inferencia/cantidad_objetos/resultados/variable_fps_vs_object_count/fps_vs_object_count.png}
    \caption[FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable]{FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable.}
    \label{fig:fps_vs_object_count}
 \end{figure}
@@ -1507,7 +1517,7 @@ Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco t
    \item \textbf{Segmentación por procesos con memoria compartida} (subsección \ref{sub:segmentacion_memoria_compartida}): Cada etapa del sistema se ejecuta en un proceso independiente y se comunica mediante memoria compartida.
 \end{enumerate}
 
-Para evaluar el rendimiento de cada tipo de segmentación, se han realizado pruebas utilizando el vídeo de 84 objetos (carga alta y constante) como entrada estándar. Este vídeo presenta una carga computacional significativa, lo que permite observar las diferencias de rendimiento entre los distintos tipos de segmentación. Para todas las pruebas se ha utilizado el modelo de detección de objetos YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU. Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN). 
+Para evaluar el rendimiento de cada tipo de segmentación, se han realizado pruebas utilizando el vídeo de 84 objetos (carga alta y constante) como entrada estándar. Este vídeo presenta una carga computacional significativa, lo que permite observar las diferencias de rendimiento entre los distintos tipos de segmentación. Para todas las pruebas se ha utilizado el modelo de detección de objetos YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU (DLA0 y DLA1 en el caso de la segmentación heterogénea). Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN).
 
 
 Primero se va analizar el rendimiento de cada tipo de segmentación utilizando la metodología de ejecución a máxima capacidad, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
@@ -2008,7 +2018,7 @@ A lo largo de este Trabajo de Fin de Grado, se han abordado diversos desafíos y
 
 Los objetivos fundamentales del proyecto se han alcanzado con éxito. Se llevó a cabo un estudio exhaustivo del estado del arte, abarcando tanto las \glspl{cnn}, con experimentación en diversos modelos de detección, como los aceleradores hardware, con especial atención a las GPUs y la plataforma NVIDIA Jetson. Durante esta fase, se identificaron y superaron desafíos significativos, principalmente relacionados con la gestión de la compatibilidad entre las múltiples versiones de frameworks de aprendizaje profundo y el software de NVIDIA. La arquitectura ARM64 de los dispositivos Jetson también presentó particularidades que complejizaron la instalación y configuración de dependencias críticas, como ciertas bibliotecas de Python y componentes específicos del ecosistema de NVIDIA. A pesar de estos obstáculos técnicos, se logró una configuración estable y funcional del entorno de desarrollo y experimentación.
 
-Se generó un conjunto de datos y vídeos de entrenamiento, fundamental para optimizar la precisión del modelo de detección. Estos recursos, obtenidos grabando canicas en movimiento sobre la cinta transportadora, proporcionaron un entorno de prueba realista. El principal desafío fue seleccionar un objeto de prueba fácilmente identificable y con variabilidad controlada en forma y color. Aunque se hubiera preferido un objeto industrial más complejo, no se dispuso de medios para su adquisición.
+Se generó un conjunto de datos y vídeos de entrenamiento, fundamental para optimizar la precisión del modelo de detección. Estos recursos, proporcionaron un entorno de prueba que intenta simular condiciones reales de operación. El principal desafío fue seleccionar un objeto de prueba fácilmente identificable y con variabilidad controlada en forma y color. Aunque se hubiera preferido un objeto industrial más complejo, no se dispuso de medios para su adquisición.
 
 Se entrenaron múltiples modelos de detección de las familias YOLOv5, YOLOv8 y YOLO11, en diversas precisiones y tamaños. Esto permitió evaluar su evolución y rendimiento en precisión y velocidad. La principal dificultad fue el ajuste fino de hiperparámetros para optimizar el rendimiento, proceso que requirió numerosas iteraciones y pruebas.
 
