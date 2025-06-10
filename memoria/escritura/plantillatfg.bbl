@@ -120,6 +120,12 @@ Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
 \newblock {\em SSD: Single Shot MultiBox Detector}, page 21–37.
 \newblock Springer International Publishing, 2016.
 
+\bibitem{idf1}
+Jonathon Luiten, Aljosa Osep, Patrick Dendorfer, Philip Torr, Andreas Geiger,
+  Laura Leal-Taix{\'e}, and Bastian Leibe.
+\newblock Hota: A higher order metric for evaluating multi-object tracking.
+\newblock {\em International Journal of Computer Vision}, 129:1--31, 02 2021.
+
 \bibitem{micropython_home}
 MicroPython.
 \newblock Micropython - python for microcontrollers.
