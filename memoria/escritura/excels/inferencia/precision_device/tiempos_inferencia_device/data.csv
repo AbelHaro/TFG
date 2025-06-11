@@ -1,0 +1,5 @@
+Precision,Tpreprocesado,Tinferencia,Tpostprocesado
+FP32 (sin TensorRT),2.06,64.93,3.91
+FP32 (con TensorRT),2.16,10.24,5
+FP16,2.13,5.95,4.69
+INT8,2.21,4.33,4.69

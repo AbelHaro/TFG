@@ -2,6 +2,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
+# Activar estilo LaTeX con fuente académica (idéntica al documento tfgetsinf.cls)
+plt.rcParams.update(
+    {
+        "text.usetex": True,
+        "font.family": "serif",
+        "font.serif": ["Palatino"],  # Forzar solo Palatino como en mathpazo
+        "text.latex.preamble": r"\usepackage{mathpazo}",  # Mismo paquete que el documento
+        "axes.labelsize": 20,  # Igual al texto del documento
+        "font.size": 20,  # Tamaño base igual al texto principal
+        "legend.fontsize": 18,  # Ligeramente menor que el texto
+        "xtick.labelsize": 18,  # Etiquetas del mismo tamaño que texto
+        "ytick.labelsize": 18,  # Etiquetas del mismo tamaño que texto
+        "axes.titlesize": 22,  # Títulos más grandes
+    }
+)
+
 # Cargar los datos desde el CSV
 df = pd.read_csv("./loss.csv")  # Asegúrate de usar la ruta correcta al archivo CSV
 
@@ -63,7 +79,9 @@ for model, config in model_configs.items():
             "mu": "Medium",
         }[size]
 
-        model_label = {"yolo11": "YOLO11", "yolov5": "YOLOv5", "yolov8": "YOLOv8"}[model]
+        model_label = {"yolo11": "YOLO11", "yolov5": "YOLOv5", "yolov8": "YOLOv8"}[
+            model
+        ]
 
         if train_col in df.columns:
             plt.plot(
@@ -91,15 +109,15 @@ for model, config in model_configs.items():
             )
 
 # Configurar el gráfico
-plt.title("Class Loss durante el entrenamiento y validación por modelo y tamaño")
-plt.xlabel("Época")
-plt.ylabel("Class Loss")
+plt.title(r"Class Loss durante el entrenamiento y validaci\'on por modelo y tama\~no")
+plt.xlabel(r"\'Epoca")
+plt.ylabel(r"Class Loss")
 plt.legend(loc="center left", bbox_to_anchor=(1.0, 0.5))
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 
 # Guardar la figura
-plt.savefig("loss_plot.png", dpi=300, bbox_inches="tight")
+plt.savefig("loss_plot.pdf", bbox_inches="tight")
 
 # Mostrar el gráfico
 plt.show()
