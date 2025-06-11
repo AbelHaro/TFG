@@ -166,7 +166,7 @@ Durante los últimos años, la \gls{ai} ha experimentado un crecimiento en popul
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.7\textwidth]{excels/introduccion/interes_en_ia.png}
+   \includegraphics[width=0.7\textwidth]{excels/introduccion/interes_en_ia.pdf}
    \caption[Evolución del interés público en inteligencia artificial según datos de Google Trends (2020-2025)]{Evolución del interés público en inteligencia artificial según datos de Google Trends (2020-2025).}
 \label{fig:interes_en_inteligencia_artificial}
 \end{figure}
@@ -1010,7 +1010,7 @@ La Tabla \ref{tab:modelos_metrics} resume los resultados del entrenamiento para 
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{excels/entrenamiento/loss_plot.png}
+   \includegraphics[width=\linewidth]{excels/entrenamiento/loss_plot.pdf}
    \caption[Curvas de pérdida de entrenamiento y validación para las distintas tallas de modelos YOLOv5, YOLOv8 y YOLO11]{Curvas de pérdida de entrenamiento y validación para las distintas tallas de modelos YOLOv5, YOLOv8 y YOLO11.}
    \label{fig:loss_curves}
 \end{figure}
@@ -1361,7 +1361,7 @@ Las pruebas que se presentan a continuación se realizaron siguiendo la metodolo
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/cantidad_objetos_4_videos.png}
+   \includegraphics[width=\linewidth]{excels/inferencia/cantidad_objetos/cantidad_objetos_videos.pdf}
    \caption[Cantidad de objetos en los vídeos de prueba]{Cantidad de objetos en los vídeos de prueba.}
    \label{fig:4_videos}
 \end{figure}
@@ -1370,7 +1370,7 @@ La Figura \ref{fig:4_videos} ilustra la cantidad de objetos presentes en cada fo
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/max_fps_4_videos/fps_comparison.png}
+   \includegraphics[width=\linewidth]{excels/inferencia/cantidad_objetos/resultados/max_fps_4_videos/fps_comparison.pdf}
    \caption[FPS por fotograma en función de la cantidad de objetos para los cuatro vídeos de prueba]{FPS por fotograma en función de la cantidad de objetos para los cuatro vídeos de prueba.}
    \label{fig:fps_por_frame}
 \end{figure}
@@ -1381,13 +1381,12 @@ El escenario de carga variable (línea verde) revela un comportamiento particula
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/tiempos_etapa.png}
+   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/tiempo_etapa_cada_frame_video4/tiempo_etapa_video4.pdf}
    \caption[Ejecución temporal de las etapas del sistema durante el vídeo de prueba con carga variable]{Ejecución temporal de las etapas del sistema durante el vídeo de prueba con carga variable.}
    \label{fig:tiempos_etapa}
 \end{figure}
 
 Para comprender a fondo el impacto de esta variación en la cantidad de objetos, es esencial analizar cómo afecta a cada etapa dentro de la arquitectura segmentada del sistema. La Figura \ref{fig:tiempos_etapa} presenta el tiempo de ejecución de cada etapa del sistema a lo largo del vídeo de prueba con carga variable.
-
 Se observa que la etapa de captura (línea azul) se mantiene constante, ya que sus operaciones (adquisición de fotogramas) no dependen del contenido de la imagen. De manera similar, la etapa de inferencia (línea roja), ejecutada en la GPU, muestra un tiempo de procesamiento relativamente estable. Aunque podría esperarse una ligera variación, el modelo YOLO procesa la imagen completa y su carga principal no escala linealmente con el número de objetos detectados una vez que la imagen está en la GPU.
 
 Por el contrario, la etapa de seguimiento (línea amarilla), que se ejecuta en la CPU, muestra una clara correlación entre su tiempo de ejecución y la cantidad de objetos. A medida que aumenta el número de objetos (como se ve en la curva de carga variable de la Figura \ref{fig:4_videos}), el tiempo que tarda la etapa de seguimiento también aumenta significativamente. Esto se debe a que el algoritmo BYTETrack debe gestionar más trayectorias, realizar más comparaciones para la asociación de datos y actualizar más filtros de Kalman. Este comportamiento indica que la etapa de seguimiento puede convertirse en un cuello de botella cuando la densidad de objetos es alta.
@@ -1397,8 +1396,8 @@ Finalmente, la etapa de escritura (línea verde), también dependiente de la CPU
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/tiempos_etapa_video1.png}
-   \caption[Ejecución temporal de las etapas del sistema durante el vídeo de prueba 2 (carga media y constante)]{Ejecución temporal de las etapas del sistema durante el vídeo de prueba 2 (carga media y constante).}
+   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/tiempo_etapa_cada_frame_video1/tiempo_etapa_video1.pdf}
+   \caption[Ejecución temporal de las etapas del sistema durante el vídeo de prueba 1 (carga baja y constante)]{Ejecución temporal de las etapas del sistema durante el vídeo de prueba 1 (carga baja y constante).}
    \label{fig:tiempos_etapa_video1}
 \end{figure}
 
@@ -1442,9 +1441,9 @@ Ahora vamos a analizar el rendimiento del sistema con una simulación de entrada
 
 Los datos de la Tabla \ref{tab:experimento_objetos} revelan que el sistema logra procesar una cantidad considerable de fotogramas en tiempo real bajo distintas condiciones de carga, dando lugar a pensar que el sistema es capaz de manejar cargas altas de manera efectiva. Sin embargo, la Figura \ref{fig:fps_vs_object_count} muestra una relación más compleja; cuando la cantidad de objetos excede el umbral de 100, el rendimiento del sistema disminuye notablemente, llegando a generar tasas de fotogramas perdidos (LFPS) de hasta 10 frames por segundo en estos segmentos de alta densidad. Esta observación pone de manifiesto que las métricas promedio pueden resultar engañosas, ya que tienden a ocultar intervalos críticos de bajo rendimiento durante los picos de carga, precisamente cuando el sistema sería más necesario en aplicaciones industriales reales.
 
-\begin{figure}
+\begin{figure}[H]
    \centering
-   \includegraphics[width=0.75\textwidth]{excels/inferencia/cantidad_objetos/resultados/variable_fps_vs_object_count/fps_vs_object_count.png}
+   \includegraphics[width=0.75\textwidth]{excels/inferencia/cantidad_objetos/resultados/variable_fps_vs_object_count/fps_vs_object_count.pdf}
    \caption[FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable]{FPS y cantidad de objetos en función del tiempo para el vídeo de carga variable.}
    \label{fig:fps_vs_object_count}
 \end{figure}
@@ -1455,7 +1454,7 @@ El análisis de la Tabla \ref{tab:experimento_objetos} también refleja una clar
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/tiempo_etapa_tracking_cantidad_objetos.png}
+   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/regresion_tracking/regresion_tracking.pdf}
    \caption[Tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos]{Tiempo de ejecución de la etapa de seguimiento en función de la cantidad de objetos.}
    \label{fig:tiempo_etapa_tracking_cantidad_objetos}
 \end{figure}
@@ -1482,7 +1481,7 @@ Este cálculo teórico revela que el sistema alcanzaría su límite de procesami
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.8\textwidth]{images/analisis_de_la_solucion/cantidad_objetos/tiempo_etapa_escritura_cantidad_objetos.png}
+   \includegraphics[width=0.8\textwidth]{excels/inferencia/cantidad_objetos/resultados/regresion_writing/regresion_writing.pdf}
    \caption[Tiempo de ejecución de la etapa de escritura en función de la cantidad de objetos]{Tiempo de ejecución de la etapa de escritura en función de la cantidad de objetos.}
    \label{fig:tiempo_etapa_escritura_cantidad_objetos}
 \end{figure}
@@ -1643,7 +1642,7 @@ No obstante, al considerar la eficiencia energética, medida en fotogramas por v
 
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/modelo_talla/tiempos_inferencia.png}
+   \includegraphics[width=0.7\textwidth]{excels/inferencia/modelo_talla/tiempos_inferencia/tiempos_inferencia.pdf}
    \caption[Tiempos de ejecución de la etapa de inferencia para los diferentes modelos y tallas]{Tiempos de ejecución de la etapa de inferencia para los diferentes modelos y tallas.}
    \label{fig:tiempos_inferencia}
 \end{figure}
@@ -1746,7 +1745,7 @@ Considerando la ejecución en GPU, la optimización con TensorRT, incluso manten
 En cuanto a las diferentes precisiones numéricas en la GPU (todas optimizadas con TensorRT), los resultados muestran un rendimiento en FPS similar entre FP32, FP16 e INT8.
 \begin{figure}[H]
    \centering
-   \includegraphics[width=0.7\textwidth]{images/analisis_de_la_solucion/precision_device/tiempos_inferencia_gpu.png}
+   \includegraphics[width=0.7\textwidth]{excels/inferencia/precision_device/tiempos_inferencia_device/tiempos_inferencia_device.pdf}
    \caption[Tiempos de ejecución de la etapa de inferencia para las diferentes precisiones en GPU con TensorRT]{Tiempos de ejecución de la etapa de inferencia para las diferentes precisiones en GPU con TensorRT.}
    \label{fig:tiempos_inferencia_gpu}
 \end{figure}

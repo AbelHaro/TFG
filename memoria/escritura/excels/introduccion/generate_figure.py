@@ -1,34 +1,53 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# Activar estilo LaTeX con fuente académica (idéntica al documento tfgetsinf.cls)
+plt.rcParams.update(
+    {
+        "text.usetex": True,
+        "font.family": "serif",
+        "font.serif": ["Palatino"],  # Forzar solo Palatino como en mathpazo
+        "text.latex.preamble": r"\usepackage{mathpazo}",  # Mismo paquete que el documento
+        "axes.labelsize": 20,  # Igual al texto del documento
+        "font.size": 20,  # Tamaño base igual al texto principal
+        "legend.fontsize": 18,  # Ligeramente menor que el texto
+        "xtick.labelsize": 18,  # Etiquetas del mismo tamaño que texto
+        "ytick.labelsize": 18,  # Etiquetas del mismo tamaño que texto
+        "axes.titlesize": 22,  # Títulos más grandes
+    }
+)
+
 # Leer el archivo CSV
-data = pd.read_csv('./interes_en_inteligencia_artificial.csv')
+data = pd.read_csv("./interes_en_inteligencia_artificial.csv")
 
-# Mostrar las primeras filas para comprobar que se cargó correctamente
-print(data.head())
+# Crear el gráfico
+plt.figure(figsize=(10, 8))  # Tamaño adecuado para publicaciones
 
-# Crear el gráfico de líneas con puntos
-plt.plot(data['Semana'], data['Interes'], color='b', label="Interés en IA")
+plt.plot(
+    data["Semana"],
+    data["Interes"],
+    color="blue",
+    label=r"Inter\'es en IA",
+)
 
-# Mejorar el gráfico
-plt.title("Interés en Inteligencia Artificial a lo largo de las semanas")
-plt.xlabel("Semana")
-plt.ylabel("Pico de interés")
+# Títulos y etiquetas con LaTeX
+plt.title(r"Inter\'es en Inteligencia Artificial a lo largo de las semanas")
+plt.xlabel(r"Semana")
+plt.ylabel(r"Pico de inter\'es")
 
-# Omitir algunos valores de X, por ejemplo, mostrar solo cada 10 valor de x
-step = 12  # Omitir valores de X
-xticks = data['Semana'][::step]  # Seleccionar cada 'step' valor
-plt.xticks(xticks, rotation=45)  # Rotar etiquetas y mostrar solo los valores seleccionados
+# Escalar ejes x
+step = 12
+xticks = data["Semana"][::step]
+plt.xticks(xticks, rotation=45)
 
-# Añadir leyenda
+# Leyenda
 plt.legend()
 
-# Mejorar la disposición
+# Ajustar disposición
 plt.tight_layout()
 
+# Guardar en alta resolución
+plt.savefig("interes_en_ia.pdf", bbox_inches="tight")
+
 # Mostrar el gráfico
-
-plt.savefig('interes_en_ia.png', dpi=300)  # Guardar la figura
-
-
 plt.show()
