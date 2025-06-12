@@ -47,7 +47,24 @@
 \usepackage[acronym]{glossaries}
 \makeglossaries
 
-\hypersetup{ colorlinks=true, linkcolor=black, urlcolor=cyan, }
+% PDF Metadata configuration
+\hypersetup{
+    colorlinks=true, 
+    linkcolor=black, 
+    urlcolor=cyan,
+    pdftitle={Detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA},
+    pdfauthor={Haro Armero, Abel},
+    pdfsubject={Trabajo de Fin de Grado -- Ingeniería Informática},
+    pdfkeywords={Redes Neuronales Convolucionales, Detección de defectos, Visión por computador, NVIDIA Jetson, Tiempo real, Optimización energética, CNN, Computer Vision, Deep Learning, YOLO, TensorRT},
+    pdfcreator={LaTeX with hyperref package},
+    pdfproducer={pdfTeX},
+    pdflang={es-ES},
+    pdfstartview=FitH,
+    pdfpagemode=UseOutlines,
+    bookmarksopen=true,
+    bookmarksnumbered=true,
+    bookmarksopenlevel=1
+}
 
 
 \newacronym[plural={AIs}, firstplural={Inteligencias Artificiales (AIs)}]{ai}{IA}{Inteligencia Artificial}
@@ -723,9 +740,9 @@ Este ciclo permite al filtro refinar continuamente la estimación del estado del
 La Figura ~\ref{fig:filtro_de_kalman} representa el funcionamiento de un filtro de Kalman, un algoritmo muy utilizado para estimar el estado de un sistema dinámico en presencia de ruido e incertidumbre. A continuación se explica cada bloque:
 
 \begin{itemize}
-   \item \textbf{Mediciones (Entrada):} Este bloque representa las mediciones obtenidas del sistema, que contienen ruido. Estas mediciones se pasan al filtro para su procesamiento.
+   \item \textbf {Estado Inicial (Entrada):} Proporciona una estimación inicial del estado del sistema y su incertidumbre asociada, utilizada para inicializar el filtro de Kalman.
 
-   \item \textbf{Estado Inicial (Entrada):} Proporciona una estimación inicial del estado del sistema y su incertidumbre asociada, utilizada para inicializar el filtro de Kalman.
+   \item \textbf{Mediciones (Entrada):} Este bloque representa las mediciones obtenidas del sistema, que contienen ruido. Estas mediciones se pasan al filtro para su procesamiento.
 
    \item \textbf{Actualización:} Este paso combina la predicción previa con la medición actual para obtener una estimación actualizada del estado del sistema, ajustando la incertidumbre.
 
@@ -757,7 +774,9 @@ Este es el resultado final del filtro: una estimación refinada del estado actua
 
 BYTETrack \cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo avanzado de \gls{mot} que se inscribe dentro del paradigma de seguimiento por detección (\textit{tracking-by-detection}). Este paradigma consiste en detectar objetos en cada fotograma de forma independiente y luego asociar estas detecciones a lo largo del tiempo para construir trayectorias coherentes, asignando un ID consistente a cada objeto a lo largo del tiempo. Para la predicción y suavizado de estas trayectorias, BYTETrack se apoya en los resultados que le ofrece el filtro de Kalman. La innovación fundamental de BYTETrack reside en su novedoso método de asociación de datos, denominado BYTE, que aborda explícitamente un problema común en MOT: el manejo de detecciones con baja puntuación de confianza.
 
-Mientras que la mayoría de los algoritmos de seguimiento descartan las detecciones por debajo de un cierto umbral de confianza para evitar la introducción de falsos positivos, BYTETrack reconoce que estas detecciones de baja confianza a menudo corresponden a objetos reales que están parcialmente ocluidos o cuya apariencia ha cambiado temporalmente. Descartarlas puede llevar a la pérdida de trayectorias y a una menor precisión general del seguimiento. Esta estrategia de asociación en dos pasos permite a BYTETrack recuperar objetos reales incluso cuando la confianza del detector disminuye debido a oclusiones o desenfoque, manteniendo la continuidad de las trayectorias. Al separar claramente las detecciones de alta y baja confianza y utilizarlas de manera diferenciada en el proceso de asociación, BYTETrack logra una notable mejora en la robustez del seguimiento, reduce significativamente la fragmentación de las trayectorias (medida por métricas como IDF1) y maneja eficazmente las variaciones en la calidad de las detecciones, todo ello manteniendo una alta eficiencia computacional.
+Mientras que la mayoría de los algoritmos de seguimiento descartan las detecciones por debajo de un cierto umbral de confianza para evitar la introducción de falsos positivos, BYTETrack reconoce que estas detecciones de baja confianza a menudo corresponden a objetos reales que están parcialmente ocluidos o cuya apariencia ha cambiado temporalmente. Descartarlas puede llevar a la pérdida de trayectorias y a una menor precisión general del seguimiento. Esta estrategia de asociación en dos pasos permite a BYTETrack recuperar objetos reales incluso cuando la confianza del detector disminuye debido a oclusiones o desenfoque, manteniendo la continuidad de las trayectorias. 
+
+Al separar claramente las detecciones de alta y baja confianza y utilizarlas de manera diferenciada en el proceso de asociación, BYTETrack logra una notable mejora en la robustez del seguimiento, reduce significativamente la fragmentación de las trayectorias (medida por métricas como IDF1) y maneja eficazmente las variaciones en la calidad de las detecciones, todo ello manteniendo una alta eficiencia computacional.
 
 \begin{figure}[H]
    \centering
