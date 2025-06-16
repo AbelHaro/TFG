@@ -64,7 +64,9 @@ def parse_arguments():
         help="Modo de energía a usar",
     )
 
-    parser.add_argument("--tcp", default=False, type=bool, help="Usar conexión TCP, default=False")
+    parser.add_argument(
+        "--tcp", default=False, type=bool, help="Usar conexión TCP, default=False"
+    )
 
     parser.add_argument(
         "--version",
@@ -125,7 +127,9 @@ def initialize_pipeline(args):
     GPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_GPU{batch_suffix}.engine"
     DLA0_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA0{batch_suffix}.engine"
     DLA1_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}_{args.precision}_DLA1{batch_suffix}.engine"
-    CPU_model_path = f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}.pt"
+    CPU_model_path = (
+        f"../../models/canicas/{args.version}/{args.version}_canicas_{model_name}.pt"
+    )
 
     model_path = (
         GPU_model_path
@@ -141,9 +145,13 @@ def initialize_pipeline(args):
         if args.sahi:
             video_path = f"../../datasets_labeled/videos/test/test_altura_1080x1080.mp4"
         else:
-            video_path = f"../../datasets_labeled/videos/contar_objetos_variable_2min.mp4"
+            video_path = (
+                f"../../datasets_labeled/videos/contar_objetos_variable_2min.mp4"
+            )
     else:
-        video_path = f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
+        video_path = (
+            f"../../datasets_labeled/videos/contar_objetos_{args.num_objects}_2min.mp4"
+        )
 
     output_dir = "../../inference_predictions/custom_tracker"
 

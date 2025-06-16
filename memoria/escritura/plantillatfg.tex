@@ -2003,12 +2003,11 @@ Los materiales empleados para la construcción de la cinta transportadora son lo
 
 El montaje de la cinta transportadora se realizó siguiendo los planos ilustrados en la Figura \ref{fig:planos_cinta}. La Raspberry Pi Pico WH se programó para controlar el servomotor que desvía las canicas identificadas como defectuosas. Para la programación de este microcontrolador se utilizó MicroPython\cite{micropython_home}. La cámara se ubicó estratégicamente en la parte superior de la cinta para obtener una vista clara de las canicas durante su tránsito. El motor DC, alimentado por una fuente de 12V, es el responsable del movimiento continuo de la banda transportadora.
 
-El sistema completo se configuró de la siguiente manera:
-El procesamiento principal, incluyendo la ejecución del modelo de detección de objetos, se realiza en un dispositivo NVIDIA Jetson AGX Xavier. Este dispositivo es el encargado de analizar las imágenes capturadas por la cámara.
-Para la comunicación entre el Jetson AGX Xavier y la Raspberry Pi Pico WH, se establece una conexión TCP/IP. Al iniciar el sistema, el Jetson AGX Xavier actúa como servidor, abriendo un socket en el puerto 5000 y esperando la conexión de la Raspberry Pi Pico WH (cliente).
-Una vez que la Raspberry Pi Pico WH se conecta, envía un mensaje de inicio al Jetson. A partir de este momento, el Jetson comienza a procesar el flujo de vídeo de la cámara.
-Cuando el modelo de detección en el Jetson identifica una canica defectuosa, envía un mensaje específico a la Raspberry Pi Pico WH.
-Al recibir esta señal, la Raspberry Pi Pico WH activa el servomotor durante un breve instante. Este accionamiento mueve un mecanismo que desvía la canica defectuosa fuera de la trayectoria principal de la cinta transportadora.
+El sistema completo se configuró de la siguiente manera: el procesamiento principal, incluyendo la ejecución del modelo de detección de objetos, se realiza en un dispositivo NVIDIA Jetson AGX Xavier. Este dispositivo es el encargado de analizar las imágenes capturadas por la cámara y ejecutar los algoritmos de visión artificial necesarios para la identificación y clasificación de las canicas.
+
+Para la comunicación entre el Jetson AGX Xavier y la Raspberry Pi Pico WH, se establece una conexión TCP/IP que permite el intercambio de información en tiempo real. Al iniciar el sistema, el Jetson AGX Xavier actúa como servidor, abriendo un socket en el puerto 5000 y esperando la conexión de la Raspberry Pi Pico WH, que funciona como cliente. Una vez que la Raspberry Pi Pico WH se conecta exitosamente, envía un mensaje de inicio al Jetson para confirmar que está lista para recibir comandos. A partir de este momento, el Jetson comienza a procesar el flujo de vídeo de la cámara de manera continua.
+
+Durante el funcionamiento del sistema, cuando el modelo de detección ejecutándose en el Jetson identifica una canica defectuosa basándose en los criterios de clasificación establecidos, envía inmediatamente un mensaje específico a la Raspberry Pi Pico WH a través de la conexión TCP/IP. Al recibir esta señal de activación, la Raspberry Pi Pico WH ejecuta la rutina de rechazo, activando el servomotor DS3225 durante un breve instante controlado. Este accionamiento preciso mueve un mecanismo mecánico que desvía la canica defectuosa fuera de la trayectoria principal de la cinta transportadora, separándola efectivamente del flujo de productos válidos.
 
 \begin{figure}[H]
    \centering
@@ -2017,7 +2016,18 @@ Al recibir esta señal, la Raspberry Pi Pico WH activa el servomotor durante un 
    \label{fig:cinta_transportadora}
 \end{figure}
 
-En la Figura \ref{fig:cinta_transportadora} se muestra la cinta transportadora construida para la prueba de concepto. 
+En la Figura \ref{fig:cinta_transportadora} se muestra la cinta transportadora construida para la prueba de concepto.
+
+Para la prueba de concepto, se utilizaron las canicas de colores como objetos de prueba. En la Figura \ref{fig:imagen_prueba_concepto} se muestra un frame de ejemplo de la prueba de concepto, donde se observan tres canicas de color blanco Entre ellas, una canica defectuosa con una mancha roja, que es el criterio de clasificación utilizado para identificar las canicas defectuosas. 
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.5\textwidth]{images/prueba_de_concepto/frame_170.png}
+   \caption[Imagen de ejemplo de la prueba de concepto]{Imagen de ejemplo de la prueba de concepto.}
+   \label{fig:imagen_prueba_concepto}
+\end{figure}
+
+
 
 
 
