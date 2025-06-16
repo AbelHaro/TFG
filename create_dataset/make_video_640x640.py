@@ -14,7 +14,7 @@ if not cap.isOpened():
     sys.exit(1)
 
 # Configurar resolución 640x480 y MJPG para mejor compatibilidad
-cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 cap.set(cv2.CAP_PROP_FPS, 30)
@@ -27,22 +27,25 @@ if not ret:
     sys.exit(1)
 
 if frame.shape[1] != 640 or frame.shape[0] != 480:
-    print(f"Advertencia: la cámara devuelve {frame.shape[1]}x{frame.shape[0]}, no 640x480.")
+    print(
+        f"Advertencia: la cámara devuelve {frame.shape[1]}x{frame.shape[0]}, no 640x480."
+    )
 
 # Crear nombre del archivo
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 filename = f"./videos/{timestamp}_640x640.mp4"
 
 # Crear VideoWriter
-fourcc = cv2.VideoWriter_fourcc(*'avc1')
+fourcc = cv2.VideoWriter_fourcc(*"avc1")
 out = cv2.VideoWriter(filename, fourcc, 30.0, (640, 640))
 if not out.isOpened():
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     out = cv2.VideoWriter(filename, fourcc, 30.0, (640, 640))
     if not out.isOpened():
         print("Error: no se pudo crear el archivo de video.")
         cap.release()
         sys.exit(1)
+
 
 # Manejo de cierre con Ctrl+C
 def cleanup(sig=None, frame=None):
@@ -51,6 +54,7 @@ def cleanup(sig=None, frame=None):
     out.release()
     cv2.destroyAllWindows()
     sys.exit(0)
+
 
 signal.signal(signal.SIGINT, cleanup)
 
@@ -70,7 +74,7 @@ try:
         out.write(resized)
         cv2.imshow("Grabando", resized)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
 except Exception as e:

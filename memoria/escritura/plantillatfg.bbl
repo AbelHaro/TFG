@@ -2,8 +2,7 @@
 
 \bibitem{challe6010117}
 Anders S.~G. Andrae and Tomas Edler.
-\newblock On global electricity usage of communication technology: Trends to
-  2030.
+\newblock On global electricity usage of communication technology: Trends to 2030.
 \newblock {\em Challenges}, 6(1):117--157, 2015.
 
 \bibitem{google2025tpu}
@@ -15,15 +14,12 @@ Google Cloud.
 \bibitem{csWikiMaxpoolSample}
 {Computer Science Wiki}.
 \newblock File:maxpoolsample2.png.
-\newblock
-  \url{https://computersciencewiki.org/index.php/File:MaxpoolSample2.png},
-  2018.
+\newblock \url{https://computersciencewiki.org/index.php/File:MaxpoolSample2.png}, 2018.
 \newblock Accedido el 20 de mayo de 2025.
 
 \bibitem{ConteRebootingComputing}
 T.~Conte.
-\newblock {IEEE} rebooting computing initiative \& international roadmap of
-  devices and systems.
+\newblock {IEEE} rebooting computing initiative \& international roadmap of devices and systems.
 \newblock In {\em Proc. {IEEE} Rebooting Computer Architecture 2030 Workshop}.
 
 \bibitem{CVAT_ai_Corporation_Computer_Vision_Annotation_2023}
@@ -33,15 +29,12 @@ T.~Conte.
 \bibitem{ImageNet}
 Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li~Fei-Fei.
 \newblock Imagenet: A large-scale hierarchical image database.
-\newblock In {\em 2009 IEEE Conference on Computer Vision and Pattern
-  Recognition}, pages 248--255, 2009.
+\newblock In {\em 2009 IEEE Conference on Computer Vision and Pattern Recognition}, pages 248--255, 2009.
 
 \bibitem{dennard1974design}
-Robert~H. Dennard, Fritz~H. Gaensslen, Hwa-Nien Yu, V.~Leo Rideout, Ernest
-  Bassous, and Andre~R. Leblanc.
+Robert~H. Dennard, Fritz~H. Gaensslen, Hwa-Nien Yu, V.~Leo Rideout, Ernest Bassous, and Andre~R. Leblanc.
 \newblock Design of ion-implanted mosfets with very small physical dimensions.
-\newblock {\em IEEE Journal of Solid-State Circuits}, SC-9(5):256--268, October
-  1974.
+\newblock {\em IEEE Journal of Solid-State Circuits}, SC-9(5):256--268, October 1974.
 
 \bibitem{enccs_gpu_ecosystem}
 ENCCS.
@@ -51,8 +44,7 @@ ENCCS.
 
 \bibitem{girshick2014richfeaturehierarchiesaccurate}
 Ross Girshick, Jeff Donahue, Trevor Darrell, and Jitendra Malik.
-\newblock Rich feature hierarchies for accurate object detection and semantic
-  segmentation, 2014.
+\newblock Rich feature hierarchies for accurate object detection and semantic segmentation, 2014.
 
 \bibitem{hwu2022programming}
 Wen-mei~W. Hwu, David~B. Kirk, and Izzat El~Hajj.
@@ -78,23 +70,18 @@ Glenn Jocher, Jing Qiu, and Ayush Chaurasia.
 \bibitem{devbreachCNN}
 Swapna Kategaru.
 \newblock Convolution neural network in deep learning.
-\newblock
-  \url{https://developersbreach.com/convolution-neural-network-deep-learning/},
-  2025.
+\newblock \url{https://developersbreach.com/convolution-neural-network-deep-learning/}, 2025.
 \newblock Accedido el 26 de abril de 2025.
 
 \bibitem{khan2018guide}
 Salman Khan, Hossein Rahmani, Syed Afaq~Ali Shah, and Mohammed Bennamoun.
 \newblock {\em A Guide to Convolutional Neural Networks for Computer Vision}.
-\newblock Synthesis Lectures on Computer Vision. Springer Cham, 1 edition,
-  2018.
+\newblock Synthesis Lectures on Computer Vision. Springer Cham, 1 edition, 2018.
 
 \bibitem{hackster_counting_inspection}
 Kinetica.
 \newblock Counting for inspection and quality control with tensorrt.
-\newblock
-  \url{https://www.hackster.io/kinetika/counting-for-inspection-and-quality-control-with-tensorrt-550b91},
-  2024.
+\newblock \url{https://www.hackster.io/kinetika/counting-for-inspection-and-quality-control-with-tensorrt-550b91}, 2024.
 \newblock Accedido el 26 de mayo de 2025.
 
 \bibitem{kuhn1955hungarian}
@@ -109,20 +96,16 @@ Tushar Kumar.
 \newblock Video. Accedido: 14 de abril de 2025.
 
 \bibitem{lin2015microsoftcococommonobjects}
-Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, Ross Girshick,
-  James Hays, Pietro Perona, Deva Ramanan, C.~Lawrence Zitnick, and Piotr
-  Dollár.
+Tsung-Yi Lin, Michael Maire, Serge Belongie, Lubomir Bourdev, Ross Girshick, James Hays, Pietro Perona, Deva Ramanan, C.~Lawrence Zitnick, and Piotr Dollár.
 \newblock Microsoft coco: Common objects in context, 2015.
 
 \bibitem{Liu_2016}
-Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
-  Cheng-Yang Fu, and Alexander~C. Berg.
+Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed, Cheng-Yang Fu, and Alexander~C. Berg.
 \newblock {\em SSD: Single Shot MultiBox Detector}, page 21–37.
 \newblock Springer International Publishing, 2016.
 
 \bibitem{idf1}
-Jonathon Luiten, Aljosa Osep, Patrick Dendorfer, Philip Torr, Andreas Geiger,
-  Laura Leal-Taix{\'e}, and Bastian Leibe.
+Jonathon Luiten, Aljosa Osep, Patrick Dendorfer, Philip Torr, Andreas Geiger, Laura Leal-Taix{\'e}, and Bastian Leibe.
 \newblock Hota: A higher order metric for evaluating multi-object tracking.
 \newblock {\em International Journal of Computer Vision}, 129:1--31, 02 2021.
 
@@ -135,9 +118,7 @@ MicroPython.
 \bibitem{opengenusHOG}
 Karthik Mittal.
 \newblock Object detection with histogram of oriented gradients (hog).
-\newblock
-  \url{https://iq.opengenus.org/object-detection-with-histogram-of-oriented-gradients-hog/},
-  2020.
+\newblock \url{https://iq.opengenus.org/object-detection-with-histogram-of-oriented-gradients-hog/}, 2020.
 \newblock Accedido el 20 de mayo de 2025.
 
 \bibitem{moore1965cramming}
@@ -164,15 +145,11 @@ Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
 \bibitem{ultralytics_docker_quickstart}
 Ultralytics.
 \newblock Docker quickstart.
-\newblock
-  \url{https://docs.ultralytics.com/es/guides/docker-quickstart/#verify-nvidia-runtime-with-docker},
-  2024.
+\newblock \url{https://docs.ultralytics.com/es/guides/docker-quickstart/#verify-nvidia-runtime-with-docker}, 2024.
 \newblock Accedido el 9 de junio de 2025.
 
 \bibitem{zhang2022bytetrackmultiobjecttrackingassociating}
-Yifu Zhang, Peize Sun, Yi~Jiang, Dongdong Yu, Fucheng Weng, Zehuan Yuan, Ping
-  Luo, Wenyu Liu, and Xinggang Wang.
-\newblock Bytetrack: Multi-object tracking by associating every detection box,
-  2022.
+Yifu Zhang, Peize Sun, Yi~Jiang, Dongdong Yu, Fucheng Weng, Zehuan Yuan, Ping Luo, Wenyu Liu, and Xinggang Wang.
+\newblock Bytetrack: Multi-object tracking by associating every detection box, 2022.
 
 \end{thebibliography}
