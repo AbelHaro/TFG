@@ -44,6 +44,37 @@
 % Para conseguir que la tabla de contenido no salga en rojo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+
+
+
+
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{seguimiento}{
+  language=Python,
+  backgroundcolor=\color{gray!10},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+commentstyle=\color{gray!70},
+  stringstyle=\color{red!70!black},
+  showstringspaces=false,
+  frame=single,
+  rulecolor=\color{gray!60},
+  captionpos=b,
+  numbers=none,
+  xleftmargin=1em,
+  xrightmargin=1em
+}
+
+
+
+
+
+
 \usepackage[acronym]{glossaries}
 \makeglossaries
 
@@ -1106,25 +1137,27 @@ El siguiente algoritmo, se encarga de actualizar una estructura de memoria que a
 
 La memoria es un diccionario donde cada clave es el identificador único de un objeto (\texttt{track\_id}), y el valor asociado es otro diccionario con la siguiente estructura:
 
-\begin{verbatim}
+\begin{lstlisting}[style=seguimiento, caption={Estructura de la memoria de seguimiento}]
 {
    track_id: {
-      "defective": True/False,            # Indica si el objeto es defectuoso
+      "defective": True/False,            # Indica si el objeto
+                                          # es defectuoso
 
       "permanent_defective": True/False,  # Indica si el objeto 
-                                          # es permanentemente defectuoso
+                                          # es permanentemente 
+                                          # defectuoso
 
-      "visible_frames": N,                # Cuántos fotogramas puede no 
-                                          # ser visto antes de ser eliminado
+      "visible_frames": N,                # Cuantos fotogramas 
+                                          # puede no ser visto 
+                                          # antes de ser eliminado
 
       "class": "clase_objeto"             # Clase del objeto
    },
    ...
 }
-\end{verbatim}
+\end{lstlisting}
 
-Por ejemplo:
-\begin{verbatim}
+\begin{lstlisting}[style=seguimiento, caption={Ejemplo de memoria de seguimiento}]
 {
    1: {
       "defective": False,
@@ -1140,7 +1173,8 @@ Por ejemplo:
    },
    ...
 }
-\end{verbatim}
+\end{lstlisting}
+
 
 \begin{itemize}
    \item \textbf{Parámetros de entrada:}
