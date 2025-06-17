@@ -1,0 +1,64 @@
+\babel@toc {spanish}{}\relax 
+\babel@toc {catalan}{}\relax 
+\babel@toc {spanish}{}\relax 
+\babel@toc {spanish}{}\relax 
+\babel@toc {spanish}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {spanish}{}\relax 
+\contentsline {chapter}{\'{I}ndice general}{\es@scroman {v}}{section*.1}%
+\contentsline {chapter}{\'{I}ndice de figuras}{\es@scroman {vii}}{section*.2}%
+\contentsline {chapter}{\'Indice de tablas}{\es@scroman {vii}}{section*.3}%
+\noindent \hrulefill \par 
+\contentsline {chapter}{\numberline {1}Introducci\'on}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Motivaci\'on}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Objetivos}{4}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Estructura de la memoria}{4}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Colaboraciones}{5}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Conceptos previos}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Fundamentos y avances en redes neuronales para visión artificial}{7}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Fundamentos de la inteligencia artificial}{7}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Tareas fundamentales en visión por computador}{8}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Arquitectura y funcionamiento de las CNN}{9}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}Detectores de dos etapas}{14}{subsection.2.1.4}%
+\contentsline {subsection}{\numberline {2.1.5}Detectores de una etapa}{15}{subsection.2.1.5}%
+\contentsline {subsection}{\numberline {2.1.6}Métricas de evaluación de modelos de detección de objetos}{17}{subsection.2.1.6}%
+\contentsline {section}{\numberline {2.2}Aceleradores de procesamiento gráfico}{18}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Limitaciones del hardware tradicional}{19}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Arquitectura y funcionamiento de las GPUs}{20}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Serie Jetson: dispositivos para IA de bajo consumo}{21}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}TensorRT}{23}{subsection.2.2.4}%
+\contentsline {section}{\numberline {2.3}Seguimiento de objetos en tiempo real}{24}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Introducción al seguimiento de objetos}{25}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}BYTETrack}{26}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Métricas de evaluación en seguimiento de objetos múltiples}{28}{subsection.2.3.3}%
+\contentsline {chapter}{\numberline {3}Diseño e implementación de la solución}{33}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Análisis del problema}{33}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Entrenamiento de los modelos}{34}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Descripción del sistema}{38}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Diseño de las etapas del sistema}{39}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Captura de imágenes}{39}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Inferencia}{40}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Seguimiento}{40}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Escritura de resultados}{41}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Segmentación de las etapas del sistema}{44}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Secuencial}{44}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Segmentación en hilos}{44}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Segmentación en procesos}{46}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Segmentación heterógenea}{48}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}Segmentación basada en procesos con memoria compartida}{49}{subsection.3.5.5}%
+\contentsline {chapter}{\numberline {4}Evaluación de la solución}{53}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Metodología de evaluación y métricas de rendimiento}{53}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Variación de la configuración del sistema}{55}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Cantidad de objetos}{55}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Tipo de segmentación}{62}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Modelo y talla}{64}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Precisión numérica y acelerador de inferencia}{66}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Modo de energía y cores de la CPU}{69}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.6}Dispositivos Jetson}{70}{subsection.4.2.6}%
+\contentsline {section}{\numberline {4.3}Evaluación del seguimiento de objetos}{71}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Prueba de concepto}{73}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Diseño y construcción del sistema físico}{73}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Integración del sistema de visión artificial}{76}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Resultados experimentales y evaluación}{77}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Conclusiones}{79}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Objetivos alcanzados y dificultades}{79}{section.6.1}%
