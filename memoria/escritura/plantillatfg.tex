@@ -1993,7 +1993,7 @@ Los materiales empleados para la construcción de la cinta transportadora son lo
    \item Filamento PLA (ácido poliláctico) para la impresión 3D de las piezas estructurales de la cinta.
    \item Cuatro rodamientos de tipo 688ZZ para facilitar el movimiento suave de la cinta.
    \item Un servomotor DS3225, encargado de accionar el mecanismo de rechazo de canicas defectuosas.
-   \item Una banda transportadora de 15 cm de ancho y 1.2 m de largo.
+   \item Una banda transportadora de 7.5 cm de ancho y 1.2 m de largo.
    \item Una correa de sincronización GT2 de 300 mm y 6 mm de ancho.
    \item Una placa microcontroladora Raspberry Pi Pico WH para el control del servomotor.
    \item Una cámara para la captura de imágenes de los objetos en la cinta.
@@ -2027,9 +2027,13 @@ Para la prueba de concepto, se utilizaron las canicas de colores como objetos de
    \label{fig:imagen_prueba_concepto}
 \end{figure}
 
+La prueba de concepto validó la capacidad del sistema para detectar y clasificar canicas en movimiento sobre una cinta transportadora en tiempo real. El sistema demostró efectividad en la identificación de objetos defectuosos, activando exitosamente el mecanismo de rechazo cuando se detectaban canicas con manchas.
 
+No obstante, el mecanismo de rechazo implementado presenta limitaciones significativas debido a su simplicidad. La precisión del sistema para desviar únicamente las canicas defectuosas no fue óptima, ya que el actuador mecánico requiere un tiempo de respuesta que no siempre se sincroniza perfectamente con la velocidad de la cinta transportadora.
 
+Además, la infraestructura de la cinta transportadora construida carece de un sistema de recirculación continua, lo que provoca que las canicas se acumulen al final del recorrido o caigan fuera de la estructura. Esta limitación impide evaluar el comportamiento del sistema durante períodos prolongados de operación continua.
 
+Aunque la implementación actual es demasiado rudimentaria para considerarse una solución industrial completa, los resultados obtenidos confirman la viabilidad técnica del enfoque propuesto. La prueba establece una base sólida que demuestra el potencial del sistema para ser escalado y refinado hacia aplicaciones industriales más complejas y robustas.
 
 
 
