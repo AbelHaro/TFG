@@ -1971,13 +1971,12 @@ Finalmente, la métrica \gls{hota}, que ofrece una evaluación más holística, 
 Colectivamente, estos resultados cuantitativos no solo demuestran la eficacia del sistema para el seguimiento de objetos múltiples, sino que también justifican las elecciones de diseño y la combinación de tecnologías empleadas, subrayando su preparación para aplicaciones que requieren un seguimiento robusto y preciso en entornos dinámicos.
 
 \chapter{Prueba de concepto} \label{chap:prueba_concepto}
-Aqui se explicará la implementación de la solución propuesta en el entorno de producción con la cinta transportadora.
+Tras la fase de desarrollo y análisis de la solución propuesta, que se llevó a cabo utilizando vídeos pregrabados en un entorno de laboratorio, se procedió a la implementación de una prueba de concepto. Esta prueba simula un entorno de producción real mediante la construcción de una cinta transportadora sencilla. El principal objetivo de esta etapa es validar la viabilidad y el rendimiento de la solución en un escenario práctico, evaluando su capacidad para detectar y clasificar objetos (canicas) en movimiento sobre dicha cinta.
 
-\section{Construcción del entorno} \label{sub:construccion_entorno}
-Tras la fase de desarrollo y análisis de la solución propuesta, que se llevó a cabo utilizando vídeos pregrabados en un entorno de laboratorio, se procedió a la implementación de una prueba de concepto. Esta prueba simula un entorno de producción real mediante la construcción de una cinta transportadora sencilla. El principal objetivo de esta etapa es validar la viabilidad y el rendimiento de la solución en un escenario práctico, evaluando su capacidad para detectar y clasificar objetos (canicas) en movimiento sobre dicha cinta. Para la construcción de la cinta transportadora, se tomaron como referencia los planos y la lista de materiales detallados en un proyecto de acceso público \cite{hackster_counting_inspection}.
+\section{Diseño y construcción del sistema físico} \label{sec:diseno_construccion}
+La implementación práctica de la solución propuesta requirió el diseño y construcción de una plataforma física que intenta simular un entorno de producción industrial real. Para esta tarea, se tomaron como referencia los planos y la lista de materiales detallados en un proyecto de acceso público \cite{hackster_counting_inspection}, que proporcionó una base sólida para el desarrollo de una cinta transportadora funcional y económicamente viable.
 
-
-
+La selección de este diseño de referencia se basó en varios criterios fundamentales: su simplicidad constructiva, la disponibilidad de los materiales necesarios, la posibilidad de adaptación para diferentes tipos de objetos, y su capacidad para integrar sistemas de visión artificial. Además, el proyecto de referencia había sido previamente validado en aplicaciones similares, lo que reducía los riesgos técnicos asociados con el desarrollo desde cero.
 
 \begin{figure}[H]
    \centering
@@ -1989,25 +1988,38 @@ Tras la fase de desarrollo y análisis de la solución propuesta, que se llevó 
 Los materiales empleados para la construcción de la cinta transportadora son los siguientes:
 
 \begin{itemize}
-   \item Un motor de corriente continua (DC) de 12V y 319 RPM para el accionamiento de la cinta.
-   \item Filamento PLA (ácido poliláctico) para la impresión 3D de las piezas estructurales de la cinta.
-   \item Cuatro rodamientos de tipo 688ZZ para facilitar el movimiento suave de la cinta.
-   \item Un servomotor DS3225, encargado de accionar el mecanismo de rechazo de canicas defectuosas.
-   \item Una banda transportadora de 7.5 cm de ancho y 1.2 m de largo.
-   \item Una correa de sincronización GT2 de 300 mm y 6 mm de ancho.
-   \item Una placa microcontroladora Raspberry Pi Pico WH para el control del servomotor.
-   \item Una cámara para la captura de imágenes de los objetos en la cinta.
-   \item Cableado diverso y conectores para las interconexiones eléctricas.
-   \item Una fuente de alimentación para suministrar energía a los componentes.
+   \item \textbf{Motor de corriente continua (DC) de 12V y 319 RPM:} Proporciona movimiento constante a la banda transportadora.
+   
+   \item \textbf{Filamento PLA:} Material para imprimir en 3D las piezas estructurales de la cinta (soportes, poleas, guías).
+   
+   \item \textbf{Cuatro rodamientos 688ZZ:} Permiten el movimiento suave de los ejes rotativos con baja fricción.
+   
+   \item \textbf{Servomotor DS3225:} Servomotor para mover la palanca de desvío de canicas defectuosas.
+   
+   \item \textbf{Banda transportadora:} Cinta de 7.5 cm de ancho y 1.2 m de longitud con superficie texturizada.
+   
+   \item \textbf{Correa de sincronización GT2:} Correa dentada para transmisión de potencia entre motor y poleas.
+   
+   \item \textbf{Raspberry Pi Pico WH:} Microcontrolador con WiFi para control del servomotor.
+   
+   \item \textbf{Cámara USB:} Dispositivo de captura de imágenes a 30 fps.
+
+   \item \textbf{Componentes auxiliares:} Cables, tornillería y elementos de fijación.
+   
+   \item \textbf{Fuente de alimentación:} Fuente de 12V/3A para alimentar el motor y componentes electrónicos.
 \end{itemize}
 
-El montaje de la cinta transportadora se realizó siguiendo los planos ilustrados en la Figura \ref{fig:planos_cinta}. La Raspberry Pi Pico WH se programó para controlar el servomotor que desvía las canicas identificadas como defectuosas. Para la programación de este microcontrolador se utilizó MicroPython\cite{micropython_home}. La cámara se ubicó estratégicamente en la parte superior de la cinta para obtener una vista clara de las canicas durante su tránsito. El motor DC, alimentado por una fuente de 12V, es el responsable del movimiento continuo de la banda transportadora.
+El montaje de la cinta transportadora se realizó siguiendo una metodología sistemática basada en los planos ilustrados en la Figura \ref{fig:planos_cinta}. El proceso se dividió en varias fases para garantizar la precisión del ensamblaje y facilitar las pruebas intermedias de funcionamiento.
 
-El sistema completo se configuró de la siguiente manera: el procesamiento principal, incluyendo la ejecución del modelo de detección de objetos, se realiza en un dispositivo NVIDIA Jetson AGX Xavier. Este dispositivo es el encargado de analizar las imágenes capturadas por la cámara y ejecutar los algoritmos de visión artificial necesarios para la identificación y clasificación de las canicas.
+La primera fase consistió en la impresión 3D de todas las piezas estructurales utilizando una impresora Prusa MK2\cite{prusa3d_mk2_mk2s} con filamento PLA.
 
-Para la comunicación entre el Jetson AGX Xavier y la Raspberry Pi Pico WH, se establece una conexión TCP/IP que permite el intercambio de información en tiempo real. Al iniciar el sistema, el Jetson AGX Xavier actúa como servidor, abriendo un socket en el puerto 5000 y esperando la conexión de la Raspberry Pi Pico WH, que funciona como cliente. Una vez que la Raspberry Pi Pico WH se conecta exitosamente, envía un mensaje de inicio al Jetson para confirmar que está lista para recibir comandos. A partir de este momento, el Jetson comienza a procesar el flujo de vídeo de la cámara de manera continua.
+La segunda fase abarcó el ensamblaje de la estructura mecánica principal. Los rodamientos se instalaron en sus alojamientos correspondientes utilizando un ajuste a presión controlado, verificando la ausencia de holguras excesivas que pudieran generar vibraciones durante el funcionamiento.
 
-Durante el funcionamiento del sistema, cuando el modelo de detección ejecutándose en el Jetson identifica una canica defectuosa basándose en los criterios de clasificación establecidos, envía inmediatamente un mensaje específico a la Raspberry Pi Pico WH a través de la conexión TCP/IP. Al recibir esta señal de activación, la Raspberry Pi Pico WH ejecuta la rutina de rechazo, activando el servomotor DS3225 durante un breve instante controlado. Este accionamiento preciso mueve un mecanismo mecánico que desvía la canica defectuosa fuera de la trayectoria principal de la cinta transportadora, separándola efectivamente del flujo de productos válidos.
+Durante la tercera fase se procedió a la instalación del sistema de transmisión. El motor DC se montó en su soporte específico, asegurando su correcta alineación con la polea motriz. La correa de sincronización GT2 se instaló con la tensión adecuada para evitar tanto el deslizamiento como el desgaste prematuro por sobretensión.
+
+La cuarta fase incluyó la instalación de la banda transportadora y el ajuste de su tensión. Este proceso requirió varios ciclos de ajuste iterativo para lograr un movimiento uniforme sin ondulaciones ni desviaciones laterales. Se verificó que la superficie de transporte mantuviera una planicidad adecuada en toda su longitud.
+
+Finalmente, la cámara se ubicó estratégicamente en la parte superior de la cinta para obtener una vista clara y perpendicular de las canicas durante su tránsito, minimizando las distorsiones ópticas y las sombras que pudieran interferir con el proceso de detección.
 
 \begin{figure}[H]
    \centering
@@ -2018,7 +2030,42 @@ Durante el funcionamiento del sistema, cuando el modelo de detección ejecutánd
 
 En la Figura \ref{fig:cinta_transportadora} se muestra la cinta transportadora construida para la prueba de concepto.
 
-Para la prueba de concepto, se utilizaron las canicas de colores como objetos de prueba. En la Figura \ref{fig:imagen_prueba_concepto} se muestra un frame de ejemplo de la prueba de concepto, donde se observan tres canicas de color blanco Entre ellas, una canica defectuosa con una mancha roja, que es el criterio de clasificación utilizado para identificar las canicas defectuosas. 
+\section{Integración del sistema de visión artificial} \label{sec:integracion_vision}
+La integración del sistema de visión artificial constituye el núcleo tecnológico de la prueba de concepto, ya que combina los algoritmos de detección desarrollados durante las fases anteriores del proyecto con la infraestructura física de la cinta transportadora. Esta integración requirió el diseño de una arquitectura distribuida que optimiza el procesamiento en tiempo real y garantiza una respuesta adecuada del sistema de actuación.
+
+El sistema completo se configuró utilizando una arquitectura distribuida que separa las responsabilidades de procesamiento y control entre dos dispositivos especializados. El procesamiento principal, incluyendo la ejecución del modelo de detección de objetos y los algoritmos de seguimiento, se realiza en un dispositivo NVIDIA Jetson AGX Xavier.
+
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.8\textwidth]{images/prueba_de_concepto/diagrama_cinta.png}
+   \caption[Diagrama de la arquitectura del sistema de visión artificial]{Diagrama de la arquitectura del sistema de visión artificial.}
+   \label{fig:diagrama_cinta}
+\end{figure}
+
+El Jetson AGX Xavier actúa como el cerebro del sistema, ejecutando continuamente los siguientes procesos en paralelo: captura y preprocesamiento de imágenes de la cámara, inferencia del modelo de detección YOLO entrenado, algoritmos de seguimiento BYTETrack para mantener la identidad de los objetos, lógica de clasificación para determinar si una canica es defectuosa, y comunicación en tiempo real con el sistema de actuación.
+
+Como complemento, la Raspberry Pi Pico WH se programó específicamente para controlar el servomotor que desvía las canicas identificadas como defectuosas, tal como se ilustra en la Figura \ref{fig:diagrama_cinta}. Esta separación de responsabilidades permite que el sistema de actuación responda con latencia mínima, mientras que el Jetson puede dedicar todos sus recursos al procesamiento de visión artificial sin interrupciones por tareas de control de hardware.
+
+Para la programación de la Raspberry Pi Pico WH se utilizó MicroPython\cite{micropython_home}, un lenguaje que ofrece la simplicidad de Python con las capacidades de tiempo real necesarias para aplicaciones de control. La elección de MicroPython se basó en su facilidad de desarrollo, su amplia documentación, y su capacidad para manejar comunicaciones de red y control de hardware de forma simultánea.
+
+El firmware desarrollado para el microcontrolador implementa una máquina de estados que gestiona tres modos principales de operación: modo de inicialización, donde se configuran los pines GPIO y se establece la conexión WiFi; modo de espera, donde el sistema aguarda comandos del Jetson manteniendo una conexión TCP activa; y modo de actuación, donde se ejecuta la secuencia de movimiento del servomotor para desviar canicas defectuosas.
+
+Para la comunicación entre el Jetson AGX Xavier y la Raspberry Pi Pico WH, se utilizó el protocolo TCP que garantiza la confiabilidad y el orden de los mensajes intercambiados. La elección de TCP sobre UDP se justifica por la necesidad de garantizar la entrega de todos los comandos de actuación, ya que la pérdida de un mensaje podría resultar en que una canica defectuosa no sea rechazada correctamente. La arquitectura de comunicación se muestra en la Figura \ref{fig:diagrama_cinta}, donde se aprecia la interconexión entre los componentes del sistema.
+
+Al iniciar el sistema, el Jetson AGX Xavier actúa como servidor TCP, abriendo un socket en el puerto 5000 y configurando un buffer de recepción optimizado para mensajes de tamaño reducido. El servidor implementa un mecanismo de reconexión automática que permite recuperarse de desconexiones temporales sin perder el estado del sistema. Se configuró un timeout de conexión de 30 segundos y un sistema de heartbeat cada 5 segundos para detectar desconexiones de manera proactiva.
+
+Durante el funcionamiento del sistema, cuando el modelo de detección ejecutándose en el Jetson identifica una canica defectuosa basándose en los criterios de clasificación establecidos, se activa una secuencia temporizada cuidadosamente diseñada. El sistema de seguimiento BYTETrack proporciona información de posición y velocidad de la canica, permitiendo calcular el tiempo exacto en que llegará a la zona de actuación del servomotor.
+
+Al recibir la señal de activación, la Raspberry Pi Pico WH ejecuta la rutina de rechazo siguiendo una secuencia optimizada. Primero se posiciona el servomotor en la posición de espera, luego se ejecuta un movimiento rápido hasta la posición de desviación, se mantiene la posición durante el tiempo necesario para que la canica pase completamente, y finalmente se retorna a la posición de espera con un movimiento suave.
+
+Este accionamiento preciso mueve un mecanismo mecánico compuesto por una paleta de desviación que intercepta la trayectoria de la canica defectuosa, desviándola fuera de la trayectoria principal de la cinta transportadora, tal como se observa en el diagrama de la Figura \ref{fig:diagrama_cinta}. El diseño del mecanismo garantiza que las canicas válidas no sean afectadas por el movimiento del actuador, separando efectivamente los productos defectuosos del flujo de productos válidos.
+
+\section{Resultados experimentales y evaluación} \label{sec:resultados_evaluacion}
+La evaluación experimental de la prueba de concepto se diseñó para validar tanto la funcionalidad técnica del sistema como su viabilidad práctica en un entorno que simula condiciones industriales reales. Esta evaluación abarcó múltiples aspectos del sistema, desde la precisión de detección hasta la efectividad del mecanismo de rechazo, proporcionando una base sólida para evaluar el potencial de escalabilidad de la solución propuesta.
+
+En la Figura \ref{fig:imagen_prueba_concepto} se muestra un frame representativo de la prueba de concepto, donde se observan tres canicas de color blanco transitando por la cinta transportadora. Entre ellas, se identifica claramente una canica defectuosa que presenta una mancha roja, correspondiente al criterio de clasificación establecido para distinguir los productos defectuosos de los válidos. 
 
 \begin{figure}[H]
    \centering

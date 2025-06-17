@@ -1,0 +1,27 @@
+\babel@toc {spanish}{}\relax 
+\babel@toc {catalan}{}\relax 
+\babel@toc {spanish}{}\relax 
+\babel@toc {spanish}{}\relax 
+\babel@toc {spanish}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {spanish}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Comparativa técnica entre diferentes modelos NVIDIA Jetson}}{22}{table.caption.21}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Análisis comparativo de variantes de YOLO (v5, v8, v11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU}}{36}{table.caption.31}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Comparativa del rendimiento de los modelos YOLOv5, YOLOv8 y YOLO11 en términos de tiempo de entrenamiento, precisión, recall y mAP}}{37}{table.caption.32}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Resultados del experimento con distintas cantidades de objetos}}{59}{table.caption.47}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Resultados del experimento con distintos tipos de segmentación a máxima capacidad}}{62}{table.caption.51}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Resultados del experimento con distintos tipos de segmentación a 30 fps}}{63}{table.caption.52}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante}}{64}{table.caption.53}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Resultados del experimento con distintos modelos y tallas a 30 fps}}{65}{table.caption.55}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante}}{66}{table.caption.56}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante}}{68}{table.caption.59}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante}}{69}{table.caption.60}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante}}{69}{table.caption.61}%
+\contentsline {table}{\numberline {4.10}{\ignorespaces Resultados del experimento con distintos dispositivos Jetson a máxima capacidad con un vídeo de carga alta y constante}}{70}{table.caption.62}%
+\contentsline {table}{\numberline {4.11}{\ignorespaces Resultados del experimento con distintos dispositivos Jetson a 30 fps con un vídeo de carga alta y constante}}{71}{table.caption.63}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
