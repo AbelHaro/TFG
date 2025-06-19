@@ -148,6 +148,12 @@ Gordon~E. Moore.
 Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
 \newblock You only look once: Unified, real-time object detection, 2016.
 
+\bibitem{selectiveSearch2012}
+J.R.R. Uijlings, K.E.A. van~de Sande, T.~Gevers, and A.W.M. Smeulders.
+\newblock Selective search for object recognition.
+\newblock Technical report, University of Trento and University of Amsterdam, 2012.
+\newblock Technical Report, submitted to IJCV.
+
 \bibitem{ultralytics_docker_quickstart}
 Ultralytics.
 \newblock Docker quickstart.
