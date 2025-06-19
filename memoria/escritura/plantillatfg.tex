@@ -150,8 +150,8 @@ commentstyle=\color{gray!70},
 
 \title{Detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA}
 \author{Haro Armero, Abel}
-\tutor{Flich Cardo, José \\
-López Rodríguez, Pedro Juan}
+\tutor{Flich Cardo, José}
+\cotutor{López Rodríguez, Pedro Juan}
 \curs{2024-2025}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -894,6 +894,15 @@ El funcionamiento del algoritmo BYTETrack es el siguiente:
    } % End the group
    \item \textbf{Retorno:} Una vez procesados todos los fotogramas, se devuelve el conjunto final de trayectorias $\mathcal{T}$.
 \end{enumerate}
+
+% \begin{algorithm}[H]
+%    \caption{Algoritmo BYTETrack}
+%    \label{alg:bytetrack}
+%    \begin{algorithmic}[1]
+%       \State \textbf{Input:} Secuencia de vídeo $V$, detector de objetos $Det$, umbral de confianza $\tau$
+      
+%    \end{algorithmic}
+% \end{algorithm}
 
 
 Con todo esto, BYTETrack logra un seguimiento robusto y preciso de múltiples objetos en movimiento, incluso en condiciones desafiantes como oclusiones parciales y cambios de apariencia. Su enfoque innovador para manejar detecciones de baja confianza lo distingue de otros algoritmos de seguimiento y lo convierte en una opción atractiva para aplicaciones en tiempo real.
