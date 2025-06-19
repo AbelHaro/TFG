@@ -5,6 +5,11 @@ Anders S.~G. Andrae and Tomas Edler.
 \newblock On global electricity usage of communication technology: Trends to 2030.
 \newblock {\em Challenges}, 6(1):117--157, 2015.
 
+\bibitem{Bewley_2016}
+Alex Bewley, Zongyuan Ge, Lionel Ott, Fabio Ramos, and Ben Upcroft.
+\newblock Simple online and realtime tracking.
+\newblock In {\em 2016 IEEE International Conference on Image Processing (ICIP)}. IEEE, September 2016.
+
 \bibitem{google2025tpu}
 Google Cloud.
 \newblock Tensor processing units (tpus).
@@ -66,6 +71,11 @@ Glenn Jocher and Jing Qiu.
 \bibitem{Jocher_Ultralytics_YOLO_2023}
 Glenn Jocher, Jing Qiu, and Ayush Chaurasia.
 \newblock {Ultralytics YOLO}, January 2023.
+
+\bibitem{kalman1960new}
+Rudolf~E. Kalman.
+\newblock A new approach to linear filtering and prediction problems.
+\newblock {\em Journal of Basic Engineering}, 82(1):35--45, 1960.
 
 \bibitem{devbreachCNN}
 Swapna Kategaru.
@@ -132,11 +142,27 @@ Gordon~E. Moore.
 \newblock \url{https://developer.nvidia.com/deep-learning-accelerator}, 2024.
 \newblock Accedido el 21 de mayo de 2025.
 
+\bibitem{cuda}
+{NVIDIA Corporation}.
+\newblock Cuda toolkit.
+\newblock \url{https://developer.nvidia.com/cuda-toolkit}, 2025.
+\newblock Accedido el 19 de junio de 2025.
+
 \bibitem{nvidia_jetson_modules}
 {NVIDIA Corporation}.
 \newblock Jetson modules, support, ecosystem, and lineup.
 \newblock \url{https://developer.nvidia.com/embedded/jetson-modules}, 2025.
 \newblock Accedido el 24 de abril de 2025.
+
+\bibitem{nvidia_home}
+{NVIDIA Corporation}.
+\newblock Nvidia.
+\newblock \url{https://www.nvidia.com/}, 2025.
+\newblock Accedido el 19 de junio de 2025.
+
+\bibitem{onnx}
+ONNX.
+\newblock Open neural network exchange (onnx), 2025.
 
 \bibitem{prusa3d_mk2_mk2s}
 {Prusa Research}.
@@ -159,6 +185,10 @@ Ultralytics.
 \newblock Docker quickstart.
 \newblock \url{https://docs.ultralytics.com/es/guides/docker-quickstart/#verify-nvidia-runtime-with-docker}, 2024.
 \newblock Accedido el 9 de junio de 2025.
+
+\bibitem{wojke2017simpleonlinerealtimetracking}
+Nicolai Wojke, Alex Bewley, and Dietrich Paulus.
+\newblock Simple online and realtime tracking with a deep association metric, 2017.
 
 \bibitem{zhang2022bytetrackmultiobjecttrackingassociating}
 Yifu Zhang, Peize Sun, Yi~Jiang, Dongdong Yu, Fucheng Weng, Zehuan Yuan, Ping Luo, Wenyu Liu, and Xinggang Wang.

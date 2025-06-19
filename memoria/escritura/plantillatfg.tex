@@ -651,9 +651,13 @@ Un aspecto fundamental para el despliegue eficiente de modelos de \gls{ai} es el
 
 \subsection{Limitaciones del hardware tradicional} \label{sec:limitaciones_hardware}
 
-La Dennard Scaling\cite{dennard1974design}, formulada por Robert Dennard en 1974, establecía que a medida que los transistores se reducían de tamaño, su consumo de energía por unidad de área se mantenía constante. Esto significaba que, al reducir el tamaño de los transistores a la mitad, su área se reducía a un cuarto, pero su consumo de energía por unidad de área permanecía igual. Como resultado, el consumo total de energía se reducía a la mitad, permitiendo aumentar la frecuencia de reloj y el número de transistores sin incrementar significativamente el consumo total de energía. Este principio fue fundamental para el avance exponencial en el rendimiento de los procesadores durante décadas. Sin embargo, a partir de 2005, la Dennard Scaling dejó de cumplirse debido a varios factores físicos fundamentales. A escalas nanométricas, los efectos cuánticos y las fugas de corriente se volvieron significativos, impidiendo que el consumo de energía por unidad de área se mantuviera constante.
+La Dennard Scaling\cite{dennard1974design}, formulada por Robert Dennard en 1974, establecía que a medida que los transistores se reducían de tamaño, su consumo de energía por unidad de área se mantenía constante. Esto significaba que, al reducir el tamaño de los transistores a la mitad, su área se reducía a un cuarto, pero su consumo de energía por unidad de área permanecía igual. Como resultado, el consumo total de energía se reducía a la mitad, permitiendo aumentar la frecuencia de reloj y el número de transistores sin incrementar significativamente el consumo total de energía. Este principio fue fundamental para el avance exponencial en el rendimiento de los procesadores durante décadas. 
 
-Por otro lado, la ley de Moore\cite{moore1965cramming}, formulada por Gordon Moore en 1965, predecía que el número de transistores en un chip se duplicaría aproximadamente cada año, predicción que posteriormente se ajustó a cada dos años. Durante décadas, esta ley se cumplió con notable precisión, permitiendo un crecimiento exponencial en la capacidad de procesamiento. Sin embargo, a medida que los transistores se acercan a escalas atómicas (actualmente en torno a los 3-5 nanómetros), los límites físicos y los desafíos de fabricación han ralentizado significativamente este ritmo de avance. Los costes de investigación y desarrollo para mantener esta tendencia se han disparado, y los beneficios en términos de rendimiento por transistor se han reducido.
+Sin embargo, a partir de 2005, la Dennard Scaling dejó de cumplirse debido a varios factores físicos fundamentales. A escalas nanométricas, los efectos cuánticos y las fugas de corriente se volvieron significativos, impidiendo que el consumo de energía por unidad de área se mantuviera constante.
+
+Por otro lado, la ley de Moore\cite{moore1965cramming}, formulada por Gordon Moore en 1965, predecía que el número de transistores en un chip se duplicaría aproximadamente cada año, predicción que posteriormente se ajustó a cada dos años. Durante décadas, esta ley se cumplió con notable precisión, permitiendo un crecimiento exponencial en la capacidad de procesamiento.
+
+No obstante, a medida que los transistores se acercan a escalas atómicas (actualmente en torno a los 3-5 nanómetros), los límites físicos y los desafíos de fabricación han ralentizado significativamente este ritmo de avance. Los costes de investigación y desarrollo para mantener esta tendencia se han disparado, y los beneficios en términos de rendimiento por transistor se han reducido.
 
 \begin{figure}[H]
    \centering
@@ -668,11 +672,11 @@ El punto de inflexión en 2005, marcado como \textit{Dennard Scaling Fails in He
 
 \subsection{Arquitectura y funcionamiento de las GPUs} \label{sec:arquitectura_gpus}
 
-Para superar las limitaciones de las \glspl{cpu} en tareas específicas, se emplean arquitecturas hardware especializadas. Entre ellas, las \glspl{fpga} ofrecen flexibilidad al ser reconfigurables post-fabricación, aunque su programación es compleja. En el extremo de la especialización se encuentran los \glspl{asic}, diseñados a medida para una única función, logrando máxima eficiencia a costa de un alto coste de diseño y nula reprogramabilidad; un ejemplo son las \glspl{tpu} de Google, optimizadas para \gls{ml}.
+Para superar las limitaciones de las \glspl{cpu} en tareas específicas, se emplean arquitecturas hardware especializadas. Entre ellas, las \glspl{fpga} que ofrecen flexibilidad al ser reconfigurables post-fabricación, aunque su programación es compleja. En el extremo de la especialización se encuentran los \glspl{asic}, diseñados a medida para una única función, logrando máxima eficiencia a costa de un alto coste de diseño y nula reprogramabilidad; un ejemplo son las \glspl{tpu} de Google, optimizadas para \gls{ml}.
 
 Las \glspl{gpu}, por su parte, son arquitecturas orientadas al paralelismo masivo. Su diseño \textit{many-core}, con miles de núcleos de procesamiento más simples, las hace idóneas para cargas de trabajo intensivas y paralelizables, como las operaciones matriciales del aprendizaje profundo. Dada esta capacidad, las \glspl{gpu} son fundamentales en este proyecto.
 
-El modelo de programación de las \glspl{gpu} está basado en la ejecución masiva de hilos, organizados en bloques y rejillas (\textit{blocks} y \textit{grids}), según la terminología de CUDA, el modelo de programación desarrollado por NVIDIA. Cada hilo ejecuta la misma función, conocida como \textit{kernel}, pero opera sobre diferentes fragmentos de datos. Este enfoque, conocido como SIMT (Single Instruction, Multiple Threads), permite aprovechar al máximo el paralelismo inherente a muchas aplicaciones de \gls{ai}, como el entrenamiento y la inferencia de redes neuronales.
+El modelo de programación de las \glspl{gpu} está basado en la ejecución masiva de hilos, organizados en bloques y rejillas (\textit{blocks} y \textit{grids}), según la terminología de CUDA\cite{cuda}, el modelo de programación desarrollado por NVIDIA\cite{nvidia_home}. Cada hilo ejecuta la misma función, conocida como \textit{kernel}, pero opera sobre diferentes fragmentos de datos. Este enfoque, conocido como SIMT (Single Instruction, Multiple Threads), permite aprovechar al máximo el paralelismo inherente a muchas aplicaciones de \gls{ai}, como el entrenamiento y la inferencia de redes neuronales.
 
 \begin{figure}[H]
    \centering
@@ -720,7 +724,7 @@ Un pilar fundamental del diseño de la serie Jetson es la optimización de la ef
    \label{tab:jetson_comparison}
 \end{table}
 
-La tabla \ref{tab:jetson_comparison}\cite{nvidia_jetson_modules} presenta una comparativa técnica entre diferentes modelos de la serie Jetson disponibles para la realización de este trabajo, incluyendo la presencia y tipo de DLAs. Cada modelo está diseñado para satisfacer diferentes necesidades y requisitos de rendimiento, lo que permite a los desarrolladores seleccionar el módulo más adecuado para su aplicación específica. Para este trabajo, se han utilizado los tres modelos de la tabla y se han comparado sus resultados.
+La tabla \ref{tab:jetson_comparison}\cite{nvidia_jetson_modules} presenta una comparativa técnica entre diferentes modelos de la serie Jetson disponibles para la realización de este trabajo, incluyendo la presencia y tipo de DLAs. Cada modelo está diseñado para satisfacer diferentes necesidades y requisitos de rendimiento, lo que permite a los desarrolladores seleccionar el módulo más adecuado para su aplicación específica. Para este trabajo, se han utilizado los tres modelos de la tabla y se compararán sus resultados en la subsección \ref{sec:dispositivos_jetson}.
 
 
 \begin{figure}[H]
@@ -743,9 +747,9 @@ El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de en
 \begin{itemize}
    \item \textbf{Optimización del Grafo Computacional:} TensorRT analiza la estructura del modelo y realiza transformaciones significativas para mejorar la eficiencia. Esto incluye:
       \begin{itemize}
-         \item \textit{Fusión de Capas (Layer Fusion):} Combina múltiples capas secuenciales (fusión vertical) o paralelas (fusión horizontal) en un único kernel optimizado. Por ejemplo, una secuencia de convolución, sesgo (bias) y activación (ReLU) puede fusionarse en una sola operación, reduciendo la sobrecarga de lanzamiento de kernels y el movimiento de datos en memoria.
-         \item \textit{Eliminación de Capas:} Identifica y elimina capas que no son necesarias para la inferencia, como las capas de dropout.
-         \item \textit{Fusión de Tensores (Tensor Fusion):} Combina operaciones que acceden a los mismos tensores para mejorar la localidad de los datos.
+         \item \textbf{Fusión de Capas \textit{(Layer Fusion)}:} Combina múltiples capas secuenciales (fusión vertical) o paralelas (fusión horizontal) en un único kernel optimizado. Por ejemplo, una secuencia de convolución, sesgo (bias) y activación (ReLU) puede fusionarse en una sola operación, reduciendo la sobrecarga de lanzamiento de kernels y el movimiento de datos en memoria.
+         \item \textbf{Eliminación de Capas:} Identifica y elimina capas que no son necesarias para la inferencia, como las capas de dropout.
+         \item \textbf{Fusión de Tensores \textit{(Tensor Fusion)}:} Combina operaciones que acceden a los mismos tensores para mejorar la localidad de los datos.
       \end{itemize}
 
       \begin{figure}[H]
@@ -757,8 +761,8 @@ El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de en
 
 
    \item \textbf{Calibración y Cuantización de Precisión:} TensorRT ofrece un soporte robusto para reducir la precisión numérica de los pesos y activaciones del modelo. Puede convertir modelos de precisión completa (FP32) a precisiones más bajas como FP16 (media precisión), INT8 (enteros de 8 bits), o incluso formatos más recientes como FP8 o FP4 en hardware compatible. Esta reducción disminuye drásticamente el tamaño del modelo, el ancho de banda de memoria requerido y acelera el cómputo (especialmente en hardware con soporte nativo como los Tensor Cores), a menudo con una pérdida mínima o nula de precisión.
-   \item \textbf{Selección Automática de Kernels (Kernel Auto-Tuning):} Durante la fase de construcción, TensorRT evalúa múltiples implementaciones (kernels) para cada operación en el hardware de destino específico y selecciona la más rápida disponible, considerando factores como el tamaño de los tensores y la precisión utilizada.
-   \item \textbf{Gestión Dinámica de Memoria (Dynamic Tensor Memory):} Optimiza la asignación de memoria para los tensores intermedios, reutilizando la memoria siempre que sea posible para minimizar la huella de memoria global.
+   \item \textbf{Selección Automática de Kernels \textit{(Kernel Auto-Tuning)}:} Durante la fase de construcción, TensorRT evalúa múltiples implementaciones (kernels) para cada operación en el hardware de destino específico y selecciona la más rápida disponible, considerando factores como el tamaño de los tensores y la precisión utilizada.
+   \item \textbf{Gestión Dinámica de Memoria \textit{(Dynamic Tensor Memory)}:} Optimiza la asignación de memoria para los tensores intermedios, reutilizando la memoria siempre que sea posible para minimizar la huella de memoria global.
    \item \textbf{Ejecución Multi-Stream:} Facilita la ejecución concurrente de múltiples flujos de inferencia en la misma GPU, mejorando el rendimiento general del sistema.
 \end{itemize}
 
@@ -769,7 +773,7 @@ El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de en
    \label{fig:tensorrt_architecture}
 \end{figure}
 
-El proceso típico de uso de TensorRT, como se ilustra esquemáticamente en la Figura~\ref{fig:tensorrt_architecture}, implica tomar un modelo entrenado (generalmente exportado a un formato intermedio como \gls{onnx}), utilizar el ``constructor'' (builder) de TensorRT para aplicar las optimizaciones y generar un ``motor'' (engine) de inferencia serializado y optimizado. Este motor es específico para el modelo, la precisión deseada y la plataforma hardware de destino (p. ej., un Jetson Orin Nano específico). Finalmente, el motor se carga en el ``tiempo de ejecución'' (runtime) de TensorRT para realizar inferencias rápidas y eficientes.
+El proceso típico de uso de TensorRT, como se ilustra esquemáticamente en la Figura~\ref{fig:tensorrt_architecture}, implica tomar un modelo entrenado (generalmente exportado a un formato intermedio como \gls{onnx}\cite{onnx}), utilizar el \textbf{constructor} (\textit{builder}) de TensorRT para aplicar las optimizaciones y generar un \textbf{motor} \textit{(engine)} de inferencia serializado y optimizado. Este motor es específico para el modelo, la precisión deseada y la plataforma hardware de destino (p. ej., un Jetson Orin Nano específico). Finalmente, el motor se carga en el \textbf{tiempo de ejecución} \textit{(runtime)} de TensorRT para realizar inferencias rápidas y eficientes.
 
 TensorRT se integra de forma nativa con los principales frameworks de aprendizaje profundo (TensorFlow, PyTorch) y soporta el formato de intercambio \gls{onnx}, lo que facilita la importación de modelos desde prácticamente cualquier framework de entrenamiento. Su capacidad para reducir significativamente la latencia y aumentar el rendimiento lo convierte en una herramienta esencial para desplegar modelos de IA en aplicaciones sensibles al tiempo real y en dispositivos con recursos limitados como los de la serie Jetson.
 
@@ -781,7 +785,7 @@ En esta sección se presentarán los conceptos básicos del seguimiento de objet
 \subsection{Introducción al seguimiento de objetos} \label{sec:introduccion_seguimiento_objetos}
 El seguimiento de objetos es un proceso que complementa la salida de los modelos de detección. Mientras que un modelo de detección opera sobre cada fotograma de forma independiente, identificando y localizando objetos como si fueran imágenes estáticas, el \gls{mot} actúa sobre estas detecciones para establecer una correspondencia temporal. La función esencial del \gls{mot} es asignar un identificador único a cada objeto detectado en un fotograma y mantener dicho identificador de manera consistente a lo largo de la secuencia de vídeo. Esto permite reconstruir las trayectorias de los objetos y analizar su comportamiento dinámico en la escena.
 
-Para realizar este seguimiento, el \gls{mot} se basa en la información temporal y espacial de las detecciones. Utiliza técnicas de predicción y asociación para determinar la continuidad de los objetos a lo largo del tiempo, teniendo en cuenta factores como la posición, velocidad y apariencia de los objetos. El algoritmo utilizado para el seguimiento puede variar en complejidad, desde enfoques simples que utilizan filtros de Kalman para predecir la posición futura de un objeto, hasta métodos más avanzados que incorporan redes neuronales profundas para aprender características de apariencia y mejorar la robustez del seguimiento.
+Para realizar este seguimiento, el \gls{mot} se basa en la información temporal y espacial de las detecciones. Utiliza técnicas de predicción y asociación para determinar la continuidad de los objetos a lo largo del tiempo, teniendo en cuenta factores como la posición, velocidad y apariencia de los objetos. El algoritmo utilizado para el seguimiento puede variar en complejidad, desde enfoques simples que utilizan el filtro de Kalman\cite{kalman1960new} para predecir la posición futura de un objeto, hasta métodos más avanzados que incorporan redes neuronales profundas para aprender características de apariencia y mejorar la robustez del seguimiento.
 
 
 El filtro de Kalman es un algoritmo de estimación recursivo fundamental en el seguimiento de objetos. Funciona como un estimador óptimo para sistemas dinámicos lineales, permitiendo predecir el estado futuro de un objeto (como su posición y velocidad) a partir de una serie de mediciones ruidosas o incompletas a lo largo del tiempo. Su proceso se basa en dos etapas cíclicas:
@@ -835,7 +839,7 @@ Este es el resultado final del filtro: una estimación refinada del estado actua
 
 \subsection{BYTETrack}\label{sec:bytetrack}
 
-BYTETrack \cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo avanzado de \gls{mot} que se inscribe dentro del paradigma de seguimiento por detección (\textit{tracking-by-detection}). Este paradigma consiste en detectar objetos en cada fotograma de forma independiente y luego asociar estas detecciones a lo largo del tiempo para construir trayectorias coherentes, asignando un ID consistente a cada objeto a lo largo del tiempo. Para la predicción y suavizado de estas trayectorias, BYTETrack se apoya en los resultados que le ofrece el filtro de Kalman. La innovación fundamental de BYTETrack reside en su novedoso método de asociación de datos, denominado BYTE, que aborda explícitamente un problema común en MOT: el manejo de detecciones con baja puntuación de confianza.
+El algoritmo BYTETrack \cite{zhang2022bytetrackmultiobjecttrackingassociating} es un algoritmo avanzado de \gls{mot} que se inscribe dentro del paradigma de seguimiento por detección (\textit{tracking-by-detection}). Este paradigma, en el que se basan algoritmos como SORT \cite{Bewley_2016} y DeepSORT \cite{wojke2017simpleonlinerealtimetracking}, consiste en apoyarse de las detecciones de objetos en cada fotograma que generan los modelos y luego asociar estas detecciones a lo largo del tiempo para construir trayectorias coherentes, asignando un identificador único consistente a cada objeto a lo largo del tiempo. Para la predicción y suavizado de estas trayectorias, BYTETrack se apoya en los resultados que le ofrece el filtro de Kalman. La innovación fundamental de BYTETrack reside en su novedoso método de asociación de datos, denominado BYTE, que aborda explícitamente un problema común en MOT: el manejo de detecciones con baja puntuación de confianza.
 
 Mientras que la mayoría de los algoritmos de seguimiento descartan las detecciones por debajo de un cierto umbral de confianza para evitar la introducción de falsos positivos, BYTETrack reconoce que estas detecciones de baja confianza a menudo corresponden a objetos reales que están parcialmente ocluidos o cuya apariencia ha cambiado temporalmente. Descartarlas puede llevar a la pérdida de trayectorias y a una menor precisión general del seguimiento. Esta estrategia de asociación en dos pasos permite a BYTETrack recuperar objetos reales incluso cuando la confianza del detector disminuye debido a oclusiones o desenfoque, manteniendo la continuidad de las trayectorias. 
 
@@ -853,7 +857,7 @@ La Figura \ref{fig:bytetrack_mota} presenta una comparativa de rendimiento que e
 \begin{figure}[H]
 
    \centering
-   \includegraphics[width=0.5\textwidth]{images/estado_del_arte/BYTETrack_deteccion.png}
+   \includegraphics[width=0.7\textwidth]{images/estado_del_arte/BYTETrack_deteccion.png}
    \caption[Ejemplo de detección y seguimiento de objetos utilizando BYTETrack]{Ejemplo de detección y seguimiento de objetos utilizando BYTETrack. Extraído de \cite[fig. 2, p.~2]{zhang2022bytetrackmultiobjecttrackingassociating}.}
    \label{fig:bytetrack_deteccion}
 \end{figure}
