@@ -87,6 +87,7 @@
 %%%%%%%
 
 \newcommand{\tutor}[1]{\newcommand{\t@tor}{#1}}
+\newcommand{\cotutor}[1]{\newcommand{\c@tutor}{#1}}
 \newcommand{\curs}[1]{\newcommand{\c@rs}{#1}}
 
 \newcommand{\titulacioname}{Grau en Enginyeria Inform\`atica}
@@ -94,6 +95,7 @@
 
 \newcommand{\authorname}{Autor}
 \newcommand{\tutorname}{Tutor}
+\newcommand{\cotutorname}{Cotutor}
 \newcommand{\coursename}{Curs}
 \newcommand{\keywordsname}{Paraules clau}
 
@@ -109,6 +111,7 @@
      \renewcommand{\tfgname}{Treball fi de grau}
      \renewcommand{\authorname}{Autor}
      \renewcommand{\tutorname}{Tutor}
+     \renewcommand{\cotutorname}{Cotutor}
      \renewcommand{\coursename}{Curs}
      \renewcommand{\keywordsname}{Paraules clau}
      \renewcommand{\algorithmname}{Algorisme}
@@ -123,6 +126,7 @@
      \renewcommand{\tfgname}{Trabajo fin de grado}
      \renewcommand{\authorname}{Autor}
      \renewcommand{\tutorname}{Tutor}
+     \renewcommand{\cotutorname}{Cotutor}
      \renewcommand{\coursename}{Curso}
      \renewcommand{\keywordsname}{Palabras clave}
      \renewcommand{\tablename}{Tabla}
@@ -138,6 +142,7 @@
      \renewcommand{\tfgname}{Degree final work}
      \renewcommand{\authorname}{Author}
      \renewcommand{\tutorname}{Tutor}
+     \renewcommand{\cotutorname}{Co-tutor}
      \renewcommand{\coursename}{Course}
      \renewcommand{\keywordsname}{Key words}
      \renewcommand{\algorithmname}{Algorithm}
@@ -370,7 +375,9 @@ Universidad Politécnica de Valencia
 \begin{flushright} 
 \begin{tabular}{l}
    \textit{\authorname:} \begin{tabular}[t]{l}\@author\end{tabular}\\[0.2cm]
-   \textit{\tutorname:} \begin{tabular}[t]{l}\t@tor\end{tabular}
+   \textit{\tutorname:} \begin{tabular}[t]{l}\t@tor\end{tabular}\\[0.2cm]
+   \textit{\cotutorname:} \begin{tabular}[t]{l}\c@tutor\end{tabular}
+
 \end{tabular}
 \medskip
 
