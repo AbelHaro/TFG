@@ -68,7 +68,7 @@ plt.ylim(
 )
 
 # Quitar padding de los ejes
-plt.margins(0)
+plt.margins(x=0.02, y=0)
 
 # Ajustar márgenes y layout
 plt.tight_layout()
