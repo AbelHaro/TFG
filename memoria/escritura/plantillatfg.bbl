@@ -77,6 +77,11 @@ Rudolf~E. Kalman.
 \newblock A new approach to linear filtering and prediction problems.
 \newblock {\em Journal of Basic Engineering}, 82(1):35--45, 1960.
 
+\bibitem{4479472}
+Rangachar Kasturi, Dmitry Goldgof, Padmanabhan Soundararajan, Vasant Manohar, John Garofolo, Rachel Bowers, Matthew Boonstra, Valentina Korzhova, and Jing Zhang.
+\newblock Framework for performance evaluation of face, text, and vehicle detection and tracking in video: Data, metrics, and protocol.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence}, 31(2):319--336, 2009.
+
 \bibitem{devbreachCNN}
 Swapna Kategaru.
 \newblock Convolution neural network in deep learning.
@@ -114,7 +119,7 @@ Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed, Cheng-
 \newblock {\em SSD: Single Shot MultiBox Detector}, page 21–37.
 \newblock Springer International Publishing, 2016.
 
-\bibitem{idf1}
+\bibitem{hota_paper}
 Jonathon Luiten, Aljosa Osep, Patrick Dendorfer, Philip Torr, Andreas Geiger, Laura Leal-Taix{\'e}, and Bastian Leibe.
 \newblock Hota: A higher order metric for evaluating multi-object tracking.
 \newblock {\em International Journal of Computer Vision}, 129:1--31, 02 2021.
@@ -170,9 +175,25 @@ ONNX.
 \newblock \url{https://www.prusa3d.com/es/categoria/mk2-mk2s/}, 2025.
 \newblock Accedido el 17 de junio de 2025.
 
+\bibitem{multiprocessing}
+{Python documentation}.
+\newblock multiprocessing --- process-based parallelism.
+\newblock \url{https://docs.python.org/3.8/library/multiprocessing.html}.
+\newblock Accedido el 24 de junio de 2025.
+
+\bibitem{multiprocessing_shared_memory}
+{Python documentation}.
+\newblock multiprocessing.shared\_memory --- shared memory for direct access across processes.
+\newblock \url{https://docs.python.org/3.8/library/multiprocessing.shared_memory.html}.
+\newblock Accedido el 24 de junio de 2025.
+
 \bibitem{redmon2016lookonceunifiedrealtime}
 Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
 \newblock You only look once: Unified, real-time object detection, 2016.
+
+\bibitem{ristani2016performancemeasuresdataset}
+Ergys Ristani, Francesco Solera, Roger~S. Zou, Rita Cucchiara, and Carlo Tomasi.
+\newblock Performance measures and a data set for multi-target, multi-camera tracking, 2016.
 
 \bibitem{selectiveSearch2012}
 J.R.R. Uijlings, K.E.A. van~de Sande, T.~Gevers, and A.W.M. Smeulders.
