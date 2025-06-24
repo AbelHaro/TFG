@@ -165,6 +165,12 @@ Gordon~E. Moore.
 \newblock \url{https://www.nvidia.com/}, 2025.
 \newblock Accedido el 19 de junio de 2025.
 
+\bibitem{nvidia_tegrastats}
+{NVIDIA Corporation}.
+\newblock Tegrastats utility.
+\newblock \url{https://docs.nvidia.com/drive/drive_os_5.1.6.1L/nvvib_docs/index.html#page/DRIVE_OS_Linux_SDK_Development_Guide/Utilities/util_tegrastats.html}, 2025.
+\newblock Accedido el 24 de junio de 2025.
+
 \bibitem{onnx}
 ONNX.
 \newblock Open neural network exchange (onnx), 2025.

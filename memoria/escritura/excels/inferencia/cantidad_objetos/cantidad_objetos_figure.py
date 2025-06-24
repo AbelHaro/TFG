@@ -63,6 +63,10 @@ plt.legend(loc="upper right")
 # Configurar la cuadrícula
 plt.grid(True, alpha=0.3)
 
+# Ajustar márgenes para que empiecen en el origen
+plt.xlim(left=0)
+plt.ylim(bottom=0)
+
 # Ajustar márgenes
 plt.tight_layout()
 
