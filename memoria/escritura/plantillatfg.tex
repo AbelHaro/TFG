@@ -742,7 +742,7 @@ Para este trabajo, todos los programas se ejecutaron utilizando imágenes de con
 \subsection{TensorRT} \label{sec:tensorrt}
 NVIDIA TensorRT es un kit de desarrollo de software (SDK) integral diseñado específicamente para la optimización de modelos de aprendizaje profundo y la consecución de una inferencia de muy alto rendimiento en la amplia gama de hardware de NVIDIA, desde centros de datos hasta sistemas embebidos como la serie Jetson. Actúa como un potente compilador y motor de ejecución en tiempo real que transforma modelos previamente entrenados en versiones altamente eficientes, optimizadas para el despliegue en producción.
 
-El objetivo principal de TensorRT es cerrar la brecha entre los \textit{frameworks} de entrenamiento (como TensorFlow o PyTorch), que priorizan la flexibilidad y la facilidad de desarrollo, y los requisitos estrictos de las aplicaciones de inferencia en el mundo real, que demandan baja latencia, alto rendimiento (throughput) y eficiencia energética. Para lograr esto, TensorRT aplica una serie de optimizaciones sofisticadas durante una fase de compilación offline:
+El objetivo principal de TensorRT es cerrar la brecha entre los \textit{frameworks} de entrenamiento (como TensorFlow o PyTorch), que priorizan la flexibilidad y la facilidad de desarrollo, y los requisitos estrictos de las aplicaciones de inferencia en el mundo real, que demandan baja latencia, alto rendimiento (\textit{throughput}) y eficiencia energética. Para lograr esto, TensorRT aplica una serie de optimizaciones sofisticadas durante una fase de compilación offline:
 
 \begin{itemize}
    \item \textbf{Optimización del Grafo Computacional:} TensorRT analiza la estructura del modelo y realiza transformaciones significativas para mejorar la eficiencia. Esto incluye:
@@ -1643,7 +1643,7 @@ Repasando la sección \ref{sec:segmentacion_etapas}, se han implementado cinco t
 Para evaluar el rendimiento de cada tipo de segmentación, se han realizado pruebas utilizando el vídeo de 84 objetos (carga alta y constante) como entrada estándar. Este vídeo presenta una carga computacional significativa, lo que permite observar las diferencias de rendimiento entre los distintos tipos de segmentación. Para todas las pruebas se ha utilizado el modelo de detección de objetos YOLO11n, optimizado mediante NVIDIA TensorRT para su ejecución en la GPU (DLA0 y DLA1 en el caso de la segmentación heterogénea). Se configuró para operar con precisión FP16 y con el perfil de energía del dispositivo Jetson ajustado al modo de máxima potencia (MAXN).
 
 
-Primero se va analizar el rendimiento de cada tipo de segmentación utilizando la metodología de ejecución a máxima capacidad, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (throughput) y compararlo con la duración real del vídeo.
+Primero se va analizar el rendimiento de cada tipo de segmentación utilizando la metodología de ejecución a máxima capacidad, donde los fotogramas se entregan al sistema consecutivamente, tan pronto como el procesamiento del fotograma anterior ha concluido, utilizando colas intermedias que no descartan fotogramas. En este escenario, se mide el tiempo total que el sistema tarda en procesar la secuencia completa, lo que permite evaluar su rendimiento máximo (\textit{throughput}) y compararlo con la duración real del vídeo.
 
 \begin{table}[H]
    \centering
@@ -1722,7 +1722,7 @@ La segmentación por hilos, aunque mejora ligeramente, sigue siendo inviable par
 
 Por su parte, la segmentación heterogénea logra operar en tiempo real, pero a costa de un mayor consumo energético. Finalmente, la segmentación por procesos con memoria compartida destaca como la opción más eficiente, logrando el mejor rendimiento en tiempo real (LFPS de 0.91) con el menor consumo energético.
 
-Como conclusión, la segmentación por procesos con memoria compartida es la más adecuada para aplicaciones en tiempo real, ya que combina un rendimiento óptimo con un consumo energético eficiente. Este enfoque permite al sistema operar de manera efectiva bajo condiciones de alta carga computacional, cumpliendo con los requisitos de tiempo real sin comprometer la eficiencia energética. La segmentación heterogénea, no resulta tan eficiente debido a la falta de independencia total entre la GPU y la DLA, lo que limita su capacidad de procesamiento en paralelo pero resulta una aproximación viable en un futuro si NVIDIA mejora la implementación de la DLA para que pueda ejecutar todo el modelo de detección de objetos.
+Como conclusión, la segmentación por procesos con memoria compartida es la más adecuada para aplicaciones en tiempo real, ya que combina un rendimiento óptimo con un consumo energético eficiente. Este enfoque permite al sistema operar de manera efectiva bajo condiciones de alta carga computacional, cumpliendo con los requisitos de tiempo real sin comprometer la eficiencia energética. La segmentación heterogénea, no resulta tan eficiente debido a la falta de independencia total entre la GPU y la DLA, lo que limita su capacidad de procesamiento en paralelo pero resulta una aproximación viable en un futuro si NVIDIA mejora la implementación de la DLA para que pueda ejecutar todo el modelo dentro de ella y así liberar a la GPU de esta carga de trabajo.
 
 \subsection{Modelo y talla} \label{sub:modelo_talla}
 En esta sección se analizará el rendimiento de la solución propuesta variando el modelo de detección de objetos y sus diferentes tallas.
@@ -1794,7 +1794,7 @@ Ahora se va a analizar el rendimiento de cada modelo y sus diferentes tallas uti
       %  display columns/10/.style={column name=T. Prepro. (ms), column type={c}, fixed, precision=2},
       %  display columns/11/.style={column name=T. Infer. (ms), column type={c}, fixed, precision=2},
       %  display columns/12/.style={column name=T. Postpro. (ms), column type={c}, fixed, precision=2},
-       display columns/8/.style={column name={mAP$_{50-95}$ $\uparrow$}, column type={c}, fixed, precision=2},
+       display columns/8/.style={column name={mAP$_{50-95}$ $\uparrow$}, column type={c}, fixed, precision=4},
        every head row/.style={before row=\toprule, after row=\midrule},
        every last row/.style={after row=\bottomrule},
        empty cells with={NaN}
@@ -1820,18 +1820,21 @@ No obstante, en aplicaciones donde la precisión de detección sea un factor cr�
 \subsection{Precisión numérica y acelerador de inferencia} \label{sub:precision_numerica_dispositivo}
 En esta sección se analizará el rendimiento de la solución propuesta variando la precisión numérica (FP32, FP16, INT8) del modelo de detección de objetos y el acelerador de inferencia (CPU, GPU, DLA).
 
-Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para la ejecución en GPU y DLA, el modelo fue optimizado con NVIDIA TensorRT, evaluándose las precisiones FP32, FP16 e INT8. En el caso de la ejecución en CPU, se empleó el modelo YOLO11n sin la optimización de TensorRT, ya que esta no es aplicable a dicho dispositivo. La exportación del modelo de PyTorch a TensorRT con precisión INT8 requiere un conjunto de datos de calibración; para este propósito, se utilizó un subconjunto de 100 imágenes extraídas del conjunto de entrenamiento original, con el fin de calibrar el modelo y optimizar su rendimiento para la inferencia en INT8. Por último, la precisión de validación de todos los modelos en la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante} es casi idéntica, con un mAP50-95 de 0.77 para todas las variantes, lo que indica que la precisión del modelo no se ve afectada significativamente por la reducción de la precisión numérica posiblemente debido a la sencillez de la tarea de detección de objetos en este caso específico.
+Para la realización de las pruebas, se utilizó el modelo YOLOv11n como base. Para las ejecuciones en GPU y DLA, dicho modelo fue optimizando mediante NVIDIA TensorRT, permitiendo así evaluar el rendimiento en distintas precisiones numéricas: FP32, FP16 e INT8.
+
+En el caso de la ejecución sobre CPU, se empleó el modelo YOLOv11n sin optimización mediante TensorRT, ya que esta herramienta no es aplicable a dicho dispositivo. Es importante señalar que la conversión del modelo de PyTorch a TensorRT con precisión INT8 requiere un proceso de calibración utilizando un conjunto de datos específico. Para ello, se seleccionó un subconjunto de 100 imágenes extraídas del conjunto de entrenamiento original, con el objetivo de calibrar adecuadamente el modelo y maximizar su rendimiento durante la inferencia en INT8.
+
 
 
 \begin{table}[H]
    \centering
    \resizebox{\textwidth}{!}{% Ajusta al ancho de página
    \pgfplotstabletypeset[
-       col sep=comma,
-       header=true,
-       columns={Dispositivo,Precision,frames_procesados,tejecucion,FPS,LFPS,potencia_media_consumida,energia_consumida,Frames/W,Average_GPU,Average_CPU,mAP50-95},
+      col sep=comma,
+      header=true,
+      columns={Dispositivo,Precision,frames_procesados,tejecucion,FPS,LFPS,potencia_media_consumida,energia_consumida,Frames/W,Average_GPU,Average_CPU,mAP50-95},
       display columns/0/.style={column name=Acelerador, column type={c}, string type},
-      display columns/1/.style={column name=Precisión, column type={c}, string type},
+      display columns/1/.style={column name=\begin{tabular}[c]{@{}c@{}}Precisión\end{tabular}, column type={c}, string type},
       display columns/2/.style={column name=\begin{tabular}[c]{@{}c@{}}Frames\\Procesados $\uparrow$\end{tabular}, column type={c}, fixed, precision=0},
       display columns/3/.style={column name=\begin{tabular}[c]{@{}c@{}}Tiempo\\Ejec. (s)  $\downarrow$\end{tabular}, column type={c}, fixed, precision=2},
       display columns/4/.style={column name=FPS $\uparrow$, column type={c}, fixed, precision=2},
@@ -1847,7 +1850,7 @@ Para la realización de estas pruebas, se ha utilizado el modelo YOLO11n. Para l
        empty cells with={NaN}
    ]{excels/inferencia/precision_device/data/max_fps.csv}
    }
-   \caption[Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante]{Resultados del experimento con distintos modelos y tallas a máxima capacidad con un vídeo de carga alta y constante.}
+   \caption[Resultados del experimento con distintas precisiones y aceleradores a máxima capacidad con un vídeo de carga alta y constante]{Resultados del experimento con distintas precisiones y aceleradores a máxima capacidad con un vídeo de carga alta y constante.}
    \label{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}
 \end{table}
 
@@ -1867,6 +1870,10 @@ En la precisión FP16, como se ilustra en la Figura \ref{fig:exportacion_FP16_DL
 Considerando la ejecución en GPU, la optimización con TensorRT, incluso manteniendo la precisión FP32, produce una notable aceleración en comparación con la ejecución del modelo sin optimizar en GPU. El modelo optimizado para GPU con TensorRT en FP32 alcanza un speedup de $\frac{183.29}{84.44} = 2.17\times$ frente a la GPU. Esto demuestra que TensorRT mejora drásticamente el rendimiento mediante optimizaciones como la fusión de capas y la eliminación de operaciones redundantes, resultando en una ejecución más eficiente.
 
 En cuanto a las diferentes precisiones numéricas en la GPU (todas optimizadas con TensorRT), los resultados muestran un rendimiento en FPS similar entre FP32, FP16 e INT8.
+
+
+Finalmente, los resultados obtenidos indican que la precisión de validación se mantiene prácticamente constante entre todas las variantes del modelo. Tal como se observa en la Tabla \ref{tab:experimento_precision_dispositivo_max_fps_carga_alta_constante}, el valor de mAP50-95 es de 0.77 en todos los casos, lo que sugiere que la reducción de la precisión numérica no afecta de manera significativa al rendimiento del modelo. Esta estabilidad en los resultados puede deberse a la relativa simplicidad de la tarea de detección de objetos planteada en este experimento.
+
 \begin{figure}[H]
    \centering
    \includegraphics[width=0.7\textwidth]{excels/inferencia/precision_device/tiempos_inferencia_device/tiempos_inferencia_device.pdf}
@@ -1900,11 +1907,11 @@ Un análisis más detallado de los tiempos de la etapa de inferencia, como se ob
       empty cells with={NaN}
       ]{excels/inferencia/precision_device/data/30_fps.csv}
       }
-      \caption[Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante]{Resultados del experimento con distintos modelos y tallas a 30 fps con un vídeo de carga alta y constante.}
+      \caption[Resultados del experimento con distintas precisiones y aceleradores a 30 fps con un vídeo de carga alta y constante]{Resultados del experimento con distintas precisiones y aceleradores a 30 fps con un vídeo de carga alta y constante.}
       \label{tab:experimento_precision_dispositivo_30_fps}
    \end{table}
 
-   En la Tabla \ref{tab:experimento_precision_dispositivo_30_fps}, se observan las ejecuciones en tiempo real de los modelos con diferentes precisiones y dispositivos. Observando los resultados, como se ha mencionado anteriormente, la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.79 FPS y 28.49 LFPS.
+   En la Tabla \ref{tab:experimento_precision_dispositivo_30_fps}, se observan las ejecuciones en tiempo real del modelo con diferentes precisiones y aceleradores. Observando los resultados, como se ha mencionado anteriormente, la ejecución del modelo en CPU es completamente inviable para tiempo real, con una tasa de 0.79 FPS y 28.49 LFPS.
 
    En cuanto a la \gls{gpu}, todas las precisiones (FP32, FP16 e INT8 con TensorRT) logran operar en tiempo real, con tasas de FPS de 28.42, 28.73 y 28.44 respectivamente, lo que indica que el sistema puede procesar los fotogramas a la velocidad requerida sin perder ninguno.
 
@@ -2056,7 +2063,7 @@ Los resultados de la Tabla \ref{tab:experimento_dispositivos_jetson_30_fps_carga
 
 En este contexto, el Jetson Orin Nano destaca como el dispositivo más eficiente, alcanzando una tasa de 4.73 Frames/W en condiciones de tiempo real, superando a los otros dos dispositivos. Además, su precio es significativamente más bajo, siendo de 300€, en comparación con los 2400€ del Jetson AGX Orin. Por lo tanto, para este caso específico, donde se utiliza un modelo de detección de objetos relativamente sencillo y se requiere un rendimiento en tiempo real, el Jetson Orin Nano se presenta como la opción más adecuada. Su principal limitación radica en la memoria, que es de 8GB LPDDR5, en comparación con los 64GB LPDDR5 del Jetson AGX Orin y los 32GB LPDDR4x del Jetson AGX Xavier.
 
-Sin embargo, si la aplicación requiere un mayor rendimiento para modelos más complejos o tareas más exigentes, el Jetson AGX Orin sería la elección ideal debido a su superior capacidad de procesamiento y su habilidad para manejar cargas de trabajo más intensivas.
+Sin embargo, si la aplicación requiere un mayor rendimiento para modelos más complejos o tareas más exigentes, el Jetson AGX Orin sería la elección ideal debido a su superior capacidad de procesamiento.
 
 
 \section{Evaluación del seguimiento de objetos} \label{sub:evaluacion_seguimiento_objetos}
@@ -2065,6 +2072,19 @@ Tras implementar la solución propuesta, se evaluó su capacidad para realizar u
 Para medir el rendimiento de manera exhaustiva, se recurrió a un conjunto de métricas estándar en el campo del seguimiento de objetos múltiples (\gls{mot}), tal como se describió en la subsección \ref{sec:metricas_mot}. Estas métricas, incluyendo \gls{mota} para la precisión global del seguimiento, \gls{motp} para la exactitud en la localización, \gls{idf1} para la consistencia en la asignación de identidades, y \gls{hota} para una visión equilibrada de detección y asociación, ofrecen una perspectiva multidimensional del comportamiento del sistema.
 
 El experimento se llevó a cabo utilizando un vídeo de prueba compuesto por 600 fotogramas. Este vídeo fue cuidadosamente etiquetado de forma manual para generar una referencia precisa (\textit{ground truth}), contra la cual se compararon las salidas del sistema. En esta evaluación, el modelo YOLO11n, optimizado con NVIDIA TensorRT y configurado para operar con precisión FP16, se encargó de la detección inicial de objetos en cada fotograma. Posteriormente, el algoritmo BYTETrack\cite{zhang2022bytetrackmultiobjecttrackingassociating} gestionó la tarea de seguimiento, asociando las detecciones a lo largo de la secuencia para construir y mantener las trayectorias de los objetos.
+
+\begin{table}[H]
+    \centering
+    \label{tab:metricas_seguimiento_objetos}
+    \begin{tabular}{>{\centering\arraybackslash}p{2.5cm} >{\centering\arraybackslash}p{2.5cm} >{\centering\arraybackslash}p{2.5cm} >{\centering\arraybackslash}p{2.5cm}}
+      \toprule
+      \textbf{MOTA (\%)} & \textbf{MOTP (\%)} & \textbf{IDF1 (\%)} & \textbf{HOTA (\%)} \\
+      \midrule
+      81.8 & 80.4 & 90.2 & 71.7 \\
+      \bottomrule
+   \end{tabular}
+   \caption{Resultados de la evaluación de métricas de seguimiento de objetos}
+\end{table}
 
 Los resultados obtenidos fueron notablemente positivos y validan la robustez del enfoque implementado. El sistema alcanzó un \gls{mota} del 81.8\%, lo que indica una alta precisión general en el seguimiento, minimizando errores como falsos positivos, detecciones omitidas o cambios incorrectos de identidad.
 
