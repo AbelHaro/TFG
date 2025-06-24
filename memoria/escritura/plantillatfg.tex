@@ -691,7 +691,7 @@ NVIDIA ha sido una figura central en la evolución de la aceleración de IA, rea
 
 El desarrollo eficaz en este paradigma requiere identificar y explotar el paralelismo inherente a los algoritmos, así como gestionar eficientemente la compleja jerarquía de memoria de la \gls{gpu}. Es crucial considerar la latencia significativamente mayor del acceso a la memoria global en comparación con memorias más rápidas pero de menor capacidad, como la memoria compartida local a un bloque de hilos.
 
-Dada la complejidad de esta programación a bajo nivel, NVIDIA ha desarrollado un ecosistema de software robusto y optimizado para facilitar el desarrollo en \gls{ai}. Este incluye bibliotecas fundamentales como cuDNN, específica para acelerar primitivas de redes neuronales profundas, y cuBLAS, para operaciones de álgebra lineal básica, ambas esenciales para el rendimiento. Además, es común recurrir a frameworks de alto nivel como PyTorch y TensorFlow. Estas librerías abstraen muchos detalles de la implementación en \gls{gpu}, utilizando las bibliotecas de NVIDIA subyacentes y simplificando enormemente el desarrollo de aplicaciones de \gls{ai}.
+Dada la complejidad de esta programación a bajo nivel, NVIDIA ha desarrollado un ecosistema de software robusto y optimizado para facilitar el desarrollo en \gls{ai}. Este incluye bibliotecas fundamentales como cuDNN, específica para acelerar primitivas de redes neuronales profundas, y cuBLAS, para operaciones de álgebra lineal básica, ambas esenciales para el rendimiento. Además, es común recurrir a \textit{frameworks} de alto nivel como PyTorch y TensorFlow. Estas librerías abstraen muchos detalles de la implementación en \gls{gpu}, utilizando las bibliotecas de NVIDIA subyacentes y simplificando enormemente el desarrollo de aplicaciones de \gls{ai}.
 
 En el frente del hardware, la compañía ha impulsado continuamente la innovación con el desarrollo de componentes especializados como los Tensor Cores, introducidos en la arquitectura Volta. Estos núcleos están diseñados específicamente para acelerar las operaciones matriciales intensivas (como multiplicaciones de matrices mixtas) que son omnipresentes en el entrenamiento e inferencia de modelos de IA. Como resultado de estas continuas innovaciones en hardware y la creación de un ecosistema de software integral, NVIDIA ha logrado establecer estándares de facto para la aceleración de IA, consolidándose como la plataforma preferida en una amplia gama de entornos, desde grandes centros de datos hasta sistemas embebidos con recursos limitados.
 
@@ -742,7 +742,7 @@ Para este trabajo, todos los programas se ejecutaron utilizando imágenes de con
 \subsection{TensorRT} \label{sec:tensorrt}
 NVIDIA TensorRT es un kit de desarrollo de software (SDK) integral diseñado específicamente para la optimización de modelos de aprendizaje profundo y la consecución de una inferencia de muy alto rendimiento en la amplia gama de hardware de NVIDIA, desde centros de datos hasta sistemas embebidos como la serie Jetson. Actúa como un potente compilador y motor de ejecución en tiempo real que transforma modelos previamente entrenados en versiones altamente eficientes, optimizadas para el despliegue en producción.
 
-El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de entrenamiento (como TensorFlow o PyTorch), que priorizan la flexibilidad y la facilidad de desarrollo, y los requisitos estrictos de las aplicaciones de inferencia en el mundo real, que demandan baja latencia, alto rendimiento (throughput) y eficiencia energética. Para lograr esto, TensorRT aplica una serie de optimizaciones sofisticadas durante una fase de compilación offline:
+El objetivo principal de TensorRT es cerrar la brecha entre los \textit{frameworks} de entrenamiento (como TensorFlow o PyTorch), que priorizan la flexibilidad y la facilidad de desarrollo, y los requisitos estrictos de las aplicaciones de inferencia en el mundo real, que demandan baja latencia, alto rendimiento (throughput) y eficiencia energética. Para lograr esto, TensorRT aplica una serie de optimizaciones sofisticadas durante una fase de compilación offline:
 
 \begin{itemize}
    \item \textbf{Optimización del Grafo Computacional:} TensorRT analiza la estructura del modelo y realiza transformaciones significativas para mejorar la eficiencia. Esto incluye:
@@ -775,7 +775,7 @@ El objetivo principal de TensorRT es cerrar la brecha entre los frameworks de en
 
 El proceso típico de uso de TensorRT, como se ilustra esquemáticamente en la Figura~\ref{fig:tensorrt_architecture}, implica tomar un modelo entrenado (generalmente exportado a un formato intermedio como \gls{onnx}\cite{onnx}), utilizar el \textbf{constructor} (\textit{builder}) de TensorRT para aplicar las optimizaciones y generar un \textbf{motor} \textit{(engine)} de inferencia serializado y optimizado. Este motor es específico para el modelo, la precisión deseada y la plataforma hardware de destino (p. ej., un Jetson Orin Nano específico). Finalmente, el motor se carga en el \textbf{tiempo de ejecución} \textit{(runtime)} de TensorRT para realizar inferencias rápidas y eficientes.
 
-TensorRT se integra de forma nativa con los principales frameworks de aprendizaje profundo (TensorFlow, PyTorch) y soporta el formato de intercambio \gls{onnx}, lo que facilita la importación de modelos desde prácticamente cualquier framework de entrenamiento. Su capacidad para reducir significativamente la latencia y aumentar el rendimiento lo convierte en una herramienta esencial para desplegar modelos de IA en aplicaciones sensibles al tiempo real y en dispositivos con recursos limitados como los de la serie Jetson.
+TensorRT se integra de forma nativa con los principales \textit{frameworks} de aprendizaje profundo (TensorFlow, PyTorch) y soporta el formato de intercambio \gls{onnx}, lo que facilita la importación de modelos desde prácticamente cualquier \textit{framework} de entrenamiento. Su capacidad para reducir significativamente la latencia y aumentar el rendimiento lo convierte en una herramienta esencial para desplegar modelos de IA en aplicaciones sensibles al tiempo real y en dispositivos con recursos limitados como los de la serie Jetson.
 
 
 
@@ -908,7 +908,7 @@ En el contexto de \gls{mot}, los errores pueden clasificarse en tres categorías
 \begin{itemize}
    \item \textbf{Errores de detección:} Ocurren cuando el sistema predice detecciones que no existen en la verdad de referencia, o cuando falla en predecir detecciones que sí están presentes en la verdad fundamental. Estos corresponden a los Falsos Positivos (FP) y Falsos Negativos (FN) respectivamente.
    
-   \item \textbf{Errores de asociación:} Se producen cuando el sistema asigna el mismo ID de predicción (prID) a dos detecciones que tienen diferentes IDs en la verdad de referencia (gtID), o cuando asigna diferentes prIDs a dos detecciones que deberían tener el mismo gtID. El caso más común es el Cambio de Identidad (IDSW - IDentity SWitch).
+   \item \textbf{Errores de asociación (IDSW):} Ocurren cuando la identidad de un objeto se intercambia con la de otro, o cuando un objeto recibe un nuevo ID incorrectamente. Esto se manifiesta como un cambio de identificador (IDSW - \textit{IDentity SWitch}) en la trayectoria del objeto, indicando una falla en el mantenimiento de la coherencia del seguimiento.
    
    \item \textbf{Errores de localización:} Ocurren cuando las detecciones predichas (prDets) no están perfectamente alineadas espacialmente con las detecciones de la verdad de referencia (gtDets). La calidad de esta alineación se mide típicamente con la métrica IoU (Intersection over Union).
 \end{itemize}
@@ -916,11 +916,11 @@ En el contexto de \gls{mot}, los errores pueden clasificarse en tres categorías
 A continuación se presentan las métricas más relevantes en este campo, que cuantifican estos errores de diversas maneras:
 
 \begin{itemize}
-   \item \textbf{\gls{mota}:} Es una de las métricas más consolidadas y ampliamente utilizadas para evaluar el rendimiento general de un algoritmo MOT. MOTA agrega tres tipos de errores principales que pueden ocurrir durante el seguimiento:
+   \item \textbf{\gls{mota}\cite{4479472}:} Es una de las métricas más consolidadas y ampliamente utilizadas para evaluar el rendimiento general de un algoritmo MOT. MOTA agrega tres tipos de errores principales que pueden ocurrir durante el seguimiento:
    \begin{itemize}
      \item Falsos Negativos (FN): Objetos reales presentes en la escena que el algoritmo de seguimiento no detecta o no sigue.
      \item Falsos Positivos (FP): Detecciones o trayectorias generadas por el algoritmo de seguimiento que no corresponden a ningún objeto real.
-     \item Cambios de Identidad (IDSW - IDentity SWitches): Ocurren cuando un objeto que ya está siendo seguido se le asigna incorrectamente un nuevo identificador, o cuando se intercambian los identificadores entre dos objetos seguidos.
+     \item Cambios de Identidad (IDSW - \textit{IDentity SWitches}): Ocurren cuando un objeto que ya está siendo seguido se le asigna incorrectamente un nuevo identificador, o cuando se intercambian los identificadores entre dos objetos seguidos.
    \end{itemize}
    La fórmula es:
    \begin{equation}
@@ -929,13 +929,13 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
    donde \(FN_t\), \(FP_t\), e \(IDSW_t\) son el número de falsos negativos, falsos positivos y cambios de identidad en el fotograma \(t\), respectivamente. \(GT_t\) es el número total de objetos reales (verdad de referencia) en el fotograma \(t\). El sumatorio se realiza sobre todos los fotogramas de la secuencia.
    Un valor de MOTA más alto indica un mejor rendimiento, con un máximo teórico de 1 (o 100\%). Sin embargo, MOTA puede ser negativo si el número de errores supera el número de objetos reales. Aunque es una métrica integral, tiende a dar más peso a la precisión de la detección que a la consistencia de la identidad a largo plazo.
 
-   \item \textbf{\gls{motp}:} Esta métrica evalúa la precisión de la localización de los objetos a lo largo del tiempo. Se calcula como la media de las distancias entre las cajas delimitadoras predichas y las cajas delimitadoras reales (verdad de referencia) para todas las asociaciones correctas. Matemáticamente, se expresa como:
+   \item \textbf{\gls{motp}\cite{4479472}:} Esta métrica evalúa la precisión de la localización de los objetos a lo largo del tiempo. Se calcula como la media de las distancias entre las cajas delimitadoras predichas y las cajas delimitadoras reales (verdad de referencia) para todas las asociaciones correctas. Matemáticamente, se expresa como:
    \begin{equation}
    MOTP = \frac{\sum_{t,i} d_{t,i}}{\sum_{t} c_t}
    \end{equation}
    donde $d_{t,i}$ es la distancia (generalmente IoU) entre la predicción y la verdad de referencia para el objeto $i$ en el fotograma $t$, y $c_t$ es el número total de asociaciones correctas en el fotograma $t$. Un valor de MOTP más alto indica una mayor precisión en la localización de los objetos. A diferencia de MOTA, MOTP no penaliza los errores de identidad, sino que se centra exclusivamente en qué tan precisas son las localizaciones de los objetos cuando se asocian correctamente.
 
-   \item \textbf{\gls{idf1}:} Esta métrica se centra específicamente en la capacidad del algoritmo de seguimiento para mantener correctamente la identidad de los objetos a lo largo del tiempo. Es la media armónica de la Precisión de ID (IDP) y el Recall de ID (IDR).
+   \item \textbf{\gls{idf1}\cite{ristani2016performancemeasuresdataset}:} Esta métrica se centra específicamente en la capacidad del algoritmo de seguimiento para mantener correctamente la identidad de los objetos a lo largo del tiempo. Es la media armónica de la Precisión de ID (IDP) y el Recall de ID (IDR).
    \begin{itemize}
      \item IDP (ID Precision): Proporción de detecciones correctamente asignadas a una trayectoria (ID) respecto al total de detecciones asignadas.
      \item IDR (ID Recall): Proporción de objetos reales correctamente identificados y seguidos a lo largo de su trayectoria respecto al total de objetos reales.
@@ -944,19 +944,19 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
    \begin{equation}
    IDF1 = \frac{2 \cdot IDTP}{2 \cdot IDTP + IDFP + IDFN}
    \end{equation}
-   donde \(IDTP\) (ID True Positives) son los verdaderos positivos en términos de asignación de identidad correcta a lo largo de las trayectorias, \(IDFP\) (ID False Positives) son las asignaciones de identidad incorrectas, y \(IDFN\) (ID False Negatives) son las identidades de objetos reales que no fueron correctamente mantenidas. Un valor de IDF1 más alto (hasta 1 o 100\%) indica una mejor consistencia en el seguimiento de la identidad. Es particularmente útil para evaluar el rendimiento en escenarios con oclusiones prolongadas o interacciones complejas entre objetos.
+   donde \(IDTP\) (ID True Positives) son los verdaderos positivos en términos de asignación de identidad correcta a lo largo de las trayectorias, \(IDFP\) (ID False Positives) son las asignaciones de identidad incorrectas, y \(IDFN\) (ID False Negatives) son las identidades de objetos reales que no fueron correctamente mantenidas. Un valor de IDF1 más alto (hasta 1 o 100\%) indica una mejor consistencia en el seguimiento de la identidad. Es particularmente útil para evaluar el rendimiento en escenarios con oclusiones prolongadas o interacciones complejas entre objetos. En la figura \ref{fig:idf1_example} se muestra un ejemplo visual de cómo funciona IDF1.
 
 
    \begin{figure}[H]
       \centering
       \includegraphics[width=0.8\textwidth]{images/estado_del_arte/IDF1.png}
-      \caption[Ejemplo visual de IDF1]{Ejemplo visual de IDF1. Extraído de \cite[fig. 10, p.~20]{idf1}.}
+      \caption[Ejemplo visual de IDF1]{Ejemplo visual de IDF1. Extraído de \cite[fig. 10, p.~20]{hota_paper}.}
       \label{fig:idf1_example}      
    \end{figure}
 
 
 
-   \item \textbf{\gls{hota}:} Es una métrica más reciente diseñada para proporcionar una evaluación más equilibrada y completa del rendimiento del MOT. HOTA descompone explícitamente el rendimiento en precisión de detección, precisión de asociación y precisión de localización. Se calcula como la media geométrica de la Precisión de Detección (DetA) y la Precisión de Asociación (AssA), donde cada una de estas componentes considera la precisión de localización (IoU).
+   \item \textbf{\gls{hota}\cite{hota_paper}:} Es una métrica más reciente diseñada para proporcionar una evaluación más equilibrada y completa del rendimiento del MOT. HOTA descompone explícitamente el rendimiento en precisión de detección, precisión de asociación y precisión de localización. Se calcula como la media geométrica de la Precisión de Detección (DetA) y la Precisión de Asociación (AssA), donde cada una de estas componentes considera la precisión de localización (IoU).
    \begin{equation}
    HOTA = \sqrt{DetA \cdot AssA}
    \end{equation}
@@ -977,17 +977,29 @@ A continuación se presentan las métricas más relevantes en este campo, que cu
 
 \chapter{Diseño e implementación de la solución}\label{chap:diseno_e_implementacion}
 
-En este capítulo se abordará en profundidad el diseño y la implementación del sistema de visión artificial propuesto. Se iniciará con un análisis detallado del problema a resolver, definiendo los desafíos inherentes a la detección y seguimiento de objetos en movimiento y los requisitos específicos del sistema, como la operación en tiempo real. A continuación, se describirá el proceso de entrenamiento de los modelos de detección de objetos, la metodología para la creación y anotación del conjunto de datos de canicas, y los parámetros de entrenamiento utilizados. Posteriormente, se presentará una descripción global del sistema, detallando su arquitectura modular y el flujo de datos entre sus componentes. Se profundizará en el diseño específico de cada una de las etapas que conforman el sistema: la captura de imágenes, la inferencia del modelo de detección, el seguimiento de los objetos mediante el algoritmo BYTETrack y la escritura de los resultados. Finalmente, se explorarán y justificarán las diversas estrategias de segmentación del sistema que se han considerado e implementado con el objetivo de optimizar el rendimiento y la eficiencia del procesamiento en la plataforma NVIDIA Jetson.
+En este capítulo se abordará en profundidad el diseño y la implementación del sistema de visión artificial propuesto. Se iniciará con un análisis detallado del problema a resolver, definiendo los desafíos inherentes a la detección y seguimiento de objetos en movimiento y los requisitos específicos del sistema, como la operación en tiempo real.
+
+A continuación, se describirá el proceso de entrenamiento de los modelos de detección de objetos, la metodología para la creación y anotación del conjunto de datos de canicas, y los parámetros de entrenamiento utilizados.
+
+Posteriormente, se presentará una descripción global del sistema, detallando su arquitectura modular y el flujo de datos entre sus componentes. Se profundizará en el diseño específico de cada una de las etapas que conforman el sistema: la captura de imágenes, la inferencia del modelo de detección, el seguimiento de los objetos mediante el algoritmo BYTETrack y la escritura de los resultados.
+
+Finalmente, se explorarán y justificarán las diversas estrategias de segmentación del sistema que se han considerado e implementado con el objetivo de optimizar el rendimiento y la eficiencia del procesamiento en la plataforma NVIDIA Jetson.
 
 
 
 \section{Análisis del problema}\label{sec:analisis_problema}
 
-El desafío central abordado en este trabajo consiste en el desarrollo y la implementación de un sistema de visión artificial capaz de realizar el seguimiento de múltiples objetos en movimiento en tiempo real y poder detectar sus posibles defectos. Este sistema se fundamenta en la utilización de la plataforma de hardware NVIDIA Jetson, reconocida por su capacidad para ejecutar tareas de \gls{ai} de manera eficiente en términos energéticos y computacionales. La tarea principal del sistema es procesar una secuencia de vídeo, identificar los objetos presentes en cada fotograma mediante un modelo de detección de objetos basado en redes neuronales profundas, y posteriormente, aplicar un algoritmo de seguimiento para mantener la identidad de cada objeto a lo largo del tiempo, reconstruyendo así sus trayectorias.
+El desafío central abordado en este trabajo consiste en el desarrollo y la implementación de un sistema de visión artificial capaz de realizar el seguimiento de múltiples objetos en movimiento en tiempo real y poder detectar sus posibles defectos. 
+
+Este sistema se fundamenta en la utilización de la plataforma de hardware NVIDIA Jetson, reconocida por su capacidad para ejecutar tareas de \gls{ai} de manera eficiente en términos energéticos y computacionales. La tarea principal del sistema es procesar una secuencia de vídeo, identificar los objetos presentes en cada fotograma mediante un modelo de detección de objetos basado en redes neuronales profundas, y posteriormente, aplicar un algoritmo de seguimiento para mantener la identidad de cada objeto a lo largo del tiempo, reconstruyendo así sus trayectorias.
 
 Un requisito fundamental y crítico para la viabilidad del sistema es su capacidad para operar en tiempo real. Esto impone una restricción estricta sobre la velocidad de procesamiento: el tiempo total necesario para analizar un fotograma individual, incluyendo tanto la detección como el seguimiento de los objetos, debe ser inferior al intervalo de tiempo que transcurre entre fotogramas consecutivos en la secuencia de vídeo. Por ejemplo, para un vídeo a 30 fotogramas por segundo, el procesamiento completo de cada fotograma debe completarse en menos de 33.3 milisegundos. Cumplir con esta exigencia es particularmente desafiante dadas las limitaciones inherentes de los dispositivos embebidos como los de la serie Jetson, que, aunque potentes, disponen de recursos computacionales y memoria significativamente menores en comparación con sistemas de escritorio o servidores.
 
-Dada la dificultad de acceder a un entorno industrial real para llevar a cabo las pruebas experimentales —como podría ser una línea de producción activa en una fábrica de conservas, una planta de ensamblaje de componentes electrónicos o una instalación de procesamiento de alimentos—, se optó por utilizar un entorno simulado controlado. Este entorno sustituye los objetos industriales por elementos más manejables y disponibles, específicamente, canicas de diversos colores. Estas canicas, al moverse sobre una superficie o cinta transportadora improvisada, simulan el flujo de objetos que se encontraría en una línea de producción. La utilización de este entorno simulado ofrece ventajas significativas para la fase de desarrollo y evaluación: permite realizar pruebas de manera sistemática y repetible, facilita la variación controlada de parámetros (como la velocidad de los objetos, la iluminación o la densidad de objetos) y posibilita la obtención de datos cuantitativos precisos sobre el rendimiento del sistema en diferentes condiciones. Aunque este entorno simplifica la complejidad del mundo real, los resultados y las conclusiones obtenidas proporcionan una base sólida y pueden ser extrapolados, con las debidas consideraciones, para predecir el comportamiento y la eficacia del sistema en escenarios industriales auténticos.
+Dada la dificultad de acceder a un entorno industrial real para llevar a cabo las pruebas experimentales —como podría ser una línea de producción activa en una fábrica de conservas, una planta de ensamblaje de componentes electrónicos o una instalación de procesamiento de alimentos—, se optó por utilizar un entorno simulado controlado. 
+
+Este trabajo utiliza un entorno simulado debido a la dificultad de acceder a un entorno industrial real. Este entorno sustituye los objetos industriales por canicas de diversos colores, que al moverse sobre una cinta transportadora improvisada, simulan el flujo de objetos que se encontraría en una línea de producción.
+
+La utilización de este entorno simulado ofrece ventajas significativas para la fase de desarrollo y evaluación: permite realizar pruebas de manera sistemática y repetible, facilita la variación controlada de parámetros (como la velocidad de los objetos, la iluminación o la densidad de objetos) y posibilita la obtención de datos cuantitativos precisos sobre el rendimiento del sistema en diferentes condiciones. Aunque este entorno simplifica la complejidad del mundo real, los resultados y las conclusiones obtenidas proporcionan una base sólida y pueden ser extrapolados, con las debidas consideraciones, para predecir el comportamiento y la eficacia del sistema en escenarios industriales auténticos.
 
 \begin{figure}[H]
    \centering
@@ -1002,13 +1014,17 @@ Para las pruebas experimentales, se configuró un entorno simulado como el ilust
 \section{Entrenamiento de los modelos} \label{sec:entrenamiento_modelo}
 
 La selección y el entrenamiento de los modelos de detección de objetos constituyen una fase crítica en el desarrollo del sistema propuesto, ya que de ello dependen directamente la precisión y la robustez del sistema final.
-Tras un análisis comparativo, se optó por los detectores de una etapa frente a los de dos etapas, dada su superior eficiencia para aplicaciones que exigen procesamiento en tiempo real. Dentro de esta categoría, se seleccionó la familia de modelos YOLO. Esta elección se fundamenta en su reconocido equilibrio entre velocidad de inferencia y precisión, así como en la disponibilidad de un robusto ecosistema de herramientas que facilitan tanto el entrenamiento como el despliegue. Alternativas como SSD, si bien competentes, no ofrecían el mismo conjunto de ventajas en términos de comunidad de soporte y facilidad de integración para los fines de este proyecto.
+Tras un análisis comparativo, se optó por los detectores de una etapa frente a los de dos etapas, dada su superior eficiencia para aplicaciones que exigen procesamiento en tiempo real. Dentro de esta categoría, se seleccionó la familia de modelos YOLO. Esta elección se fundamenta en su reconocido equilibrio entre velocidad de inferencia y precisión, así como en la disponibilidad de un robusto ecosistema de herramientas que facilitan tanto el entrenamiento como el despliegue. Alternativas como SSD\cite{Liu_2016}, si bien competentes, no ofrecían el mismo conjunto de ventajas en términos de comunidad de soporte y facilidad de integración para los fines de este proyecto.
 
-Como modelos pertenecientes a la familia de arquitecturas YOLO, se han seleccionado diversas variantes para una evaluación exhaustiva: YOLOv5 (específicamente las versiones 'n' y 'm'), YOLOv8 (también en sus variantes 'n' y 's') y YOLO11 (en sus versiones 'n', 's', 'm' y 'l'). Esta elección se basa en varios factores clave. En primer lugar, estas familias de modelos YOLO son conocidas por su excelente equilibrio entre velocidad de inferencia y precisión de detección, lo que las hace particularmente adecuadas para aplicaciones que requieren procesamiento en tiempo real, como es el caso de este proyecto. En segundo lugar, estos modelos, especialmente a través de la implementación proporcionada por la biblioteca Ultralytics, ofrecen una gran flexibilidad y facilidad de uso para el entrenamiento, la validación y el despliegue.
+Como modelos pertenecientes a la familia de arquitecturas YOLO, se han seleccionado diversas variantes para una evaluación exhaustiva: YOLOv5 (específicamente las versiones ``n'' y ``m''), YOLOv8 (también en sus variantes ``n'' y ``s'') y YOLO11 (en sus versiones ``n''', ``s'', ``m'' y ``l''). Esta elección se basa en varios factores clave. En primer lugar, estas familias de modelos YOLO son conocidas por su excelente equilibrio entre velocidad de inferencia y precisión de detección, lo que las hace particularmente adecuadas para aplicaciones que requieren procesamiento en tiempo real, como es el caso de este proyecto. En segundo lugar, estos modelos, especialmente a través de la implementación proporcionada por la biblioteca Ultralytics, ofrecen una gran flexibilidad y facilidad de uso para el entrenamiento, la validación y el despliegue.
 
-Una vez seleccionado los modelos, el siguiente paso crítico es la creación y preparación del conjunto de datos (dataset). Este conjunto de datos es la base sobre la cual los modelos aprenderán a identificar y localizar los objetos de interés (en este caso, las canicas de diferentes colores y con/sin defectos). La calidad y representatividad del dataset tienen un impacto directo y significativo en el rendimiento final de los modelos. Un dataset bien construido debe incluir una variedad suficiente de ejemplos que cubran las diferentes condiciones que el sistema podría encontrar en el entorno real, como variaciones en la iluminación, ángulos de visión, oclusiones parciales y la diversidad intrínseca de los objetos mismos. El proceso de creación del dataset implica la captura de imágenes o vídeos del entorno simulado, seguido de una meticulosa fase de etiquetado (anotación), donde se marcan manualmente las cajas delimitadoras (bounding boxes) alrededor de cada objeto de interés y se les asigna la etiqueta de clase correspondiente (p. ej., 'canica\_azul\_defecto'). Este proceso, aunque laborioso, es indispensable para proporcionar a los modelos la "verdad fundamental" (ground truth) necesaria para su aprendizaje supervisado.
+Una vez seleccionado los modelos, el siguiente paso crítico es la creación y preparación del conjunto de datos (\textit{dataset}). Este conjunto de datos es la base sobre la cual los modelos aprenderán a identificar y localizar los objetos de interés (en este caso, las canicas de diferentes colores y con/sin defectos). 
 
-Para el etiquetado de las imágenes, se utilizó la herramienta \gls{cvat}\cite{CVAT_ai_Corporation_Computer_Vision_Annotation_2023} de código abierto, que permite realizar anotaciones precisas y eficientes en imágenes, como se muestra en la Figura~\ref{fig:cvat_anotacion}. Permite la creación de diferentes tipos de anotaciones, como cajas delimitadoras, polígonos y puntos clave ademas de la exportación de los datos anotados en varios formatos compatibles con diferentes frameworks de aprendizaje profundo. En este caso, se optó por el formato YOLO, que es ampliamente utilizado y compatible con la implementación de Ultralytics.
+La calidad y representatividad del \textit{dataset} tienen un impacto directo y significativo en el rendimiento final de los modelos. Un \textit{dataset} bien construido debe incluir una variedad suficiente de ejemplos que cubran las diferentes condiciones que el sistema podría encontrar en el entorno real, como variaciones en la iluminación, ángulos de visión, oclusiones parciales y la diversidad intrínseca de los objetos mismos.
+
+El proceso de creación del \textit{dataset} implica la captura de imágenes o vídeos del entorno simulado, seguido de una meticulosa fase de etiquetado (anotación), donde se marcan manualmente las cajas delimitadoras (\textit{bounding boxes}) alrededor de cada objeto de interés y se les asigna la etiqueta de clase correspondiente (p. ej., ``canica\_azul\_defecto''). Este proceso, aunque laborioso, es indispensable para proporcionar a los modelos la ``verdad fundamental'' (\textit{ground truth}) necesaria para su aprendizaje supervisado.
+
+Para el etiquetado de las imágenes, se utilizó la herramienta \gls{cvat}\cite{CVAT_ai_Corporation_Computer_Vision_Annotation_2023} de código abierto, que permite realizar anotaciones precisas y eficientes en imágenes, como se muestra en la Figura~\ref{fig:cvat_anotacion}. Permite la creación de diferentes tipos de anotaciones, como cajas delimitadoras, polígonos y puntos clave ademas de la exportación de los datos anotados en varios formatos compatibles con diferentes \textit{frameworks} de aprendizaje profundo. En este caso, se optó por el formato YOLO, que es ampliamente utilizado y compatible con la implementación de Ultralytics.
 
 \begin{figure}[H]
    \centering
@@ -1020,13 +1036,10 @@ Para el etiquetado de las imágenes, se utilizó la herramienta \gls{cvat}\cite{
 
 Este formato sigue una estructura de texto simple, donde cada línea representa una anotación para un objeto en la imagen. Cada línea contiene cinco valores: el índice de la clase (0 para canica blanca, 1 para canica negra, 2 para canica azul, 3 para canica verde, 4 para canica blanca con defecto, 5 para canica negra con defecto, 6 para canica azul con defecto y 7 para canica verde con defecto), seguido de las coordenadas normalizadas del centro de la caja delimitadora (x, y) y su ancho y alto (w, h), todos ellos en relación a las dimensiones de la imagen.
 
-Volviendo al dataset, se capturaron un total de 600 imágenes, de las cuales el 80\% se utilizaron para el entrenamiento, el 10\% para la validación y el 10\% restante para el testeo del modelo. Esta división es crucial para garantizar que el modelo no solo aprenda a detectar los objetos en las imágenes de entrenamiento, sino que también generalice bien a nuevas imágenes que no ha visto antes. La validación se utiliza para ajustar los hiperparámetros del modelo y evitar el sobreajuste (overfitting), mientras que el conjunto de testeo proporciona una evaluación final del rendimiento del modelo.
+Volviendo al dataset, se capturaron un total de 600 imágenes, de las cuales el 80\% se utilizaron para el entrenamiento, el 10\% para la validación y el 10\% restante para el testeo del modelo. Esta división es crucial para garantizar que el modelo no solo aprenda a detectar los objetos en las imágenes de entrenamiento, sino que también generalice bien a nuevas imágenes que no ha visto antes. La validación se utiliza para ajustar los hiperparámetros del modelo y evitar el sobreajuste (\textit{overfitting}), mientras que el conjunto de testeo proporciona una evaluación final del rendimiento del modelo.
 
 
 Como se ha mencionado en la sección \ref{sec:one_stage_detectors} y se detalla en la Tabla \ref{tab:yolo_all_variants_comparison}, los modelos YOLO presentan diversas variantes que difieren en tamaño, complejidad, latencia y precisión. Esta tabla comparativa es fundamental para seleccionar el modelo que mejor equilibre la velocidad de procesamiento y la precisión requerida.
-
-Para este trabajo, se han entrenado y evaluado experimentalmente las siguientes variantes: YOLOv5n, YOLOv5m, YOLOv8n, YOLOv8s, YOLO11n, YOLO11s, YOLO11m y YOLO11l.
-
 
 
 
@@ -1035,7 +1048,7 @@ Para este trabajo, se han entrenado y evaluado experimentalmente las siguientes 
    \resizebox{\textwidth}{!}{%
    \begin{tabular}{llc|c|ccl} % Familia (l), Variante (l), Tamaño (c) | Parámetros (M) (c) | Lat CPU (c), Lat GPU (c), GPU Tipo (l)
       \toprule
-      Familia & Variante & Tamaño (px) & Parámetros (M) & Latencia CPU ONNX (ms) & Latencia GPU (ms) & GPU (para Latencia) \\
+      Familia & Variante & Tamaño (px) & Parámetros (M) & \begin{tabular}[c]{@{}c@{}}Latencia CPU\\ONNX (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Latencia\\GPU (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}GPU\\(para Latencia)\end{tabular} \\
       \midrule
       \multirow{2}{*}{YOLOv5} & nu & 640 & 2.6 & 73.6 & 1.06 & \multirow{2}{*}{A100 TensorRT} \\
        & mu & 640 & 25.1 & 233.9 & 1.86 & \\
@@ -1051,25 +1064,25 @@ Para este trabajo, se han entrenado y evaluado experimentalmente las siguientes 
       \bottomrule
    \end{tabular}
    }
-   \caption[Análisis comparativo de variantes de YOLO (v5, v8, v11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU]{Análisis comparativo de variantes de YOLO (v5, v8, v11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU.}
+   \caption[Análisis comparativo de variantes de YOLO (v5, v8, 11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU]{Análisis comparativo de variantes de YOLO (v5, v8, 11) indicando tamaño, parámetros, latencias CPU/GPU y la GPU específica utilizada para la medición de latencia GPU. Datos extraídos de \cite{yolo11_ultralytics}.}
    \label{tab:yolo_all_variants_comparison}
 \end{table}
 
 
 Para el entrenamiento de los modelos se han seleccionado los siguientes hiperparámetros:
 \begin{itemize}
-   \item \textbf{Tasa de aprendizaje (learning rate):} Se ha utilizado un valor inicial de 0.01, con un ajuste posterior basado en la tasa de convergencia observada durante el entrenamiento.
-   \item \textbf{Número de épocas (epochs):} Se han realizado 30 épocas, para permitir que el modelo aprenda de manera efectiva sin caer en el sobreajuste.
-   \item \textbf{Tamaño del lote (batch size):} Se ha establecido en 16, lo que permite un equilibrio entre la velocidad de entrenamiento y la utilización de memoria.
-   \item \textbf{Tamaño de imagen (image size):} Se ha utilizado una resolución de 640x640 píxeles, que es un tamaño estándar para los modelos YOLO y proporciona un buen compromiso entre precisión y velocidad.
-   \item \textbf{Optimizador:} Se ha utilizado el optimizador AdamW, que es conocido por su eficacia en el entrenamiento de modelos de aprendizaje profundo.
-   \item \textbf{Tasa de aumento de datos (data augmentation):} Se han aplicado técnicas de aumento de datos como rotación, cambio de brillo y contraste, y recortes aleatorios para mejorar la generalización del modelo.
-   \item \textbf{Device:} Se ha utilizado una Jetson AGX Xavier, que proporciona un entorno de hardware optimizado para el entrenamiento.
+   \item \textbf{Tasa de aprendizaje (\textit{learning rate}):} Se ha utilizado un valor inicial de 0.01, con un ajuste posterior basado en la tasa de convergencia observada durante el entrenamiento.
+   \item \textbf{Número de épocas (\textit{epochs}):} Se han realizado 30 épocas, para permitir que el modelo aprenda de manera efectiva sin caer en el sobreajuste.
+   \item \textbf{Tamaño del lote (\textit{batch size}):} Se ha establecido en 16, lo que permite un equilibrio entre la velocidad de entrenamiento y la utilización de memoria.
+   \item \textbf{Tamaño de imagen (\textit{image size}):} Se ha utilizado una resolución de 640x640 píxeles, que es un tamaño estándar para los modelos YOLO y proporciona un buen compromiso entre precisión y velocidad.
+   \item \textbf{Optimizador (\textit{optimizer}):} Se ha utilizado el optimizador AdamW, que es conocido por su eficacia en el entrenamiento de modelos de aprendizaje profundo.
+   \item \textbf{Tasa de aumento de datos (\textit{data augmentation}):} Se han aplicado técnicas de aumento de datos como rotación, cambio de brillo y contraste, y recortes aleatorios para mejorar la generalización del modelo.
+   \item \textbf{Dispositivo (\textit{device}):} Se ha utilizado una Jetson AGX Xavier, que proporciona un entorno de hardware optimizado para el entrenamiento.
 \end{itemize}
 
 
 
-Los resultados del entrenamiento se han evaluado utilizando el conjunto de validación, y se han registrado métricas como la precisión (precision), la recuperación (recall) y el mAP (mean Average Precision). Estas métricas son fundamentales para entender el rendimiento del modelo y su capacidad para generalizar a nuevos datos.
+Los resultados del entrenamiento se han evaluado utilizando el conjunto de validación, y se han registrado métricas como la \textbf{precisión}, el \textbf{recall} y el \textbf{mAP}. Estas métricas son fundamentales para entender el rendimiento del modelo y su capacidad para generalizar a nuevos datos.
 
 \begin{table}[H]
    \centering
@@ -1100,8 +1113,11 @@ La Tabla \ref{tab:modelos_metrics} resume los resultados del entrenamiento para 
    \label{fig:loss_curves}
 \end{figure}
 
-La Figura \ref{fig:loss_curves} presenta las curvas de pérdida (loss) durante el entrenamiento y la validación para las diferentes variantes de YOLOv5, YOLOv8 y YOLOv11. Estas gráficas evidencian una progresiva disminución de la función de pérdida a lo largo de las épocas, lo cual es un indicador clave de que cada modelo está aprendiendo a generalizar a partir de los datos para la tarea de detección de objetos. Es notable que, en todas las familias, la pérdida de validación sigue una tendencia descendente similar a la de entrenamiento, sugiriendo una buena capacidad de generalización y la ausencia de un sobreajuste significativo. Se aprecia un descenso pronunciado de la pérdida en las épocas iniciales, indicativo de una rápida asimilación de patrones, y conforme avanza el entrenamiento, la tasa de reducción disminuye gradualmente hasta alcanzar una meseta. Este comportamiento es característico en el entrenamiento de modelos de aprendizaje profundo y señala la convergencia hacia un mínimo local en la función de pérdida, donde las mejoras adicionales resultan marginales.
+La Figura \ref{fig:loss_curves} presenta las curvas de pérdida (\textit{loss}) durante el entrenamiento y la validación para las diferentes variantes de YOLOv5, YOLOv8 y YOLO11. Estas gráficas evidencian una progresiva disminución de la función de pérdida a lo largo de las épocas, lo cual es un indicador clave de que cada modelo está aprendiendo a generalizar a partir de los datos para la tarea de detección de objetos. 
 
+Es notable que, en todas las familias, la pérdida de validación sigue una tendencia descendente similar a la de entrenamiento, sugiriendo una buena capacidad de generalización y la ausencia de un sobreajuste significativo. 
+
+Se aprecia un descenso pronunciado de la pérdida en las épocas iniciales, indicativo de una rápida asimilación de patrones, y conforme avanza el entrenamiento, la tasa de reducción disminuye gradualmente hasta alcanzar una meseta. Este comportamiento es característico en el entrenamiento de modelos de aprendizaje profundo y señala la convergencia hacia un mínimo local en la función de pérdida, donde las mejoras adicionales resultan marginales.
 
 
 \section{Descripción del sistema} \label{sec:descripcion_sistema}
@@ -1116,7 +1132,9 @@ El sistema está organizado como una serie de etapas de procesamiento secuencial
 
 Los resultados del sistema pueden utilizarse de diversas formas, monitorización en tiempo real a través de visualización de las detecciones, generación de alertas basadas en reglas predefinidas, interacción con sistemas de control automatizado para realizar acciones específicas, y almacenamiento de datos para su posterior análisis y extracción de métricas que permitan optimizar procesos industriales.
 
-La arquitectura del sistema se ha diseñado estratégicamente para maximizar el rendimiento computacional y la eficiencia en el uso de recursos, asegurando una operación coordinada entre sus componentes modulares. Los datos fluyen secuencialmente a través de las distintas etapas, permitiendo un procesamiento continuo y eficaz de la información visual. Esta estructura modular intrínseca no solo simplifica el mantenimiento y las futuras actualizaciones, sino que también dota al sistema de una gran flexibilidad para adaptarse a diferentes requisitos operativos y escenarios de despliegue. Aunque optimizado específicamente para la plataforma NVIDIA Jetson, su diseño modular facilita su potencial portabilidad a otras plataformas hardware de NVIDIA, como GPUs de escritorio o servidores de alto rendimiento, siempre que se cumplan los prerrequisitos de hardware y software.
+La arquitectura del sistema se ha diseñado estratégicamente para maximizar el rendimiento computacional y la eficiencia en el uso de recursos, asegurando una operación coordinada entre sus componentes modulares. Los datos fluyen secuencialmente a través de las distintas etapas, permitiendo un procesamiento continuo y eficaz de la información visual. 
+
+Esta estructura modular intrínseca no solo simplifica el mantenimiento y las futuras actualizaciones, sino que también dota al sistema de una gran flexibilidad para adaptarse a diferentes requisitos operativos y escenarios de despliegue. Aunque optimizado específicamente para la plataforma NVIDIA Jetson, su diseño modular facilita su potencial portabilidad a otras plataformas hardware de NVIDIA, como GPUs de escritorio o servidores de alto rendimiento, siempre que se cumplan los prerrequisitos de hardware y software.
 
 
 \section{Diseño de las etapas del sistema} \label{sec:diseno_etapas}
@@ -1130,14 +1148,14 @@ La etapa de captura de imágenes es la responsable de adquirir los fotogramas de
 \subsection{Inferencia} \label{sec:inferencia}
 La etapa de inferencia constituye el núcleo computacional del sistema, siendo responsable de ejecutar el modelo de detección de objetos preentrenado sobre cada fotograma adquirido por la etapa de captura.
 
-El proceso de inferencia comienza con la adquisición de un fotograma de vídeo, que se convierte en un tensor adecuado para la entrada del modelo. Este tensor es una representación numérica de la imagen, donde cada píxel se traduce en un valor que el modelo puede procesar. La transformación del fotograma a tensor incluye operaciones como la normalización y el redimensionamiento, asegurando que los datos estén en el formato correcto para el modelo. En el caso de los modelos YOLO, este tensor suele tener una forma de (batch\_size, channels, height, width), donde `channels` representa los canales de color (típicamente 3 para RGB), y `height` y `width` son las dimensiones de la imagen redimensionada. Este paso es crucial para garantizar que el modelo pueda interpretar correctamente la información visual contenida en el fotograma.
+El proceso de inferencia comienza con la adquisición de un fotograma de vídeo, que se convierte en un tensor adecuado para la entrada del modelo. Este tensor es una representación numérica de la imagen, donde cada píxel se traduce en un valor que el modelo puede procesar. La transformación del fotograma a tensor incluye operaciones como la normalización y el redimensionamiento, asegurando que los datos estén en el formato correcto para el modelo. En el caso de los modelos YOLO, este tensor suele tener una forma de (\textit{batch\_size}, \textit{channels}, \textit{height}, \textit{width}), donde ``channels'' representa los canales de color (típicamente 3 para RGB), y ``height'' y ``width'' son las dimensiones de la imagen redimensionada. Este paso es crucial para garantizar que el modelo pueda interpretar correctamente la información visual contenida en el fotograma.
 
-La ejecución de la inferencia propiamente dicha implica cargar el modelo \gls{yolo} (potencialmente optimizado mediante NVIDIA TensorRT para maximizar el rendimiento en la plataforma Jetson) y pasarle el tensor de entrada. Aprovechando la aceleración por hardware (\gls{gpu} y/o \gls{dla}s disponibles en los módulos Jetson), el modelo procesa la imagen y genera un conjunto de predicciones. Estas predicciones iniciales suelen ser numerosas y requieren un postprocesamiento para refinar los resultados. Este postprocesamiento, a menudo gestionado internamente por el framework Ultralytics o aplicado explícitamente, incluye la aplicación de un umbral de confianza para descartar detecciones poco fiables y la ejecución del algoritmo de \gls{nms} para eliminar cajas delimitadoras redundantes que correspondan al mismo objeto.
+La ejecución de la inferencia propiamente dicha implica cargar el modelo \gls{yolo} (potencialmente optimizado mediante NVIDIA TensorRT para maximizar el rendimiento en la plataforma Jetson) y pasarle el tensor de entrada. Aprovechando la aceleración por hardware (\gls{gpu} y/o \gls{dla}s disponibles en los módulos Jetson), el modelo procesa la imagen y genera un conjunto de predicciones. Estas predicciones iniciales suelen ser numerosas y requieren un postprocesamiento para refinar los resultados. Este postprocesamiento, a menudo gestionado internamente por el \textit{framework} Ultralytics o aplicado explícitamente, incluye la aplicación de un umbral de confianza para descartar detecciones poco fiables y la ejecución del algoritmo de \gls{nms} para eliminar cajas delimitadoras redundantes que correspondan al mismo objeto.
 
-El resultado final de la etapa de inferencia, que se transfiere a la etapa de seguimiento, es una lista estructurada de las detecciones finales para el fotograma actual. Cada detección en esta lista contiene información esencial: las coordenadas de la caja delimitadora que localiza al objeto (comúnmente en formato (x, y, w, h), donde (x, y) representan las coordenadas del centro de la caja, y (w, h) su anchura y altura), una puntuación de confianza que cuantifica la fiabilidad de la detección, y la etiqueta de la clase predicha para el objeto (p. ej., 'canica\_azul', 'canica\_verde\_defecto'). La eficiencia y rapidez de esta etapa son críticas para mantener la capacidad de procesamiento en tiempo real del sistema global.
+El resultado final de la etapa de inferencia, que se transfiere a la etapa de seguimiento, es una lista estructurada de las detecciones finales para el fotograma actual. Cada detección en esta lista contiene información esencial: las coordenadas de la caja delimitadora que localiza al objeto (comúnmente en formato (x, y, w, h), donde (x, y) representan las coordenadas del centro de la caja, y (w, h) su anchura y altura), una puntuación de confianza que cuantifica la fiabilidad de la detección, y la etiqueta de la clase predicha para el objeto (p. ej., ``canica\_azul'', ``canica\_verde\_defecto''). La eficiencia y rapidez de esta etapa son críticas para mantener la capacidad de procesamiento en tiempo real del sistema global.
 
 \subsection{Seguimiento} \label{sec:seguimiento}
-La etapa de seguimiento es la encargada de mantener la identidad de los objetos detectados a lo largo del tiempo, asegurando que cada objeto en el flujo de vídeo conserve su etiqueta y trayectoria a pesar de las variaciones en su posición, apariencia o posibles oclusiones. Para lograr esto, se ha utilizado la implementación del algoritmo BYTETrack en el framework de Ultralytics\cite{Jocher_Ultralytics_YOLO_2023}, que se basa en un enfoque de seguimiento por detección explicado en la subsección~\ref{sec:bytetrack}. Este algoritmo se encarga de asociar las detecciones generadas por la etapa de inferencia con las trayectorias existentes, utilizando tanto las detecciones de alta confianza como las de baja confianza para mejorar la robustez del seguimiento.
+La etapa de seguimiento es la encargada de mantener la identidad de los objetos detectados a lo largo del tiempo, asegurando que cada objeto en el flujo de vídeo conserve su etiqueta y trayectoria a pesar de las variaciones en su posición, apariencia o posibles oclusiones. Para lograr esto, se ha utilizado la implementación del algoritmo BYTETrack en el \textit{framework} de Ultralytics\cite{Jocher_Ultralytics_YOLO_2023}, que se basa en un enfoque de seguimiento por detección explicado en la subsección~\ref{sec:bytetrack}. Este algoritmo se encarga de asociar las detecciones generadas por la etapa de inferencia con las trayectorias existentes, utilizando tanto las detecciones de alta confianza como las de baja confianza para mejorar la robustez del seguimiento.
 
 Para la configuración del algoritmo BYTETrack existen varios parámetros ajustables que permiten optimizar su rendimiento según las características específicas del entorno y los objetos a seguir. Estos parámetros son:
 \begin{itemize}
@@ -1148,7 +1166,7 @@ Para la configuración del algoritmo BYTETrack existen varios parámetros ajusta
    \item \texttt{match\_thresh}: Umbral de IoU (Intersection over Union) para la asociación entre las predicciones del Filtro de Kalman y las detecciones (valor típico: 0.8). Si la IoU es mayor que este umbral, se considera una coincidencia potencial.
 \end{itemize}
 
-Este algoritmo se basa en un ciclo continuo de predicción y corrección, donde el Filtro de Kalman se utiliza para predecir la posición futura de los objetos y suavizar las trayectorias, manejando la incertidumbre en las mediciones. La asociación de detecciones y trayectorias se realiza mediante un algoritmo de asignación, como el algoritmo Húngaro, que busca minimizar el costo total de la asociación entre las detecciones y las trayectorias existentes. Se ejecuta íntegramente en la CPU debido a la implementación del algoritmo en la biblioteca de Ultralytics.
+Este algoritmo se basa en un ciclo continuo de predicción y corrección, donde el Filtro de Kalman se utiliza para predecir la posición futura de los objetos y suavizar las trayectorias, manejando la incertidumbre en las mediciones. La asociación de detecciones y trayectorias se realiza mediante un algoritmo de asignación, como el algoritmo Húngaro\cite{kuhn1955hungarian}, que busca minimizar el costo total de la asociación entre las detecciones y las trayectorias existentes. Se ejecuta íntegramente en la CPU debido a la implementación del algoritmo en la biblioteca de Ultralytics.
 
 Tras aplicar la asociación de detecciones y trayectorias, el algoritmo ofrece como salida una lista con el identificador único de cada objeto, su clase, la puntuación de confianza y las coordenadas de la caja delimitadora. Esta información es fundamental para la siguiente etapa del sistema.
 
@@ -1170,27 +1188,39 @@ Un problema potencial en esta etapa es que un objeto, como una canica defectuosa
 El siguiente algoritmo, se encarga de actualizar una estructura de memoria que almacena información sobre los objetos detectados y rastreados a lo largo del tiempo en una secuencia de vídeo. Su propósito principal es recordar si un objeto ha sido clasificado como defectuoso, incluso cuando el defecto deja de ser visible temporalmente en fotogramas posteriores.
 
 
-La memoria es un diccionario donde cada clave es el identificador único de un objeto (\texttt{track\_id}), y el valor asociado es otro diccionario con la siguiente estructura:
+La memoria es un diccionario donde cada clave es el identificador único de un objeto (\texttt{track\_id}), y el valor asociado es un objeto con la siguiente estructura:
 
-\begin{lstlisting}[style=seguimiento, caption={Estructura de la memoria de seguimiento}]
-{
-   track_id: {
-      "defective": True/False,            # Indica si el objeto
-                                          # es defectuoso
+% \begin{lstlisting}[style=seguimiento, caption={Estructura de la memoria de seguimiento}]
+% {
+%    track_id: {
+%       "defective": True/False,            # Indica si el objeto
+%                                           # es defectuoso
 
-      "permanent_defective": True/False,  # Indica si el objeto 
-                                          # es permanentemente 
-                                          # defectuoso
+%       "permanent_defective": True/False,  # Indica si el objeto 
+%                                           # es permanentemente 
+%                                           # defectuoso
 
-      "visible_frames": N,                # Cuantos fotogramas 
-                                          # puede no ser visto 
-                                          # antes de ser eliminado
+%       "visible_frames": N,                # Cuantos fotogramas 
+%                                           # puede no ser visto 
+%                                           # antes de ser eliminado
 
-      "class": "clase_objeto"             # Clase del objeto
-   },
-   ...
-}
-\end{lstlisting}
+%       "class": "clase_objeto"             # Clase del objeto
+%    },
+%    ...
+% }
+% \end{lstlisting}
+
+
+\begin{figure}[H]
+   \centering
+   \includegraphics[width=0.6\textwidth]{images/diseno_e_implementacion/track_object.png}
+   \caption[Modelo del objeto rastreado]{Modelo del objeto rastreado.}
+   \label{fig:track_object}
+\end{figure}
+
+En el objeto, \texttt{defective} indica si el objeto en cuestión es defectuoso en el fotograma actual, \texttt{permanent\_defective} indica si el objeto ha sido clasificado como defectuoso de forma permanente (es decir, ha sido detectado como defectuoso en varios fotogramas consecutivos), \texttt{visible\_frames} es un contador que indica cuántos fotogramas han pasado desde la última vez que el objeto fue visto, y \texttt{class} es la clase del objeto detectado.
+
+
 
 \begin{lstlisting}[style=seguimiento, caption={Ejemplo de memoria de seguimiento}]
 {
@@ -1263,12 +1293,12 @@ La Figura \ref{fig:secuencial} ilustra el flujo de datos en un sistema secuencia
 
 \subsection{Segmentación en hilos} \label{sub:segmentacion_hilos}
 
-La segunda opción es la segmentación del sistema en diferentes hilos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un hilo (\textit{thread}) independiente. A diferencia del enfoque secuencial donde cada etapa debe esperar a que la anterior finalice, la segmentación por hilos permite que las etapas operen de forma concurrente, solapando sus ejecuciones. Esto puede mejorar significativamente el rendimiento (throughput) y reducir la latencia, ya que mientras una etapa espera por una operación (p. ej., E/S de la cámara), otra etapa puede estar procesando datos (p. ej., inferencia en GPU o seguimiento en CPU). 
+La segunda opción es la segmentación del sistema en diferentes hilos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un hilo (\textit{thread}) independiente. A diferencia del enfoque secuencial donde cada etapa debe esperar a que la anterior finalice, la segmentación por hilos permite que las etapas operen de forma concurrente, solapando sus ejecuciones. Esto puede mejorar significativamente el rendimiento (\textit{throughput}) y reducir la latencia, ya que mientras una etapa espera por una operación (p. ej., E/S de la cámara), otra etapa puede estar procesando datos (p. ej., inferencia en GPU o seguimiento en CPU). 
 
-Los hilos operan dentro del mismo proceso, compartiendo el mismo espacio de memoria. La comunicación y transferencia de datos (fotogramas, detecciones) entre estas etapas/hilos se gestiona mediante colas de mensajes (\textit{Queue}) de la librería estándar de Python, que aseguran una transferencia eficiente y segura entre hilos (\textit{thread-safe}).
+Los hilos operan dentro del mismo proceso, compartiendo el mismo espacio de memoria. La comunicación y transferencia de datos (fotogramas, detecciones) entre estas etapas/hilos se gestiona mediante colas de mensajes (\textit{Queue}\cite{queue_python}) de la librería estándar de Python, que aseguran una transferencia eficiente y segura entre hilos (\textit{thread-safe}).
 
 
-En Python, un hilo es una unidad básica de ejecución. Sin embargo, al trabajar con hilos en Python, es crucial entender el impacto del \gls{gil} (Global Interpreter Lock). El \gls{gil} es un mecanismo de bloqueo mutuo (mutex) que protege el acceso al intérprete de Python. Su función principal es permitir que solo un hilo ejecute código de bytes Python (\textit{Python bytecode}) a la vez dentro de un único proceso, incluso si el sistema dispone de múltiples núcleos de CPU. Es decir, en Python, debido al \gls{gil}, dos hilos de un mismo proceso no pueden ejecutar código Python de manera simultánea en núcleos de CPU diferentes. Esta restricción se implementó originalmente para simplificar la gestión de memoria (específicamente, el conteo de referencias) y prevenir condiciones de carrera en el acceso a objetos Python.
+En Python, un hilo es una unidad básica de ejecución. Sin embargo, al trabajar con hilos en Python, es crucial entender el impacto del \gls{gil}. El \gls{gil} es un mecanismo de bloqueo mutuo (\textit{mutex}) que protege el acceso al intérprete de Python. Su función principal es permitir que solo un hilo ejecute código de bytes Python (\textit{Python bytecode}) a la vez dentro de un único proceso, incluso si el sistema dispone de múltiples núcleos de CPU. Es decir, en Python, debido al \gls{gil}, dos hilos de un mismo proceso no pueden ejecutar código Python de manera simultánea en núcleos de CPU diferentes. Esta restricción se implementó originalmente para simplificar la gestión de memoria (específicamente, el conteo de referencias) y prevenir condiciones de carrera en el acceso a objetos Python.
 
 La principal consecuencia del \gls{gil} es que impide el verdadero paralelismo para tareas que son intensivas en \gls{cpu} (\textit{CPU-bound}) y están escritas puramente en Python. Aunque se creen múltiples hilos, solo uno podrá ejecutar código Python en un instante dado. En aplicaciones con muchos hilos compitiendo por la \gls{cpu}, el \gls{gil} puede incluso introducir sobrecarga y contención, llevando a un rendimiento inferior al de una ejecución secuencial.
 
@@ -1296,7 +1326,7 @@ Aunque más complejo de implementar que el enfoque secuencial debido a la necesi
 
 \subsection{Segmentación en procesos} \label{sub:segmentacion_procesos}
 
-La tercera opción es la segmentación del sistema en diferentes procesos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un proceso independiente. La comunicación y transferencia de datos entre estas etapas/procesos se gestiona mediante colas de mensajes (\textit{Queue}). Estas colas provienen del módulo `multiprocessing` de la librería estándar de Python y comparten la misma interfaz que las colas estándar del módulo `queue`, lo que asegura una transferencia eficiente y segura entre procesos (\textit{process-safe}).
+La tercera opción es la segmentación del sistema en diferentes procesos. En este enfoque, cada etapa principal del sistema (captura, inferencia, seguimiento, escritura) se ejecuta en un proceso independiente. La comunicación y transferencia de datos entre estas etapas/procesos se gestiona mediante colas de mensajes (\textit{Queue}). Estas colas provienen del módulo \texttt{multiprocessing}\cite{multiprocessing} de la librería estándar de Python y comparten la misma interfaz que las colas estándar del módulo \texttt{queue}, lo que asegura una transferencia eficiente y segura entre procesos (\textit{process-safe}).
 
 La principal ventaja de este enfoque es que cada etapa del sistema se ejecuta en su propio proceso independiente, lo que permite un mejor aprovechamiento de los recursos disponibles. Además, al estar cada etapa en su propio proceso, se evita el problema del \gls{gil} (Global Interpreter Lock) presente en Python. Esto se debe a que cada proceso tiene su propio intérprete de Python y, por lo tanto, su propio \gls{gil} independiente. Como resultado, múltiples procesos pueden ejecutar código Python simultáneamente en diferentes núcleos de CPU, logrando un paralelismo real, a diferencia de los hilos dentro de un mismo proceso. Esto es especialmente beneficioso en sistemas con múltiples núcleos de CPU, donde cada proceso puede ejecutarse en un núcleo diferente, maximizando así el rendimiento del sistema.
 
@@ -1324,7 +1354,7 @@ Siguiendo la analogía con la arquitectura de un procesador, este enfoque se ase
 
 Cada etapa del sistema (captura, inferencia, seguimiento, escritura) tiene una duración variable y no necesariamente igual a las demás. Por ejemplo, la inferencia en la GPU puede ser mucho más rápida o lenta que la captura de imágenes o el seguimiento en la CPU. Las colas de mensajes actúan como buffers intermedios que desacoplan las etapas, permitiendo que cada una procese datos a su propio ritmo. Una etapa más rápida puede producir resultados que se acumulan en la cola de salida, mientras que una etapa más lenta consumirá datos de su cola de entrada cuando estén disponibles, esperando si la cola está vacía.
 
-Esta asincronía, gestionada mediante colas, permite un mayor rendimiento (throughput) en comparación con el modelo estrictamente secuencial (Figura \ref{fig:secuencial}), donde cada etapa debe esperar a que la anterior finalice completamente. No obstante, si una etapa es significativamente más lenta que las demás, puede convertirse en un cuello de botella, haciendo que las colas anteriores se llenen y las posteriores permanezcan vacías, limitando el rendimiento general del sistema al ritmo de la etapa más lenta.
+Esta asincronía, gestionada mediante colas, permite un mayor rendimiento (\textit{throughput}) en comparación con el modelo estrictamente secuencial (Figura \ref{fig:secuencial}), donde cada etapa debe esperar a que la anterior finalice completamente. No obstante, si una etapa es significativamente más lenta que las demás, puede convertirse en un cuello de botella, haciendo que las colas anteriores se llenen y las posteriores permanezcan vacías, limitando el rendimiento general del sistema al ritmo de la etapa más lenta.
 
 
 \subsection{Segmentación heterógenea} \label{sub:segmentacion_hardware}
@@ -1347,7 +1377,9 @@ La Figura \ref{fig:segmentacion_multihardware} ilustra cómo la etapa de inferen
 
 La quinta opción de segmentación emplea procesos independientes como en la sección \ref{sub:segmentacion_procesos}, pero busca optimizar la comunicación entre ellos utilizando memoria compartida como alternativa a las colas estándar del módulo \texttt{multiprocessing}. La transferencia de grandes volúmenes de datos, como los fotogramas de vídeo, puede volverse ineficiente con \texttt{multiprocessing.Queue} debido a la sobrecarga asociada a la serialización (\textit{pickling}) y deserialización de objetos, así como a la posible copia de datos entre los espacios de memoria de los procesos a través de mecanismos subyacentes como pipes.
 
-Para superar estas limitaciones, la biblioteca \texttt{multiprocessing.shared\_memory} de Python permite a múltiples procesos acceder directamente a la misma región de memoria. Un proceso crea un bloque de memoria compartida, y otros procesos pueden adjuntarse a él usando su nombre único. Ambos pueden leer y escribir directamente en el \textit{buffer} de memoria (\texttt{shm.buf}). Este acceso directo elimina los pasos de serialización/deserialización y las copias intermedias, resultando en una latencia mucho menor y un mayor ancho de banda, lo cual es especialmente beneficioso para datos grandes y estructurados como imágenes o \textit{arrays} NumPy.
+Para superar estas limitaciones, se hace uso de la librería estándar que ofrece Python \texttt{multiprocessing.shared\_memory}\cite{multiprocessing_shared_memory}. Esta permite a múltiples procesos acceder directamente a la misma región de memoria. 
+
+Un proceso crea un bloque de memoria compartida, y otros procesos pueden adjuntarse a él usando su nombre único. Ambos pueden leer y escribir directamente en el \textit{buffer} de memoria (\texttt{shm.buf}). Este acceso directo elimina los pasos de serialización/deserialización y las copias intermedias, resultando en una latencia mucho menor y un mayor ancho de banda, lo cual es especialmente beneficioso para datos grandes y estructurados como imágenes o \textit{arrays} NumPy.
 
 
 \begin{figure}[H]
@@ -1373,7 +1405,7 @@ Dado que múltiples procesos acceden concurrentemente a la misma memoria a trav�
 
 La configuración de cada buffer circular requiere definir estáticamente su capacidad, el tamaño de memoria para cada elemento y un nombre único para la región de memoria compartida. Una limitación clave es la necesidad de preasignar la memoria. Una asignación incorrecta (demasiado grande o demasiado pequeña) puede llevar a desperdicio de recursos o a bloqueos frecuentes que limiten el rendimiento. Por ello, se requiere una calibración experimental para determinar los tamaños óptimos de buffer para cada enlace entre etapas, buscando el equilibrio entre uso eficiente de memoria y fluidez en el procesamiento. Además, el programador debe gestionar manualmente el ciclo de vida del bloque de memoria compartida (creación, cierre con \texttt{close()} y liberación final con \texttt{unlink()}).
 
-En resumen, la segmentación basada en procesos con memoria compartida y un buffer circular busca ofrecer un rendimiento superior para la transferencia de grandes bloques de datos como fotogramas de vídeo, aunque esto implicaría una mayor complejidad en la implementación y gestión de la memoria.
+En resumen, la segmentación basada en procesos con memoria compartida mediante un buffer circular busca ofrecer un rendimiento superior para la transferencia de grandes bloques de datos como fotogramas de vídeo, aunque esto implicaría una mayor complejidad en la implementación y gestión de la memoria.
 
 
 \chapter{Evaluación de la solución} \label{chap:evaluacion_solucion}
@@ -2165,13 +2197,13 @@ En este capítulo se presentan las conclusiones obtenidas a partir del desarroll
 
 A lo largo de este Trabajo de Fin de Grado, se han abordado diversos desafíos y se han alcanzado los objetivos propuestos, aunque no sin encontrar ciertas dificultades inherentes al desarrollo de un sistema complejo de visión artificial. A continuación, se detallan los principales logros y los obstáculos superados.
 
-Los objetivos fundamentales del proyecto se han alcanzado con éxito. Se llevó a cabo un estudio exhaustivo del estado del arte, abarcando tanto las \glspl{cnn}, con experimentación en diversos modelos de detección, como los aceleradores hardware, con especial atención a las GPUs y la plataforma NVIDIA Jetson. Durante esta fase, se identificaron y superaron desafíos significativos, principalmente relacionados con la gestión de la compatibilidad entre las múltiples versiones de frameworks de aprendizaje profundo y el software de NVIDIA. La arquitectura ARM64 de los dispositivos Jetson también presentó particularidades que complejizaron la instalación y configuración de dependencias críticas, como ciertas bibliotecas de Python y componentes específicos del ecosistema de NVIDIA. A pesar de estos obstáculos técnicos, se logró una configuración estable y funcional del entorno de desarrollo y experimentación.
+Los objetivos fundamentales del proyecto se han alcanzado con éxito. Se llevó a cabo un estudio exhaustivo del estado del arte, abarcando tanto las \glspl{cnn}, con experimentación en diversos modelos de detección, como los aceleradores hardware, con especial atención a las GPUs y la plataforma NVIDIA Jetson. Durante esta fase, se identificaron y superaron desafíos significativos, principalmente relacionados con la gestión de la compatibilidad entre las múltiples versiones de \textit{frameworks} de aprendizaje profundo y el software de NVIDIA. La arquitectura ARM64 de los dispositivos Jetson también presentó particularidades que complejizaron la instalación y configuración de dependencias críticas, como ciertas bibliotecas de Python y componentes específicos del ecosistema de NVIDIA. A pesar de estos obstáculos técnicos, se logró una configuración estable y funcional del entorno de desarrollo y experimentación.
 
 Se generó un conjunto de datos y vídeos de entrenamiento, fundamental para optimizar la precisión del modelo de detección. Estos recursos, proporcionaron un entorno de prueba que intenta simular condiciones reales de operación. El principal desafío fue seleccionar un objeto de prueba fácilmente identificable y con variabilidad controlada en forma y color. Aunque se hubiera preferido un objeto industrial más complejo, no se dispuso de medios para su adquisición.
 
 Se entrenaron múltiples modelos de detección de las familias YOLOv5, YOLOv8 y YOLO11, en diversas precisiones y tamaños. Esto permitió evaluar su evolución y rendimiento en precisión y velocidad. La principal dificultad fue el ajuste fino de hiperparámetros para optimizar el rendimiento, proceso que requirió numerosas iteraciones y pruebas.
 
-Se implementó un sistema de seguimiento que integra los modelos de detección entrenados con el algoritmo BYTETrack. Esta combinación permitió mantener la identidad de los objetos a lo largo del tiempo, mejorando significativamente la precisión y robustez del sistema. El principal obstáculo fue la integración del algoritmo de seguimiento con la salida de detección, debido a incompatibilidades entre versiones de frameworks y dependencias. No obstante, se logró una integración exitosa y eficaz en la práctica.
+Se implementó un sistema de seguimiento que integra los modelos de detección entrenados con el algoritmo BYTETrack. Esta combinación permitió mantener la identidad de los objetos a lo largo del tiempo, mejorando significativamente la precisión y robustez del sistema. El principal obstáculo fue la integración del algoritmo de seguimiento con la salida de detección, debido a incompatibilidades entre versiones de \textit{frameworks} y dependencias. No obstante, se logró una integración exitosa y eficaz en la práctica.
 
 Para analizar los cuellos de botella, se exploraron diversas estrategias de segmentación para identificar componentes críticos y optimizar su rendimiento. La segmentación por procesos con memoria compartida fue la más efectiva, facilitando la comunicación eficiente entre detección y seguimiento, y mejorando notablemente el rendimiento global. La mayor complejidad residió en la programación de la comunicación interproceso (transmisión de datos y sincronización), que exigió un conocimiento profundo de programación concurrente y gestión de memoria compartida.
 
