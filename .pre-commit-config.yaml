@@ -1,6 +1,0 @@
-repos:
-  - repo: https://github.com/psf/black
-    rev: 24.2.0  # Usa la versión más reciente
-    hooks:
-      - id: black
-        args: ["--line-length=100"]

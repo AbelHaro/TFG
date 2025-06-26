@@ -1,2 +1,0 @@
--Probar diferentes configuraciones de inferencia y entrenamiento
--Hacer el dataset con imágenes con la web cam

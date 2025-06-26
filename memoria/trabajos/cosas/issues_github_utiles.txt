@@ -1,0 +1,5 @@
+
+
+Preprocesado, inferencia y postprocesado manual -> https://github.com/ultralytics/ultralytics/issues/14855
+control del pipeline de la inferencia -> https://github.com/ultralytics/ultralytics/issues/17542
+Link para shared memory en el procesado de video -> https://gist.github.com/Y-T-G/065588f061f053c448a22d55f08a5b75
