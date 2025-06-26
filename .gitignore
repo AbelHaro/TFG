@@ -1,4 +1,11 @@
-/datasets_labeled
+/datasets_labeled/2024_10_07_canicas_dataset
+/datasets_labeled/2024_10_21_canicas_dataset
+/datasets_labeled/2024_10_24_canicas_dataset
+/datasets_labeled/2024_11_15_canicas_dataset
+/datasets_labeled/2024_11_28_canicas_dataset
+/datasets_labeled/2025_02_24_canicas_dataset
+/datasets_labeled/videos
+
 /inference_predictions
 /validation_predictions
 /images
