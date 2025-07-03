@@ -304,6 +304,48 @@
 
 \section{Resultados}
 \begin{frame}{Resultados}
+    \begin{itemize}
+        \item Para evaluar el rendimiento del sistema, se han realizado pruebas con diferentes configuraciones de segmentación y optimización. Los resultados se han medido en términos de precisión, latencia y consumo energético.
+        \item Existen todas estas configuraciones para evaluar el rendimiento del sistema:
+        \begin{itemize}
+            \item Cantidad de objetos media en el vídeo.
+            \item Tipo de segmentación: hilos, procesos, procesos con memoria compartida y heterogénea.
+            \item Tipo de modelo y talla: YOLOv5{nu, mu}, YOLOv8{n, s} y YOLO11{n, s, m, l}.
+            \item Precisión del modelo: FP32, FP16 y INT8.
+            \item Modo de energía del dispositivo Jetson (MAXN, 30W8core, 30W4core, 15W4core, etc). 
+            \item Dispositivo Jetson: Jetson AGX Xavier, Jetson AGX Orin y Jetson Orin Nano.
+    \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Resultados - Cantidad de objetos}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Se ha evaluado el rendimiento del sistema con diferentes cantidades de objetos en el vídeo.
+                \item 4 vídeos, (1) media de 17 objetos, (2) media de 43 objetos, (3) media de 84 objetos y (4) carga variable de 0 a 180 objetos.
+                \item Para el resto de la configuración se ha utilizado los parámetros más óptimos encontrados en la sección de análisis comparativo.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+
+\begin{frame}{Resultados - Tipo de segmentación}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Se ha evaluado el rendimiento del sistema con diferentes tipos de segmentación.
+                \item Se han utilizado los vídeos con una media de 17 objetos y 43 objetos.
+                \item Para el resto de la configuración se ha utilizado los parámetros más óptimos encontrados en la sección de análisis comparativo.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \section{Conclusiones}
