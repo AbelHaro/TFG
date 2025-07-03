@@ -33,5 +33,6 @@
 /scripts/validate_tracking/*.mp4
 
 /scripts/cosas/train_logs
+/microcontroller/wifi_connect.py
 
 
