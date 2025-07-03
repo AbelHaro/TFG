@@ -17,7 +17,7 @@
 *.onnx
 *.engine
 *.pt
-*.zip
+
 /jetson_dla_tutorial
 /cuDLA-samples
 /create_dataset/**/*.jpg
