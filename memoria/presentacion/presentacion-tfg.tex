@@ -1,6 +1,7 @@
 \documentclass[spanish]{beamer}
 \usepackage{graphicx}
-\usepackage{multimedia}
+\usepackage{multimedia}   % Para centrar columnas con @{}
+
 
 % Tema de la presentación
 \usetheme{metropolis}
@@ -8,7 +9,8 @@
 % Información del documento
 \title{Detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales con optimizaciones específicas para hardware NVIDIA}
 
-\date{11 de julio de 2025}
+%\date{11 de julio de 2025}
+\date{Fecha: Por confirmar}
 \author{Alumno: Haro Armero, Abel \\ Tutor: Flich Cardo, José \\ Co-tutor: López Rodríguez, Pedro Juan}
 
 \titlegraphic{\includegraphics[width=0.18\textwidth]{images/etsinf/logo-upv.pdf}\hfill\includegraphics[width=0.18\textwidth]{images/etsinf/logo-etsinf.pdf}}
@@ -40,7 +42,7 @@
                 \item Crecimiento exponencial de la Inteligencia Artificial.
                 \item Avances en visión por computador gracias a las CNNs.
                 \item Desafíos energéticos impulsan soluciones optimizadas.
-                \item Dispositivos NVIDIA Jetson para IA eficiente en entornos embebidos.
+                \item Dispositivos optimizados para IA en entornos embebidos.
                 \item Desarrollo de sistema de detección de defectos en objetos en movimiento con CNNs, optimizado para hardware NVIDIA.
             \end{itemize}
         \end{column}
@@ -87,11 +89,11 @@
 \section{Objetivos}
 \begin{frame}{Objetivos}
     \begin{itemize}
-        \item Estudiar el estado del arte en CNNs, aceleradores y optimización.
+        \item Estudiar el estado del arte en CNNs, aceleradores y optimizaciones.
         \item Crear un conjunto de datos para entrenamiento y evaluación.
-        \item Entrenar y validar modelos CNN para detección de defectos en tiempo real.
+        \item Entrenar y validar diferentes modelos CNN para detección de defectos en tiempo real.
         \item Implementar un sistema de visión artificial integrado con hardware NVIDIA.
-        \item Analizar y optimizar cuellos de botella para mejorar rendimiento y eficiencia.
+        \item Analizar y optimizar cuellos de botella para mejorar rendimiento y consumo energético.
         \item Evaluar el sistema con métricas de precisión, latencia y consumo.
         \item Realizar un análisis comparativo para encontrar la configuración óptima.
     \end{itemize}
@@ -111,6 +113,7 @@
                     \end{column}
         \begin{column}{0.5\textwidth}
             \includegraphics[width=0.95\textwidth]{images/conceptos_previos/diagrama_de_Venn_inteligencia_artificial.png}
+            \vspace{0.5cm}
             \includegraphics[width=0.95\textwidth]{images/conceptos_previos/yolo.png}
         \end{column}
     \end{columns}
@@ -181,7 +184,7 @@
 
 \begin{frame}{Desarrollo de la solución - Segmentación de las etapas (1/5)}
     \begin{itemize}
-        \item El sistema se divide en cuatro etapas, captura de vídeo, detección de objetos, seguimiento de objetos y visualización.
+        \item El sistema se divide en cuatro etapas, captura de vídeo, detección de objetos, seguimiento de objetos y escritura de resultados.
         \item El objetivo de segmentar las etapas es permitir que cada una de ellas operen de forma independiente para mejorar la velocidad y eficiencia del sistema.
         \item Se han propuesto cuatro formas de segmentación para mejorar el procesamiento secuencial, (1) segmentación por \textbf{hilos}, (2) segmentación por \textbf{procesos}, (3) segmentación por \textbf{procesos con memoria compartida} y (4) segmentación por \textbf{heterogénea}
     \end{itemize}
@@ -201,11 +204,11 @@
 \begin{frame}{Desarrollo de la solución - Segmentación de las etapas (2/5)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \textbf{Segmentación por hilos:}
+            \textbf{1. Segmentación por hilos:}
             \begin{itemize}
                 \item Cada etapa se ejecuta en un hilo separado.
-                \item La información se comparte entre hilos mediante colas que se consumen de forma asíncrona.
-                \item Permite un procesamiento paralelo pero no concurrente debido al GIL (Global Interpreter Lock) de Python.
+                \item $\uparrow$ La información se comparte entre hilos mediante colas que se consumen de forma asíncrona.
+                \item $\downarrow$ Permite un procesamiento paralelo pero no concurrente debido al GIL (Global Interpreter Lock) de Python.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -220,11 +223,11 @@
 \begin{frame}{Desarrollo de la solución - Segmentación de las etapas (3/5)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \textbf{Segmentación por procesos:}
+            \textbf{2. Segmentación por procesos:}
             \begin{itemize}
                 \item Cada etapa se ejecuta en un proceso separado.
-                \item La comunicación entre procesos se realiza mediante colas implementadas sobre pipes.
-                \item Permite un procesamiento concurrente, pero con mayor latencia en la comunicación.
+                \item $\uparrow$ Permite un procesamiento concurrente, pero con mayor latencia en la comunicación.
+                \item $\downarrow$ La comunicación entre procesos se realiza mediante colas implementadas sobre pipes.
         \end{itemize}
         \end{column}
             \begin{column}{0.5\textwidth}
@@ -239,11 +242,11 @@
 \begin{frame}{Desarrollo de la solución - Segmentación de las etapas (4/5)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \textbf{Segmentación por procesos con memoria compartida:}
+            \textbf{3. Segmentación por procesos con memoria compartida:}
             \begin{itemize}
                 \item Cada etapa se ejecuta en un proceso separado, pero comparten memoria.
+                \item $\uparrow$ Permite un procesamiento concurrente con menor latencia en la comunicación.
                 \item Las colas de comunicación se implementan sobre memoria entre procesos evitando la sobrecarga de pipes.
-                \item Permite un procesamiento concurrente con menor latencia en la comunicación.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -257,12 +260,12 @@
 \begin{frame}{Desarrollo de la solución - Segmentación de las etapas (5/5)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \textbf{Segmentación por heterogénea:}
+            \textbf{4. Segmentación por heterogénea:}
             \begin{itemize}
                 \item Se puede ejecutar tanto con hilos como con procesos (con y sin memoria compartida).
                 \item Ejecuta la etapa de de detección en la GPU o DLAs del dispositivo Jetson.
-                \item Permite explotar todos los recursos para mejorar el rendimiento.
-                \item Los modelos de no se ejecutan completamente en la DLA.
+                \item $\uparrow$ Teóricamente permite explotar todos los recursos para mejorar el rendimiento.
+                \item $\downarrow$ Los modelos de no se ejecutan completamente en la DLA.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -308,12 +311,12 @@
         \item Para evaluar el rendimiento del sistema, se han realizado pruebas con diferentes configuraciones de segmentación y optimización. Los resultados se han medido en términos de precisión, latencia y consumo energético.
         \item Existen todas estas configuraciones para evaluar el rendimiento del sistema:
         \begin{itemize}
-            \item Cantidad de objetos media en el vídeo.
-            \item Tipo de segmentación: hilos, procesos, procesos con memoria compartida y heterogénea.
-            \item Tipo de modelo y talla: YOLOv5{nu, mu}, YOLOv8{n, s} y YOLO11{n, s, m, l}.
-            \item Precisión del modelo: FP32, FP16 y INT8.
-            \item Modo de energía del dispositivo Jetson (MAXN, 30W8core, 30W4core, 15W4core, etc). 
-            \item Dispositivo Jetson: Jetson AGX Xavier, Jetson AGX Orin y Jetson Orin Nano.
+            \item Cantidad de objetos media en el vídeo: \{17, 43, 84, carga variable\}
+            \item Tipo de segmentación: \{hilos, procesos, procesos con memoria compartida y heterogénea\}
+            \item Tipo de modelo y talla: \{YOLOv5\{nu, mu\}, YOLOv8\{n, s\}, YOLO11\{n, s, m, l\}\}
+            \item Precisión del modelo: \{FP32, FP16, INT8\}
+            \item Modo de energía del dispositivo Jetson: \{MAXN, 30W8core, 30W4core, 15W4core, etc\}
+            \item Dispositivo Jetson: \{Jetson AGX Xavier, Jetson AGX Orin, Jetson Orin Nano\}
     \end{itemize}
     \end{itemize}
 \end{frame}
@@ -325,28 +328,43 @@
                 \item Se ha evaluado el rendimiento del sistema con diferentes cantidades de objetos en el vídeo.
                 \item 4 vídeos, (1) media de 17 objetos, (2) media de 43 objetos, (3) media de 84 objetos y (4) carga variable de 0 a 180 objetos.
                 \item Para el resto de la configuración se ha utilizado los parámetros más óptimos encontrados en la sección de análisis comparativo.
+                \item Tras un análisis de regresión, se ha encontrado que la cantidad de objetos máxima para que el sistema es capaz de procesar en tiempo real a 30 FPS es de 100 objetos.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
+                \includegraphics[width=1.1\textwidth]{images/solucion_propuesta/cantidad_objetos_videos.pdf}
+                \includegraphics[width=1.1\textwidth]{images/solucion_propuesta/fps_4_videos_inferencia.pdf}
         \end{column}
     \end{columns}
 \end{frame}
 
 
 \begin{frame}{Resultados - Tipo de segmentación}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{itemize}
-                \item Se ha evaluado el rendimiento del sistema con diferentes tipos de segmentación.
-                \item Se han utilizado los vídeos con una media de 17 objetos y 43 objetos.
-                \item Para el resto de la configuración se ha utilizado los parámetros más óptimos encontrados en la sección de análisis comparativo.
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
+    \begin{itemize}
+        \item Se ha evaluado el rendimiento del sistema con diferentes tipos de segmentación.
+        \item Se han utilizado los vídeos con una media de 17 objetos y 43 objetos.
+        \item Para el resto de la configuración se ha utilizado los parámetros más óptimos encontrados en la sección de análisis comparativo.
+    \end{itemize}
 
-        \end{column}
-    \end{columns}
+    \vspace{0.5cm}
+    \centering
+    \resizebox{\linewidth}{!}{%
+        \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|}
+            \hline
+            \textbf{Segmentación} & \textbf{Frames} & \textbf{Tiempo (s) $\downarrow$} & \textbf{FPS $\uparrow$} & \textbf{LFPS $\downarrow$} & \textbf{Potencia (W) $\downarrow$} & \textbf{Energía (J) $\downarrow$} & \textbf{F/W $\downarrow$} & \textbf{Speedup $\uparrow$} & \textbf{GPU (\%) $\downarrow$} & \textbf{CPU (\%) $\downarrow$} \\
+            \hline
+            Secuencial & 2400 & 198.57 & 12.09 & 0.00 & 9.488 & 1884.03 & 1.274 & 1.000 & 24.62 & 15.46 \\
+            Hilos & 2400 & 131.40 & 18.26 & 0.00 & 12.991 & 1703.12 & 1.409 & 1.511 & 10.35 & 25.53 \\
+            Multiprocesos & 2400 & 105.16 & 22.82 & 0.00 & 14.272 & 1500.58 & 1.599 & 1.888 & 12.84 & 33.65 \\
+            MP Memoria Compartida & 2400 & 80.27 & 29.90 & 0.00 & 16.551 & 1320.25 & 1.818 & 2.474 & 17.12 & 40.10 \\
+            Heterogénea & 2400 & 84.36 & 28.45 & 0.00 & 17.812 & 1502.39 & 1.597 & 2.354 & 10.00 & 44.25 \\
+            \hline
+        \end{tabular}%
+    }
+    \vspace{0.2cm}
 \end{frame}
+
+
 
 \section{Conclusiones}
 \begin{frame}{Conclusiones -- Cumplimiento de objetivos (1/3)}
