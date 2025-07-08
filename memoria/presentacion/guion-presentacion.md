@@ -2,21 +2,21 @@
 
 # Introducción
 
-Durante los últimos años, la Inteligencia Artificial ha experimentado un crecimiento sin precedentes en popularidad, transformando nuestra capacidad tecnológica mediante herramientas revolucionarias. Este avance ha sido impulsado por la disponibilidad de grandes volúmenes de datos, el desarrollo de algoritmos avanzados y las mejoras significativas en el hardware de procesamiento, que han permitido a las máquinas aprender y adaptarse a situaciones complejas.
+En los últimos años, la Inteligencia Artificial ha revolucionado la tecnología con herramientas que han transformado por completo nuestra capacidad de innovación. Este avance se debe a tres factores clave: la enorme cantidad de datos disponibles, el desarrollo de algoritmos más potentes y las mejoras en el hardware de procesamiento.
 
-El progreso en visión por computador ha sido posible gracias a los avances en Redes Neuronales Convolucionales (CNNs), que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con gran precisión y velocidad.
+Dentro de la IA, la visión por computador ha experimentado un progreso extraordinario gracias a las Redes Neuronales Convolucionales, o CNNs. Estos modelos permiten a los sistemas detectar y clasificar objetos en imágenes y vídeos con una precisión y velocidad asombrosas.
 
-El procesamiento de todos estos datos requiere un cómputo intensivo, lo que ha llevado a la necesidad de utilizar hardware especializado y optimizar algoritmos para mejorar tanto el tiempo de procesamiento como el consumo energético.
+Sin embargo, procesar tal volumen de datos exige una gran capacidad de cómputo. Por ello, es fundamental optimizar los algoritmos y utilizar hardware especializado para reducir los tiempos de procesamiento y el consumo energético.
 
-En este contexto, el objetivo de este trabajo es el desarrollo de un sistema de detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales, optimizado para hardware NVIDIA, que permita detectar y clasificar objetos en vídeos en tiempo real.
+En este contexto, el objetivo de mi trabajo ha sido desarrollar un sistema de detección de defectos en objetos en movimiento, utilizando CNNs y hardware NVIDIA, capaz de operar en tiempo real.
 
 # Motivación
 
-Los humanos podemos entender el mundo que nos rodea interpretando imágenes y vídeos, una capacidad que no es innata en las máquinas. La visión por computador busca emular esta capacidad humana.
+Los seres humanos interpretamos el mundo a través de la vista, pero esta capacidad no es innata en las máquinas. La visión por computador busca precisamente replicar esta habilidad.
 
-La IA ha revolucionado la tecnología, siendo esencial para el desarrollo de soluciones innovadoras. En este ámbito destaca la visión por computador, mientras que dispositivos de bajo consumo como NVIDIA Jetson permiten llevar la IA al *edge computing*, reduciendo la latencia y el consumo energético, lo que abre nuevas posibilidades en la industria.
+Hoy en día, la IA es clave para crear soluciones innovadoras, y la visión por computador es una de sus áreas más destacadas. Dispositivos de bajo consumo, como la familia NVIDIA Jetson, nos permiten llevar la IA al "edge", es decir, procesar los datos directamente en el dispositivo. Esto reduce la latencia y el consumo, abriendo un mundo de posibilidades en la industria.
 
-En el entorno industrial, la detección y clasificación de objetos en movimiento optimiza procesos, mejora la seguridad y aumenta la eficiencia. La detección manual de defectos resulta ineficiente y propensa a errores humanos. La automatización mediante visión artificial permite reducir costes, aumentar la precisión y mejorar la calidad global del proceso.
+En el sector industrial, la detección automática de objetos optimiza procesos, aumenta la seguridad y mejora la eficiencia. Mientras que la detección manual de defectos es lenta y propensa a errores, la automatización con visión artificial reduce costes y eleva la calidad del producto final.
 
 # Objetivos
 - **Estudiar el estado del arte en CNNs y aceleradores hardware:**  
@@ -43,17 +43,14 @@ En el entorno industrial, la detección y clasificación de objetos en movimient
 
 # Conceptos Previos - Redes Neuronales Convolucionales
 
-Las Redes Neuronales Convolucionales (CNNs) son un tipo especializado de red neuronal profunda, diseñadas específicamente para procesar datos que tienen una estructura matricial, como las imágenes. Su arquitectura las hace particularmente efectivas para tareas de visión por computador.
+Las Redes Neuronales Convolucionales (CNNs) son un tipo de red neuronal diseñado específicamente para procesar imágenes.
 
-El objetivo principal de una CNN en el contexto de la detección de objetos es doble: primero, localizar la presencia de objetos de interés dentro de una imagen y, segundo, clasificar estos objetos, identificando defectos o características específicas relevantes para la aplicación.
+En la detección de objetos, una CNN tiene dos tareas principales: localizar objetos de interés en una imagen y clasificarlos, identificando si tienen defectos o no. Para ello, utilizan capas convolucionales que aprenden a reconocer patrones visuales, desde bordes y texturas hasta formas complejas.
 
-Las CNNs se basan en capas convolucionales para extraer características de las imágenes de manera jerárquica. Estas capas aplican filtros convolucionales que aprenden a detectar patrones visuales en diferentes escalas, desde bordes y texturas hasta formas más complejas.
+Existen dos enfoques principales en la arquitectura de estas redes:
 
-En la arquitectura de CNNs para detección de objetos, existen dos enfoques principales:
-
-- **Detectores de dos etapas:** Primero, proponen regiones de interés en la imagen y, luego, clasifican estas regiones. Un ejemplo común es la familia R-CNN (Región-based Convolutional Neural Network).
-
-- **Detectores de una etapa:** Realizan la detección y clasificación de objetos simultáneamente en una sola pasada por la red, lo que los hace más rápidos. YOLO (You Only Look Once) es un ejemplo popular de este tipo.
+- **Detectores de dos etapas (Two-Stage):** Como la familia R-CNN, primero proponen regiones donde podría haber un objeto y luego las clasifican.
+- **Detectores de una etapa (One-Stage):** Como YOLO, realizan la detección y clasificación en un solo paso, lo que los hace mucho más rápidos.
 
 # Conceptos Previos - Hardware NVIDIA Jetson
 
@@ -66,27 +63,24 @@ El Jetpack SDK de NVIDIA proporciona un conjunto completo de herramientas para d
 
 El seguimiento de objetos es una técnica que permite identificar y seguir la trayectoria de múltiples objetos a lo largo del tiempo en una secuencia de imágenes o un vídeo. A diferencia de la detección de objetos, que solo identifica los objetos en un fotograma individual, el seguimiento de objetos mantiene la identidad de cada objeto a lo largo del tiempo.
 
-El seguimiento de objetos generalmente combina la detección de objetos con el análisis de movimiento. Primero, se detectan los objetos en cada fotograma utilizando un detector de objetos. Luego, se utilizan algoritmos de seguimiento para asociar las detecciones de un fotograma con las detecciones del fotograma anterior, creando así una trayectoria para cada objeto.
-
-BYTETrack es un algoritmo de seguimiento popular que realiza el seguimiento de objetos a partir de las detecciones de un detector de objetos. BYTETrack se destaca por su capacidad para manejar oclusiones y cambios en la apariencia de los objetos, lo que lo hace adecuado para aplicaciones en entornos complejos.
+Para ello, combina la detección de objetos con algoritmos que asocian las detecciones de un fotograma con las del siguiente. En este proyecto he utilizado BYTETrack, un algoritmo muy eficaz que funciona bien incluso cuando los objetos se tapan entre sí.
 
 # Propuesta de solución
 
-La propuesta de solución consiste en un sistema con la siguiente arquitectura:
+La solución que he desarrollado es un sistema de detección de defectos en tiempo real, optimizado para hardware NVIDIA. El sistema sigue cuatro pasos:
 
-1. **Entrada de vídeo:** Un sensor, en este caso una cámara, captura un vídeo en tiempo real.
-
-2. **Detección de objetos:** Se utiliza un modelo de detección de objetos para realizar la inferencia del frame actual del vídeo.
-
-3. **Seguimiento de objetos:** Se aplica un algoritmo de seguimiento de objetos para mantener la identidad de los objetos detectados a lo largo del tiempo.
-
-4. **Escritura de resultados:** Se realizan anotaciones en el frame actual del vídeo, mostrando los objetos detectados y sus trayectorias. También se pueden realizar acciones basadas en los resultados de la detección, como alertas, análisis de datos o activación de actuadores.
+1.  **Entrada de vídeo:** Una cámara captura el vídeo en tiempo real.
+2.  **Detección de objetos:** Un modelo de CNN analiza cada fotograma para detectar objetos.
+3.  **Seguimiento de objetos:** El algoritmo BYTETrack sigue los objetos detectados para mantener su identidad.
+4.  **Escritura de resultados:** El sistema anota el vídeo con las detecciones y trayectorias, y podría activar otras acciones, como alertas o actuadores.
 
 Todo el proceso se ejecuta en tiempo real en el edge, sobre un dispositivo NVIDIA Jetson, en este caso, la Jetson AGX Xavier, Jetson AGX Orin o Jetson Orin Nano.
 
 # Desarrollo de la solución - Entrenamiento y validación de modelos
 
-Se ha llevado a cabo la creación de un conjunto de datos compuesto por imágenes de canicas de distintos colores, incluyendo tanto ejemplares sin defectos como con diversas anomalías visibles. A partir de este conjunto, se entrenaron modelos de redes neuronales convolucionales (CNN) con el objetivo de detectar automáticamente dichos defectos. Posteriormente, se procedió a la validación y ajuste de hiperparámetros clave, con el fin de mejorar la precisión de los modelos. Finalmente, los modelos entrenados fueron exportados al formato TensorRT para optimizar su rendimiento en dispositivos con hardware NVIDIA, aprovechando su capacidad de inferencia acelerada.
+El primer paso del desarrollo fue crear un conjunto de datos con imágenes de canicas, tanto con defectos como sin ellos.
+
+Con este dataset, entrené varios modelos de CNN para que aprendieran a detectar estos defectos. Después, ajusté sus hiperparámetros para mejorar la precisión y, finalmente, los exporté a formato TensorRT para optimizar su rendimiento en el hardware de NVIDIA.
 
 # Desarrollo de la solución - Segmentación de las etapas
 
@@ -136,9 +130,9 @@ En esta segmentación avanzada:
 
 # Desarrollo de la solución - Prueba de concepto
 
-Como prueba simple de concepto, se ha construido una pequeña cinta transportadora accionada mediante un motor. El sistema desarrollado captura vídeo de la cinta en funcionamiento y es capaz de detectar canicas de distintos colores, identificando además posibles defectos en ellas.
+Para validar el sistema, construí una pequeña cinta transportadora. El sistema captura el vídeo de la cinta, detecta las canicas en movimiento e identifica si tienen defectos.
 
-El objetivo de esta prueba es demostrar que el sistema es capaz de detectar objetos en movimiento y clasificarlos en tiempo real, validando así la viabilidad del enfoque propuesto en un entorno controlado.
+Esta prueba demuestra que el sistema es capaz de detectar y clasificar objetos en movimiento en tiempo real, validando así el enfoque propuesto.
 
 # Resultados
 
@@ -146,12 +140,12 @@ El objetivo de esta prueba es demostrar que el sistema es capaz de detectar obje
 
 Para evaluar el rendimiento del sistema, existen diferentes variables de configuración a considerar:
 
-- **Cantidad de objetos:** Número de objetos a detectar en el vídeo.
-- **Tipo de segmentación:** Método utilizado para dividir las etapas del sistema.
-- **Tipo y tamaño del modelo:** Arquitectura utilizada para la detección de objetos, junto con su complejidad.
-- **Precisión del modelo:** Nivel de precisión numérica empleado (FP32, FP16, INT8).
-- **Modo de energía del dispositivo:** Configuración energética del hardware Jetson.
-- **Modelo de dispositivo Jetson:** Versión específica del hardware utilizado.
+- La cantidad de objetos en el vídeo.
+- El tipo de segmentación utilizado.
+- El modelo de CNN y su tamaño.
+- La precisión numérica del modelo (FP32, FP16 o INT8).
+- El modo de energía del dispositivo Jetson.
+- Y el modelo de Jetson utilizado.
 
 Además, se han considerado 2 formas de procesar los vídeos:
 
