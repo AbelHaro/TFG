@@ -202,3 +202,16 @@ Los objetivos planteados en este Trabajo de Fin de Grado se han alcanzado con é
   Se realizaron experimentos exhaustivos midiendo precisión, latencia y consumo energético bajo diferentes configuraciones de hardware Jetson, obteniendo una visión completa del rendimiento del sistema.
 
 
+# Correciones de la presentación
+- Motivacion : Quitar los 2 primeros puntos y cambiar la primera imagen
+-Quitar de la introducción el objetivo general
+- pagina 7 añdir imagenes de las plataformas y
+pagina 8 reducir texto
+pagina 9 ampliar la imagen para que se vea mejor
+pagina 10, añadir los diferentes hiperparámetros usados y entrenamientos hechos
+pagina 11 menos texto, primer punto repartir las etapas
+Segmentacion de laa etapas exlicar solo por procesos con memoria compartida, imagenes iguales
+- pagina 16 quitar la palabra simple, mejorar el texto
+- pagnia 18 añadir el numero de casos, mejorar la presentación y  la escritura
+pagina 20 tabla mas grande, en negrita la mejor, poner solo parametros optimos
+video con un monton de canicas a la vez

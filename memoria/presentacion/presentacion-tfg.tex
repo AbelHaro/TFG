@@ -1,7 +1,6 @@
 \documentclass[spanish]{beamer}
 \usepackage{graphicx}
-\usepackage{multimedia}   % Para centrar columnas con @{}
-
+\usepackage{multimedia}   % Para centrar columna                    \begin{co        \begin
 
 % Tema de la presentación
 \usetheme{metropolis}
@@ -35,15 +34,15 @@
 
 \footnotesize
 % En los últimos años, la Inteligencia Artificial ha crecido exponencialmente, impulsada por el aumento de datos, avances algorítmicos y mejoras en hardware como GPUs y TPUs. En especial, la visión por computador ha tenido un gran desarrollo gracias a las CNNs, con aplicaciones en seguridad, medicina o automoción. Sin embargo, este progreso plantea desafíos energéticos, lo que ha motivado la adopción de soluciones optimizadas como los dispositivos NVIDIA Jetson para tareas de IA eficientes en entornos embebidos. Este trabajo se centra en el desarrollo de un sistema de detección de defectos en objetos en movimiento utilizando CNNs, optimizado para hardware NVIDIA.
-\begin{frame}{Introducción}
+\begin{frame}{1. Introducción}
     \begin{columns}
         \begin{column}{0.45\textwidth}
             \begin{itemize}
-                \item Crecimiento exponencial de la Inteligencia Artificial.
-                \item Avances en visión por computador gracias a las CNNs.
-                \item Desafíos energéticos impulsan soluciones optimizadas.
-                \item Dispositivos optimizados para IA en entornos embebidos.
-                \item Desarrollo de sistema de detección de defectos en objetos en movimiento con CNNs, optimizado para hardware NVIDIA.
+                \item Crecimiento exponencial de la \textbf{Inteligencia Artificial}.
+                \item Avances en \textbf{visión por computador} gracias a las \textbf{CNNs}.
+                \item \textbf{Desafíos energéticos} impulsan soluciones optimizadas.
+                \item Dispositivos optimizados para \textbf{IA en entornos embebidos}.
+                \item Desarrollo de sistema de \textbf{detección de defectos} en objetos en movimiento con CNNs, optimizado para hardware \textbf{NVIDIA}.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -56,14 +55,14 @@
 
 \section{Motivación}
 % La visión por computador busca dotar a las máquinas de la capacidad de interpretar imágenes como lo hacen los humanos, siendo clave en la automatización industrial. Gracias a la IA y a dispositivos de bajo consumo como los Jetson de NVIDIA, es posible implementar soluciones eficientes en entornos de edge computing. Este trabajo se motiva en la necesidad de desarrollar un sistema que detecte y clasifique objetos en movimiento en cintas transportadoras, optimizando procesos y reduciendo errores.
-\begin{frame}{Motivación}
+\begin{frame}{2. Motivación}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item Emular la interpretación humana de imágenes en máquinas.
-                                    \item IA y visión por computador revolucionan la tecnología.
-                                    \item NVIDIA Jetson impulsa la IA en edge computing.
-                                    \item Automatización de la detección y clasificación de objetos en movimiento en la industria.
+                \item Emular la \textbf{interpretación humana} de imágenes en máquinas.
+                                    \item \textbf{IA y visión por computador} revolucionan la tecnología.
+                                    \item \textbf{NVIDIA Jetson} impulsa la IA en \textbf{edge computing}.
+                                    \item Automatización de la \textbf{detección y clasificación} de objetos en movimiento en la industria.
                             \end{itemize}
                         \end{column}
 
@@ -87,20 +86,20 @@
 % \end{frame}
 
 \section{Objetivos}
-\begin{frame}{Objetivos}
+\begin{frame}{3. Objetivos}
     \begin{itemize}
-        \item Estudiar el estado del arte en CNNs, aceleradores hardware.
-        \item Crear un conjunto de datos para entrenamiento y evaluación.
-        \item Entrenar y validar diferentes modelos CNN para detección de defectos en tiempo real.
-        \item Implementar un sistema de visión artificial integrado con hardware NVIDIA.
-        \item Analizar y optimizar cuellos de botella para mejorar rendimiento y consumo energético.
-        \item Evaluar el sistema con métricas de precisión, latencia y consumo.
-        \item Realizar un análisis comparativo para encontrar la configuración óptima.
+        \item Estudiar el estado del arte en \textbf{CNNs, aceleradores hardware}.
+        \item Crear un \textbf{conjunto de datos} para entrenamiento y evaluación.
+        \item Entrenar y validar diferentes \textbf{modelos CNN} para detección de defectos en \textbf{tiempo real}.
+        \item Implementar un \textbf{sistema de visión artificial} integrado con hardware NVIDIA.
+        \item Analizar y optimizar \textbf{cuellos de botella} para mejorar rendimiento y consumo energético.
+        \item Evaluar el sistema con métricas de \textbf{precisión, latencia y consumo}.
+        \item Realizar un \textbf{análisis comparativo} para encontrar la configuración óptima.
     \end{itemize}
 \end{frame}
 
  \section{Conceptos previos}
-            \begin{frame}{Conceptos Previos - Redes Neuronales Convolucionales (CNNs)}
+            \begin{frame}{4. Conceptos Previos - Redes Neuronales Convolucionales (CNNs)}
                 \begin{columns}
                     \begin{column}{0.5\textwidth}
                         \begin{itemize}
@@ -120,7 +119,7 @@
 \end{frame}
 
 
-\begin{frame}{Conceptos Previos - Hardware NVIDIA Jetson}
+\begin{frame}{4. Conceptos Previos - Hardware NVIDIA Jetson}
     
     \begin{columns}
         \begin{column}{0.5\textwidth}
@@ -139,7 +138,7 @@
     \end{columns}
 \end{frame}
 
-\begin{frame}{Conceptos Previos - Seguimiento de objetos (MOT)}
+\begin{frame}{4. Conceptos Previos - Seguimiento de objetos (MOT)}
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{itemize}
@@ -157,13 +156,13 @@
 
 
 \section{Propuesta de solución}
-\begin{frame}{Propuesta de solución}
+\begin{frame}{5. Propuesta de solución}
     \includegraphics[width=0.9\textwidth]{images/solucion_propuesta/figura_TFG_v3.png}
 \end{frame}
 
 \section{Desarrollo de la solución}
 
-\begin{frame}{Desarrollo de la solución - Entrenamiento y validación de modelos}
+\begin{frame}{6. Desarrollo de la solución - Entrenamiento y validación de modelos}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
@@ -182,7 +181,7 @@
     \end{columns}
 \end{frame}
 
-\begin{frame}{Desarrollo de la solución - Segmentación de las etapas (1/5)}
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (1/5)}
     \begin{itemize}
         \item El sistema se divide en cuatro etapas, captura de vídeo, detección de objetos, seguimiento de objetos y escritura de resultados.
         \item El objetivo de segmentar las etapas es permitir que cada una de ellas operen de forma independiente para mejorar la velocidad y eficiencia del sistema.
@@ -201,7 +200,7 @@
     \end{center}
 \end{frame}
 
-\begin{frame}{Desarrollo de la solución - Segmentación de las etapas (2/5)}
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (2/5)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \textbf{1. Segmentación por hilos:}
@@ -220,14 +219,14 @@
 
 \end{frame}
 
-\begin{frame}{Desarrollo de la solución - Segmentación de las etapas (3/5)}
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (3/5)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \textbf{2. Segmentación por procesos:}
             \begin{itemize}
-                \item Cada etapa se ejecuta en un proceso separado.
-                \item $\uparrow$ Permite un procesamiento concurrente, pero con mayor latencia en la comunicación.
-                \item $\downarrow$ La comunicación entre procesos se realiza mediante colas implementadas sobre pipes.
+                \item Cada etapa se ejecuta en un \textbf{proceso separado}.
+                \item $\uparrow$ Permite un \textbf{procesamiento concurrente}, pero con mayor latencia en la comunicación.
+                \item $\downarrow$ La comunicación entre procesos se realiza mediante \textbf{colas} implementadas sobre \textbf{pipes}.
         \end{itemize}
         \end{column}
             \begin{column}{0.5\textwidth}
@@ -239,14 +238,14 @@
 
 \end{frame}
 
-\begin{frame}{Desarrollo de la solución - Segmentación de las etapas (4/5)}
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (4/5)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \textbf{3. Segmentación por procesos con memoria compartida:}
             \begin{itemize}
-                \item Cada etapa se ejecuta en un proceso separado, pero comparten memoria.
-                \item $\uparrow$ Permite un procesamiento concurrente con menor latencia en la comunicación.
-                \item Las colas de comunicación se implementan sobre memoria compartida entre procesos evitando la sobrecarga de pipes.
+                \item Cada etapa se ejecuta en un proceso separado, pero \textbf{comparten memoria}.
+                \item $\uparrow$ Permite un procesamiento concurrente con \textbf{menor latencia} en la comunicación.
+                \item Las colas de comunicación se implementan sobre \textbf{memoria compartida} entre procesos evitando la sobrecarga de pipes.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -257,15 +256,15 @@
     \end{columns}
 \end{frame}
 
-\begin{frame}{Desarrollo de la solución - Segmentación de las etapas (5/5)}
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (5/5)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \textbf{4. Segmentación por heterogénea:}
             \begin{itemize}
-                \item Se puede ejecutar tanto con hilos como con procesos (con y sin memoria compartida).
-                \item Ejecuta la etapa de de detección en la GPU o DLAs del dispositivo Jetson.
-                \item $\uparrow$ Teóricamente permite explotar todos los recursos para mejorar el rendimiento.
-                \item $\downarrow$ Los modelos de no se ejecutan completamente en la DLA.
+                \item Se puede ejecutar tanto con \textbf{hilos} como con \textbf{procesos} (con y sin memoria compartida).
+                \item Ejecuta la etapa de de detección en la \textbf{GPU o DLAs} del dispositivo Jetson.
+                \item $\uparrow$ Teóricamente permite \textbf{explotar todos los recursos} para mejorar el rendimiento.
+                \item $\downarrow$ Los modelos de no se ejecutan completamente en la \textbf{DLA}.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -277,7 +276,7 @@
     \end{columns}
 \end{frame}
 
-\begin{frame}{Desarrollo de la solución - Prueba de concepto}
+\begin{frame}{6. Desarrollo de la solución - Prueba de concepto}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             Como prueba simple de concepto, se ha construido una pequeña cinta transportadora con un motor. El sistema captura el vídeo de la cinta transportadora y detecta canicas de distintos colores y defectos. El objetivo es demostrar que el sistema es capaz de detectar objetos en movimiento y clasificarlos en tiempo real.
@@ -291,22 +290,18 @@
 \end{frame}
 
 \section{Demo del sistema}
-\begin{frame}{Demo del sistema}
+\begin{frame}{7. Demo del sistema}
     \begin{center}
         % Video con texto como placeholder
-        \movie[width=0.8\textwidth,height=0.6\textwidth,showcontrols]{
-            \fbox{\parbox{0.8\textwidth}{\centering\vspace{2cm}
-            \Huge \textbf{VIDEO DEMO}\\[0.5cm]
-            \Large Sistema de detección de defectos\\[0.3cm]
-            \normalsize Haz clic para reproducir
-            \vspace{2cm}}}}
-        {demo/demo_defensa.mp4}
+        \movie[width=0.8\textwidth,height=0.6\textwidth,showcontrols,externalviewer]{
+            \includegraphics[width=0.6\textwidth]{demo/demo_defensa.mp4_snapshot_00.06.240.jpg}
+         }{demo/demo_defensa.mp4}
     \end{center}
 \end{frame}
 
 
 \section{Resultados}
-\begin{frame}{Resultados}
+\begin{frame}{8. Resultados}
     \begin{itemize}
         \item Para evaluar el rendimiento del sistema, se han realizado pruebas con diferentes configuraciones de segmentación y optimización. Los resultados se han medido en términos de precisión, latencia y consumo energético.
         \item Existen todas estas configuraciones para evaluar el rendimiento del sistema:
@@ -321,14 +316,14 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Resultados - Cantidad de objetos}
+\begin{frame}{8. Resultados - Cantidad de objetos}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item Se ha evaluado el rendimiento del sistema con diferentes cantidades de objetos en el vídeo.
-                \item 4 vídeos, (1) media de 17 objetos, (2) media de 43 objetos, (3) media de 84 objetos y (4) carga variable de 0 a 180 objetos.
-                \item Para el resto de la configuración se ha utilizado los parámetros más óptimos encontrados en la sección de análisis comparativo.
-                \item Tras un análisis de regresión, se ha encontrado que la cantidad de objetos máxima para que el sistema es capaz de procesar en tiempo real a 30 FPS es de 100 objetos.
+                \item Se ha evaluado el rendimiento del sistema con diferentes \textbf{cantidades de objetos} en el vídeo.
+                \item \textbf{4 vídeos}, (1) media de \textbf{17 objetos}, (2) media de \textbf{43 objetos}, (3) media de \textbf{84 objetos} y (4) \textbf{carga variable} de 0 a 180 objetos.
+                \item Para el resto de la configuración se ha utilizado los \textbf{parámetros más óptimos} encontrados en la sección de análisis comparativo.
+                \item Tras un análisis de regresión, se ha encontrado que la cantidad de objetos máxima para que el sistema es capaz de procesar en tiempo real a \textbf{30 FPS} es de \textbf{100 objetos}.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -339,11 +334,11 @@
 \end{frame}
 
 
-\begin{frame}{Resultados - Tipo de segmentación}
+\begin{frame}{8. Resultados - Tipo de segmentación}
     \begin{itemize}
-        \item Se ha evaluado el rendimiento del sistema con diferentes tipos de segmentación.
-        \item Se han utilizado el video con una media de 84 objetos.
-        \item Para el resto de la configuración se ha utilizado los parámetros más óptimos encontrados en la sección de análisis comparativo.
+        \item Se ha evaluado el rendimiento del sistema con diferentes tipos de \textbf{segmentación}.
+        \item Se han utilizado el video con una media de \textbf{84 objetos}.
+        \item Para el resto de la configuración se ha utilizado los \textbf{parámetros más óptimos} encontrados en la sección de análisis comparativo.
     \end{itemize}
 
     \vspace{0.5cm}
@@ -367,20 +362,20 @@
 
 
 \section{Conclusiones}
-\begin{frame}{Conclusiones -- Cumplimiento de objetivos (1/2)}
+\begin{frame}{9. Conclusiones -- Cumplimiento de objetivos (1/2)}
     \textbf{Los objetivos del TFG se han alcanzado con éxito:}
     \begin{itemize}
-        \item \textbf{Estudio del estado del arte:} Se realizó un análisis exhaustivo de CNNs, aceleradores hardware y plataformas NVIDIA Jetson, superando desafíos de compatibilidad y configuración en arquitectura ARM64.
-        \item \textbf{Creación del conjunto de datos:} Se generó un dataset y vídeos de entrenamiento que simulan condiciones reales de operación con objetos de variabilidad controlada.
-        \item \textbf{Entrenamiento de modelos CNN:} Se entrenaron múltiples modelos de las familias YOLOv5, YOLOv8 y YOLO11 en diversas precisiones, optimizando hiperparámetros mediante iteraciones exhaustivas.
+        \item \textbf{Estudio del estado del arte:} Se realizó un análisis exhaustivo de \textbf{CNNs}, \textbf{aceleradores hardware} y plataformas \textbf{NVIDIA Jetson}, superando desafíos de compatibilidad y configuración en arquitectura ARM64.
+        \item \textbf{Creación del conjunto de datos:} Se generó un \textbf{dataset} y vídeos de entrenamiento que simulan condiciones reales de operación con objetos de variabilidad controlada.
+        \item \textbf{Entrenamiento de modelos CNN:} Se entrenaron múltiples modelos de las familias \textbf{YOLOv5, YOLOv8 y YOLO11} en diversas precisiones, optimizando hiperparámetros mediante iteraciones exhaustivas.
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Conclusiones -- Cumplimiento de objetivos (2/2)}
+\begin{frame}{9. Conclusiones -- Cumplimiento de objetivos (2/2)}
     \begin{itemize}
-        \item \textbf{Implementación del sistema integrado:} Se desarrolló un sistema de visión artificial que combina detección con seguimiento BYTETrack, manteniendo la identidad de objetos a lo largo del tiempo.
-        \item \textbf{Análisis y optimización de cuellos de botella:} Se exploraron estrategias de segmentación (hilos, procesos, memoria compartida, heterogénea), identificando la segmentación por procesos con memoria compartida como la más efectiva.
-        \item \textbf{Evaluación con métricas completas:} Se realizaron experimentos exhaustivos evaluando precisión, latencia y consumo en diferentes configuraciones de hardware Jetson.
+        \item \textbf{Implementación del sistema integrado:} Se desarrolló un sistema de \textbf{visión artificial} que combina detección con seguimiento \textbf{BYTETrack}, manteniendo la identidad de objetos a lo largo del tiempo.
+        \item \textbf{Análisis y optimización de cuellos de botella:} Se exploraron estrategias de segmentación (\textbf{hilos, procesos, memoria compartida, heterogénea}), identificando la \textbf{segmentación por procesos con memoria compartida} como la más efectiva.
+        \item \textbf{Evaluación con métricas completas:} Se realizaron experimentos exhaustivos evaluando \textbf{precisión, latencia y consumo} en diferentes configuraciones de hardware Jetson.
     \end{itemize}
 \end{frame}
 
