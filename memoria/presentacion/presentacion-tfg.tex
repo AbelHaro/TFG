@@ -89,7 +89,7 @@
 \section{Objetivos}
 \begin{frame}{Objetivos}
     \begin{itemize}
-        \item Estudiar el estado del arte en CNNs, aceleradores y optimizaciones.
+        \item Estudiar el estado del arte en CNNs, aceleradores hardware.
         \item Crear un conjunto de datos para entrenamiento y evaluación.
         \item Entrenar y validar diferentes modelos CNN para detección de defectos en tiempo real.
         \item Implementar un sistema de visión artificial integrado con hardware NVIDIA.
@@ -104,7 +104,7 @@
                 \begin{columns}
                     \begin{column}{0.5\textwidth}
                         \begin{itemize}
-                            \item Las CNNs son un tipo de red neuronal profunda diseñadas para procesar datos con una estructura de cuadrícula, como imágenes.
+                            \item Las CNNs son un tipo de red neuronal profunda diseñadas para procesar datos con una estructura matricial, como imágenes.
                             \item El objetivo es localizar dentro de una imagen objetos y clasificarlos, detectando defectos o características específicas.
                             \item Utilizan capas convolucionales para extraer características jerárquicas.
                             \item Existen dos tipos principales de CNNs, detectores de dos etapas como R-CNN y detectores de una etapa como YOLO.
@@ -246,7 +246,7 @@
             \begin{itemize}
                 \item Cada etapa se ejecuta en un proceso separado, pero comparten memoria.
                 \item $\uparrow$ Permite un procesamiento concurrente con menor latencia en la comunicación.
-                \item Las colas de comunicación se implementan sobre memoria entre procesos evitando la sobrecarga de pipes.
+                \item Las colas de comunicación se implementan sobre memoria compartida entre procesos evitando la sobrecarga de pipes.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -342,7 +342,7 @@
 \begin{frame}{Resultados - Tipo de segmentación}
     \begin{itemize}
         \item Se ha evaluado el rendimiento del sistema con diferentes tipos de segmentación.
-        \item Se han utilizado los vídeos con una media de 17 objetos y 43 objetos.
+        \item Se han utilizado el video con una media de 84 objetos.
         \item Para el resto de la configuración se ha utilizado los parámetros más óptimos encontrados en la sección de análisis comparativo.
     \end{itemize}
 
@@ -367,7 +367,7 @@
 
 
 \section{Conclusiones}
-\begin{frame}{Conclusiones -- Cumplimiento de objetivos (1/3)}
+\begin{frame}{Conclusiones -- Cumplimiento de objetivos (1/2)}
     \textbf{Los objetivos del TFG se han alcanzado con éxito:}
     \begin{itemize}
         \item \textbf{Estudio del estado del arte:} Se realizó un análisis exhaustivo de CNNs, aceleradores hardware y plataformas NVIDIA Jetson, superando desafíos de compatibilidad y configuración en arquitectura ARM64.
@@ -376,7 +376,7 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Conclusiones -- Cumplimiento de objetivos (2/3)}
+\begin{frame}{Conclusiones -- Cumplimiento de objetivos (2/2)}
     \begin{itemize}
         \item \textbf{Implementación del sistema integrado:} Se desarrolló un sistema de visión artificial que combina detección con seguimiento BYTETrack, manteniendo la identidad de objetos a lo largo del tiempo.
         \item \textbf{Análisis y optimización de cuellos de botella:} Se exploraron estrategias de segmentación (hilos, procesos, memoria compartida, heterogénea), identificando la segmentación por procesos con memoria compartida como la más efectiva.
@@ -384,24 +384,6 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Conclusiones -- Logros y desafíos superados (3/3)}
-    \textbf{Principales logros alcanzados:}
-    \begin{itemize}
-        \item Sistema funcional de detección de defectos en tiempo real optimizado para hardware NVIDIA\@.
-        \item Configuración estable del entorno de desarrollo superando incompatibilidades de frameworks.
-        \item Integración exitosa de detección y seguimiento con mejoras significativas en precisión y robustez.
-        \item Identificación de configuraciones óptimas mediante análisis comparativo exhaustivo.
-    \end{itemize}
-    
-    \vspace{0.5cm}
-    
-    % \textbf{Desafíos técnicos superados:}
-    % \begin{itemize}
-    %     \item Gestión de compatibilidad entre versiones de frameworks de deep learning.
-    %     \item Programación concurrente y gestión de memoria compartida interproceso.
-    %     \item Optimización de rendimiento mediante ajuste fino de hiperparámetros.
-    % \end{itemize}
-\end{frame}
 
 \begin{frame}
     \titlepage

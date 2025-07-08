@@ -2,39 +2,48 @@
 
 # Introducción
 
-Durante los últimos años, la Inteligencia Artificial (IA) ha experimentado un crecimiento en popularidad sin precedentes, transformando nuestra capacidad tecnológica con herramientas revolucionarias. Este avance ha sido impulsado por la disponibilidad de grandes volúmenes de datos, el desarrollo de algoritmos avanzados y las mejoras significativas en el hardware de procesamiento, que han permitido a las máquinas aprender y adaptarse a situaciones complejas.
+Durante los últimos años, la Inteligencia Artificial ha experimentado un crecimiento sin precedentes en popularidad, transformando nuestra capacidad tecnológica mediante herramientas revolucionarias. Este avance ha sido impulsado por la disponibilidad de grandes volúmenes de datos, el desarrollo de algoritmos avanzados y las mejoras significativas en el hardware de procesamiento, que han permitido a las máquinas aprender y adaptarse a situaciones complejas.
 
-El progreso en visión por computador ha sido posible gracias a los avances en Redes Neuronales Convolucionales (CNNs), que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con una gran precisión y velocidad.
+El progreso en visión por computador ha sido posible gracias a los avances en Redes Neuronales Convolucionales (CNNs), que han revolucionado la capacidad de los sistemas para detectar y clasificar objetos en imágenes y vídeos con gran precisión y velocidad.
 
-Procesar todos estos datos requiere de un cómputo intensivo, lo que ha llevado a la necesidad de utilizar hardware especializado y la optimización de algoritmos para mejorar el tiempo de procesamiento junto con el consumo energético.
+El procesamiento de todos estos datos requiere un cómputo intensivo, lo que ha llevado a la necesidad de utilizar hardware especializado y optimizar algoritmos para mejorar tanto el tiempo de procesamiento como el consumo energético.
 
-Con todo ello, el objetivo de este trabajo es el desarrollo de un sistema de detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales, optimizado para hardware NVIDIA, que permita detectar y clasificar objetos en vídeos en tiempo real.
+En este contexto, el objetivo de este trabajo es el desarrollo de un sistema de detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales, optimizado para hardware NVIDIA, que permita detectar y clasificar objetos en vídeos en tiempo real.
 
 # Motivación
 
-Los humanos podemos entender el mundo que nos rodea interpretando imágenes y vídeos, algo que no es innato en las máquinas. La visión por computador busca emular esta capacidad humana.
+Los humanos podemos entender el mundo que nos rodea interpretando imágenes y vídeos, una capacidad que no es innata en las máquinas. La visión por computador busca emular esta capacidad humana.
 
-La IA ha revolucionado la tecnología, siendo esencial para soluciones innovadoras. La visión por computador destaca, y dispositivos de bajo consumo como NVIDIA Jetson llevan la IA al *edge computing*, reduciendo latencia y consumo energético, abriendo posibilidades en la industria.
+La IA ha revolucionado la tecnología, siendo esencial para el desarrollo de soluciones innovadoras. En este ámbito destaca la visión por computador, mientras que dispositivos de bajo consumo como NVIDIA Jetson permiten llevar la IA al *edge computing*, reduciendo la latencia y el consumo energético, lo que abre nuevas posibilidades en la industria.
 
-En la industria, la detección y clasificación de objetos en movimiento optimiza procesos, mejora la seguridad y aumenta la eficiencia. La detección manual de defectos es ineficiente y propensa a errores. La automatización con visión artificial reduce costes, aumenta la precisión y mejora la calidad.
+En el entorno industrial, la detección y clasificación de objetos en movimiento optimiza procesos, mejora la seguridad y aumenta la eficiencia. La detección manual de defectos resulta ineficiente y propensa a errores humanos. La automatización mediante visión artificial permite reducir costes, aumentar la precisión y mejorar la calidad global del proceso.
 
 # Objetivos
+- **Estudiar el estado del arte en CNNs y aceleradores hardware:**  
+  Investigar las últimas arquitecturas de Redes Neuronales Convolucionales (CNNs) y los aceleradores de hardware disponibles, especialmente aquellos diseñados para plataformas NVIDIA, para comprender las técnicas más avanzadas en detección de objetos y optimización del rendimiento.
 
-- Estudiar el estado del arte en CNNs, aceleradores y optimizaciones.
-- Crear un conjunto de datos para entrenamiento y evaluación.
-- Entrenar y validar diferentes modelos CNN para detección de defectos en
-tiempo real.
-- Implementar un sistema de visión artificial integrado con hardware
-NVIDIA.
-- Analizar y optimizar cuellos de botella para mejorar rendimiento y
-consumo energético.
-- Evaluar el sistema con métricas de precisión, latencia y consumo.
-- Realizar un análisis comparativo para encontrar la configuración óptima.
+- **Crear un conjunto de datos para entrenamiento y evaluación:**  
+  Desarrollar un conjunto de datos diverso y representativo que contenga imágenes de objetos con y sin defectos, que permita entrenar modelos de detección robustos y evaluar su rendimiento de manera precisa.
+
+- **Entrenar y validar diferentes modelos CNN para detección de defectos en tiempo real:**  
+  Entrenar varios modelos de CNN utilizando el conjunto de datos creado, ajustando los hiperparámetros y validando su rendimiento para lograr una detección de defectos precisa y eficiente en tiempo real.
+
+- **Implementar un sistema de visión artificial integrado con hardware NVIDIA:**  
+  Desarrollar un sistema completo de visión artificial que combine la detección de objetos basada en CNNs con el procesamiento en hardware NVIDIA, aprovechando las capacidades de aceleración y optimización de estas plataformas.
+
+- **Analizar y optimizar cuellos de botella para mejorar el rendimiento y el consumo energético:**  
+  Identificar y optimizar los cuellos de botella en el sistema, tanto a nivel de software como de hardware, para mejorar el rendimiento general y reducir el consumo energético, permitiendo una operación más eficiente en entornos con recursos limitados.
+
+- **Evaluar el sistema con métricas de precisión, latencia y consumo:**  
+  Evaluar exhaustivamente el sistema utilizando métricas clave como la precisión en la detección de defectos, la latencia en el procesamiento de imágenes y el consumo energético, para comprender su rendimiento en diferentes condiciones y configuraciones.
+
+- **Realizar un análisis comparativo para encontrar la configuración óptima:**  
+  Comparar diferentes configuraciones del sistema, incluyendo diferentes modelos de CNN, parámetros de hardware y estrategias de optimización, para identificar la configuración que ofrece el mejor equilibrio entre precisión, rendimiento y eficiencia energética.
 
 
 # Conceptos Previos - Redes Neuronales Convolucionales
 
-Las Redes Neuronales Convolucionales (CNNs) son un tipo especializado de red neuronal profunda, diseñadas específicamente para procesar datos que tienen una estructura de cuadrícula, como las imágenes. Su arquitectura las hace particularmente efectivas para tareas de visión por computador.
+Las Redes Neuronales Convolucionales (CNNs) son un tipo especializado de red neuronal profunda, diseñadas específicamente para procesar datos que tienen una estructura matricial, como las imágenes. Su arquitectura las hace particularmente efectivas para tareas de visión por computador.
 
 El objetivo principal de una CNN en el contexto de la detección de objetos es doble: primero, localizar la presencia de objetos de interés dentro de una imagen y, segundo, clasificar estos objetos, identificando defectos o características específicas relevantes para la aplicación.
 
@@ -42,9 +51,9 @@ Las CNNs se basan en capas convolucionales para extraer características de las 
 
 En la arquitectura de CNNs para detección de objetos, existen dos enfoques principales:
 
-*   **Detectores de dos etapas:** Primero, proponen regiones de interés en la imagen y, luego, clasifican estas regiones. Un ejemplo común es la familia R-CNN (Región-based Convolutional Neural Network).
+- **Detectores de dos etapas:** Primero, proponen regiones de interés en la imagen y, luego, clasifican estas regiones. Un ejemplo común es la familia R-CNN (Región-based Convolutional Neural Network).
 
-*   **Detectores de una etapa:** Realizan la detección y clasificación de objetos simultáneamente en una sola pasada por la red, lo que los hace más rápidos. YOLO (You Only Look Once) es un ejemplo popular de este tipo.
+- **Detectores de una etapa:** Realizan la detección y clasificación de objetos simultáneamente en una sola pasada por la red, lo que los hace más rápidos. YOLO (You Only Look Once) es un ejemplo popular de este tipo.
 
 # Conceptos Previos - Hardware NVIDIA Jetson
 
@@ -63,11 +72,11 @@ BYTETrack es un algoritmo de seguimiento popular que realiza el seguimiento de o
 
 # Propuesta de solución
 
-La propuesta de solución es un sistema de detección de defectos en objetos en movimiento mediante Redes Neuronales Convolucionales, optimizado para hardware NVIDIA. Este sistema como se muestra en la figura, funciona de la siguiente manera:
+La propuesta de solución consiste en un sistema con la siguiente arquitectura:
 
 1. **Entrada de vídeo:** Un sensor, en este caso una cámara, captura un vídeo en tiempo real.
 
-2. **Detección de objetos:** Se utiliza un modelo de detección de objetos para realizar la inferencia del frame actual del vídeo. 
+2. **Detección de objetos:** Se utiliza un modelo de detección de objetos para realizar la inferencia del frame actual del vídeo.
 
 3. **Seguimiento de objetos:** Se aplica un algoritmo de seguimiento de objetos para mantener la identidad de los objetos detectados a lo largo del tiempo.
 
@@ -144,7 +153,8 @@ Para evaluar el rendimiento del sistema, existen diferentes variables de configu
 - **Modo de energía del dispositivo:** Configuración energética del hardware Jetson.
 - **Modelo de dispositivo Jetson:** Versión específica del hardware utilizado.
 
-Además, se ha considerado 2 formas de procesar los vídeos:
+Además, se han considerado 2 formas de procesar los vídeos:
+
 - **Ejecución a máxima capacidad:** El sistema procesa todo el vídeo sin descartar frames.
 - **Procesamiento en tiempo real:** Los fotogramas se suministran al sistema a 30 FPS, descartando aquellos que no se pueden procesar a tiempo.
 
@@ -164,9 +174,7 @@ A partir del análisis de los resultados y aplicando un modelo de regresión, se
 
 ## Resultados - Tipo de segmentación
 
-También se ha evaluado el rendimiento del sistema bajo diferentes estrategias de segmentación, utilizando vídeos con una media de 17 y 43 objetos.
-
-- Al igual que en la evaluación anterior, el resto de parámetros del sistema han sido fijados en sus valores óptimos según el análisis comparativo previo.
+También se ha evaluado el rendimiento del sistema bajo diferentes estrategias de segmentación, utilizando el vídeo con una media de 84 objetos. Al igual que en la evaluación anterior, el resto de parámetros del sistema han sido fijados en sus valores óptimos según el análisis comparativo previo.
 
 Entre todas las opciones analizadas, la **segmentación por procesos con memoria compartida** ha demostrado ser la más eficiente. Esta configuración ha logrado:
 
@@ -199,10 +207,4 @@ Los objetivos planteados en este Trabajo de Fin de Grado se han alcanzado con é
 - **Evaluación con métricas completas:**  
   Se realizaron experimentos exhaustivos midiendo precisión, latencia y consumo energético bajo diferentes configuraciones de hardware Jetson, obteniendo una visión completa del rendimiento del sistema.
 
-## Principales logros alcanzados
-
-- Desarrollo de un **sistema funcional de detección de defectos en tiempo real**, optimizado para plataformas NVIDIA Jetson.
-- Establecimiento de una **configuración estable del entorno de desarrollo**, resolviendo incompatibilidades entre versiones de frameworks.
-- **Integración exitosa** de módulos de detección y seguimiento, mejorando la precisión y la robustez del sistema.
-- **Identificación de configuraciones óptimas** mediante un análisis comparativo detallado y sistemático.
 
