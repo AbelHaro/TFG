@@ -303,16 +303,17 @@
 \section{Resultados}
 \begin{frame}{8. Resultados}
     \begin{itemize}
-        \item Para evaluar el rendimiento del sistema, se han realizado pruebas con diferentes configuraciones de segmentación y optimización. Los resultados se han medido en términos de precisión, latencia y consumo energético.
+        \item Evaluación del rendimiento del sistema con diversas configuraciones.
+        \item Medición de precisión, latencia y consumo energético.
         \item Existen todas estas configuraciones para evaluar el rendimiento del sistema:
-        \begin{itemize}
-            \item Cantidad de objetos media en el vídeo: \{17, 43, 84, carga variable\}
-            \item Tipo de segmentación: \{hilos, procesos, procesos con memoria compartida y heterogénea\}
-            \item Tipo de modelo y talla: \{YOLOv5\{nu, mu\}, YOLOv8\{n, s\}, YOLO11\{n, s, m, l\}\}
-            \item Precisión del modelo: \{FP32, FP16, INT8\}
-            \item Modo de energía del dispositivo Jetson: \{MAXN, 30W8core, 30W4core, 15W4core, etc\}
-            \item Dispositivo Jetson: \{Jetson AGX Xavier, Jetson AGX Orin, Jetson Orin Nano\}
-        \end{itemize}
+        \begin{enumerate}
+            \item Cantidad de objetos media en el vídeo: \\ \{17, 43, 84, carga variable\}
+            \item Segmentación: \\ \{hilos, procesos, procesos con memoria compartida y heterogénea\}
+            \item Modelo y talla: \\ \{YOLOv5\{nu, mu\}, YOLOv8\{n, s\}, \textbf{YOLO11}\{\textbf{n}, s, m, l\}\}
+            \item Precisión del modelo: \\ \{FP32, \textbf{FP16}, INT8\}
+            \item Modo de energía del dispositivo Jetson: \\ \{\textbf{MAXN}, 30W8core, 30W4core, 15W4core, etc\}
+            \item Dispositivo Jetson: \\ \{\textbf{Jetson AGX Xavier}, Jetson AGX Orin, Jetson Orin Nano\}
+        \end{enumerate}
     \end{itemize}
 \end{frame}
 
