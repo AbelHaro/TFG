@@ -41,7 +41,7 @@
     \begin{itemize}
         \item Crecimiento exponencial de la \textbf{Inteligencia Artificial}.
         \item Avances en \textbf{visión por computador} gracias a las \textbf{CNNs}.
-        \item \textbf{Desafíos energéticos} impulsan soluciones optimizadas.
+        \item \textbf{Desafíos energéticos} en el procesamiento de datos.
         \item Dispositivos optimizados para \textbf{IA en entornos embebidos}.
     \end{itemize}
 
@@ -71,8 +71,8 @@
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item Emular la \textbf{interpretación humana} de imágenes en máquinas.
                 \item Automatización de la \textbf{detección y clasificación} de objetos en movimiento en la industria.
+                \item Emular la \textbf{interpretación humana} de imágenes en máquinas.
                 \item \textbf{NVIDIA Jetson} impulsa la IA en \textbf{edge computing}.
             \end{itemize}
         \end{column}
@@ -109,7 +109,7 @@
             \item \textbf{Investigación:} Estado del arte de \textbf{CNNs} y \textbf{aceleradores hardware} (NVIDIA).
             \item \textbf{Datos:} Crear un \textbf{conjunto de datos} robusto.
             \item \textbf{Modelado:} Entrenar y optimizar \textbf{modelos CNN} para la detección en \textbf{tiempo real}.
-            \item \textbf{Integración:} \textbf{Sistema de visión artificial} optimizado para hardware NVIDIA Jetson.
+            \item \textbf{Integración:} Creación de un \textbf{sistema de visión artificial}.
             \item \textbf{Optimización:} Identificar \textbf{cuellos de botella} para mejorar el rendimiento.
             \item \textbf{Evaluación:} Evaluar el sistema con métricas clave de \textbf{precisión, latencia y consumo}.
             \item \textbf{Análisis Comparativo:} Determinar la configuración óptima del sistema.
@@ -119,7 +119,7 @@
  \section{Conceptos previos}
             \begin{frame}{4. Conceptos Previos - Redes Neuronales Convolucionales (CNNs)}
                     \begin{itemize}
-                        \item \textbf{CNNs}: redes neuronales para datos matriciales (imágenes).
+                        \item \textbf{CNNs}: redes neuronales para datos matriciales, como imágenes.
                         \item Detectan y clasifican \textbf{objetos/defectos}.
                         \item Usan capas \textbf{convolucionales} para extraer características.
                         \item Tipos: \textbf{dos etapas} (R-CNN) y \textbf{una etapa} (YOLO).
@@ -146,9 +146,10 @@
 \begin{frame}{4. Conceptos Previos - Hardware NVIDIA Jetson}
     
         \begin{itemize}
-                \item Aceleradores hardware para \textbf{deep learning}.
+                \item Aceleradores hardware para \textbf{deep learning} en el \textbf{edge}.
                 \item \textbf{NVIDIA Jetson}: \textbf{SoC} (CPU y GPU) para eficiencia.
-                \item \textbf{Jetpack SDK} y \textbf{TensorRT}: Herramientas para optimizar redes neuronales.          
+                \item \textbf{Jetpack SDK} y \textbf{TensorRT}: Herramientas para \textbf{crear}
+     y \textbf{optimizar} redes neuronales.
             \end{itemize}
     \begin{columns}
         \begin{column}{0.5\textwidth}
@@ -280,7 +281,7 @@
         \begin{column}{0.5\textwidth}
             \textbf{3. Segmentación por procesos con memoria compartida:}
             \begin{itemize}
-                \item Cada etapa se ejecuta en un proceso separado, pero \textbf{comparten memoria}.
+                \item Cada etapa se ejecuta en un proceso separado, donde \textbf{comparten memoria}.
                 \item $\uparrow$ Permite un procesamiento concurrente con \textbf{menor latencia} en la comunicación.
                 \item Las colas de comunicación se implementan sobre \textbf{memoria compartida} entre procesos evitando la sobrecarga de pipes.
             \end{itemize}
@@ -325,10 +326,10 @@
 
 
 \section{Resultados}
-\begin{frame}{8. Resultados}
+\begin{frame}{8. Resultados - Metodología}
     \begin{itemize}
-        \item Evaluación del sistema en términos de precisión, latencia y consumo.
-        \item Se definen 6 variables experimentales. En cada prueba, se fija una configuración base y se varía solo una.
+        \item Evaluación del sistema en términos de \textbf{precisión}, \textbf{latencia} y \textbf{consumo}.
+        \item Se definen \textbf{6 variables} experimentales. En cada prueba, se fija una configuración base y se varía solo una.
     \end{itemize}
 
     \begin{footnotesize}
@@ -418,7 +419,7 @@
     \begin{itemize}
         \item \textbf{Estudio del estado del arte:} Se realizó un análisis exhaustivo de \textbf{CNNs}, \textbf{aceleradores hardware} y plataformas \textbf{NVIDIA Jetson}, superando desafíos de compatibilidad y configuración en arquitectura ARM64.
         \item \textbf{Creación del conjunto de datos:} Se generó un \textbf{dataset} y vídeos de entrenamiento que simulan condiciones reales de operación con objetos de variabilidad controlada.
-        \item \textbf{Entrenamiento de modelos CNN:} Se entrenaron múltiples modelos de las familias \textbf{YOLOv5, YOLOv8 y YOLO11} en diversas precisiones, optimizando hiperparámetros mediante iteraciones exhaustivas.
+        \item \textbf{Entrenamiento de modelos CNN:} Se entrenaron múltiples modelos de las familias \textbf{YOLOv5, YOLOv8 y YOLO11} en diversas tallas, optimizando hiperparámetros mediante iteraciones exhaustivas.
     \end{itemize}
 \end{frame}
 

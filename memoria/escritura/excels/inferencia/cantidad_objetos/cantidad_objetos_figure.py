@@ -70,6 +70,9 @@ plt.ylim(bottom=0)
 # Ajustar márgenes
 plt.tight_layout()
 
+# Establecer el límite derecho del eje x al valor máximo del número de fotogramas
+plt.xlim(right=df["frame_number"].max())
+
 # Guardar la figura en alta resolución
 plt.savefig("cantidad_objetos_videos.pdf", bbox_inches="tight", dpi=300)
 

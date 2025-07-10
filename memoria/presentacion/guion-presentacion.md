@@ -2,23 +2,23 @@
 
 # Introducción
 
-En los últimos años, la Inteligencia Artificial ha revolucionado la tecnología con herramientas que han transformado por completo nuestra capacidad de innovación. Este avance se debe a tres factores clave: la enorme cantidad de datos disponibles, el desarrollo de algoritmos más potentes y las mejoras en el hardware de procesamiento.
+En los últimos años, la Inteligencia Artificial ha revolucionado la tecnología con herramientas que han transformado por completo nuestra capacidad de innovación. Este avance se debe a tres factores clave: la enorme cantidad de datos disponibles, el desarrollo de modelos más sofisticados y las mejoras en el hardware de procesamiento.
 
-Dentro de la IA, la visión por computador ha experimentado un progreso extraordinario gracias a las Redes Neuronales Convolucionales, o CNNs. Estos modelos permiten a los sistemas detectar y clasificar objetos en imágenes y vídeos con una precisión y velocidad asombrosas.
+Dentro de la IA, la visión por computador ha experimentado un progreso extraordinario gracias a las Redes Neuronales Convolucionales. Estos modelos permiten a los sistemas detectar y clasificar objetos en imágenes y vídeos con una precisión y velocidad asombrosas.
 
-Sin embargo, procesar tal volumen de datos exige una gran capacidad de cómputo. Por ello, es fundamental optimizar los algoritmos y utilizar hardware especializado para reducir los tiempos de procesamiento y el consumo energético.
+Sin embargo, procesar tal volumen de datos exige una gran capacidad de cómputo. Por ello, es fundamental optimizar los modelos y utilizar hardware especializado para reducir los tiempos de procesamiento y el consumo energético.
 
-En este contexto, el objetivo de mi trabajo ha sido desarrollar un sistema de detección de defectos en objetos en movimiento, utilizando CNNs y hardware NVIDIA, capaz de operar en tiempo real.
 
 # Motivación
 
-Los seres humanos interpretamos el mundo a través de la vista, pero esta capacidad no es innata en las máquinas. La visión por computador busca precisamente replicar esta habilidad.
+En la industria, la inspección manual de defectos es un proceso lento y propenso a errores. Para optimizar estos procesos, se busca emular la capacidad humana de interpretar el mundo a través de la vista, pero en las máquinas.
 
-Hoy en día, la IA es clave para crear soluciones innovadoras, y la visión por computador es una de sus áreas más destacadas. Dispositivos de bajo consumo, como la familia NVIDIA Jetson, nos permiten llevar la IA al "edge", es decir, procesar los datos directamente en el dispositivo. Esto reduce la latencia y el consumo, abriendo un mundo de posibilidades en la industria.
-
-En el sector industrial, la detección automática de objetos optimiza procesos, aumenta la seguridad y mejora la eficiencia. Mientras que la detección manual de defectos es lenta y propensa a errores, la automatización con visión artificial reduce costes y eleva la calidad del producto final.
+La visión por computador permite replicar esta habilidad, y gracias a dispositivos de bajo consumo como la familia NVIDIA Jetson, podemos llevar la IA al "edge". Esto reduce la latencia y el consumo, abriendo un mundo de posibilidades para la automatización de la detección de defectos, aumentando la seguridad y mejorando la eficiencia.
 
 # Objetivos
+
+- **Objetivo Principal:** Desarrollar un sistema de detección de defectos en objetos en movimiento utilizando CNNs, optimizado para hardware NVIDIA.
+
 - **Estudiar el estado del arte en CNNs y aceleradores hardware:**  
   Investigar las últimas arquitecturas de Redes Neuronales Convolucionales (CNNs) y los aceleradores de hardware disponibles, especialmente aquellos diseñados para plataformas NVIDIA, para comprender las técnicas más avanzadas en detección de objetos y optimización del rendimiento.
 
@@ -28,7 +28,7 @@ En el sector industrial, la detección automática de objetos optimiza procesos,
 - **Entrenar y validar diferentes modelos CNN para detección de defectos en tiempo real:**  
   Entrenar varios modelos de CNN utilizando el conjunto de datos creado, ajustando los hiperparámetros y validando su rendimiento para lograr una detección de defectos precisa y eficiente en tiempo real.
 
-- **Implementar un sistema de visión artificial integrado con hardware NVIDIA:**  
+- **Implementar un sistema de visión artificial:**  
   Desarrollar un sistema completo de visión artificial que combine la detección de objetos basada en CNNs con el procesamiento en hardware NVIDIA, aprovechando las capacidades de aceleración y optimización de estas plataformas.
 
 - **Analizar y optimizar cuellos de botella para mejorar el rendimiento y el consumo energético:**  
@@ -43,7 +43,7 @@ En el sector industrial, la detección automática de objetos optimiza procesos,
 
 # Conceptos Previos - Redes Neuronales Convolucionales
 
-Las Redes Neuronales Convolucionales (CNNs) son un tipo de red neuronal diseñado específicamente para procesar imágenes.
+"Las Redes Neuronales Convolucionales (CNN) son un tipo de red neuronal diseñado específicamente para procesar datos con estructura matricial, como las imágenes.
 
 En la detección de objetos, una CNN tiene dos tareas principales: localizar objetos de interés en una imagen y clasificarlos, identificando si tienen defectos o no. Para ello, utilizan capas convolucionales que aprenden a reconocer patrones visuales, desde bordes y texturas hasta formas complejas.
 
@@ -61,7 +61,7 @@ El Jetpack SDK de NVIDIA proporciona un conjunto completo de herramientas para d
 
 # Conceptos Previos - Seguimiento de objetos (MOT)
 
-El seguimiento de objetos es una técnica que permite identificar y seguir la trayectoria de múltiples objetos a lo largo del tiempo en una secuencia de imágenes o un vídeo. A diferencia de la detección de objetos, que solo identifica los objetos en un fotograma individual, el seguimiento de objetos mantiene la identidad de cada objeto a lo largo del tiempo.
+El seguimiento de objetos es una técnica que busca identificar y seguir la trayectoria de múltiples objetos a lo largo del tiempo en una secuencia de imágenes o un vídeo. A diferencia de la detección de objetos, que solo identifica los objetos en un fotograma individual, el seguimiento de objetos mantiene la identidad de cada objeto a lo largo del tiempo.
 
 Para ello, combina la detección de objetos con algoritmos que asocian las detecciones de un fotograma con las del siguiente. En este proyecto he utilizado BYTETrack, un algoritmo muy eficaz que funciona bien incluso cuando los objetos se tapan entre sí.
 
@@ -78,6 +78,8 @@ Todo el proceso se ejecuta en tiempo real en el edge, sobre un dispositivo NVIDI
 
 # Desarrollo de la solución - Entrenamiento y validación de modelos
 
+Para generalizar la detección de defectos, se eligieron canicas como objeto de estudio. Las canicas presentan varias ventajas: su forma simple facilita el análisis, ofrecen una gran variedad de imperfecciones posibles, no caducan como la fruta, son económicas, fáciles de conseguir en grandes cantidades y su tamaño es uniforme.
+
 El primer paso del desarrollo fue crear un conjunto de datos con imágenes de canicas, tanto con defectos como sin ellos.
 
 Con este dataset, entrené varios modelos de CNN para que aprendieran a detectar estos defectos. Después, ajusté sus hiperparámetros para mejorar la precisión y, finalmente, los exporté a formato TensorRT para optimizar su rendimiento en el hardware de NVIDIA.
@@ -93,22 +95,6 @@ El sistema propuesto se divide en cuatro etapas principales: captura de vídeo, 
   3. Segmentación por procesos con memoria compartida
   4. Segmentación heterogénea
 
-## Desarrollo de la solución - Segmentación por hilos
-
-En este enfoque:
-
-- Cada etapa se ejecuta en un hilo separado.
-- ↑ La información se comparte entre hilos mediante colas que se consumen de forma asíncrona.
-- ↓ Permite un procesamiento paralelo, aunque no concurrente, debido al *Global Interpreter Lock* (GIL) de Python.
-
-## Desarrollo de la solución - Segmentación por procesos
-
-En esta variante:
-
-- Cada etapa se ejecuta en un proceso independiente.
-- ↑ Permite un procesamiento concurrente real, aprovechando múltiples núcleos.
-- ↓ Presenta mayor latencia en la comunicación, que se realiza mediante colas implementadas sobre *pipes*.
-
 ## Desarrollo de la solución - Segmentación por procesos con memoria compartida
 
 Este enfoque mejora el anterior al reducir la latencia:
@@ -116,16 +102,6 @@ Este enfoque mejora el anterior al reducir la latencia:
 - Cada etapa se ejecuta en un proceso separado, pero todos comparten memoria.
 - ↑ Permite procesamiento concurrente con menor latencia de comunicación.
 - Las colas de comunicación se implementan sobre memoria compartida, evitando la sobrecarga de los *pipes*.
-
-
-## Desarrollo de la solución - Segmentación heterogénea
-
-En esta segmentación avanzada:
-
-- Se pueden utilizar hilos o procesos, con o sin memoria compartida.
-- La etapa de detección se ejecuta en la GPU o las DLA (Deep Learning Accelerators) del dispositivo NVIDIA Jetson.
-- ↑ Permite, en teoría, aprovechar todos los recursos del sistema para maximizar el rendimiento.
-- ↓ Los modelos no siempre se ejecutan completamente en la DLA, lo que puede limitar el rendimiento óptimo esperado.
 
 
 # Desarrollo de la solución - Prueba de concepto
