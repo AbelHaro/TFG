@@ -1,6 +1,9 @@
 \documentclass[spanish]{beamer}
 \usepackage{graphicx}
-\usepackage{multimedia}   % Para centrar columna                    \begin{co        \begin
+\usepackage{multimedia}   % Para centrar columna
+% Añadir soporte de idioma español para captions
+\usepackage[spanish]{babel}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
 
 % Tema de la presentación
 \usetheme{metropolis}
@@ -35,20 +38,30 @@
 \footnotesize
 % En los últimos años, la Inteligencia Artificial ha crecido exponencialmente, impulsada por el aumento de datos, avances algorítmicos y mejoras en hardware como GPUs y TPUs. En especial, la visión por computador ha tenido un gran desarrollo gracias a las CNNs, con aplicaciones en seguridad, medicina o automoción. Sin embargo, este progreso plantea desafíos energéticos, lo que ha motivado la adopción de soluciones optimizadas como los dispositivos NVIDIA Jetson para tareas de IA eficientes en entornos embebidos. Este trabajo se centra en el desarrollo de un sistema de detección de defectos en objetos en movimiento utilizando CNNs, optimizado para hardware NVIDIA.
 \begin{frame}{1. Introducción}
+    \begin{itemize}
+        \item Crecimiento exponencial de la \textbf{Inteligencia Artificial}.
+        \item Avances en \textbf{visión por computador} gracias a las \textbf{CNNs}.
+        \item \textbf{Desafíos energéticos} impulsan soluciones optimizadas.
+        \item Dispositivos optimizados para \textbf{IA en entornos embebidos}.
+    \end{itemize}
+
     \begin{columns}
-        \begin{column}{0.45\textwidth}
-            \begin{itemize}
-                \item Crecimiento exponencial de la \textbf{Inteligencia Artificial}.
-                \item Avances en \textbf{visión por computador} gracias a las \textbf{CNNs}.
-                \item \textbf{Desafíos energéticos} impulsan soluciones optimizadas.
-                \item Dispositivos optimizados para \textbf{IA en entornos embebidos}.
-            \end{itemize}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.95\textwidth]{images/introduccion/interes_en_ia.pdf}
+                \caption{Interés en IA y visión por computador.}
+            \end{figure}
         \end{column}
         \begin{column}{0.5\textwidth}
-            \includegraphics[width=0.95\textwidth]{images/introduccion/interes_en_ia.pdf}
+        \begin{figure}
+            \centering
             \includegraphics[width=0.95\textwidth]{images/introduccion/consumo_electrico_datacenters.png}
+            \caption{Consumo eléctrico de centros de datos.}
+        \end{figure}
         \end{column}
     \end{columns}
+
 \end{frame}
 
 
@@ -66,7 +79,11 @@
 
         \begin{column}{0.5\textwidth}
             %\includegraphics[width=0.95\textwidth]{images/motivacion/jetson_family.png}
-            \includegraphics[width=0.95\textwidth]{images/motivacion/quality_control.png}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.95\textwidth]{images/motivacion/quality_control.png}
+                \caption{Control de calidad en la industria.}
+            \end{figure}
         \end{column}
     \end{columns}
 \end{frame}
@@ -101,19 +118,26 @@
 
  \section{Conceptos previos}
             \begin{frame}{4. Conceptos Previos - Redes Neuronales Convolucionales (CNNs)}
+                    \begin{itemize}
+                        \item \textbf{CNNs}: redes neuronales para datos matriciales (imágenes).
+                        \item Detectan y clasifican \textbf{objetos/defectos}.
+                        \item Usan capas \textbf{convolucionales} para extraer características.
+                        \item Tipos: \textbf{dos etapas} (R-CNN) y \textbf{una etapa} (YOLO).
+                    \end{itemize}
                 \begin{columns}
-                    \begin{column}{0.5\textwidth}
-                        \begin{itemize}
-                            \item \textbf{CNNs}: redes neuronales para datos matriciales (imágenes).
-                            \item Detectan y clasifican \textbf{objetos/defectos}.
-                            \item Usan capas \textbf{convolucionales} para extraer características.
-                            \item Tipos: \textbf{dos etapas} (R-CNN) y \textbf{una etapa} (YOLO).
-                        \end{itemize}
-                    \end{column}
         \begin{column}{0.5\textwidth}
-            \includegraphics[width=0.95\textwidth]{images/conceptos_previos/diagrama_de_Venn_inteligencia_artificial.png}
-            \vspace{0.5cm}
-            \includegraphics[width=0.95\textwidth]{images/conceptos_previos/yolo.png}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.95\textwidth]{images/conceptos_previos/diagrama_de_Venn_inteligencia_artificial.png}
+                \caption{Diagrama de Venn de IA, Machine Learning y Deep Learning.}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.95\textwidth]{images/conceptos_previos/yolo.png}
+                \caption{Ejemplo de detección de objetos con YOLO.}
+            \end{figure}
         \end{column}
     \end{columns}
 \end{frame}
@@ -121,18 +145,26 @@
 
 \begin{frame}{4. Conceptos Previos - Hardware NVIDIA Jetson}
     
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{itemize}
+        \begin{itemize}
                 \item Aceleradores hardware para \textbf{deep learning}.
                 \item \textbf{NVIDIA Jetson}: \textbf{SoC} (CPU y GPU) para eficiencia.
                 \item \textbf{Jetpack SDK} y \textbf{TensorRT}: Herramientas para optimizar redes neuronales.          
             \end{itemize}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.95\textwidth]{images/motivacion/jetson_family.png}
+                \caption{Familia de dispositivos NVIDIA Jetson.}
+            \end{figure}
         \end{column}
         \begin{column}{0.5\textwidth}
-            \includegraphics[width=0.95\textwidth]{images/motivacion/jetson_family.png}
-            \includegraphics[width=1\textwidth]{images/conceptos_previos/TensorRT_optimizaciones.png}
-            \includegraphics[width=1\textwidth]{images/conceptos_previos/TensorRT_pipeline.png}
+            \begin{figure}
+                \centering
+                \includegraphics[width=1.1\textwidth]{images/conceptos_previos/TensorRT_optimizaciones.png}
+                \caption{Ejemplo de optimizaciones de TensorRT.}
+                %\includegraphics[width=1\textwidth]{images/conceptos_previos/TensorRT_pipeline.png}
+            \end{figure}
         \end{column}
     \end{columns}
 \end{frame}
@@ -147,7 +179,11 @@
             \end{itemize}
         \end{column}
         \begin{column}{0.7\textwidth}
-            \includegraphics[width=0.9\textwidth]{images/conceptos_previos/tracking.png}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.9\textwidth]{images/conceptos_previos/tracking.png}
+                \caption{Ejemplo de seguimiento de objetos con BYTETrack.}
+            \end{figure}
         \end{column}
     \end{columns}
    % \includegraphics[width=0.9\textwidth]{images/conceptos_previos/tracking.png}
@@ -166,20 +202,27 @@
 \section{Desarrollo de la solución}
 
 \begin{frame}{6. Desarrollo de la solución - Entrenamiento y validación de modelos}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
+
             \begin{itemize}
                 \item Creación de un \textbf{conjunto de datos} con imágenes de \textbf{canicas} de distintos \textbf{colores} y \textbf{defectos} (600 imágenes).
                 \item Entrenamiento de modelos \textbf{CNN} para \textbf{detección de defectos}.
                 \item Validación y ajuste de \textbf{hiperparámetros} para mejorar \textbf{precisión} (+100 entrenamientos).
-                \item Exportación de los modelos a \textbf{TensorRT} para optimizar su rendimiento en hardware \textbf{NVIDIA}.
+                \item Exportación de los modelos a \textbf{TensorRT} para optimizar su rendimiento.
             \end{itemize}
+    \begin{columns}        
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.7\textwidth]{images/solucion_propuesta/ejemplo_canicas.png}
+                \caption{Ejemplo de canicas del conjunto de datos.}
+            \end{figure}
         \end{column}
         \begin{column}{0.5\textwidth}
-            \begin{center}
-                \includegraphics[width=0.8\textwidth]{images/solucion_propuesta/ejemplo_canicas.png}
+            \begin{figure}
+                \centering
                 \includegraphics[width=0.95\textwidth]{images/solucion_propuesta/loss_plot.pdf}
-            \end{center}
+                \caption{Curva de \textit{loss} de todos los modelos entrenados.}
+            \end{figure}
         \end{column}
     \end{columns}
 \end{frame}
@@ -423,7 +466,7 @@
         \end{column}
             \begin{column}{0.5\textwidth}
             \begin{center}
-                \includegraphics[width=0.7\textwidth]{images/solucion_propuesta/segmentacion_procesos.png}
+                \includegraphics[width=0.65\textwidth]{images/solucion_propuesta/segmentacion_procesos.png}
             \end{center}
         \end{column}
     \end{columns}
@@ -445,7 +488,7 @@
         \begin{column}{0.5\textwidth}
             \begin{center}
                 %\includegraphics[width=0.8\textwidth]{images/solucion_propuesta/segmentacion_heterogenea.png}
-                \includegraphics[width=0.8\textwidth]{images/solucion_propuesta/segmentacion_multihardware.png}
+                \includegraphics[width=0.95\textwidth]{images/solucion_propuesta/segmentacion_multihardware.png}
             \end{center}
         \end{column}
     \end{columns}
