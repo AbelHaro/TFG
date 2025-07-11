@@ -107,8 +107,8 @@
         \textbf{Objetivos Específicos:}
         \begin{enumerate}
             \item \textbf{Investigación:} Estado del arte de \textbf{CNNs} y \textbf{aceleradores hardware} (NVIDIA).
-            \item \textbf{Datos:} Crear un \textbf{conjunto de datos} robusto.
-            \item \textbf{Modelado:} Entrenar y optimizar \textbf{modelos CNN} para la detección en \textbf{tiempo real}.
+            \item \textbf{Datos:} Crear un \textbf{conjunto de datos} representativo de objetos con/sin defectos.
+            \item \textbf{Modelos:} Entrenar y optimizar \textbf{modelos CNN} para la detección en \textbf{tiempo real}.
             \item \textbf{Integración:} Creación de un \textbf{sistema de visión artificial}.
             \item \textbf{Optimización:} Identificar \textbf{cuellos de botella} para mejorar el rendimiento.
             \item \textbf{Evaluación:} Evaluar el sistema con métricas clave de \textbf{precisión, latencia y consumo}.
@@ -230,7 +230,7 @@
 
 \begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (1/3)}
     \begin{itemize}
-        \item El sistema se divide en cuatro etapas:
+        \item El sistema se divide en cuatro etapas / módulos:
         \begin{enumerate}
                 \item \textcolor{magenta}{\textbf{Captura} de vídeo.}
                 \item \textcolor{green}{\textbf{Detección} de objetos.}
@@ -238,10 +238,8 @@
                 \item \textcolor{orange}{\textbf{Escritura} de resultados.}
         \end{enumerate}
                     
-       % \item Objetivo: mejorar velocidad y eficiencia mediante operación independiente de cada etapa.
-        \item \textbf{Problema:} El siguiente frame de vídeo \textbf{NO se procesa} hasta que el anterior \textbf{ha finalizado}, a pesar de que las etapas son \textbf{independientes}.
-
-        
+    % \item Objetivo: mejorar velocidad y eficiencia mediante operación independiente de cada etapa.
+        \item \textbf{Problema:} El procesamiento \textbf{secuencial} \textbf{impide} la \textbf{ejecución} en \textbf{tiempo real}. El siguiente frame de vídeo \textbf{NO se procesa} hasta que el anterior \textbf{ha finalizado}, a pesar de que las etapas son \textbf{independientes}.
 
     \end{itemize}
     \begin{center}
@@ -260,11 +258,11 @@
         \item \textbf{Solución: Segmentar las etapas} para que se ejecuten de forma \textbf{independiente} y \textbf{concurrente}.
 
         \item Segmentaciones implementadas:
-        (1) \textbf{hilos}
-        (2) \textbf{procesos}
+        (1) hilos
+        (2) procesos
         (3) \textbf{procesos con memoria compartida}
-        (4) \textbf{heterogénea}
-        
+        (4) heterogénea.
+
     \end{itemize}
     \begin{center}
             
@@ -283,7 +281,7 @@
             \begin{itemize}
                 \item Cada etapa se ejecuta en un proceso separado, donde \textbf{comparten memoria}.
                 \item $\uparrow$ Permite un procesamiento concurrente con \textbf{menor latencia} en la comunicación.
-                \item Las colas de comunicación se implementan sobre \textbf{memoria compartida} entre procesos evitando la sobrecarga de pipes.
+                % \item Las colas de comunicación se implementan sobre \textbf{memoria compartida} entre procesos evitando la sobrecarga de pipes.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -303,7 +301,7 @@
     \begin{itemize}
         \item Construcción de una \textbf{cinta transportadora} para una \textbf{prueba de concepto}.
         \item Se utiliza un \textbf{motor}, una \textbf{Raspberry Pi Pico} y un \textbf{servo} para \textbf{rechazar objetos defectuosos}.
-        \item El objetivo es demostrar que el sistema es capaz de \textbf{detectar objetos en movimiento} y \textbf{clasificarlos en tiempo real}.
+        \item El objetivo es validar que el sistema es capaz de \textbf{detectar objetos en movimiento} y \textbf{clasificarlos en tiempo real}.
     \end{itemize}
 
     \begin{figure}

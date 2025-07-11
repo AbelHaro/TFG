@@ -2,9 +2,9 @@
 
 # Introducción
 
-En los últimos años, la Inteligencia Artificial ha revolucionado la tecnología con herramientas que han transformado por completo nuestra capacidad de innovación. Este avance se debe a tres factores clave: la enorme cantidad de datos disponibles, el desarrollo de modelos más sofisticados y las mejoras en el hardware de procesamiento.
+En los últimos años, la Inteligencia Artificial ha revolucionado la tecnología con herramientas que han transformado por completo nuestra capacidad de innovación. Este avance se debe a tres factores clave: la enorme cantidad de datos disponibles, el desarrollo de modelos más sofisticados y las mejoras en el hardware especializado en deep learning.
 
-Dentro de la IA, la visión por computador ha experimentado un progreso extraordinario gracias a las Redes Neuronales Convolucionales. Estos modelos permiten a los sistemas detectar y clasificar objetos en imágenes y vídeos con una precisión y velocidad asombrosas.
+Dentro de la IA, la visión por computador ha experimentado un progreso extraordinario gracias a las Redes Neuronales Convolucionales. Estos modelos permiten a los sistemas detectar y clasificar objetos en imágenes y vídeos con una gran precisión y velocidad.
 
 Sin embargo, procesar tal volumen de datos exige una gran capacidad de cómputo. Por ello, es fundamental optimizar los modelos y utilizar hardware especializado para reducir los tiempos de procesamiento y el consumo energético.
 
@@ -19,6 +19,8 @@ La visión por computador permite replicar esta habilidad, y gracias a dispositi
 
 - **Objetivo Principal:** Desarrollar un sistema de detección de defectos en objetos en movimiento utilizando CNNs, optimizado para hardware NVIDIA.
 
+- **Objetivos Específicos:**
+  
 - **Estudiar el estado del arte en CNNs y aceleradores hardware:**  
   Investigar las últimas arquitecturas de Redes Neuronales Convolucionales (CNNs) y los aceleradores de hardware disponibles, especialmente aquellos diseñados para plataformas NVIDIA, para comprender las técnicas más avanzadas en detección de objetos y optimización del rendimiento.
 
@@ -71,7 +73,7 @@ La solución que he desarrollado es un sistema de detección de defectos en tiem
 
 1.  **Entrada de vídeo:** Una cámara captura el vídeo en tiempo real.
 2.  **Detección de objetos:** Un modelo de CNN analiza cada fotograma para detectar objetos.
-3.  **Seguimiento de objetos:** El algoritmo BYTETrack sigue los objetos detectados para mantener su identidad.
+3.  **Seguimiento de objetos:** El algoritmo BYTETrack realiza el seguimiento de los objetos detectados para mantener su identidad.
 4.  **Escritura de resultados:** El sistema anota el vídeo con las detecciones y trayectorias, y podría activar otras acciones, como alertas o actuadores.
 
 Todo el proceso se ejecuta en tiempo real en el edge, sobre un dispositivo NVIDIA Jetson, en este caso, la Jetson AGX Xavier, Jetson AGX Orin o Jetson Orin Nano.
@@ -106,10 +108,12 @@ Este enfoque mejora el anterior al reducir la latencia:
 
 # Desarrollo de la solución - Prueba de concepto
 
-Para validar el sistema, construí una pequeña cinta transportadora. El sistema captura el vídeo de la cinta, detecta las canicas en movimiento e identifica si tienen defectos.
+## Desarrollo de la solución - Construcción de una cinta transportadora para una prueba de concepto
 
-Esta prueba demuestra que el sistema es capaz de detectar y clasificar objetos en movimiento en tiempo real, validando así el enfoque propuesto.
+Para validar el sistema en un entorno real, se construyó una cinta transportadora como prueba de concepto.
 
+- Se utilizó un motor para mover la cinta, una Raspberry Pi Pico para controlar el motor y un servo para rechazar los objetos defectuosos.
+- El objetivo principal fue demostrar la capacidad del sistema para detectar objetos en movimiento y clasificarlos en tiempo real, simulando un proceso de inspección industrial automatizado.
 # Resultados
 
 ## Evaluación del rendimiento del sistema
