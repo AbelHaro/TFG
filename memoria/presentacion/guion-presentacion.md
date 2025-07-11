@@ -164,7 +164,7 @@ Los objetivos planteados en este Trabajo de Fin de Grado se han alcanzado con é
 ## Objetivos alcanzados
 
 - **Estudio del estado del arte:**  
-  Se realizó un análisis exhaustivo de redes neuronales convolucionales (CNNs), aceleradores hardware y plataformas NVIDIA Jetson. Se abordaron con éxito los desafíos de compatibilidad y configuración asociados a arquitecturas ARM64.
+  Se realizó un análisis exhaustivo de redes neuronales convolucionales (CNNs), aceleradores hardware y plataformas NVIDIA Jetson. Se abordaron con éxito los desafíos de compatibilidad y configuración.
 
 - **Creación del conjunto de datos:**  
   Se generó un conjunto de datos y vídeos de entrenamiento que simulan condiciones reales de operación, con objetos de distintos colores y defectos bajo una variabilidad controlada.
