@@ -2,18 +2,18 @@
 
 # Introducción
 
-En los últimos años, la Inteligencia Artificial ha revolucionado la tecnología con herramientas que han transformado por completo nuestra capacidad de innovación. Este avance se debe a tres factores clave: la enorme cantidad de datos disponibles, el desarrollo de modelos más sofisticados y las mejoras en el hardware especializado en deep learning.
+En los últimos años, la Inteligencia Artificial (IA) ha impulsado una nueva revolución tecnológica, transformando nuestra capacidad de innovación. Este avance se debe a tres factores clave: la enorme cantidad de datos disponibles, la investigación en modelos más sofisticados y las mejoras en el hardware especializado en deep learning.
 
 Dentro de la IA, la visión por computador ha experimentado un progreso extraordinario gracias a las Redes Neuronales Convolucionales. Estos modelos permiten a los sistemas detectar y clasificar objetos en imágenes y vídeos con una gran precisión y velocidad.
 
-Sin embargo, procesar tal volumen de datos exige una gran capacidad de cómputo. Por ello, es fundamental optimizar los modelos y utilizar hardware especializado para reducir los tiempos de procesamiento y el consumo energético.
+Sin embargo, acceder a la potencia de cómputo necesaria para ejecutar estos modelos suele requerir el uso centros de datos o servidores con GPUs de alto rendimiento, lo que limita su aplicación en entornos con restricciones temporales, por ello, se busca llevar la IA al "edge", es decir, a dispositivos locales que puedan procesar datos en tiempo real.
 
 
 # Motivación
 
 En la industria, la inspección manual de defectos es un proceso lento y propenso a errores. Para optimizar estos procesos, se busca emular la capacidad humana de interpretar el mundo a través de la vista, pero en las máquinas.
 
-La visión por computador permite replicar esta habilidad, y gracias a dispositivos de bajo consumo como la familia NVIDIA Jetson, podemos llevar la IA al "edge". Esto reduce la latencia y el consumo, abriendo un mundo de posibilidades para la automatización de la detección de defectos, aumentando la seguridad y mejorando la eficiencia.
+Por ejemplo, en la industria de la alimentación, la inspección de frutas y verduras es crucial para garantizar la calidad del producto. Sin embargo, este proceso es tedioso y requiere mucho tiempo. La visión por computador puede automatizar esta tarea, detectando defectos en los productos de forma rápida y precisa.
 
 # Objetivos
 
@@ -56,7 +56,7 @@ Existen dos enfoques principales en la arquitectura de estas redes:
 
 # Conceptos Previos - Hardware NVIDIA Jetson
 
-NVIDIA Jetson es una familia de System-on-Chip (SoC) diseñados específicamente para aplicaciones de *edge computing* e IA. Estos dispositivos integran una CPU y una GPU NVIDIA, ofreciendo un equilibrio entre rendimiento y eficiencia energética. Esto los hace ideales para aplicaciones donde el consumo de energía es un factor crítico, como en dispositivos móviles, robótica y sistemas de visión artificial.
+NVIDIA Jetson es una familia de System-on-Chip (SoC) diseñados específicamente para aplicaciones de *edge computing* e IA. Estos dispositivos integran una CPU, una GPU y 2 aceleradores de deep learning llamados DLA, ofreciendo un equilibrio entre rendimiento y eficiencia energética. Esto los hace ideales para aplicaciones donde el consumo de energía es un factor crítico, como en dispositivos móviles, robótica y sistemas de visión artificial.
 
 El Jetpack SDK de NVIDIA proporciona un conjunto completo de herramientas para desarrollar aplicaciones de IA en los dispositivos Jetson. Incluye bibliotecas, APIs y herramientas de desarrollo que facilitan la implementación y optimización de modelos de *deep learning*. Una de las herramientas más importantes es TensorRT, un optimizador y *runtime* de alto rendimiento para inferencia de *deep learning*. TensorRT permite optimizar los modelos entrenados para que se ejecuten de manera eficiente en la GPU NVIDIA, reduciendo la latencia y aumentando el *throughput*.
 

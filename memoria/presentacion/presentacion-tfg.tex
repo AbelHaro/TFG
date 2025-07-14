@@ -41,26 +41,32 @@
     \begin{itemize}
         \item Crecimiento exponencial de la \textbf{Inteligencia Artificial}.
         \item Avances en \textbf{visión por computador} gracias a las \textbf{CNNs}.
-        \item \textbf{Desafíos energéticos} en el procesamiento de datos.
-        \item Dispositivos optimizados para el \textbf{deep learning}.
+        \item Restricciones \textbf{temporales} en el acceso a centros de datos.
+        \item Dispositivos optimizados para el \textbf{deep learning} en el \textbf{edge}.
     \end{itemize}
 
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \centering
-                \includegraphics[width=0.95\textwidth]{images/introduccion/interes_en_ia.pdf}
-                \caption{Interés en IA y visión por computador.}
-            \end{figure}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-        \begin{figure}
-            \centering
-            \includegraphics[width=0.95\textwidth]{images/introduccion/consumo_electrico_datacenters.png}
-            \caption{Consumo eléctrico de centros de datos.}
-        \end{figure}
-        \end{column}
-    \end{columns}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.55\textwidth]{images/introduccion/interes_en_ia.pdf}
+        \caption{Interés en IA y visión por computador.}
+    \end{figure}
+
+    % \begin{columns}
+    %     \begin{column}{0.5\textwidth}
+    %         \begin{figure}
+    %             \centering
+    %             \includegraphics[width=0.95\textwidth]{images/introduccion/interes_en_ia.pdf}
+    %             \caption{Interés en IA y visión por computador.}
+    %         \end{figure}
+    %     \end{column}
+    %     \begin{column}{0.5\textwidth}
+    %     \begin{figure}
+    %         \centering
+    %         \includegraphics[width=0.95\textwidth]{images/introduccion/consumo_electrico_datacenters.png}
+    %         \caption{Consumo eléctrico de centros de datos.}
+    %     \end{figure}
+    %     \end{column}
+    % \end{columns}
 
 \end{frame}
 
@@ -71,9 +77,10 @@
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item Automatización de la \textbf{detección y clasificación} de objetos en movimiento en la industria.
+                \item La inspección \textbf{manual} de \textbf{defectos} es un proceso \textbf{lento} y propenso a \textbf{errores}.
                 \item Emular la \textbf{interpretación humana} de imágenes en máquinas.
-                \item \textbf{NVIDIA Jetson} impulsa la IA en \textbf{edge computing}.
+                \item Automatización de la \textbf{detección y clasificación} de objetos en movimiento en la industria.
+                % \item \textbf{NVIDIA Jetson} impulsa la IA en \textbf{edge computing}.
             \end{itemize}
         \end{column}
 
@@ -106,7 +113,7 @@
 
         \textbf{Objetivos Específicos:}
         \begin{enumerate}
-            \item \textbf{Investigación:} Estado del arte de \textbf{CNNs} y \textbf{aceleradores hardware} (NVIDIA).
+            \item \textbf{Investigación:} Estado del arte de \textbf{CNNs} y \textbf{aceleradores hardware} (NVIDIA Jetson).
             \item \textbf{Datos:} Crear un \textbf{conjunto de datos} representativo de objetos con/sin defectos.
             \item \textbf{Modelos:} Entrenar y optimizar \textbf{modelos CNN} para la detección en \textbf{tiempo real}.
             \item \textbf{Integración:} Creación de un \textbf{sistema de visión artificial}.
@@ -147,7 +154,7 @@
     
         \begin{itemize}
                 \item Aceleradores hardware para \textbf{deep learning} en el \textbf{edge}.
-                \item \textbf{NVIDIA Jetson}: \textbf{SoC} (CPU y GPU) para eficiencia.
+                \item \textbf{NVIDIA Jetson}: \textbf{SoC} (CPU, GPU y DLA), dispositivos equilibrados en \textbf{potencia de cómputo}, \textbf{consumo} y \textbf{coste}.
                 \item \textbf{Jetpack SDK} y \textbf{TensorRT}: Herramientas para \textbf{crear}
      y \textbf{optimizar} redes neuronales.
             \end{itemize}
@@ -195,40 +202,67 @@
 \begin{frame}{5. Propuesta de solución}
     \begin{figure}
         \centering
-        \includegraphics[width=1.07\textwidth]{images/solucion_propuesta/figura_TFG_v3.png}
+        \includegraphics[width=1.07\textwidth]{images/solucion_propuesta/figura_TFG_v4.png}
         \caption{Figura de la solución propuesta.}
     \end{figure}
 \end{frame}
 
 \section{Desarrollo de la solución}
 
-\begin{frame}{6. Desarrollo de la solución - Entrenamiento y validación de modelos}
+\begin{frame}{6. Desarrollo de la solución - Creación del conjunto de datos}
+    \begin{itemize}
+        \item \textbf{Objetivo:} Crear un conjunto de datos representativo de objetos en movimiento con defectos.
+        \item \textbf{Problema:} Difícil acceso a un dataset real de objetos en movimiento con defectos.
+        \item Utilización de un entorno simulado con \textbf{canicas} de distintos \textbf{colores} y \textbf{defectos}.
+        \item +600 imágenes con \textbf{anotaciones} de \textbf{clase} y \textbf{bounding boxes}.
+    \end{itemize}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.45\textwidth]{images/solucion_propuesta/ejemplo_canicas.png}
+        \caption{Ejemplo de canicas del conjunto de datos.}
+    \end{figure}
+\end{frame}
 
-            \begin{itemize}
-                \item Creación de un \textbf{conjunto de datos} con imágenes de \textbf{canicas} de distintos \textbf{colores} y \textbf{defectos} (600 imágenes).
-                \item Entrenamiento de modelos \textbf{CNN} para \textbf{detección de defectos}.
-                \item Validación y ajuste de \textbf{hiperparámetros} para mejorar \textbf{precisión} (+100 entrenamientos).
-                \item Exportación de los modelos a \textbf{TensorRT} para optimizar su rendimiento.
-            \end{itemize}
-    \begin{columns}        
+\begin{frame}{6. Desarrollo de la solución - Entrenamiento y validación de modelos}
+    \begin{itemize}
+        \item Entrenamiento de modelos \textbf{CNN} para \textbf{detección de defectos}.
+        \item Validación y ajuste de \textbf{hiperparámetros} para mejorar \textbf{precisión} (+100 entrenamientos).
+        \item Exportación de los modelos a \textbf{TensorRT} para optimizar su rendimiento.
+    \end{itemize}
+
+    \begin{columns}
         \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \centering
-                \includegraphics[width=0.7\textwidth]{images/solucion_propuesta/ejemplo_canicas.png}
-                \caption{Ejemplo de canicas del conjunto de datos.}
-            \end{figure}
+            \vspace{-1em}
+            \footnotesize
+            \begin{tabular}{|l|c|}
+                \hline
+                \textbf{Modelo} & \textbf{Parámetros (M)} \\
+                \hline
+                YOLOv5-nu  & 2.6  \\
+                YOLOv5-mu  & 25.1 \\
+                YOLOv8-n   & 3.2  \\
+                YOLOv8-s   & 11.2 \\
+                YOLO11-n   & 2.6  \\
+                YOLO11-s   & 9.4  \\
+                YOLO11-m   & 20.1 \\
+                YOLO11-l   & 25.3 \\
+                YOLO11-x   & 56.9 \\
+                \hline
+            \end{tabular}
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{figure}
                 \centering
-                \includegraphics[width=0.95\textwidth]{images/solucion_propuesta/loss_plot.pdf}
+                \includegraphics[width=1.1\textwidth]{images/solucion_propuesta/loss_plot.pdf}
                 \caption{Curva de \textit{loss} de todos los modelos entrenados.}
             \end{figure}
         \end{column}
     \end{columns}
 \end{frame}
 
-\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (1/3)}
+
+
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (1/6)}
     \begin{itemize}
         \item El sistema se divide en cuatro etapas / módulos:
         \begin{enumerate}
@@ -252,7 +286,7 @@
     \end{center}
 \end{frame}
 
-\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (2/3)}
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (2/6)}
     \begin{itemize}
 
         \item \textbf{Solución: Segmentar las etapas} para que se ejecuten de forma \textbf{independiente} y \textbf{concurrente}.
@@ -274,13 +308,52 @@
     \end{center}
 \end{frame}
 
-\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (3/3)}
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas en Hilos (3/6)}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{1. Segmentación por hilos:}
+            \begin{itemize}
+                \item Cada etapa se ejecuta en un \textbf{hilo separado}.
+                \item $\uparrow$ \textbf{Comunicación} entre etapas \textbf{rápida} y \textbf{eficiente} al compartir la misma \textbf{memoria}.
+                \item $\downarrow$ Permite un procesamiento paralelo pero \textbf{NO concurrente} debido al GIL (Global Interpreter Lock) de Python.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                \includegraphics[width=0.75\textwidth]{images/solucion_propuesta/segmentacion_hilos.png}
+            \end{center}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas en Procesos (4/6)}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{2. Segmentación por procesos:}
+            \begin{itemize}
+                \item Cada etapa se ejecuta en un \textbf{proceso separado}.
+                \item $\uparrow$ Permite un \textbf{procesamiento concurrente} al evitar el GIL de Python.
+                \item $\downarrow$ La \textbf{comunicación} entre procesos es \textbf{más lenta} y \textbf{costosa} al requerir mecanismos de IPC (Inter-Process Communication).
+        \end{itemize}
+        \end{column}
+            \begin{column}{0.5\textwidth}
+            \begin{center}
+                \includegraphics[width=0.65\textwidth]{images/solucion_propuesta/segmentacion_procesos.png}
+            \end{center}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas (5/6)}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \textbf{3. Segmentación por procesos con memoria compartida:}
             \begin{itemize}
                 \item Cada etapa se ejecuta en un proceso separado, donde \textbf{comparten memoria}.
-                \item $\uparrow$ Permite un procesamiento concurrente con \textbf{menor latencia} en la comunicación.
+                \item $\uparrow$ Permite un procesamiento \textbf{concurrente} con \textbf{menor latencia} en la comunicación.
+                \item $\uparrow$ Es la que mejor rendimiento ofrece en términos de \textbf{latencia} y \textbf{consumo}.
                 % \item Las colas de comunicación se implementan sobre \textbf{memoria compartida} entre procesos evitando la sobrecarga de pipes.
             \end{itemize}
         \end{column}
@@ -288,20 +361,39 @@
                 \begin{figure}
                     \centering
                     \includegraphics[width=0.8\textwidth]{images/solucion_propuesta/segmentacion_procesos_memoria_compartida.png}
-                \caption{Segmentación por procesos con memoria compartida.}
+                    \caption{Segmentación por procesos con memoria compartida.}
                 \end{figure}
-        \end{column}
-    \end{columns}
-\end{frame}
+            \end{column}
+        \end{columns}
+    \end{frame}
 
 
+    \begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas Heterogénea (6/6)}
+        \begin{columns}
+            \begin{column}{0.5\textwidth}
+                \textbf{4. Segmentación heterogénea:}
+                \begin{itemize}
+                    \item Se ejecuta mediante \textbf{procesos con memoria compartida}.
+                    \item Ejecuta la etapa de de detección en la \textbf{GPU o DLAs} del dispositivo Jetson.
+                    \item $\uparrow$ Teóricamente permite \textbf{explotar todos los recursos} para mejorar el rendimiento.
+                    \item $\downarrow$ Los modelos de no se ejecutan completamente en la \textbf{DLA}.
+                \end{itemize}
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \begin{center}
+                    %\includegraphics[width=0.8\textwidth]{images/solucion_propuesta/segmentacion_heterogenea.png}
+                    \includegraphics[width=0.95\textwidth]{images/solucion_propuesta/segmentacion_multihardware.png}
+                \end{center}
+            \end{column}
+        \end{columns}
+    \end{frame}
 
 
 \begin{frame}{6. Desarrollo de la solución - Prueba de concepto}
     \begin{itemize}
         \item Construcción de una \textbf{cinta transportadora} para una \textbf{prueba de concepto}.
         \item Se utiliza un \textbf{motor}, una \textbf{Raspberry Pi Pico} y un \textbf{servo} para \textbf{rechazar objetos defectuosos}.
-        \item El objetivo es validar que el sistema es capaz de \textbf{detectar objetos en movimiento} y \textbf{clasificarlos en tiempo real}.
+        \item El objetivo es validar que el sistema es capaz de \textbf{detectar objetos en movimiento} y \textbf{rechazarlos en tiempo real}.
     \end{itemize}
 
     \begin{figure}
@@ -348,12 +440,12 @@
 
     \begin{footnotesize}
     \begin{enumerate}
-        \item \textbf{Objetos por vídeo:} \{17, 43, \textbf{84}, variable\}
-        \item \textbf{Segmentación:} \{hilos, procesos, \textbf{proc. mem. compartida}, heterogénea\}
-        \item \textbf{Modelo y talla:} \{YOLOv5\{nu, mu\}, YOLOv8\{n, s\}, \textbf{YOLO11\{n\}}, s, m, l\}
-        \item \textbf{Precisión:} \{FP32, \textbf{FP16}, INT8\}
-        \item \textbf{Modo energía dispositivo:} \{\textbf{MAXN}, 30W8core, 30W6core, 30W4core, 15W4core\}
-        \item \textbf{Dispositivo:} \{\textbf{AGX Xavier}, Orin Nano, AGX Orin\}
+        \item \textbf{Objetos por vídeo:} \{17, 43, \underline{\textbf{84}}, variable\}
+        \item \textbf{Segmentación:} \{hilos, procesos, \underline{\textbf{proc. mem. compartida}}, heterogénea\}
+        \item \textbf{Modelo y talla:} \{YOLOv5\{nu, mu\}, YOLOv8\{n, s\}, \underline{\textbf{YOLO11\{n\}}}, s, m, l\}
+        \item \textbf{Precisión:} \{FP32, \underline{\textbf{FP16}}, INT8\}
+        \item \textbf{Modo energía dispositivo:} \{\underline{\textbf{MAXN}}, 30W8core, 30W6core, 30W4core, 15W4core\}
+        \item \textbf{Dispositivo:} \{\underline{\textbf{AGX Xavier}}, Orin Nano, AGX Orin\}
     \end{enumerate}
     \end{footnotesize}
     En total, existen \textbf{7200 configuraciones} experimentales posibles.
@@ -440,9 +532,9 @@
 
 \begin{frame}{9. Conclusiones -- Cumplimiento de objetivos (2/2)}
     \begin{itemize}
-        \item \textbf{Implementación del sistema integrado:} Se desarrolló un sistema de \textbf{visión artificial} que combina detección con seguimiento \textbf{BYTETrack}, manteniendo la identidad de objetos a lo largo del tiempo.
+        \item \textbf{Implementación del sistema integrado:} Se desarrolló un sistema de \textbf{visión artificial} que combina \textbf{detección} con \textbf{seguimiento} BYTETrack, manteniendo la identidad de objetos a lo largo del tiempo.
         \item \textbf{Análisis y optimización de cuellos de botella:} Se exploraron estrategias de segmentación (\textbf{hilos, procesos, memoria compartida, heterogénea}), identificando la \textbf{segmentación por procesos con memoria compartida} como la más efectiva.
-        \item \textbf{Evaluación con métricas completas:} Se realizaron experimentos exhaustivos evaluando \textbf{precisión, latencia y consumo} en diferentes configuraciones de hardware Jetson.
+        \item \textbf{Evaluación con métricas completas:} Se realizaron experimentos exhaustivos evaluando \textbf{precisión, latencia y consumo} en diferentes configuraciones.
     \end{itemize}
 \end{frame}
 
@@ -451,64 +543,7 @@
     \titlepage
 \end{frame}
 
-\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas en Hilos}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{1. Segmentación por hilos:}
-            \begin{itemize}
-                \item Cada etapa se ejecuta en un hilo separado.
-                \item $\uparrow$ La información se comparte entre hilos mediante colas que se consumen de forma asíncrona.
-                \item $\downarrow$ Permite un procesamiento paralelo pero no concurrente debido al GIL (Global Interpreter Lock) de Python.
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{center}
-                \includegraphics[width=0.75\textwidth]{images/solucion_propuesta/segmentacion_hilos.png}
-            \end{center}
-        \end{column}
-    \end{columns}
 
-\end{frame}
-
-\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas en Procesos}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{2. Segmentación por procesos:}
-            \begin{itemize}
-                \item Cada etapa se ejecuta en un \textbf{proceso separado}.
-                \item $\uparrow$ Permite un \textbf{procesamiento concurrente}, pero con mayor latencia en la comunicación.
-                \item $\downarrow$ La comunicación entre procesos se realiza mediante \textbf{colas} implementadas sobre \textbf{pipes}.
-        \end{itemize}
-        \end{column}
-            \begin{column}{0.5\textwidth}
-            \begin{center}
-                \includegraphics[width=0.65\textwidth]{images/solucion_propuesta/segmentacion_procesos.png}
-            \end{center}
-        \end{column}
-    \end{columns}
-
-\end{frame}
-
-
-\begin{frame}{6. Desarrollo de la solución - Segmentación de las etapas Heterogénea}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{4. Segmentación heterogénea:}
-            \begin{itemize}
-                \item Se puede ejecutar tanto con \textbf{hilos} como con \textbf{procesos} (con y sin memoria compartida).
-                \item Ejecuta la etapa de de detección en la \textbf{GPU o DLAs} del dispositivo Jetson.
-                \item $\uparrow$ Teóricamente permite \textbf{explotar todos los recursos} para mejorar el rendimiento.
-                \item $\downarrow$ Los modelos de no se ejecutan completamente en la \textbf{DLA}.
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{center}
-                %\includegraphics[width=0.8\textwidth]{images/solucion_propuesta/segmentacion_heterogenea.png}
-                \includegraphics[width=0.95\textwidth]{images/solucion_propuesta/segmentacion_multihardware.png}
-            \end{center}
-        \end{column}
-    \end{columns}
-\end{frame}
 
 \end{document}
 
